@@ -1,0 +1,2022 @@
+
+architec.cc,1502
+Architecture::Architecture(30,1053
+Architecture::~Architecture(37,1282
+bool Architecture::find_constant(43,1372
+Variable* Architecture::find_variable(71,2273
+void Architecture::push_genvar_type(79,2464
+void Architecture::pop_genvar_type(87,2658
+const VType* Architecture::probe_genvar_type(93,2785
+void Architecture::push_genvar_emit(103,3067
+void Architecture::pop_genvar_emit(111,3267
+const GenerateStatement* Architecture::probe_genvar_emit(117,3394
+Architecture::Statement::Statement(127,3686
+Architecture::Statement::~Statement(131,3728
+GenerateStatement::GenerateStatement(135,3771
+GenerateStatement::~GenerateStatement(142,3943
+ForGenerate::ForGenerate(147,4088
+ForGenerate::~ForGenerate(154,4302
+IfGenerate::IfGenerate(158,4335
+IfGenerate::~IfGenerate(164,4490
+SignalAssignment::SignalAssignment(168,4521
+SignalAssignment::SignalAssignment(174,4648
+SignalAssignment::~SignalAssignment(180,4758
+CondSignalAssignment::CondSignalAssignment(189,4941
+CondSignalAssignment::~CondSignalAssignment(195,5111
+ComponentInstantiation::ComponentInstantiation(204,5319
+      typedef pair<map<perm_string,Expression*>::iterator,bool> insert_rc;209,5499
+ComponentInstantiation::~ComponentInstantiation(234,6267
+Expression*ComponentInstantiation::find_generic_map(ComponentInstantiation::find_generic_map246,6610
+StatementList::StatementList(256,6852
+StatementList::~StatementList(262,7011
+ProcessStatement::ProcessStatement(270,7190
+ProcessStatement::~ProcessStatement(280,7541
+
+architec_debug.cc,426
+void Architecture::dump(29,1013
+void Architecture::Statement::dump(43,1423
+void ComponentInstantiation::dump(48,1591
+void GenerateStatement::dump_statements(66,2142
+void ForGenerate::dump(75,2409
+void SignalAssignment::dump(86,2760
+void CondSignalAssignment::dump(98,3149
+void StatementList::dump(110,3573
+void InitialStatement::dump(120,3865
+void FinalStatement::dump(127,4057
+void ProcessStatement::dump(134,4245
+
+architec_elaborate.cc,690
+int Architecture::elaborate(28,1023
+int Architecture::Statement::elaborate(97,3441
+int ComponentInstantiation::elaborate(102,3525
+int GenerateStatement::elaborate_statements(162,5463
+int ForGenerate::elaborate(173,5796
+int IfGenerate::elaborate(182,6045
+int StatementList::elaborate(189,6197
+int ProcessStatement::elaborate(201,6486
+int SignalAssignment::elaborate(219,6879
+int CondSignalAssignment::elaborate(246,7636
+      struct name_extractor_t 252,7851
+          name_extractor_t(name_extractor_t::name_extractor_t253,7904
+          void operator() name_extractor_t::operator()255,8005
+            list<const ExpName*>& name_list_;name_extractor_t::name_list_261,8197
+
+architec_emit.cc,521
+int Scope::emit_signals(31,1098
+int Scope::emit_variables(43,1393
+int Architecture::emit(55,1696
+int Architecture::Statement::emit(119,3883
+int SignalAssignment::emit(127,4134
+int CondSignalAssignment::emit(150,4759
+int ComponentInstantiation::emit(200,5957
+int GenerateStatement::emit_statements(257,7618
+int ForGenerate::emit(268,7959
+int IfGenerate::emit(289,8663
+int StatementList::emit(303,8960
+int InitialStatement::emit(315,9257
+int FinalStatement::emit(324,9476
+int ProcessStatement::emit(341,10011
+
+architec.h,3478
+#define IVL_architec_H2,23
+class Architecture 44,1371
+      class Statement Architecture::Statement49,1531
+      perm_string get_name(Architecture::get_name67,2080
+      void set_cur_component(Architecture::set_cur_component73,2362
+      void set_cur_process(Architecture::set_cur_process79,2608
+      perm_string name_;Architecture::name_109,3775
+      std::list<Architecture::Statement*> statements_;Architecture::statements_111,3853
+      struct genvar_type_t Architecture::genvar_type_t113,3909
+	    perm_string name;Architecture::genvar_type_t::name114,3938
+	    const VType*vtype;Architecture::genvar_type_t::vtype115,3961
+      std::list<genvar_type_t> genvar_type_stack_;Architecture::genvar_type_stack_117,3994
+      struct genvar_emit_t Architecture::genvar_emit_t119,4046
+	    perm_string name;Architecture::genvar_emit_t::name120,4075
+	    const GenerateStatement*gen;Architecture::genvar_emit_t::gen121,4098
+      std::list<genvar_emit_t> genvar_emit_stack_;Architecture::genvar_emit_stack_123,4141
+      ComponentInstantiation*cur_component_;Architecture::cur_component_126,4251
+      ProcessStatement*cur_process_;Architecture::cur_process_129,4354
+class GenerateStatement 136,4534
+      inline perm_string get_name(GenerateStatement::get_name142,4718
+      perm_string name_;GenerateStatement::name_150,4999
+      std::list<Architecture::Statement*> statements_;GenerateStatement::statements_151,5024
+class ForGenerate 154,5083
+      perm_string genvar_;ForGenerate::genvar_166,5459
+      Expression*lsb_;ForGenerate::lsb_167,5486
+      Expression*msb_;ForGenerate::msb_168,5509
+class IfGenerate 171,5536
+      Expression*cond_;IfGenerate::cond_182,5840
+class SignalAssignment 189,5987
+      ExpName*lval_;SignalAssignment::lval_201,6414
+      std::list<Expression*> rval_;SignalAssignment::rval_202,6435
+class CondSignalAssignment 205,6475
+      ExpName*lval_;CondSignalAssignment::lval_216,6847
+      std::list<ExpConditional::case_t*> options_;CondSignalAssignment::options_217,6868
+      std::list<const ExpName*>sens_list_;CondSignalAssignment::sens_list_221,7060
+class ComponentInstantiation 224,7107
+      inline perm_string instance_name(ComponentInstantiation::instance_name239,7697
+      inline perm_string component_name(ComponentInstantiation::component_name240,7763
+      perm_string iname_;ComponentInstantiation::iname_243,7844
+      perm_string cname_;ComponentInstantiation::cname_244,7870
+      std::map<ComponentInstantiation::std::map246,7897
+      std::map<perm_string,Expression*> generic_map_;ComponentInstantiation::generic_map_246,7897
+      std::map<ComponentInstantiation::std::map247,7951
+      std::map<perm_string,Expression*> port_map_;ComponentInstantiation::port_map_247,7951
+class StatementList 250,8006
+      int elaborate(StatementList::elaborate255,8170
+      int emit(StatementList::emit259,8294
+      std::list<SequentialStmt*>& stmt_list(StatementList::stmt_list267,8613
+      std::list<SequentialStmt*> statements_;StatementList::statements_270,8697
+class InitialStatement 275,8871
+      InitialStatement(InitialStatement::InitialStatement277,8931
+class FinalStatement 286,9281
+      FinalStatement(FinalStatement::FinalStatement288,9339
+class ProcessStatement 295,9565
+      perm_string iname_;ProcessStatement::iname_309,10023
+      std::list<Expression*> sensitivity_list_;ProcessStatement::sensitivity_list_310,10049
+
+compiler.cc,107
+StringHeapLex lex_strings;21,874
+StringHeapLex filename_strings;23,902
+StringHeapLex gen_strings;25,935
+
+compiler.h,62
+#define IVL_compiler_H2,23
+const int GN_KEYWORD_2008 25,949
+
+debug.cc,1307
+static ostream& operator << operator <<35,1259
+void dump_design_entities(54,1571
+void ComponentBase::dump_generics(62,1775
+void ComponentBase::dump_ports(83,2385
+void ScopeBase::dump_scope(104,2986
+void Entity::dump(201,6849
+void SigVarBase::dump(213,7208
+void Expression::dump(223,7432
+void ExpAggregate::dump(229,7610
+void ExpAggregate::element_t::dump(237,7865
+void ExpAggregate::choice_t::dump(247,8184
+void ExpTypeAttribute::dump(267,8568
+void ExpObjAttribute::dump(274,8768
+void ExpBinary::dump_operands(281,8979
+void ExpBitstring::dump(287,9117
+void ExpCharacter::dump(297,9380
+void ExpConditional::dump(303,9546
+void ExpConditional::case_t::dump(313,9841
+void ExpEdge::dump(325,10215
+void ExpFunc::dump(342,10562
+void ExpInteger::dump(351,10836
+void ExpReal::dump(357,10990
+void ExpLogical::dump(363,11144
+void ExpName::dump(392,11690
+void ExpNameALL::dump(407,12117
+void ExpRelation::dump(412,12254
+void ExpString::dump(439,12696
+void ExpUAbs::dump(445,12862
+void ExpUnary::dump_operand1(451,13027
+void ExpUNot::dump(456,13128
+void named_expr_t::dump(462,13293
+ostream& Expression::dump_inline(468,13431
+ostream& ExpInteger::dump_inline(474,13541
+ostream& ExpReal::dump_inline(480,13637
+void SubprogramBody::dump(486,13730
+void SubprogramHeader::dump(499,14086
+
+entity.cc,430
+std::map<perm_string,Entity*> design_entities;27,941
+ComponentBase::ComponentBase(29,989
+ComponentBase::~ComponentBase(34,1055
+void ComponentBase::set_interface(41,1214
+const InterfacePort* ComponentBase::find_port(59,1600
+const InterfacePort* ComponentBase::find_generic(69,1828
+Entity::Entity(79,2059
+Entity::~Entity(85,2141
+Architecture* Entity::add_architecture(92,2303
+void Entity::set_declaration_l_value(101,2494
+
+entity_elaborate.cc,148
+int elaborate_entities(34,1157
+int Entity::elaborate(46,1406
+int Entity::elaborate_generic_exprs_(89,2774
+int Entity::elaborate_ports_(101,3079
+
+entity_emit.cc,52
+int emit_entities(27,987
+int Entity::emit(39,1230
+
+entity.h,1415
+#define IVL_entity_H2,21
+typedef enum { PORT_NONE=30,1046
+typedef enum { PORT_NONE=0, PORT_IN,30,1046
+typedef enum { PORT_NONE=0, PORT_IN, PORT_OUT,30,1046
+typedef enum { PORT_NONE=0, PORT_IN, PORT_OUT, PORT_INOUT 30,1046
+typedef enum { PORT_NONE=0, PORT_IN, PORT_OUT, PORT_INOUT } port_mode_t;30,1046
+class InterfacePort 35,1159
+      InterfacePort(InterfacePort::InterfacePort37,1211
+      explicit InterfacePort(InterfacePort::InterfacePort44,1469
+      InterfacePort(InterfacePort::InterfacePort48,1576
+      port_mode_t mode;InterfacePort::mode53,1726
+      perm_string name;InterfacePort::name55,1792
+      const VType*type;InterfacePort::type57,1872
+      Expression*expr;InterfacePort::expr59,1934
+class ComponentBase 68,2217
+      perm_string get_name(ComponentBase::get_name75,2368
+      const std::vector<InterfacePort*>& get_generics(ComponentBase::get_generics79,2555
+      perm_string name_;ComponentBase::name_96,3161
+      std::vector<InterfacePort*> parms_;ComponentBase::parms_98,3201
+      std::vector<InterfacePort*> ports_;ComponentBase::ports_99,3243
+class Entity 105,3339
+      std::map<Entity::std::map135,4413
+      std::map<perm_string,Architecture*>arch_;Entity::arch_135,4413
+      Architecture*bind_arch_;Entity::bind_arch_136,4461
+      map<Entity::map138,4493
+      map<perm_string,VType::decl_t> declarations_;Entity::declarations_138,4493
+
+entity_stream.cc,44
+void ComponentBase::write_to_stream(25,921
+
+expression.cc,4667
+Expression::Expression(35,1233
+Expression::~Expression(40,1274
+void Expression::set_type(44,1305
+bool Expression::symbolic_compare(50,1410
+ExpAttribute::ExpAttribute(58,1646
+ExpAttribute::~ExpAttribute(63,1745
+list<Expression*>*ExpAttribute::clone_args(ExpAttribute::clone_args75,1961
+void ExpAttribute::visit_args(88,2268
+ExpObjAttribute::ExpObjAttribute(103,2561
+ExpObjAttribute::~ExpObjAttribute(108,2695
+Expression*ExpObjAttribute::clone(ExpObjAttribute::clone113,2754
+void ExpObjAttribute::visit(119,2928
+ExpTypeAttribute::ExpTypeAttribute(128,3083
+Expression*ExpTypeAttribute::clone(ExpTypeAttribute::clone133,3223
+void ExpTypeAttribute::visit(138,3334
+const perm_string ExpAttribute::LEFT 146,3464
+const perm_string ExpAttribute::RIGHT 147,3533
+ExpBinary::ExpBinary(149,3605
+ExpBinary::~ExpBinary(154,3696
+bool ExpBinary::eval_operand1(160,3773
+bool ExpBinary::eval_operand2(165,3907
+void ExpBinary::visit(170,4041
+ExpUnary::ExpUnary(179,4200
+ExpUnary::~ExpUnary(184,4257
+void ExpUnary::visit(189,4308
+ExpAggregate::ExpAggregate(197,4428
+ExpAggregate::~ExpAggregate(210,4709
+Expression* ExpAggregate::clone(224,5085
+void ExpAggregate::visit(241,5595
+ExpAggregate::choice_t::choice_t(262,6124
+ExpAggregate::choice_t::choice_t(267,6191
+ExpAggregate::choice_t::choice_t(271,6231
+ExpAggregate::choice_t::choice_t(276,6299
+ExpAggregate::choice_t::~choice_t(285,6536
+bool ExpAggregate::choice_t::others(289,6577
+Expression*ExpAggregate::choice_t::simple_expression(ExpAggregate::choice_t::simple_expression294,6678
+ExpRange*ExpAggregate::choice_t::range_expressions(ExpAggregate::choice_t::range_expressions300,6839
+ExpAggregate::element_t::element_t(305,6928
+ExpAggregate::element_t::element_t(318,7243
+ExpAggregate::element_t::~element_t(330,7569
+ExpArithmetic::ExpArithmetic(338,7719
+ExpArithmetic::~ExpArithmetic(345,7914
+ExpBitstring::ExpBitstring(352,8003
+ExpBitstring::~ExpBitstring(359,8162
+ExpCharacter::ExpCharacter(363,8197
+ExpCharacter::~ExpCharacter(368,8253
+ExpConcat::ExpConcat(372,8288
+ExpConcat::~ExpConcat(377,8379
+void ExpConcat::visit(383,8456
+ExpConditional::ExpConditional(392,8615
+ExpConditional::~ExpConditional(399,8860
+Expression*ExpConditional::clone(ExpConditional::clone408,9021
+void ExpConditional::visit(423,9448
+ExpConditional::case_t::case_t(435,9688
+ExpConditional::case_t::case_t(441,9845
+ExpConditional::case_t::~case_t(451,10147
+ExpSelected::ExpSelected(461,10345
+ExpSelected::~ExpSelected(475,10873
+Expression*ExpSelected::clone(ExpSelected::clone479,10906
+void ExpConditional::case_t::visit(494,11335
+ExpEdge::ExpEdge(506,11622
+ExpEdge::~ExpEdge(511,11705
+ExpFunc::ExpFunc(515,11730
+ExpFunc::ExpFunc(520,11789
+ExpFunc::~ExpFunc(531,12098
+Expression*ExpFunc::clone(ExpFunc::clone537,12206
+void ExpFunc::visit(553,12615
+const VType* ExpFunc::func_ret_type(567,12879
+ExpInteger::ExpInteger(572,12979
+ExpInteger::~ExpInteger(577,13034
+bool ExpInteger::evaluate(581,13065
+ExpReal::ExpReal(587,13175
+ExpReal::~ExpReal(592,13223
+ExpLogical::ExpLogical(596,13248
+ExpLogical::~ExpLogical(601,13362
+ExpName::ExpName(605,13393
+ExpName::ExpName(610,13459
+ExpName::ExpName(615,13555
+ExpName::~ExpName(620,13689
+Expression*ExpName::clone(ExpName::clone632,13910
+void ExpName::add_index(648,14351
+bool ExpName::symbolic_compare(656,14522
+Expression*ExpName::index(ExpName::index692,15412
+void ExpName::visit(709,15726
+int ExpName::index_t::emit(727,16084
+ExpRelation::ExpRelation(749,16522
+ExpRelation::~ExpRelation(754,16639
+ExpScopedName::ExpScopedName(758,16672
+ExpScopedName::~ExpScopedName(763,16785
+void ExpScopedName::visit(768,16840
+ScopeBase*ExpScopedName::get_scope(ExpScopedName::get_scope776,16961
+ScopeBase*ExpScopedName::get_scope(ExpScopedName::get_scope784,17109
+ExpShift::ExpShift(789,17239
+ExpString::ExpString(794,17351
+ExpString::~ExpString(799,17412
+ExpUAbs::ExpUAbs(803,17441
+ExpUAbs::~ExpUAbs(808,17495
+ExpUNot::ExpUNot(812,17520
+ExpUNot::~ExpUNot(817,17574
+ExpCast::ExpCast(821,17599
+ExpCast::~ExpCast(826,17687
+void ExpCast::visit(830,17712
+ExpNew::ExpNew(838,17827
+ExpNew::~ExpNew(843,17882
+void ExpNew::visit(848,17923
+ExpTime::ExpTime(856,18037
+double ExpTime::to_fs(861,18124
+ExpRange::ExpRange(878,18485
+ExpRange::ExpRange(884,18666
+ExpRange::~ExpRange(890,18843
+Expression*ExpRange::clone(ExpRange::clone897,18931
+Expression* ExpRange::msb(905,19164
+Expression* ExpRange::lsb(918,19389
+Expression*ExpRange::left(ExpRange::left931,19614
+Expression*ExpRange::right(ExpRange::right941,19889
+ExpDelay::ExpDelay(950,20168
+ExpDelay::~ExpDelay(955,20256
+void ExpDelay::visit(961,20320
+
+expression_debug.cc,271
+void ExpArithmetic::dump(30,1035
+void ExpConcat::dump(65,1684
+void ExpCast::dump(72,1895
+void ExpNew::dump(80,2099
+void ExpScopedName::dump(86,2256
+void ExpShift::dump(93,2483
+void ExpTime::dump(122,3025
+void ExpRange::dump(128,3152
+void ExpDelay::dump(134,3281
+
+expression_elaborate.cc,2953
+int Expression::elaborate_lval(39,1379
+const VType* Expression::probe_type(45,1545
+const VType* Expression::fit_type(50,1629
+const VType*ExpName::elaborate_adjust_type_with_range_(ExpName::elaborate_adjust_type_with_range_62,1954
+int ExpName::elaborate_lval_(96,3016
+int ExpName::elaborate_lval(218,6786
+int ExpName::elaborate_rval(280,8752
+int Expression::elaborate_expr(336,10556
+const VType* ExpBinary::probe_type(343,10792
+const VType*ExpBinary::resolve_operand_types_(ExpBinary::resolve_operand_types_370,11561
+int ExpBinary::elaborate_exprs(375,11662
+const VType*ExpUnary::fit_type(ExpUnary::fit_type389,12093
+const VType*ExpUnary::probe_type(ExpUnary::probe_type394,12241
+int ExpUnary::elaborate_expr(399,12362
+const VType*ExpAggregate::fit_type(ExpAggregate::fit_type406,12563
+int ExpAggregate::elaborate_expr(432,13359
+int ExpAggregate::elaborate_expr_array_(461,14382
+int ExpAggregate::elaborate_expr_record_(516,16072
+void ExpAggregate::element_t::map_choices(558,17445
+int ExpArithmetic::elaborate_expr(568,17703
+const VType* ExpArithmetic::resolve_operand_types_(581,17993
+int ExpAttribute::elaborate_args(594,18355
+int ExpObjAttribute::elaborate_expr(608,18686
+const VType* ExpObjAttribute::probe_type(619,18990
+int ExpTypeAttribute::elaborate_expr(627,19183
+const VType* ExpTypeAttribute::probe_type(632,19321
+const VType*ExpBitstring::fit_type(ExpBitstring::fit_type640,19473
+int ExpBitstring::elaborate_expr(647,19683
+const VType*ExpCharacter::fit_type(ExpCharacter::fit_type655,19910
+int ExpCharacter::elaborate_expr(662,20123
+const VType*ExpConcat::fit_type(ExpConcat::fit_type669,20277
+const VType*ExpConcat::probe_type(ExpConcat::probe_type705,21696
+int ExpConcat::elaborate_expr(711,21806
+int ExpConcat::elaborate_expr_array_(731,22321
+const VType* ExpConditional::probe_type(750,22891
+int ExpConditional::elaborate_expr(755,22979
+int ExpConditional::case_t::elaborate_expr(777,23520
+const VType*ExpFunc::probe_type(ExpFunc::probe_type792,23912
+int ExpFunc::elaborate_expr(820,24709
+const VType* ExpFunc::fit_type(860,26050
+const VType* ExpInteger::probe_type(865,26177
+int ExpInteger::elaborate_expr(873,26352
+const VType* ExpReal::probe_type(886,26588
+int ExpReal::elaborate_expr(891,26683
+int ExpLogical::elaborate_expr(904,26919
+const VType* ExpName::probe_prefix_type_(917,27206
+const VType* ExpName::probe_prefixed_type_(933,27704
+const VType* ExpName::probe_type(980,29319
+const VType* ExpName::fit_type(1034,30894
+int ExpName::elaborate_expr(1039,31020
+const VType* ExpNameALL::probe_type(1059,31515
+const VType* ExpRelation::probe_type(1064,31599
+int ExpRelation::elaborate_expr(1069,31696
+int ExpShift::elaborate_expr(1088,32188
+const VType*ExpString::fit_type(ExpString::fit_type1106,32672
+int ExpString::elaborate_expr(1117,33013
+int ExpTime::elaborate_expr(1124,33164
+int ExpRange::elaborate_expr(1130,33284
+int ExpDelay::elaborate_expr(1143,33579
+
+expression_emit.cc,1877
+inline static int emit_logic(38,1301
+int Expression::emit(65,1747
+int Expression::emit_package(73,1991
+bool Expression::is_primary(81,2230
+int ExpBinary::emit_operand1(86,2295
+int ExpBinary::emit_operand2(96,2597
+int ExpUnary::emit_operand1(106,2899
+int ExpAggregate::emit(113,3073
+int ExpAggregate::emit_array_(137,3943
+int ExpAggregate::emit_record_(306,8794
+int ExpObjAttribute::emit(334,9515
+int ExpTypeAttribute::emit(375,10626
+int ExpArithmetic::emit(412,11847
+int ExpBitstring::emit(466,13178
+int ExpCharacter::emit_primitive_bit_(477,13428
+int ExpCharacter::emit(491,13815
+bool ExpCharacter::is_primary(508,14311
+bool ExpConcat::is_primary(517,14497
+int ExpConcat::emit(522,14560
+int ExpConditional::emit(533,14831
+int ExpConditional::case_t::emit_option(563,15688
+int ExpConditional::case_t::emit_default(585,16215
+int ExpEdge::emit(602,16676
+int ExpFunc::emit(619,17003
+int ExpInteger::emit(636,17386
+int ExpInteger::emit_package(642,17499
+int ExpReal::emit(648,17589
+int ExpReal::emit_package(654,17689
+bool ExpReal::is_primary(660,17776
+int ExpLogical::emit(665,17837
+int ExpName::emit_indices(697,18352
+int ExpName::emit_as_prefix_(713,18745
+int ExpName::emit(726,19064
+bool ExpName::try_workarounds_(758,19975
+bool ExpName::check_const_array_workaround_(808,21662
+bool ExpName::check_const_record_workaround_(823,22086
+int ExpName::emit_workaround_(863,23244
+bool ExpName::is_primary(881,23707
+int ExpRelation::emit(886,23768
+int ExpShift::emit(928,24898
+bool ExpString::is_primary(958,25398
+int ExpString::emit(963,25461
+int ExpString::emit_as_array_(978,25841
+std::string ExpString::escape_quot(1013,26989
+int ExpUAbs::emit(1026,27253
+int ExpUNot::emit(1035,27454
+int ExpCast::emit(1051,27818
+int ExpNew::emit(1061,28072
+int ExpTime::emit(1070,28270
+int ExpRange::emit(1086,28636
+int ExpDelay::emit(1108,29223
+
+expression_evaluate.cc,280
+bool ExpArithmetic::evaluate(28,1047
+bool ExpAttribute::test_array_type(76,1945
+bool ExpAttribute::evaluate_type_attr(101,2651
+bool ExpObjAttribute::evaluate(121,3390
+bool ExpTypeAttribute::evaluate(134,3715
+bool ExpName::evaluate(139,3857
+bool ExpShift::evaluate(171,4768
+
+expression.h,12931
+#define IVL_expression_H2,25
+struct ExprVisitor 46,1442
+    ExprVisitor(ExprVisitor::ExprVisitor47,1463
+    virtual ~ExprVisitor(ExprVisitor::~ExprVisitor48,1496
+    inline void down(ExprVisitor::down53,1714
+    inline void up(ExprVisitor::up54,1751
+    int level(ExprVisitor::level57,1819
+    int level_;ExprVisitor::level_60,1870
+class Expression 68,2076
+      inline const VType*peek_type(Expression::peek_type107,3822
+      virtual bool evaluate(Expression::evaluate127,4751
+      bool evaluate(Expression::evaluate128,4834
+      virtual void visit(Expression::visit146,5694
+      const VType*type_;Expression::type_155,6006
+static inline Expression*safe_clone(safe_clone165,6237
+static inline void FILE_NAME(169,6348
+static inline ostream& operator <<(operator <<174,6445
+class ExpUnary 179,6555
+      inline const Expression*peek_operand(ExpUnary::peek_operand185,6677
+      inline void write_to_stream_operand1(ExpUnary::write_to_stream_operand1193,7030
+      Expression*operand1_;ExpUnary::operand1_200,7287
+class ExpBinary 207,7421
+      inline const Expression* peek_operand1(ExpBinary::peek_operand1213,7553
+      inline const Expression* peek_operand2(ExpBinary::peek_operand2214,7632
+      inline void write_to_stream_operand1(ExpBinary::write_to_stream_operand1228,8189
+      inline void write_to_stream_operand2(ExpBinary::write_to_stream_operand2230,8303
+      Expression*operand1_;ExpBinary::operand1_239,8595
+      Expression*operand2_;ExpBinary::operand2_240,8623
+class ExpAggregate 243,8655
+      class choice_t ExpAggregate::choice_t250,8917
+	    std::auto_ptr<Expression>expr_;ExpAggregate::choice_t::expr_276,9705
+	    std::auto_ptr<ExpRange>  range_;ExpAggregate::choice_t::range_277,9742
+      struct choice_element ExpAggregate::choice_element282,9865
+	    choice_element(ExpAggregate::choice_element::choice_element283,9895
+	    choice_element(ExpAggregate::choice_element::choice_element285,9940
+	    choice_t*choice;ExpAggregate::choice_element::choice290,10107
+	    Expression*expr;ExpAggregate::choice_element::expr291,10129
+	    bool alias_flag;ExpAggregate::choice_element::alias_flag292,10151
+      class element_t ExpAggregate::element_t298,10347
+	    size_t count_choices(ExpAggregate::element_t::count_choices304,10511
+	    inline Expression* extract_expression(ExpAggregate::element_t::extract_expression307,10616
+	    std::vector<choice_t*>fields_;ExpAggregate::element_t::fields_313,10789
+	    Expression*val_;ExpAggregate::element_t::val_314,10825
+      std::vector<element_t*> elements_;ExpAggregate::elements_340,11863
+      std::vector<choice_element> aggregate_;ExpAggregate::aggregate_344,11994
+class ExpArithmetic 347,12044
+      enum fun_t ExpArithmetic::fun_t350,12098
+      enum fun_t { PLUS,ExpArithmetic::fun_t::PLUS350,12098
+      enum fun_t { PLUS, MINUS,ExpArithmetic::fun_t::MINUS350,12098
+      enum fun_t { PLUS, MINUS, MULT,ExpArithmetic::fun_t::MULT350,12098
+      enum fun_t { PLUS, MINUS, MULT, DIV,ExpArithmetic::fun_t::DIV350,12098
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD,ExpArithmetic::fun_t::MOD350,12098
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM,ExpArithmetic::fun_t::REM350,12098
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM, POW,ExpArithmetic::fun_t::POW350,12098
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM, POW, xCONCAT ExpArithmetic::fun_t::xCONCAT350,12098
+      Expression*clone(ExpArithmetic::clone356,12283
+      fun_t fun_;ExpArithmetic::fun_370,12846
+class ExpAttribute 373,12868
+      inline perm_string peek_attribute(ExpAttribute::peek_attribute379,13020
+      static const perm_string LEFT;ExpAttribute::LEFT382,13134
+      static const perm_string RIGHT;ExpAttribute::RIGHT383,13171
+      perm_string name_;ExpAttribute::name_393,13541
+      std::list<Expression*>*args_;ExpAttribute::args_394,13566
+class ExpObjAttribute 397,13606
+      inline const ExpName* peek_base(ExpObjAttribute::peek_base404,13808
+      ExpName*base_;ExpObjAttribute::base_416,14352
+class ExpTypeAttribute 419,14377
+      inline const VType* peek_base(ExpTypeAttribute::peek_base426,14642
+      const VType*base_;ExpTypeAttribute::base_439,15241
+class ExpBitstring 442,15270
+      ExpBitstring(ExpBitstring::ExpBitstring446,15366
+      Expression*clone(ExpBitstring::clone449,15477
+      std::vector<char>value_;ExpBitstring::value_458,15887
+class ExpCharacter 462,15923
+      ExpCharacter(ExpCharacter::ExpCharacter466,16016
+      Expression*clone(ExpCharacter::clone469,16127
+      char value(ExpCharacter::value478,16559
+      char value_;ExpCharacter::value_485,16747
+class ExpConcat 488,16770
+      Expression*clone(ExpConcat::clone494,16891
+      Expression*operand1_;ExpConcat::operand1_511,17584
+      Expression*operand2_;ExpConcat::operand2_512,17612
+class ExpConditional 520,17828
+      class case_t ExpConditional::case_t523,17884
+	    inline Expression*condition(ExpConditional::case_t::condition529,18042
+	    inline void set_condition(ExpConditional::case_t::set_condition530,18101
+	    inline const std::list<Expression*>& true_clause(ExpConditional::case_t::true_clause531,18167
+            std::list<Expression*>& extract_true_clause(ExpConditional::case_t::extract_true_clause537,18517
+	    Expression*cond_;ExpConditional::case_t::cond_541,18656
+	    std::list<Expression*> true_clause_;ExpConditional::case_t::true_clause_542,18679
+      std::list<case_t*> options_;ExpConditional::options_560,19279
+class ExpSelected 566,19411
+      Expression*selector_;ExpSelected::selector_574,19604
+class ExpEdge 581,19749
+      enum fun_t ExpEdge::fun_t584,19796
+      enum fun_t { NEGEDGE,ExpEdge::fun_t::NEGEDGE584,19796
+      enum fun_t { NEGEDGE, ANYEDGE,ExpEdge::fun_t::ANYEDGE584,19796
+      enum fun_t { NEGEDGE, ANYEDGE, POSEDGE ExpEdge::fun_t::POSEDGE584,19796
+      Expression*clone(ExpEdge::clone590,19934
+      inline fun_t edge_fun(ExpEdge::edge_fun592,20021
+      fun_t fun_;ExpEdge::fun_599,20256
+class ExpFunc 602,20278
+      inline perm_string func_name(ExpFunc::func_name612,20566
+      inline size_t func_args(ExpFunc::func_args613,20627
+      inline const Expression*func_arg(ExpFunc::func_arg614,20690
+      perm_string name_;ExpFunc::name_626,21248
+      std::vector<Expression*> argv_;ExpFunc::argv_627,21273
+      SubprogramHeader*def_;ExpFunc::def_628,21311
+class ExpInteger 631,21344
+      ExpInteger(ExpInteger::ExpInteger635,21436
+      Expression*clone(ExpInteger::clone638,21539
+      bool is_primary(ExpInteger::is_primary645,21907
+      int64_t value_;ExpInteger::value_651,22148
+class ExpReal 654,22174
+      ExpReal(ExpReal::ExpReal658,22259
+      Expression*clone(ExpReal::clone661,22353
+      double value_;ExpReal::value_673,22874
+class ExpLogical 676,22899
+      enum fun_t ExpLogical::fun_t679,22950
+      enum fun_t { AND,ExpLogical::fun_t::AND679,22950
+      enum fun_t { AND, OR,ExpLogical::fun_t::OR679,22950
+      enum fun_t { AND, OR, NAND,ExpLogical::fun_t::NAND679,22950
+      enum fun_t { AND, OR, NAND, NOR,ExpLogical::fun_t::NOR679,22950
+      enum fun_t { AND, OR, NAND, NOR, XOR,ExpLogical::fun_t::XOR679,22950
+      enum fun_t { AND, OR, NAND, NOR, XOR, XNOR ExpLogical::fun_t::XNOR679,22950
+      Expression*clone(ExpLogical::clone685,23109
+      inline fun_t logic_fun(ExpLogical::logic_fun689,23242
+      fun_t fun_;ExpLogical::fun_697,23552
+class ExpName 705,23788
+      inline const char* name(ExpName::name727,24879
+      inline const perm_string& peek_name(ExpName::peek_name728,24935
+      class index_t ExpName::index_t733,25104
+          index_t(ExpName::index_t::index_t735,25140
+          ~index_t(ExpName::index_t::~index_t737,25274
+          Expression*idx_;ExpName::index_t::idx_746,25485
+          Expression*size_;ExpName::index_t::size_747,25512
+          Expression*offset_;ExpName::index_t::offset_748,25540
+      std::auto_ptr<ExpName> prefix_;ExpName::prefix_778,26948
+      perm_string name_;ExpName::name_779,26986
+      std::list<Expression*>*indices_;ExpName::indices_780,27011
+class ExpNameALL 783,27054
+      ExpNameALL(ExpNameALL::ExpNameALL786,27103
+class ExpRelation 793,27289
+      enum fun_t ExpRelation::fun_t796,27341
+      enum fun_t { EQ,ExpRelation::fun_t::EQ796,27341
+      enum fun_t { EQ, LT,ExpRelation::fun_t::LT796,27341
+      enum fun_t { EQ, LT, GT,ExpRelation::fun_t::GT796,27341
+      enum fun_t { EQ, LT, GT, NEQ,ExpRelation::fun_t::NEQ796,27341
+      enum fun_t { EQ, LT, GT, NEQ, LE,ExpRelation::fun_t::LE796,27341
+      enum fun_t { EQ, LT, GT, NEQ, LE, GE ExpRelation::fun_t::GE796,27341
+      inline fun_t relation_fun(ExpRelation::relation_fun798,27388
+      Expression*clone(ExpRelation::clone804,27559
+      fun_t fun_;ExpRelation::fun_815,28014
+class ExpScopedName 822,28203
+        Expression*clone(ExpScopedName::clone827,28339
+        int elaborate_lval(ExpScopedName::elaborate_lval830,28463
+        int elaborate_rval(ExpScopedName::elaborate_rval833,28608
+        const VType* probe_type(ExpScopedName::probe_type836,28762
+        const VType* fit_type(ExpScopedName::fit_type839,28891
+        int elaborate_expr(ExpScopedName::elaborate_expr842,29045
+        void write_to_stream(ExpScopedName::write_to_stream845,29193
+        int emit(ExpScopedName::emit848,29286
+        bool is_primary(ExpScopedName::is_primary853,29452
+        bool evaluate(ExpScopedName::evaluate856,29529
+        bool symbolic_compare(ExpScopedName::symbolic_compare859,29649
+        perm_string scope_name_;ExpScopedName::scope_name_871,30052
+        ScopeBase*scope_;ExpScopedName::scope_872,30085
+        ExpName*name_;ExpScopedName::name_873,30111
+class ExpShift 876,30138
+      enum shift_t ExpShift::shift_t878,30186
+      enum shift_t { SRL,ExpShift::shift_t::SRL878,30186
+      enum shift_t { SRL, SLL,ExpShift::shift_t::SLL878,30186
+      enum shift_t { SRL, SLL, SRA,ExpShift::shift_t::SRA878,30186
+      enum shift_t { SRL, SLL, SRA, SLA,ExpShift::shift_t::SLA878,30186
+      enum shift_t { SRL, SLL, SRA, SLA, ROL,ExpShift::shift_t::ROL878,30186
+      enum shift_t { SRL, SLL, SRA, SLA, ROL, ROR ExpShift::shift_t::ROR878,30186
+      Expression*clone(ExpShift::clone883,30323
+      shift_t shift_;ExpShift::shift_894,30780
+class ExpString 897,30806
+      ExpString(ExpString::ExpString901,30896
+      Expression*clone(ExpString::clone904,30996
+      const std::string& get_value(ExpString::get_value912,31424
+      std::string value_;ExpString::value_922,31759
+class ExpUAbs 925,31789
+      Expression*clone(ExpUAbs::clone931,31895
+class ExpUNot 938,32147
+      Expression*clone(ExpUNot::clone944,32253
+class ExpCast 954,32579
+      Expression*clone(ExpCast::clone960,32697
+      inline int elaborate_expr(ExpCast::elaborate_expr962,32785
+      Expression*base_;ExpCast::base_971,33149
+      const VType*type_;ExpCast::type_972,33173
+class ExpNew 979,33343
+      Expression*clone(ExpNew::clone985,33449
+      void write_to_stream(ExpNew::write_to_stream988,33578
+      Expression*size_;ExpNew::size_994,33797
+class ExpTime 997,33825
+        typedef enum { FS,ExpTime::FS999,33873
+        typedef enum { FS, PS,ExpTime::PS999,33873
+        typedef enum { FS, PS, NS,ExpTime::NS999,33873
+        typedef enum { FS, PS, NS, US,ExpTime::US999,33873
+        typedef enum { FS, PS, NS, US, MS,ExpTime::MS999,33873
+        typedef enum { FS, PS, NS, US, MS, S ExpTime::S999,33873
+        typedef enum { FS, PS, NS, US, MS, S } timeunit_t;ExpTime::timeunit_t999,33873
+        Expression*clone(ExpTime::clone1003,33985
+        uint64_t amount_;ExpTime::amount_1014,34483
+        timeunit_t unit_;ExpTime::unit_1015,34509
+class ExpRange 1018,34539
+        typedef enum { DOWNTO,ExpRange::DOWNTO1020,34588
+        typedef enum { DOWNTO, TO,ExpRange::TO1020,34588
+        typedef enum { DOWNTO, TO, AUTO ExpRange::AUTO1020,34588
+        typedef enum { DOWNTO, TO, AUTO } range_dir_t;ExpRange::range_dir_t1020,34588
+        range_dir_t direction(ExpRange::direction1038,35084
+        Expression*left_,ExpRange::left_1046,35446
+        Expression*left_, *right_;ExpRange::right_1046,35446
+        range_dir_t direction_;ExpRange::direction_1047,35481
+        bool range_expr_;ExpRange::range_expr_1051,35641
+        ExpName*range_base_;ExpRange::range_base_1053,35724
+        bool range_reverse_;ExpRange::range_reverse_1055,35816
+class ExpDelay 1059,35911
+    Expression*clone(ExpDelay::clone1064,36023
+    const Expression*peek_expr(ExpDelay::peek_expr1072,36378
+    const Expression*peek_delay(ExpDelay::peek_delay1073,36435
+    Expression*expr_;ExpDelay::expr_1076,36504
+    Expression*delay_;ExpDelay::delay_1077,36526
+
+expression_stream.cc,1088
+void ExpAggregate::write_to_stream(27,974
+void ExpAggregate::element_t::write_to_stream(40,1287
+void ExpAggregate::choice_t::write_to_stream(52,1587
+void ExpArithmetic::write_to_stream(72,1943
+void ExpObjAttribute::write_to_stream(110,2540
+void ExpTypeAttribute::write_to_stream(116,2661
+void ExpBitstring::write_to_stream(122,2783
+void ExpCharacter::write_to_stream(132,3013
+void ExpConcat::write_to_stream(142,3190
+void ExpConditional::write_to_stream(151,3374
+void ExpEdge::write_to_stream(156,3475
+void ExpFunc::write_to_stream(161,3569
+void ExpInteger::write_to_stream(174,3875
+void ExpReal::write_to_stream(179,3951
+void ExpLogical::write_to_stream(184,4024
+void ExpName::write_to_stream(212,4481
+void ExpRelation::write_to_stream(237,5023
+void ExpShift::write_to_stream(270,5574
+void ExpString::write_to_stream(303,6074
+void ExpUAbs::write_to_stream(318,6372
+void ExpUNot::write_to_stream(324,6481
+void ExpCast::write_to_stream(330,6590
+void ExpTime::write_to_stream(337,6796
+void ExpRange::write_to_stream(351,7134
+void ExpDelay::write_to_stream(367,7615
+
+ivl_assert.h,57
+#define IVL_ivl_assert_H2,25
+#define ivl_assert(24,927
+
+lexor_keyword.gperf,1817
+%define initializer-suffix suffix5,151
+%language=language6,183
+struct lexor_keyword 18,470
+struct lexor_keyword { const char*name;name18,470
+struct lexor_keyword { const char*name; int mask;18,470
+struct lexor_keyword { const char*name; int mask; int tokenType;18,470
+abs,20,541
+abs,		GN_KEYWORD_2008,20,541
+access,21,570
+access,		GN_KEYWORD_2008,21,570
+after,22,605
+after,		GN_KEYWORD_2008,22,605
+alias,23,638
+alias,		GN_KEYWORD_2008,23,638
+all,24,671
+all,		GN_KEYWORD_2008,24,671
+and,25,700
+and,		GN_KEYWORD_2008,25,700
+architecture,26,729
+architecture,	GN_KEYWORD_2008,26,729
+array,27,775
+array,		GN_KEYWORD_2008,27,775
+assert,28,808
+assert,		GN_KEYWORD_2008,28,808
+attribute,29,843
+attribute,	GN_KEYWORD_2008,29,843
+begin,30,883
+begin,		GN_KEYWORD_2008,30,883
+block,31,916
+block,		GN_KEYWORD_2008,31,916
+body,32,949
+body,		GN_KEYWORD_2008,32,949
+buffer,33,980
+buffer,		GN_KEYWORD_2008,33,980
+bus,34,1015
+bus,		GN_KEYWORD_2008,34,1015
+case,35,1044
+case,		GN_KEYWORD_2008,35,1044
+component,36,1075
+component,	GN_KEYWORD_2008,36,1075
+configuration,37,1115
+configuration,	GN_KEYWORD_2008,37,1115
+constant,38,1163
+constant,	GN_KEYWORD_2008,38,1163
+context,39,1201
+context,	GN_KEYWORD_2008,39,1201
+cover,40,1237
+cover,		GN_KEYWORD_2008,40,1237
+default,41,1270
+default,	GN_KEYWORD_2008,41,1270
+disconnect,42,1306
+disconnect,	GN_KEYWORD_2008,42,1306
+downto,43,1348
+downto,		GN_KEYWORD_2008,43,1348
+else,44,1383
+else,		GN_KEYWORD_2008,44,1383
+elsif,45,1414
+elsif,		GN_KEYWORD_2008,45,1414
+end,46,1447
+end,		GN_KEYWORD_2008,46,1447
+entity,47,1476
+entity,		GN_KEYWORD_2008,47,1476
+exit,48,1511
+exit,		GN_KEYWORD_2008,48,1511
+fairness,49,1542
+fairness,	GN_KEYWORD_2008,49,1542
+file,50,1580
+file,		GN_KEYWORD_2008,50,1580
+int lexor_keyword_code(136,4343
+
+lexor.lex,1167
+%option prefix=1,0
+# define YY_NO_INPUT37,1133
+# define YY_DECL 39,1155
+#define yylloc 52,1673
+#define yylval 53,1699
+static int comment_enter;72,2281
+integer	81,2406
+based_integer	85,2537
+"--".* { comment_enter 95,2794
+"/*" { comment_enter 103,3018
+    yylval.text text109,3184
+    yylval.text text114,3295
+      for (char*cp = yytext ; *cp cp120,3422
+      int rc 122,3492
+    yylval.text text138,3953
+      yylval.text text184,5005
+static bool are_underscores_correct(219,5732
+static bool is_based_correct(244,6231
+static char* escape_quot_and_dup(339,8939
+static char* escape_apostrophe_and_dup(380,9970
+static char*make_bitstring_bin(make_bitstring_bin388,10124
+static char*make_bitstring_oct(make_bitstring_oct415,10707
+static char*make_bitstring_hex(make_bitstring_hex462,11641
+static char*make_bitstring_dec(make_bitstring_dec525,13030
+static char* make_bitstring_literal(531,13129
+static double make_double_from_based(628,15105
+static unsigned short short_from_hex_char(685,16628
+static int64_t make_long_from_based(699,16913
+static int64_t lpow(736,17910
+yyscan_t prepare_lexor(743,18053
+void destroy_lexor(751,18194
+
+library.cc,1675
+# define __STDC_LIMIT_MACROS23,992
+static const char*library_work_path library_work_path41,1352
+static list<string> library_search_path;48,1560
+static map<perm_string,string> library_dir;54,1705
+struct library_contents 60,1868
+      map<library_contents::map61,1894
+      map<perm_string,Package*> packages;library_contents::packages61,1894
+static map<perm_string,struct library_contents> libraries;63,1939
+void library_add_directory(65,1999
+SubprogramHeader*library_match_subprogram(library_match_subprogram78,2329
+        map<library_contents::map85,2662
+        map<perm_string,Package*>::const_iterator pack_it;library_contents::pack_it85,2662
+static string make_work_package_path(97,3008
+static string make_library_package_path(102,3147
+static void dump_library_package(116,3612
+static void dump_library_packages(127,3945
+void dump_libraries(135,4234
+void library_save_package(148,4647
+Package*library_recall_package(library_recall_package169,5315
+static void import_library_name(186,5848
+void library_import(210,6476
+void library_use(231,7087
+static void import_ieee(302,9429
+static void import_ieee_use_std_logic_1164(306,9464
+static void import_ieee_use_std_logic_arith(315,9733
+static void import_ieee_use_numeric_bit(319,9809
+static void import_ieee_use_numeric_std(331,10173
+static void import_ieee_use(343,10537
+static void import_std_use(366,11059
+void library_set_work_path(383,11746
+list<const Package*> work_packages;389,11865
+static void store_package_in_work(390,11901
+static int emit_packages(395,11997
+int emit_packages(413,12568
+static int elaborate_library_packages(424,12833
+int elaborate_libraries(436,13114
+
+library.h,27
+#define IVL_library_H2,22
+
+main.cc,490
+const char COPYRIGHT[COPYRIGHT2,1
+const char NOTICE[NOTICE60,2163
+# define mkdir(97,3546
+bool verbose_flag 101,3594
+const char*dump_design_entities_path dump_design_entities_path103,3656
+const char*dump_libraries_path dump_libraries_path104,3698
+const char*debug_log_path debug_log_path105,3734
+bool debug_elaboration 107,3766
+ofstream debug_log_file;108,3798
+static void process_debug_token(113,3897
+#define VERSION_TAG 130,4466
+#define NOTICE 131,4500
+int main(133,4527
+
+Makefile,721
+SHELL 18,800
+srcdir 20,817
+CC 30,1135
+CXX 31,1144
+LEX 32,1154
+YACC 33,1165
+INCLUDE_PATH 35,1179
+CPPFLAGS 37,1217
+CXXFLAGS 38,1261
+LDFLAGS 39,1304
+LIBS 40,1316
+M 42,1371
+O 44,1400
+all:all59,2065
+check:check61,2082
+clean:clean63,2094
+distclean:distclean67,2191
+cppcheck:cppcheck71,2281
+Makefile:Makefile78,2528
+dep:dep81,2602
+vhdlpp:vhdlpp84,2619
+%.o:%.o87,2671
+%.o:%.o90,2749
+lexor.o:lexor.o93,2822
+parse.o:parse.o95,2849
+lexor.cc:lexor.cc97,2868
+parse.cc:parse.cc101,3014
+parse.h:parse.h103,3076
+lexor_keyword.o:lexor_keyword.o106,3143
+lexor_keyword.cc:lexor_keyword.cc108,3186
+stamp-vhdlpp_config-h:stamp-vhdlpp_config-h112,3406
+vhplpp_config.h:vhplpp_config.h115,3542
+
+Makefile.in,721
+SHELL 18,800
+srcdir 20,817
+CC 30,1135
+CXX 31,1144
+LEX 32,1154
+YACC 33,1166
+INCLUDE_PATH 35,1181
+CPPFLAGS 37,1219
+CXXFLAGS 38,1264
+LDFLAGS 39,1322
+LIBS 40,1342
+M 42,1358
+O 44,1387
+all:all59,2052
+check:check61,2069
+clean:clean63,2081
+distclean:distclean67,2178
+cppcheck:cppcheck71,2268
+Makefile:Makefile78,2515
+dep:dep81,2589
+vhdlpp:vhdlpp84,2606
+%.o:%.o87,2658
+%.o:%.o90,2736
+lexor.o:lexor.o93,2809
+parse.o:parse.o95,2836
+lexor.cc:lexor.cc97,2855
+parse.cc:parse.cc101,3001
+parse.h:parse.h103,3063
+lexor_keyword.o:lexor_keyword.o106,3130
+lexor_keyword.cc:lexor_keyword.cc108,3173
+stamp-vhdlpp_config-h:stamp-vhdlpp_config-h112,3393
+vhplpp_config.h:vhplpp_config.h115,3529
+
+package.cc,159
+Package::Package(30,1105
+Package::~Package(35,1188
+void Package::set_library(40,1239
+int Package::elaborate(46,1369
+void Package::write_to_stream(69,2001
+
+package_emit.cc,35
+int Package::emit_package(29,1049
+
+package.h,208
+#define IVL_package_H2,22
+class Package 27,1028
+      perm_string name(Package::name37,1318
+      perm_string from_library_;Package::from_library_46,1563
+      perm_string name_;Package::name_47,1596
+
+parse_api.h,272
+#define IVL_parse_api_H2,24
+typedef void*yyscan_t;yyscan_t25,946
+struct yyltype 32,1186
+      unsigned first_line;33,1203
+      const char*text;text34,1230
+      yyltype(35,1253
+# define YYLTYPE 37,1303
+extern void errormsg(53,1929
+extern void sorrymsg(55,2031
+
+parse_misc.cc,285
+void bind_entity_to_active_scope(36,1267
+void bind_architecture_to_entity(47,1574
+static const VType* calculate_subtype_array(71,2490
+const VType* calculate_subtype_array(116,3966
+const VType* calculate_subtype_range(131,4438
+ExpString*parse_char_enums(parse_char_enums158,5235
+
+parse_misc.h,30
+#define IVL_parse_misc_H2,25
+
+parse_types.h,2398
+#define IVL_parse_types_H2,26
+class named_expr_t 26,1021
+      named_expr_t(named_expr_t::named_expr_t29,1055
+      ~named_expr_t(named_expr_t::~named_expr_t30,1128
+      perm_string name(named_expr_t::name32,1169
+      Expression* expr(named_expr_t::expr33,1218
+      perm_string name_;named_expr_t::name_36,1328
+      Expression* expr_;named_expr_t::expr_37,1353
+class entity_aspect_t 44,1510
+      typedef enum { ENTITY entity_aspect_t::ENTITY46,1546
+      typedef enum { ENTITY = 0, CONFIGURATION,entity_aspect_t::CONFIGURATION46,1546
+      typedef enum { ENTITY = 0, CONFIGURATION, OPEN entity_aspect_t::OPEN46,1546
+      typedef enum { ENTITY = 0, CONFIGURATION, OPEN } entity_aspect_type_t;entity_aspect_t::entity_aspect_type_t46,1546
+      entity_aspect_t(entity_aspect_t::entity_aspect_t48,1624
+      ~entity_aspect_t(entity_aspect_t::~entity_aspect_t49,1706
+      ExpName* name(entity_aspect_t::name51,1750
+      entity_aspect_type_t type(entity_aspect_t::type52,1796
+      entity_aspect_type_t type_;entity_aspect_t::type_54,1854
+      ExpName* name_;entity_aspect_t::name_55,1888
+class instant_list_t 58,1914
+      typedef enum { ALL instant_list_t::ALL60,1949
+      typedef enum { ALL = 0, OTHERS,instant_list_t::OTHERS60,1949
+      typedef enum { ALL = 0, OTHERS, NONE instant_list_t::NONE60,1949
+      typedef enum { ALL = 0, OTHERS, NONE } application_domain_t;instant_list_t::application_domain_t60,1949
+      instant_list_t(instant_list_t::instant_list_t62,2017
+      ~instant_list_t(instant_list_t::~instant_list_t63,2117
+      std::list<perm_string>* labels(instant_list_t::labels65,2162
+      application_domain_t domain() const instant_list_t::const66,2227
+      application_domain_t domain_;instant_list_t::domain_68,2290
+      std::list<perm_string>* labels_;instant_list_t::labels_69,2326
+struct adding_term 72,2369
+      ExpArithmetic::fun_t op;adding_term::op73,2390
+      Expression*term;adding_term::term74,2421
+class file_open_info_t 79,2552
+      file_open_info_t(file_open_info_t::file_open_info_t81,2589
+      ~file_open_info_t(file_open_info_t::~file_open_info_t86,2850
+      ExpName*kind(file_open_info_t::kind88,2913
+      ExpString*filename(file_open_info_t::filename89,2952
+      ExpName*kind_;file_open_info_t::kind_92,3015
+      ExpString*filename_;file_open_info_t::filename_93,3036
+
+parse_wrap.h,30
+#define IVL_parse_wrap_H2,25
+
+README.txt,137
+  * entities=9,100
+    library bar;45,1034
+    use sample.test1.all;all46,1051
+    use bar.test3.all;all47,1077
+statement,51,1241
+
+scope.cc,981
+static int scope_counter 38,1260
+ScopeBase::ScopeBase(40,1291
+ScopeBase::~ScopeBase(53,1963
+void ScopeBase::cleanup(58,2054
+ScopeBase*ScopeBase::find_scope(ScopeBase::find_scope77,2660
+const VType*ScopeBase::find_type(ScopeBase::find_type87,2869
+bool ScopeBase::find_constant(99,3205
+Signal* ScopeBase::find_signal(116,3689
+Variable* ScopeBase::find_variable(128,4037
+const InterfacePort* ScopeBase::find_param(140,4377
+const InterfacePort* ScopeBase::find_param_all(145,4463
+SubHeaderList ScopeBase::find_subprogram(172,5475
+const VTypeEnum* ScopeBase::is_enum_name(187,5874
+void ScopeBase::do_use_from(202,6274
+void ScopeBase::transfer_from(239,7546
+SubprogramHeader*ScopeBase::match_subprogram(ScopeBase::match_subprogram266,8412
+void ScopeBase::generate_name(320,10032
+SubprogramHeader* ActiveScope::recall_subprogram(329,10223
+bool ActiveScope::is_vector_name(351,10819
+ComponentBase* Scope::find_component(369,11211
+ActiveScope::ActiveScope(382,11599
+
+scope.h,4894
+#define IVL_scope_H2,20
+typedef list<SubprogramHeader*> SubHeaderList;39,1247
+struct delete_object{delete_object42,1316
+    void operator()(delete_object::operator()43,1338
+struct delete_pair_second{delete_pair_second47,1409
+    void operator()(delete_pair_second::operator()48,1436
+class ScopeBase 51,1511
+      ScopeBase(ScopeBase::ScopeBase54,1542
+      enum transfer_type_t ScopeBase::transfer_type_t72,2508
+      enum transfer_type_t { SIGNALS ScopeBase::transfer_type_t::SIGNALS72,2508
+      enum transfer_type_t { SIGNALS = 1, VARIABLES ScopeBase::transfer_type_t::VARIABLES72,2508
+      enum transfer_type_t { SIGNALS = 1, VARIABLES = 2, COMPONENTS ScopeBase::transfer_type_t::COMPONENTS72,2508
+      enum transfer_type_t { SIGNALS = 1, VARIABLES = 2, COMPONENTS = 4, ALL ScopeBase::transfer_type_t::ALL72,2508
+      enum transfer_type_t { SIGNALS = 1, VARIABLES = 2, COMPONENTS = 4, ALL = 0xffff ScopeBase::transfer_type_t::xffff72,2508
+      inline void bind_subprogram(ScopeBase::bind_subprogram75,2667
+      void add_initializer(ScopeBase::add_initializer84,3047
+      void add_finalizer(ScopeBase::add_finalizer91,3229
+      perm_string peek_name(ScopeBase::peek_name102,3574
+      void set_package_header(ScopeBase::set_package_header104,3629
+      template<typename T> void delete_all(ScopeBase::delete_all113,3840
+      template<typename T> void delete_all(ScopeBase::delete_all117,3974
+      std::map<ScopeBase::std::map129,4438
+      std::map<perm_string,Signal*> old_signals_;ScopeBase::old_signals_129,4438
+      std::map<ScopeBase::std::map130,4506
+      std::map<perm_string,Signal*> new_signals_;ScopeBase::new_signals_130,4506
+      std::map<ScopeBase::std::map132,4601
+      std::map<perm_string,Variable*> old_variables_;ScopeBase::old_variables_132,4601
+      std::map<ScopeBase::std::map133,4673
+      std::map<perm_string,Variable*> new_variables_;ScopeBase::new_variables_133,4673
+      std::map<ScopeBase::std::map135,4773
+      std::map<perm_string,ComponentBase*> old_components_;ScopeBase::old_components_135,4773
+      std::map<ScopeBase::std::map136,4851
+      std::map<perm_string,ComponentBase*> new_components_;ScopeBase::new_components_136,4851
+      std::map<ScopeBase::std::map138,4952
+      std::map<perm_string,const VType*> use_types_;ScopeBase::use_types_138,4952
+      std::map<ScopeBase::std::map139,5022
+      std::map<perm_string,const VType*> cur_types_;ScopeBase::cur_types_139,5022
+      struct const_t ScopeBase::const_t141,5120
+        ~const_t(ScopeBase::const_t::~const_t142,5143
+        const_t(ScopeBase::const_t::const_t143,5176
+	    const VType*typ;ScopeBase::const_t::typ145,5244
+	    Expression*val;ScopeBase::const_t::val146,5266
+      std::map<ScopeBase::std::map148,5296
+      std::map<perm_string, struct const_t*> use_constants_;ScopeBase::use_constants_148,5296
+      std::map<ScopeBase::std::map149,5378
+      std::map<perm_string, struct const_t*> cur_constants_;ScopeBase::cur_constants_149,5378
+      std::map<ScopeBase::std::map151,5460
+      std::map<perm_string, SubHeaderList> use_subprograms_;ScopeBase::use_subprograms_151,5460
+      std::map<ScopeBase::std::map152,5532
+      std::map<perm_string, SubHeaderList> cur_subprograms_;ScopeBase::cur_subprograms_152,5532
+      std::map<ScopeBase::std::map154,5604
+      std::map<perm_string, ScopeBase*> scopes_;ScopeBase::scopes_154,5604
+      std::list<const VTypeEnum*> use_enums_;ScopeBase::use_enums_156,5654
+      std::list<SequentialStmt*> initializers_;ScopeBase::initializers_159,5768
+      std::list<SequentialStmt*> finalizers_;ScopeBase::finalizers_162,5882
+      Package*package_header_;ScopeBase::package_header_168,6070
+      perm_string name_;ScopeBase::name_174,6188
+class Scope 177,6217
+      explicit Scope(Scope::Scope180,6263
+      virtual ~Scope(Scope::~Scope181,6327
+class ActiveScope 197,6880
+      ActiveScope(ActiveScope::ActiveScope200,6932
+      ~ActiveScope(ActiveScope::~ActiveScope203,7029
+      void use_from(ActiveScope::use_from208,7221
+      void bind_name(ActiveScope::bind_name226,8081
+      void bind_name(ActiveScope::bind_name233,8325
+      void bind_name(ActiveScope::bind_name240,8581
+      void bind_name(ActiveScope::bind_name247,8851
+      void bind_scope(ActiveScope::bind_scope254,9094
+      inline void use_enum(ActiveScope::use_enum260,9256
+      inline void use_name(ActiveScope::use_name263,9339
+      void bind_name(ActiveScope::bind_name266,9433
+      void bind(ActiveScope::bind273,9725
+      void destroy_global_scope(ActiveScope::destroy_global_scope276,9787
+      std::map<ActiveScope::std::map283,9938
+      std::map<perm_string,VTypeDef*> incomplete_types;ActiveScope::incomplete_types283,9938
+      Entity*context_entity_;ActiveScope::context_entity_286,10008
+
+sequential.cc,1797
+inline static void visit_stmt_list(25,945
+SequentialStmt::SequentialStmt(32,1151
+SequentialStmt::~SequentialStmt(36,1189
+IfSequential::IfSequential(40,1228
+IfSequential::~IfSequential(50,1543
+void IfSequential::extract_true(71,1970
+void IfSequential::extract_false(79,2134
+void IfSequential::visit(87,2305
+IfSequential::Elsif::Elsif(95,2474
+IfSequential::Elsif::~Elsif(101,2610
+void IfSequential::Elsif::visit(111,2782
+SignalSeqAssignment::SignalSeqAssignment(116,2873
+SignalSeqAssignment::~SignalSeqAssignment(122,3038
+CaseSeqStmt::CaseSeqStmt(127,3107
+CaseSeqStmt::~CaseSeqStmt(133,3257
+void CaseSeqStmt::visit(143,3448
+CaseSeqStmt::CaseStmtAlternative::CaseStmtAlternative(149,3548
+CaseSeqStmt::CaseStmtAlternative::~CaseStmtAlternative(156,3738
+void CaseSeqStmt::CaseStmtAlternative::visit(166,3945
+ProcedureCall::ProcedureCall(171,4052
+ProcedureCall::ProcedureCall(176,4149
+ProcedureCall::ProcedureCall(181,4290
+ProcedureCall::~ProcedureCall(192,4654
+ReturnStmt::ReturnStmt(206,4901
+ReturnStmt::~ReturnStmt(211,4957
+void ReturnStmt::cast_to(216,5007
+LoopStatement::LoopStatement(222,5109
+LoopStatement::~LoopStatement(228,5257
+void LoopStatement::visit(237,5425
+ForLoopStatement::ForLoopStatement(243,5529
+ForLoopStatement::~ForLoopStatement(248,5715
+VariableSeqAssignment::VariableSeqAssignment(253,5777
+VariableSeqAssignment::~VariableSeqAssignment(258,5888
+WhileLoopStatement::WhileLoopStatement(264,5981
+WhileLoopStatement::~WhileLoopStatement(269,6135
+BasicLoopStatement::BasicLoopStatement(274,6200
+BasicLoopStatement::~BasicLoopStatement(279,6323
+ReportStmt::ReportStmt(283,6370
+AssertStmt::AssertStmt(290,6535
+const char*AssertStmt::default_msg_ AssertStmt::default_msg_300,6813
+WaitForStmt::WaitForStmt(302,6876
+WaitStmt::WaitStmt(307,6940
+
+sequential_debug.cc,662
+void SequentialStmt::dump(28,989
+void IfSequential::dump(34,1180
+void IfSequential::Elsif::dump(56,2003
+void ReturnStmt::dump(68,2421
+void SignalSeqAssignment::dump(77,2672
+void CaseSeqStmt::dump(90,3152
+void CaseSeqStmt::CaseStmtAlternative::dump(102,3516
+void ProcedureCall::dump(119,4052
+void LoopStatement::dump(129,4417
+void ForLoopStatement::dump(136,4613
+void VariableSeqAssignment::dump(144,4884
+void WhileLoopStatement::dump(155,5232
+void BasicLoopStatement::dump(163,5506
+void ReportStmt::dump(169,5702
+void ReportStmt::dump_sev_msg(175,5875
+void AssertStmt::dump(185,6114
+void WaitForStmt::dump(192,6337
+void WaitStmt::dump(199,6558
+
+sequential_elaborate.cc,815
+int SequentialStmt::elaborate(27,998
+int LoopStatement::elaborate_substatements(32,1070
+int CaseSeqStmt::elaborate(44,1346
+int CaseSeqStmt::CaseStmtAlternative::elaborate_expr(66,2011
+int CaseSeqStmt::CaseStmtAlternative::elaborate(78,2380
+int ForLoopStatement::elaborate(91,2692
+int IfSequential::elaborate(98,2854
+int IfSequential::Elsif::elaborate(122,3489
+int ReturnStmt::elaborate(136,3818
+int SignalSeqAssignment::elaborate(152,4289
+int ProcedureCall::elaborate(177,4986
+int VariableSeqAssignment::elaborate(218,6163
+int WhileLoopStatement::elaborate(240,6751
+int BasicLoopStatement::elaborate(248,6997
+int ReportStmt::elaborate(253,7113
+int AssertStmt::elaborate(258,7237
+int WaitForStmt::elaborate(266,7465
+int WaitStmt::elaborate(271,7590
+            void operator() operator()278,7827
+
+sequential_emit.cc,1940
+int SequentialStmt::emit(36,1277
+void SequentialStmt::write_to_stream(44,1527
+int IfSequential::emit(51,1766
+void IfSequential::write_to_stream(83,2656
+int IfSequential::Elsif::condition_emit(112,3403
+int IfSequential::Elsif::statement_emit(117,3533
+void IfSequential::Elsif::condition_write_to_stream(128,3803
+void IfSequential::Elsif::statement_write_to_stream(133,3906
+int ReturnStmt::emit(140,4101
+void ReturnStmt::write_to_stream(149,4307
+int SignalSeqAssignment::emit(156,4438
+void SignalSeqAssignment::write_to_stream(176,4863
+int VariableSeqAssignment::emit(191,5176
+void VariableSeqAssignment::write_to_stream(204,5439
+int ProcedureCall::emit(212,5613
+int LoopStatement::emit_substatements(241,6363
+void LoopStatement::write_to_stream_substatements(252,6674
+int CaseSeqStmt::emit(261,6912
+void CaseSeqStmt::write_to_stream(280,7347
+int CaseSeqStmt::CaseStmtAlternative::emit(295,7695
+void CaseSeqStmt::CaseStmtAlternative::write_to_stream(337,8630
+int WhileLoopStatement::emit(361,9249
+void WhileLoopStatement::write_to_stream(374,9538
+int ForLoopStatement::emit(383,9752
+void ForLoopStatement::write_to_stream(449,11735
+int ForLoopStatement::emit_runtime_(458,11956
+int BasicLoopStatement::emit(483,12770
+void BasicLoopStatement::write_to_stream(494,13000
+int ReportStmt::emit(501,13159
+    struct emitter 516,13578
+        emitter(emitter::emitter517,13620
+        void operator() emitter::operator()521,13789
+            ostream&out_;emitter::out_548,14633
+            Entity*ent_;emitter::ent_549,14659
+            ScopeBase*scope_;emitter::scope_550,14684
+            int level_lock_;emitter::level_lock_551,14714
+void ReportStmt::write_to_stream(566,14961
+int AssertStmt::emit(583,15392
+void AssertStmt::write_to_stream(596,15681
+int WaitForStmt::emit(604,15847
+void WaitForStmt::write_to_stream(615,16049
+int WaitStmt::emit(621,16161
+void WaitStmt::write_to_stream(659,17014
+
+sequential.h,3984
+#define IVL_sequential_H2,25
+struct SeqStmtVisitor 32,1106
+    virtual ~SeqStmtVisitor(SeqStmtVisitor::~SeqStmtVisitor33,1130
+class SequentialStmt 37,1220
+      virtual void visit(SequentialStmt::visit50,1646
+class LoopStatement 57,1803
+      inline perm_string loop_name(LoopStatement::loop_name62,1963
+      perm_string name_;LoopStatement::name_73,2339
+      std::list<SequentialStmt*> stmts_;LoopStatement::stmts_74,2364
+class IfSequential 77,2409
+      class Elsif IfSequential::Elsif80,2468
+	    Expression*cond_;IfSequential::Elsif::cond_96,2984
+	    std::list<SequentialStmt*>if_;IfSequential::Elsif::if_97,3007
+      const Expression*peek_condition(IfSequential::peek_condition116,3589
+      size_t false_size(IfSequential::false_size118,3654
+      Expression*cond_;IfSequential::cond_126,3935
+      std::list<SequentialStmt*> if_;IfSequential::if_127,3959
+      std::list<IfSequential::Elsif*> elsif_;IfSequential::elsif_128,3997
+      std::list<SequentialStmt*> else_;IfSequential::else_129,4043
+class ReturnStmt 132,4087
+      const Expression*peek_expr(ReturnStmt::peek_expr143,4425
+      Expression*val_;ReturnStmt::val_147,4536
+class SignalSeqAssignment 150,4563
+      Expression*lval_;SignalSeqAssignment::lval_162,4960
+      std::list<Expression*> waveform_;SignalSeqAssignment::waveform_163,4984
+class CaseSeqStmt 166,5028
+      class CaseStmtAlternative CaseSeqStmt::CaseStmtAlternative168,5084
+            std::list<Expression*>*exp_;CaseSeqStmt::CaseStmtAlternative::exp_180,5633
+	    std::list<SequentialStmt*> stmts_;CaseSeqStmt::CaseStmtAlternative::stmts_181,5674
+      Expression* cond_;CaseSeqStmt::cond_199,6271
+      std::list<CaseStmtAlternative*> alt_;CaseSeqStmt::alt_200,6296
+class ProcedureCall 203,6344
+      perm_string name_;ProcedureCall::name_215,6800
+      std::list<named_expr_t*>* param_list_;ProcedureCall::param_list_216,6825
+      SubprogramHeader*def_;ProcedureCall::def_217,6870
+class VariableSeqAssignment 220,6903
+      Expression*lval_;VariableSeqAssignment::lval_232,7295
+      Expression*rval_;VariableSeqAssignment::rval_233,7319
+class WhileLoopStatement 236,7347
+      Expression* cond_;WhileLoopStatement::cond_248,7744
+class ForLoopStatement 251,7773
+      perm_string it_;ForLoopStatement::it_267,8381
+      ExpRange* range_;ForLoopStatement::range_268,8404
+class BasicLoopStatement 271,8432
+class ReportStmt 282,8798
+      typedef enum { UNSPECIFIED,ReportStmt::UNSPECIFIED284,8853
+      typedef enum { UNSPECIFIED, NOTE,ReportStmt::NOTE284,8853
+      typedef enum { UNSPECIFIED, NOTE, WARNING,ReportStmt::WARNING284,8853
+      typedef enum { UNSPECIFIED, NOTE, WARNING, ERROR,ReportStmt::ERROR284,8853
+      typedef enum { UNSPECIFIED, NOTE, WARNING, ERROR, FAILURE ReportStmt::FAILURE284,8853
+      typedef enum { UNSPECIFIED, NOTE, WARNING, ERROR, FAILURE } severity_t;ReportStmt::severity_t284,8853
+      virtual ~ReportStmt(ReportStmt::~ReportStmt287,8991
+      inline Expression*message(ReportStmt::message294,9228
+      inline severity_t severity(ReportStmt::severity295,9285
+      Expression*msg_;ReportStmt::msg_300,9421
+      severity_t severity_;ReportStmt::severity_301,9444
+class AssertStmt 304,9476
+      Expression*cond_;AssertStmt::cond_315,9876
+      static const char*default_msg_;AssertStmt::default_msg_318,9962
+class WaitForStmt 321,10004
+      Expression*delay_;WaitForStmt::delay_331,10325
+class WaitStmt 334,10354
+      typedef enum { ON,WaitStmt::ON336,10407
+      typedef enum { ON, UNTIL,WaitStmt::UNTIL336,10407
+      typedef enum { ON, UNTIL, FINAL WaitStmt::FINAL336,10407
+      typedef enum { ON, UNTIL, FINAL } wait_type_t;WaitStmt::wait_type_t336,10407
+      inline wait_type_t type(WaitStmt::type344,10722
+      wait_type_t type_;WaitStmt::type_347,10792
+      Expression*expr_;WaitStmt::expr_348,10817
+      std::set<ExpName*> sens_list_;WaitStmt::sens_list_350,10894
+
+std_funcs.cc,1492
+static std::map<perm_string,SubHeaderList> std_subprograms;25,934
+static inline void register_std_subprogram(27,995
+class SubprogramToInteger 33,1160
+      SubprogramToInteger(SubprogramToInteger::SubprogramToInteger35,1229
+      int emit_name(SubprogramToInteger::emit_name41,1474
+class SubprogramSizeCast 65,2379
+      explicit SubprogramSizeCast(SubprogramSizeCast::SubprogramSizeCast67,2447
+      int emit_name(SubprogramSizeCast::emit_name74,2767
+      int emit_args(SubprogramSizeCast::emit_args89,3259
+class SubprogramReadWrite 96,3453
+      SubprogramReadWrite(SubprogramReadWrite::SubprogramReadWrite98,3520
+      enum format_t SubprogramReadWrite::format_t106,3937
+      enum format_t { FORMAT_STD,SubprogramReadWrite::format_t::FORMAT_STD106,3937
+      enum format_t { FORMAT_STD, FORMAT_BOOL,SubprogramReadWrite::format_t::FORMAT_BOOL106,3937
+      enum format_t { FORMAT_STD, FORMAT_BOOL, FORMAT_TIME,SubprogramReadWrite::format_t::FORMAT_TIME106,3937
+      enum format_t { FORMAT_STD, FORMAT_BOOL, FORMAT_TIME, FORMAT_HEX,SubprogramReadWrite::format_t::FORMAT_HEX106,3937
+      enum format_t { FORMAT_STD, FORMAT_BOOL, FORMAT_TIME, FORMAT_HEX, FORMAT_STRING SubprogramReadWrite::format_t::FORMAT_STRING106,3937
+      int emit_args(SubprogramReadWrite::emit_args108,4027
+      bool hex_format_;SubprogramReadWrite::hex_format_149,5361
+void preload_std_funcs(152,5389
+void delete_std_funcs(404,17806
+SubHeaderList find_std_subprogram(415,18120
+
+std_funcs.h,29
+#define IVL_std_funcs_H2,24
+
+std_types.cc,371
+static map<perm_string, VTypeDef*> std_types;24,911
+static list<const VTypeEnum*> std_enums;26,1023
+const VTypeArray primitive_CHARACTER(&primitive_BIT,primitive_BIT39,1657
+void generate_global_types(47,2330
+void delete_global_types(91,4789
+const VTypeEnum*find_std_enum_name(find_std_enum_name103,5091
+void emit_std_types(114,5345
+bool is_global_type(126,5713
+
+subprogram.cc,1396
+SubprogramBody::SubprogramBody(33,1181
+SubprogramBody::~SubprogramBody(38,1258
+const InterfacePort*SubprogramBody::find_param(SubprogramBody::find_param42,1297
+void SubprogramBody::set_statements(50,1454
+int SubprogramBody::elaborate(56,1590
+void SubprogramBody::write_to_stream(68,1853
+SubprogramHeader::SubprogramHeader(89,2483
+SubprogramHeader::~SubprogramHeader(95,2686
+bool SubprogramHeader::compare_specification(109,2946
+const InterfacePort*SubprogramHeader::find_param(SubprogramHeader::find_param140,3529
+const InterfacePort*SubprogramHeader::peek_param(SubprogramHeader::peek_param154,3850
+const VType*SubprogramHeader::peek_param_type(SubprogramHeader::peek_param_type165,4118
+bool SubprogramHeader::unbounded(175,4297
+void SubprogramHeader::set_body(190,4663
+int SubprogramHeader::elaborate_argument(198,4831
+SubprogramHeader*SubprogramHeader::make_instance(SubprogramHeader::make_instance227,5790
+struct check_return_type 270,7323
+    explicit check_return_type(check_return_type::check_return_type271,7374
+    void operator() check_return_type::operator()273,7467
+    const VType*get_type(check_return_type::get_type303,8426
+    const SubprogramBody*subp_;check_return_type::subp_306,8491
+    const VType*ret_type_;check_return_type::ret_type_307,8523
+void SubprogramHeader::fix_return_type(310,8554
+void SubprogramHeader::write_to_stream(334,9338
+
+subprogram_emit.cc,295
+int SubprogramBody::emit_package(29,1052
+int SubprogramHeader::emit_package(52,1729
+int SubprogramHeader::emit_full_name(101,2689
+int SubprogramHeader::emit_name(117,3454
+int SubprogramHeader::emit_args(124,3641
+int SubprogramBuiltin::emit_name(137,4002
+void emit_subprogram_sig(145,4239
+
+subprogram.h,1744
+#define IVL_subprogram_H2,25
+class SubprogramBody 37,1247
+      inline bool empty_statements(SubprogramBody::empty_statements46,1497
+      const SubprogramHeader*header(SubprogramBody::header57,1860
+      std::list<SequentialStmt*>*statements_;SubprogramBody::statements_60,1938
+      SubprogramHeader*header_;SubprogramBody::header_61,1984
+class SubprogramHeader 66,2056
+      int param_count(SubprogramHeader::param_count76,2421
+      const VType*peek_return_type(SubprogramHeader::peek_return_type80,2655
+      inline void set_package(SubprogramHeader::set_package82,2724
+      inline const Package*get_package(SubprogramHeader::get_package83,2812
+      virtual bool is_std(SubprogramHeader::is_std89,3038
+      inline SubprogramBody*body(SubprogramHeader::body91,3091
+      inline perm_string name(SubprogramHeader::name94,3192
+      int elaborate(SubprogramHeader::elaborate96,3249
+      perm_string name_;SubprogramHeader::name_137,5164
+      std::list<InterfacePort*>*ports_;SubprogramHeader::ports_139,5190
+      const VType*return_type_;SubprogramHeader::return_type_140,5230
+      SubprogramBody*body_;SubprogramHeader::body_141,5262
+      const Package*package_;SubprogramHeader::package_142,5290
+class SubprogramStdHeader 146,5401
+      SubprogramStdHeader(SubprogramStdHeader::SubprogramStdHeader149,5467
+      virtual ~SubprogramStdHeader(SubprogramStdHeader::~SubprogramStdHeader152,5639
+      bool is_std(SubprogramStdHeader::is_std154,5681
+class SubprogramBuiltin 158,5793
+      SubprogramBuiltin(SubprogramBuiltin::SubprogramBuiltin161,5860
+      ~SubprogramBuiltin(SubprogramBuiltin::~SubprogramBuiltin164,6085
+      perm_string sv_name_;SubprogramBuiltin::sv_name_170,6273
+
+test.vhd,165
+library ieee;7,148
+use ieee.std_logic_1164.all;all8,162
+	F: out std_logic14,274
+end Driver;16,295
+    process(23,391
+    end process;31,547
+end behv1;33,565
+
+version_base.h,179
+# define VERSION_MAJOR 6,128
+# define VERSION_MINOR 7,155
+# define VERSION_EXTRA 13,286
+# define VERSION_STRINGIFY(15,323
+# define VERSION_STR(16,356
+#define VERSION 18,418
+
+vhdlint.cc,212
+bool vhdlint::is_negative(28,952
+bool vhdlint::is_positive(33,1015
+bool vhdlint::is_zero(38,1078
+vhdlint::vhdlint(43,1138
+vhdlint::vhdlint(75,1751
+vhdlint::vhdlint(80,1811
+int64_t vhdlint::as_long(85,1881
+
+vhdlint.h,96
+#define IVL_vhdlint_H2,22
+class vhdlint24,920
+        int64_t value_;vhdlint::value_40,1400
+
+vhdlnum.h,88
+#define IVL_vhdlnum_H2,22
+class vhdlnum 8,84
+        vhdlnum(vhdlnum::vhdlnum10,112
+
+vhdlpp_config.h,202
+#define IVL_vhdlpp_config_H3,160
+     using namespace std;25,1093
+     using namespace std;27,1143
+# define HAVE_GETOPT_H 31,1186
+# define HAVE_INTTYPES_H 32,1211
+# define HAVE_SYS_WAIT_H 35,1295
+
+vhdlpp_config.h.in,256
+#define IVL_vhdlpp_config_H2,80
+     using namespace std;24,1013
+     using namespace std;26,1063
+# undef HAVE_GETOPT_H30,1106
+# undef HAVE_INTTYPES_H31,1128
+# undef HAVE_LIBIBERTY_H32,1152
+# undef HAVE_FCHMOD33,1177
+# undef HAVE_SYS_WAIT_H34,1197
+
+vhdlreal.cc,329
+vhdlreal::vhdlreal(27,953
+vhdlreal::vhdlreal(31,997
+vhdlreal::vhdlreal(35,1054
+vhdlreal::vhdlreal(39,1129
+ostream& operator<< 55,1483
+vhdlreal operator+ 58,1576
+vhdlreal operator- 61,1694
+vhdlreal operator* 64,1812
+vhdlreal operator/ 67,1930
+vhdlreal operator% 70,2048
+vhdlreal pow(73,2171
+vhdlreal operator- 76,2286
+
+vhdlreal.h,202
+#define IVL_vhdlreal_h2,23
+class vhdlreal30,1136
+      virtual ~vhdlreal(vhdlreal::~vhdlreal47,1857
+      double as_double(vhdlreal::as_double49,1888
+      double value_;vhdlreal::value_54,1968
+
+vsignal.cc,237
+SigVarBase::SigVarBase(30,1066
+SigVarBase::~SigVarBase(35,1203
+void SigVarBase::elaborate(39,1234
+void SigVarBase::type_elaborate_(47,1410
+int Signal::emit(52,1493
+int Variable::emit(78,2295
+void Variable::write_to_stream(96,2696
+
+vsignal.h,697
+#define IVL_vsignal_H2,22
+class SigVarBase 31,1041
+      const VType* peek_type(SigVarBase::peek_type37,1197
+      perm_string peek_name(SigVarBase::peek_name48,1543
+      unsigned peek_refcnt_sequ_(SigVarBase::peek_refcnt_sequ_51,1613
+      Expression* peek_init_expr(SigVarBase::peek_init_expr55,1729
+      perm_string name_;SigVarBase::name_58,1807
+      const VType*type_;SigVarBase::type_59,1832
+      Expression*init_expr_;SigVarBase::init_expr_60,1857
+      unsigned refcnt_sequ_;SigVarBase::refcnt_sequ_62,1887
+class Signal 69,2040
+class Variable 77,2223
+inline void SigVarBase::count_ref_sequ(86,2462
+inline Signal::Signal(91,2533
+inline Variable::Variable(96,2654
+
+vtype.cc,1528
+VType::~VType(30,1028
+void VType::show(34,1049
+perm_string VType::get_generic_typename(39,1118
+VTypePrimitive::VTypePrimitive(46,1270
+VTypePrimitive::~VTypePrimitive(51,1375
+void VTypePrimitive::show(55,1414
+int VTypePrimitive::get_width(79,1790
+VTypeArray::range_t*VTypeArray::range_t::clone(VTypeArray::range_t::clone99,2183
+VTypeArray::VTypeArray(104,2327
+VTypeArray::VTypeArray(116,2802
+VTypeArray::VTypeArray(126,3154
+VTypeArray::~VTypeArray(133,3404
+VType*VTypeArray::clone(VTypeArray::clone137,3435
+const VType* VTypeArray::basic_type(149,3834
+void VTypeArray::show(173,4466
+int VTypeArray::get_width(199,5017
+bool VTypeArray::is_unbounded(223,5604
+bool VTypeArray::is_variable_length(234,5851
+void VTypeArray::evaluate_ranges(253,6290
+VTypeRange::VTypeRange(265,6750
+VTypeRange::~VTypeRange(270,6810
+VTypeRangeConst::VTypeRangeConst(274,6841
+VTypeRangeExpr::VTypeRangeExpr(279,6986
+VTypeRangeExpr::~VTypeRangeExpr(285,7200
+VType*VTypeRangeExpr::clone(VTypeRangeExpr::clone291,7275
+VTypeEnum::VTypeEnum(296,7440
+VTypeEnum::~VTypeEnum(307,7691
+void VTypeEnum::show(311,7720
+bool VTypeEnum::has_name(321,7947
+VTypeRecord::VTypeRecord(326,8077
+VTypeRecord::~VTypeRecord(336,8334
+void VTypeRecord::show(342,8458
+int VTypeRecord::get_width(347,8533
+const VTypeRecord::element_t* VTypeRecord::element_by_name(364,8860
+VTypeRecord::element_t::element_t(380,9255
+VTypeDef::VTypeDef(385,9355
+VTypeDef::VTypeDef(390,9419
+VTypeDef::~VTypeDef(395,9502
+void VTypeDef::set_definition(399,9529
+
+vtype_elaborate.cc,103
+int VType::elaborate(24,959
+int VTypeArray::elaborate(29,1028
+int VTypeRangeExpr::elaborate(48,1477
+
+vtype_emit.cc,576
+int VType::decl_t::emit(33,1097
+int VType::emit_decl(38,1214
+int VType::emit_typedef(50,1434
+int VTypeERROR::emit_def(55,1520
+int VTypeArray::emit_def(61,1626
+int VTypeArray::emit_typedef(90,2393
+int VTypeArray::emit_with_dims_(95,2519
+int VTypeEnum::emit_def(153,3994
+int VTypeEnum::emit_decl(168,4353
+int VTypePrimitive::emit_primitive_type(179,4548
+int VTypePrimitive::emit_def(208,5018
+int VTypeRange::emit_def(216,5202
+int VTypeRecord::emit_def(224,5423
+int VTypeDef::emit_def(247,6146
+int VTypeDef::emit_decl(255,6285
+int VTypeDef::emit_typedef(260,6418
+
+vtype.h,5393
+#define IVL_vtype_H2,20
+typedef enum typedef_topo_e 40,1278
+typedef enum typedef_topo_e { NONE=typedef_topo_e::NONE40,1278
+typedef enum typedef_topo_e { NONE=0, PENDING,typedef_topo_e::PENDING40,1278
+typedef enum typedef_topo_e { NONE=0, PENDING, MARKED typedef_topo_e::MARKED40,1278
+typedef enum typedef_topo_e { NONE=0, PENDING, MARKED } typedef_topo_t;40,1278
+typedef std::map<const VTypeDef*VTypeDef41,1350
+typedef std::map<const VTypeDef*, typedef_topo_t> typedef_context_t;41,1350
+class VType 48,1609
+      VType(VType::VType51,1636
+      virtual bool can_be_packed(VType::can_be_packed95,3490
+      virtual bool is_unbounded(VType::is_unbounded98,3607
+      virtual bool is_variable_length(VType::is_variable_length102,3795
+      virtual int get_width(VType::get_width110,4128
+      struct decl_t VType::decl_t120,4574
+	    decl_t(VType::decl_t::decl_t121,4596
+	    const VType*type;VType::decl_t::type124,4699
+	    bool reg_flag;VType::decl_t::reg_flag125,4722
+      inline void emit_name(VType::emit_name129,4767
+inline std::ostream&operator << operator <<136,4936
+class VTypeERROR 147,5145
+    VType*clone(VTypeERROR::clone148,5179
+class VTypePrimitive 158,5396
+      enum type_t VTypePrimitive::type_t161,5447
+      enum type_t { BIT,VTypePrimitive::type_t::BIT161,5447
+      enum type_t { BIT, INTEGER,VTypePrimitive::type_t::INTEGER161,5447
+      enum type_t { BIT, INTEGER, NATURAL,VTypePrimitive::type_t::NATURAL161,5447
+      enum type_t { BIT, INTEGER, NATURAL, REAL,VTypePrimitive::type_t::REAL161,5447
+      enum type_t { BIT, INTEGER, NATURAL, REAL, STDLOGIC,VTypePrimitive::type_t::STDLOGIC161,5447
+      enum type_t { BIT, INTEGER, NATURAL, REAL, STDLOGIC, TIME VTypePrimitive::type_t::TIME161,5447
+      VType*clone(VTypePrimitive::clone167,5607
+      type_t type(VTypePrimitive::type174,5853
+      bool can_be_packed(VTypePrimitive::can_be_packed179,6015
+      type_t type_;VTypePrimitive::type_182,6082
+      bool packed_;VTypePrimitive::packed_183,6102
+class VTypeArray 192,6394
+      class range_t VTypeArray::range_t195,6441
+	    range_t(VTypeArray::range_t::range_t197,6474
+	    inline bool is_box(VTypeArray::range_t::is_box202,6640
+	    inline bool is_downto(VTypeArray::range_t::is_downto203,6703
+	    inline Expression* msb(VTypeArray::range_t::msb205,6762
+	    inline Expression* lsb(VTypeArray::range_t::lsb206,6815
+	    Expression* msb_;VTypeArray::range_t::msb_209,6881
+	    Expression* lsb_;VTypeArray::range_t::lsb_210,6904
+	    bool direction_;VTypeArray::range_t::direction_211,6927
+      inline size_t dimensions(VTypeArray::dimensions229,7581
+      const range_t&dimension(VTypeArray::dimension230,7648
+      inline bool signed_vector(VTypeArray::signed_vector233,7728
+      inline const VType* element_type(VTypeArray::element_type236,7844
+      bool can_be_packed(VTypeArray::can_be_packed247,8340
+      inline void set_parent_type(VTypeArray::set_parent_type254,8522
+      const VType*etype_;VTypeArray::etype_267,9021
+      std::vector<range_t> ranges_;VTypeArray::ranges_268,9047
+      bool signed_flag_;VTypeArray::signed_flag_269,9083
+      const VTypeArray*parent_;VTypeArray::parent_270,9108
+class VTypeRange 273,9144
+      inline const VType*base_type(VTypeRange::base_type284,9469
+      const VType*base_;VTypeRange::base_287,9546
+class VTypeRangeConst 290,9575
+      VType*clone(VTypeRangeConst::clone295,9702
+      int64_t start(VTypeRangeConst::start299,9813
+      int64_t end(VTypeRangeConst::end300,9860
+      const int64_t start_,VTypeRangeConst::start_305,9969
+      const int64_t start_, end_;VTypeRangeConst::end_305,9969
+class VTypeRangeExpr 308,10007
+      Expression*start_,VTypeRangeExpr::start_322,10376
+      Expression*start_, *end_;VTypeRangeExpr::end_322,10376
+      bool downto_;VTypeRangeExpr::downto_325,10446
+class VTypeEnum 328,10470
+      VType*clone(VTypeEnum::clone334,10599
+      int get_width(VTypeEnum::get_width338,10748
+      std::vector<perm_string>names_;VTypeEnum::names_347,11048
+class VTypeRecord 350,11090
+      class element_t VTypeRecord::element_t353,11138
+	    inline perm_string peek_name(VTypeRecord::element_t::peek_name359,11275
+	    inline const VType* peek_type(VTypeRecord::element_t::peek_type360,11335
+	    perm_string name_;VTypeRecord::element_t::name_363,11409
+	    const VType*type_;VTypeRecord::element_t::type_364,11433
+      VType*clone(VTypeRecord::clone375,11670
+      bool can_be_packed(VTypeRecord::can_be_packed382,11928
+      inline const std::vector<element_t*> get_elements(VTypeRecord::get_elements384,12060
+      std::vector<element_t*> elements_;VTypeRecord::elements_387,12160
+class VTypeDef 390,12205
+      VType*clone(VTypeDef::clone397,12380
+      inline perm_string peek_name(VTypeDef::peek_name401,12487
+      inline const VType* peek_definition(VTypeDef::peek_definition409,12812
+      int get_width(VTypeDef::get_width413,13000
+      bool can_be_packed(VTypeDef::can_be_packed419,13292
+      bool is_unbounded(VTypeDef::is_unbounded421,13361
+      perm_string name_;VTypeDef::name_424,13443
+      const VType*type_;VTypeDef::type_425,13468
+class VSubTypeDef 428,13497
+      explicit VSubTypeDef(VSubTypeDef::VSubTypeDef430,13547
+      explicit VSubTypeDef(VSubTypeDef::VSubTypeDef431,13612
+
+vtype_match.cc,181
+bool VType::type_match(23,933
+bool VTypeDef::type_match(36,1208
+bool VTypePrimitive::type_match(44,1359
+bool VTypeArray::type_match(66,2081
+bool VTypeRange::type_match(89,2739
+
+vtype_stream.cc,809
+# define __STDC_LIMIT_MACROS20,850
+void VType::write_to_stream(29,1018
+void VType::write_type_to_stream(34,1135
+void VType::write_typedef_to_stream(39,1218
+void VTypeArray::write_to_stream(49,1441
+void VTypeArray::write_range_to_stream_(77,2060
+bool VTypeArray::write_special_case(97,2506
+void VTypeArray::write_type_to_stream(120,3077
+void VTypeDef::write_type_to_stream(146,3620
+void VTypeDef::write_to_stream(151,3718
+void VTypePrimitive::write_to_stream(156,3791
+bool VTypeRange::write_std_types(184,4258
+void VTypeRangeConst::write_to_stream(198,4623
+void VTypeRangeExpr::write_to_stream(209,4863
+void VTypeRecord::write_to_stream(221,5134
+void VTypeRecord::element_t::write_to_stream(231,5372
+void VTypeEnum::write_to_stream(237,5501
+void VSubTypeDef::write_typedef_to_stream(251,5796
+
+parse.y,12685
+inline void FILE_NAME(54,1691
+# define YYLLOC_DEFAULT(65,2099
+int parse_errors 71,2381
+int parse_sorrys 72,2403
+static ActiveScope*active_scope active_scope86,2776
+static stack<ActiveScope*> scope_stack;87,2827
+static SubprogramHeader*active_sub active_sub88,2867
+static ActiveScope*arc_scope arc_scope89,2910
+static void push_scope(98,3273
+static void pop_scope(105,3426
+static bool is_subprogram_param(113,3588
+void preload_global_types(121,3737
+static void delete_global_scope(129,3938
+static void delete_design_entities(136,4117
+void parser_cleanup(144,4349
+const VType*parse_type_by_name(parse_type_by_name152,4488
+static Expression*aggregate_or_primary(aggregate_or_primary167,5056
+static list<VTypeRecord::element_t*>* record_elements(185,5509
+static void touchup_interface_for_functions(198,5885
+      port_mode_t port_mode;212,6180
+      char*text;text214,6210
+      std::list<perm_string>* name_list;216,6228
+      bool flag;218,6270
+      int64_t uni_integer;219,6287
+      double  uni_real;220,6314
+      Expression*expr;expr222,6339
+      std::list<Expression*>* expr_list;223,6362
+      SequentialStmt* sequ;225,6404
+      std::list<SequentialStmt*>*sequ_list;sequ_list226,6432
+      IfSequential::Elsif*elsif;elsif228,6477
+      std::list<IfSequential::Elsif*>*elsif_list;elsif_list229,6510
+      ExpConditional::case_t*exp_options;exp_options231,6561
+      std::list<ExpConditional::case_t*>*exp_options_list;exp_options_list232,6603
+      CaseSeqStmt::CaseStmtAlternative* case_alt;234,6663
+      std::list<CaseSeqStmt::CaseStmtAlternative*>* case_alt_list;235,6713
+      named_expr_t*named_expr;named_expr237,6781
+      std::list<named_expr_t*>*named_expr_list;named_expr_list238,6812
+      entity_aspect_t* entity_aspect;239,6860
+      instant_list_t* instantiation_list;240,6898
+      std::pair<instant_list_t*instant_list_t241,6940
+      std::pair<instant_list_t*, ExpName*>* component_specification;241,6940
+      const VType* vtype;243,7010
+      ExpRange*range;range245,7037
+      std::list<ExpRange*>*range_list;range_list246,7059
+      ExpRange::range_dir_t range_dir;247,7098
+      ExpArithmetic::fun_t arithmetic_op;249,7138
+      std::list<struct adding_term>*adding_terms;adding_terms250,7180
+      ExpAggregate::choice_t*choice;choice252,7231
+      std::list<ExpAggregate::choice_t*>*choice_list;choice_list253,7268
+      ExpAggregate::element_t*element;element254,7322
+      std::list<ExpAggregate::element_t*>*element_list;element_list255,7361
+      std::list<VTypeRecord::element_t*>*record_elements;record_elements257,7418
+      std::list<InterfacePort*>* interface_list;259,7477
+      Architecture::Statement* arch_statement;261,7527
+      std::list<Architecture::Statement*>* arch_statement_list;262,7574
+      ReportStmt::severity_t severity;264,7639
+      SubprogramHeader*subprogram;subprogram266,7679
+      file_open_info_t*file_info;file_info268,7715
+design_file 392,13146
+  : '+' { $$ = Eadding_operator394,13205
+  : architecture_barchitecture_body400,13344
+  : K_architecture IDENTarchitecture_body_start422,13979
+  : architecture_statement_parchitecture_statement_part434,14206
+argument_list 453,14667
+  : argument_list argument_list_opt455,14722
+  : K_assert expressassertion_statement460,14792
+  : IDENTIFIER ARROWassociation_element476,15215
+  : association_lassociation_list494,15622
+  : K_use entity_asbinding_indication507,15905
+  : binding_indication ';' { $$ =binding_indication_semicolon_opt517,16222
+  : K_for IDENTIFIERblock_configuration522,16316
+  : block_configurationblock_configuration_opt530,16450
+  : K_signal identifierblock_declarative_item535,16507
+  : block_declarative_itblock_declarative_items576,17537
+  : block_declarative_itemsblock_declarative_items_opt581,17644
+  : K_case exprcase_statement586,17709
+  : case_statement_alternative_lcase_statement_alternative_list597,17919
+  : K_when choices ARROW secase_statement_alternative617,18570
+  : simchoice655,19916
+  : choichoices664,20137
+  : K_for component_speccomponent_configuration677,20406
+  : K_component IDENTIcomponent_declaration694,20825
+  : IDENTIFIERinstantiated_unit722,21541
+  : IDENTIFIER ':' instantiated_uncomponent_instantiation_statement727,21619
+  : instantiation_list 'component_specification747,22157
+  : K_array index_constraicomposite_type_definition756,22396
+  : assertion_statementconcurrent_assertion_statement779,23021
+  : name LEQ waveform K_when expression econcurrent_conditional_signal_assignment799,23780
+  : name LEQ waveform ';'concurrent_simple_signal_assignment831,24770
+  : else_when_wavefoelse_when_waveforms842,25010
+  : else_when_waveforms else_when_waveforms_opt855,25309
+  : K_else waveformelse_when_waveform861,25392
+  : concurrent_simple_signal_assignmentconcurrent_signal_assignment_statement874,25700
+  : component_instantconcurrent_statement907,26417
+  : K_configuration IDENTIconfiguration_declaration915,26604
+  : use_clauseconfiguration_declarative_item933,27332
+  : configuration_declarative_itconfiguration_declarative_items937,27383
+  : configuration_declarative_iconfiguration_declarative_part942,27522
+  : block_configuraconfiguration_item947,27598
+  : configuration_itconfiguration_items952,27674
+  : configuration_itemsconfiguration_items_opt957,27765
+  : K_constant identiconstant_declaration962,27822
+context_clause 1000,28972
+  : library_ccontext_item1002,29008
+  : context_itcontext_items1007,29064
+  : context_design_unit1013,29132
+  : design_undesign_units1018,29234
+  : K_to {direction1023,29297
+  : choices ARROW exelement_association1028,29384
+  : element_association_lelement_association_list1040,29652
+  : identifier_list element_declaration1053,29984
+  : element_declaration_lelement_declaration_list1060,30121
+  : K_entity nentity_aspect1071,30381
+  : entity_aspect entity_aspect_opt1091,30879
+  : K_entity IDENTIentity_declaration1096,30949
+  : IDENTIFIERenumeration_literal1121,31662
+  : enumeration_literal_lenumeration_literal_list1130,31828
+  : expression_lexpression_list1146,32150
+  : expressexpression1159,32392
+  : relation { $$ =expression_logical1189,33268
+  : relationexpression_logical_and1223,34180
+  : relationexpression_logical_or1233,34388
+  : relationexpression_logical_xnor1243,34592
+  : relationexpression_logical_xor1253,34804
+  : prifactor1263,35012
+  : K_file identifile_declaration1283,35388
+  : K_open IDENTIFIER file_open_information1327,36874
+  : file_open_information file_open_information_opt1340,37212
+  : IDENTIFIER ':' K_fofor_generate_statement1345,37298
+  : K_function IDENTIFIfunction_specification1366,37827
+  : if_generate_stagenerate_statement1380,38272
+  : architecture_statemegenerate_statement_body1385,38376
+  : generic_clausegeneric_clause_opt1389,38450
+  : K_generic pgeneric_clause1396,38533
+  : generic_map_aspect generic_map_aspect_opt1406,38728
+  : K_generic K_mapgeneric_map_aspect1411,38827
+  : identifier_lidentifier_list1421,39046
+identifier_opt 1436,39366
+identifier_colon_opt 1438,39424
+  : IDENTIFIER ':' K_iif_generate_statement1444,39701
+  : K_if exprif_statement1463,40177
+  : if_statement_elsif_list if_statement_elsif_list_opt1497,40946
+  : if_statement_elsif_lif_statement_elsif_list1502,41061
+  : K_elsif expressif_statement_elsif1515,41358
+  : K_else sequencif_statement_else1529,41685
+  : '(' range_lisindex_constraint1541,41894
+  : IDENTIFIER K_range BOindex_subtype_definition1552,42125
+  : index_subtype_definition_lindex_subtype_definition_list1556,42212
+  : identifier_listinstantiation_list1561,42339
+  : identifier_lisinterface_element1580,42752
+  : VASSIGN expression { $$ =interface_element_expression1598,43257
+  : interface_linterface_list1603,43362
+  : K_library llibrary_clause1616,43614
+  : primary_ulibrary_unit1627,43924
+logical_name 1632,43978
+  : logical_name_llogical_name_list1634,44020
+  : identifier_loop_statement1649,44347
+  : Kmode1704,46188
+mode_opt 1710,46288
+  : Iname1712,46338
+  : IDENTIFIEindexed_name1745,47301
+  : name_lname_list1770,48176
+  : package_declaratpackage_declaration1783,48409
+  : K_package IDENTIFIERpackage_declaration_start1809,49235
+  : use_clausepackage_body_declarative_item1818,49417
+  : package_body_declarative_itpackage_body_declarative_items1823,49512
+  : package_body_declarative_itemspackage_body_declarative_part_opt1827,49646
+  : component_declarationpackage_declarative_item1832,49724
+  : package_declarative_itpackage_declarative_items1845,49993
+  : package_declarative_itemspackage_declarative_part_opt1850,50108
+  : package_bpackage_body1855,50176
+  : K_package K_bodpackage_body_start1878,50830
+  : '(' interfaparameter_list1892,51183
+  : parameter_list parameter_list_opt1896,51243
+  : K_port pport_clause1901,51332
+port_clause_opt 1911,51508
+  : K_port K_mapport_map_aspect1913,51564
+  : port_map_aspect port_map_aspect_opt1922,51755
+  : namprefix1928,51848
+  : nameprimary1933,51914
+  : entity_deprimary_unit2029,54289
+  : IDENTIFIER procedure_call2035,54384
+  : IDENTIFIER ':' procedprocedure_call_statement2066,55101
+  : K_procedure IDENTIFIprocedure_specification2074,55236
+  : variable_declarationprocess_declarative_item2085,55541
+  : process_declarative_pprocess_declarative_part2090,55617
+  : process_declarative_partprocess_declarative_part_opt2095,55730
+  : identifierprocess_start2100,55797
+  : process_start process_statement2107,55917
+  : '(' process_sensitivity_lprocess_sensitivity_list_opt2148,57103
+  : K_allprocess_sensitivity_list2160,57321
+  : sirange2172,57552
+  : rangerange_list2204,58412
+  : K_record element_derecord_type_definition2217,58628
+  : shiftrelation2224,58775
+  : K_report exprreport_statement2259,59771
+  : K_return exprreturn_statement2266,59918
+  : architectursecondary_unit2286,60332
+  : prefix '.'selected_name2291,60391
+  : selected_naselected_names2310,60853
+  : IDENTIFIER '.'selected_name_lib2326,61316
+  : selected_names_selected_names_lib2344,61701
+  : K_with expression K_selselected_signal_assignment2349,61792
+  : waveform K_wheselected_waveform2365,62155
+  : selected_waveform_lselected_waveform_list2378,62464
+  : list_of_statemelist_of_statements2391,62770
+  : list_of_statements sequence_of_statements2406,63097
+  : if_statement     sequential_statement2411,63180
+  : K_sevseverity2430,63719
+  : severity severity_opt2447,64212
+  : simple_expresshift_expression2451,64290
+  : 'sign2487,65392
+  : VASSIGN expression { $$ = signal_declaration_assign_opt2492,65418
+  : sign simple_exsimple_expression2516,66419
+  : termsimple_expression_22525,66594
+  : adding_operator termsimple_expression_terms2545,67056
+  : name LEQ wavefsignal_assignment2564,67450
+  : signal_assignmentsignal_assignment_statement2579,67850
+  : subprogram_specifisubprogram_body_start2586,67977
+  : subprogram_bsubprogram_body2596,68246
+  : subprogram_specificsubprogram_declaration2628,69089
+  : variable_declarationsubprogram_declarative_item2633,69215
+  : subprogram_declarative_item_lsubprogram_declarative_item_list2638,69320
+  : subprogram_declarative_isubprogram_declarative_part2643,69455
+  : K_functionsubprogram_kind2648,69555
+subprogram_kind_opt 2653,69633
+  : function_specificatiosubprogram_specification2655,69676
+  : sequence_of_statementssubprogram_statement_part2664,69977
+  : K_subtype IDENTIsubtype_declaration2668,70048
+  : IDENTIFIERsubtype_indication2689,70678
+  : IDEsuffix2718,71450
+  : fterm2729,71639
+  : K_type IDENTItype_declaration2754,72232
+  : '(' enumerattype_definition2791,73286
+  : K_use suse_clause2803,73498
+  : K_use selecuse_clause_lib2810,73646
+  : use_clauses_use_clauses_lib2816,73784
+  : use_clauses_use_clauses_opt2821,73859
+  : variable_assignmentvariable_assignment_statement2826,73904
+  : name VASSIGN expvariable_assignment2833,74066
+  : K_shared_opt K_vavariable_declaration2853,74526
+  : VASSIGN expression { $$ = $2variable_declaration_assign_opt2871,75113
+  : K_wait K_fowait_statement2876,75222
+  : wavefwaveform2899,75776
+  : waveform_elemewaveform_elements2906,75866
+  : expressionwaveform_element2919,76139
+K_architecture_opt 2932,76471
+K_configuration_opt:K_configuration_opt2933,76511
+K_entity_opt 2934,76551
+K_is_opt 2935,76591
+K_package_opt 2936,76631
+K_postponed_opt 2937,76671
+K_shared_opt 2938,76711
+static void yyerror(2941,76755
+void errormsg(2947,76934
+void sorrymsg(2958,77180
+int parse_source_file(2977,77665
+
+std_types.h,0
