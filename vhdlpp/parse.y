@@ -396,12 +396,16 @@ adding_operator
   | '&' { $$ = ExpArithmetic::xCONCAT; }
   ;
 
+/* (FLO:) Because this is some kind of semantic parser, some rules
+   (like this) have to use mid-rule actions in order to do certain
+   things at the right point of time. */
 architecture_body
   : architecture_body_start
-    K_of IDENTIFIER
+    K_of   IDENTIFIER
       { bind_entity_to_active_scope($3, active_scope); }
-    K_is block_declarative_items_opt
-    K_begin architecture_statement_part K_end K_architecture_opt identifier_opt ';'
+    K_is   block_declarative_items_opt
+    K_begin   architecture_statement_part
+    K_end  K_architecture_opt  identifier_opt ';'
       { Architecture*tmp = new Architecture(lex_strings.make($1),
 					    *active_scope, *$8);
 	FILE_NAME(tmp, @1);
@@ -477,7 +481,7 @@ association_element
       { named_expr_t*tmp = new named_expr_t(lex_strings.make($1), $3);
 	delete[]$1;
 	$$ = tmp;
-	}
+      }
   | IDENTIFIER ARROW K_open
       { named_expr_t*tmp = new named_expr_t(lex_strings.make($1), 0);
 	delete[]$1;

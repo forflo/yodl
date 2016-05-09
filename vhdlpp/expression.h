@@ -30,6 +30,7 @@
 # include  <memory>
 # include  <vector>
 # include  <cassert>
+# include  <string>
 
 class ExpRange;
 class ScopeBase;
@@ -68,11 +69,14 @@ private:
 class Expression : public LineInfo {
 
     public:
-      Expression();
+      Expression(int);
       virtual ~Expression() =0;
 
 	// Returns a deep copy of the expression.
       virtual Expression*clone() const =0;
+
+      int count;
+      virtual std::string toString(void) =0;
 
 	// This virtual method handles the special case of elaborating
 	// an expression that is the l-value of a sequential variable

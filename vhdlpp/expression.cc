@@ -32,14 +32,12 @@
 
 using namespace std;
 
-Expression::Expression()
-: type_(0)
-{
-}
+Expression::Expression(int count)
+     : type_(0)
+     , count(count) {}
 
 Expression::~Expression()
-{
-}
+{}
 
 void Expression::set_type(const VType*typ)
 {
