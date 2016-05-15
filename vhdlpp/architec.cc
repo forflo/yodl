@@ -27,8 +27,9 @@
 
 using namespace std;
 
-Architecture::Architecture(perm_string name, const ActiveScope& ref,
-                           list<Architecture::Statement *>& s)
+Architecture::Architecture(perm_string name, 
+        const ActiveScope& ref,
+        list<Architecture::Statement *>& s)
     : Scope(ref), name_(name), cur_component_(NULL), cur_process_(NULL) {
     statements_.splice(statements_.end(), s);
 }
@@ -40,14 +41,18 @@ Architecture::~Architecture() {
 }
 
 
-bool Architecture::find_constant(perm_string by_name, const VType *& typ, Expression *& exp) const {
+bool Architecture::find_constant(perm_string by_name, 
+        const VType *& typ, 
+        Expression *& exp) const {
     if (Scope::find_constant(by_name, typ, exp)) {
         return true;
     }
 
     // Check generics in components
     if (cur_component_) {
-        std::map<perm_string, ComponentBase *>::const_iterator c = new_components_.find(cur_component_->component_name());
+        std::map<perm_string, ComponentBase *>::const_iterator c = 
+            new_components_.find(cur_component_->component_name());
+
         if (c == new_components_.end()) {
             c = old_components_.find(cur_component_->component_name());
         }

@@ -26,41 +26,38 @@ using namespace std;
 
 class perm_string {
 public:
-    perm_string() : text_(0)
-    {
-    }
-    perm_string(const perm_string &that) : text_(that.text_)
-    {
-    }
-    ~perm_string()
-    {
-    }
+    perm_string() 
+        : text_(0)
+    { }
 
-    inline bool nil() const
-    {
+    perm_string(const perm_string &that) 
+        : text_(that.text_)
+    { }
+
+    ~perm_string()
+    { }
+
+    inline bool nil() const {
         return text_ == 0;
     }
 
-
-    perm_string& operator = (const perm_string &that)
-    { text_ = that.text_;
-      return *this;
+    perm_string& operator =(const perm_string &that) { 
+        text_ = that.text_;
+        return *this;
     }
 
-    const char *str() const
-    {
+    const char *str() const {
         return text_;
     }
 
-
-    operator const char * () const { return str();
+    operator const char * () const { 
+        return str();
     }
 
     // This is an escape for making perm_string objects out of
     // literals. For example, perm_string::literal("Label"); Please
     // do *not* cheat and pass arbitrary const char* items here.
-    static perm_string literal(const char *t)
-    {
+    static perm_string literal(const char *t) {
         return perm_string(t);
     }
 
@@ -68,24 +65,24 @@ public:
 private:
     friend class StringHeap;
     friend class StringHeapLex;
-    explicit perm_string(const char *t) : text_(t)
-    {
-    };
+    explicit perm_string(const char *t) 
+      : text_(t)
+    { };
 
 private:
     const char *text_;
 };
 
 extern const perm_string empty_perm_string;
-extern bool              operator == (perm_string a, perm_string b);
-extern bool              operator == (perm_string a, const char *b);
-extern bool              operator != (perm_string a, perm_string b);
-extern bool              operator != (perm_string a, const char *b);
-extern bool              operator > (perm_string a, perm_string b);
-extern bool              operator < (perm_string a, perm_string b);
-extern bool              operator >= (perm_string a, perm_string b);
-extern bool              operator <= (perm_string a, perm_string b);
-extern ostream&          operator << (ostream & out, perm_string that);
+extern bool operator == (perm_string a, perm_string b);
+extern bool operator == (perm_string a, const char *b);
+extern bool operator != (perm_string a, perm_string b);
+extern bool operator != (perm_string a, const char *b);
+extern bool operator > (perm_string a, perm_string b);
+extern bool operator < (perm_string a, perm_string b);
+extern bool operator >= (perm_string a, perm_string b);
+extern bool operator <= (perm_string a, perm_string b);
+extern ostream& operator << (ostream & out, perm_string that);
 
 /*
  * The string heap is a way to permanently allocate strings

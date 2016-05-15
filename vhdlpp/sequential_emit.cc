@@ -20,18 +20,19 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "sequential.h"
-# include  "expression.h"
-# include  "architec.h"
-# include  "package.h"
-# include  "compiler.h"
-# include  "subprogram.h"
-# include  "std_types.h"
-# include  <iostream>
-# include  <cstdio>
-# include  <typeinfo>
-# include  <limits>
-# include  <ivl_assert.h>
+#include <iostream>
+#include <cstdio>
+#include <typeinfo>
+#include <limits>
+#include <ivl_assert.h>
+
+#include "sequential.h"
+#include "expression.h"
+#include "architec.h"
+#include "package.h"
+#include "compiler.h"
+#include "subprogram.h"
+#include "std_types.h"
 
 int SequentialStmt::emit(ostream& out, Entity *, ScopeBase *) {
     out << " // " << get_fileline() << ": internal error: "

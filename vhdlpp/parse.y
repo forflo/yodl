@@ -40,15 +40,15 @@
 # include "vtype.h"
 # include "std_funcs.h"
 # include "std_types.h"
-# include  <cstdarg>
-# include  <cstring>
-# include  <list>
-# include  <stack>
-# include  <map>
-# include  <vector>
-# include  "parse_types.h"
-# include  <ivl_assert.h>
-# include  <assert.h>
+# include <cstdarg>
+# include <cstring>
+# include <list>
+# include <stack>
+# include <map>
+# include <vector>
+# include "parse_types.h"
+# include <ivl_assert.h>
+# include <assert.h>
 
 inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where)
 {

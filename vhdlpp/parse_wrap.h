@@ -26,14 +26,15 @@
  * are needed by the parse type, etc.
  */
 
-# include  <list>
+# include <list>
+
 # include "vhdlint.h"
 # include "vhdlreal.h"
-# include  "architec.h"
-# include  "expression.h"
-# include  "sequential.h"
-# include  "subprogram.h"
-# include  "parse_types.h"
+# include "architec.h"
+# include "expression.h"
+# include "sequential.h"
+# include "subprogram.h"
+# include "parse_types.h"
 
 class VType;
 

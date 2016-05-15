@@ -24,15 +24,15 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "parse_api.h"
-# include  "vhdlint.h"
-# include  "vhdlreal.h"
-# include  "parse_wrap.h"
+# include "parse_api.h"
+# include "vhdlint.h"
+# include "vhdlreal.h"
+# include "parse_wrap.h"
 
-# include  <cmath>
-# include  <cassert>
-# include  <iostream>
-# include  <set>
+# include <cmath>
+# include <cassert>
+# include <iostream>
+# include <set>
 
 # define YY_NO_INPUT
 
@@ -83,7 +83,7 @@ exponent			[eE][-+]?{integer}
 
 based_literal		{integer}#{based_integer}(\.{based_integer})?#{exponent}?
 based_integer		[0-9a-fA-F](_?[0-9a-fA-F])*
-time			{integer}{W}*([fFpPnNuUmM]?[sS])
+time			    {integer}{W}*([fFpPnNuUmM]?[sS])
 %%
 
 [ \t\b\f\r] { ; }
@@ -530,93 +530,93 @@ static char*make_bitstring_dec(int, bool, bool, const char*)
 
 static char* make_bitstring_literal(const char*text)
 {
-      int width_prefix = -1;
-      const char*cp = text;
-      bool signed_flag = false;
-      bool unsigned_flag = false;
-      unsigned base = 0;
+    int width_prefix = -1;
+    const char*cp = text;
+    bool signed_flag = false;
+    bool unsigned_flag = false;
+    unsigned base = 0;
 
-	// Parse out the explicit width, if present.
-      if (size_t len = strspn(cp, "0123456789")) {
-	    width_prefix = 0;
-	    while (len > 0) {
-		  width_prefix *= 10;
-		  width_prefix += *cp - '0';
-		  cp += 1;
+    // Parse out the explicit width, if present.
+    if (size_t len = strspn(cp, "0123456789")) {
+        width_prefix = 0;
+        while (len > 0) {
+    	  width_prefix *= 10;
+    	  width_prefix += *cp - '0';
+    	  cp += 1;
           --len;
-	    }
-      } else {
-	    width_prefix = -1;
+        }
+    } else {
+        width_prefix = -1;
+    }
+
+    // Detect and s/u flags.
+    if (*cp == 's' || *cp == 'S') {
+        signed_flag = true;
+        cp += 1;
+    } else if (*cp == 'u' || *cp == 'U') {
+        unsigned_flag = true;
+        cp += 1;
+    }
+
+    // Now get the base marker.
+    switch (*cp) {
+    case 'b':
+    case 'B':
+      base = 2;
+      break;
+    case 'o':
+    case 'O':
+      base = 8;
+      break;
+    case 'x':
+    case 'X':
+      base = 16;
+      break;
+    case 'd':
+    case 'D':
+      base = 10;
+      break;
+    default:
+      assert(0);
+    }
+    cp += 1;
+
+    char*simplified = new char [strlen(cp) + 1];
+    char*dp = simplified;
+    assert(*cp == '"');
+    cp += 1;
+
+    while (*cp && *cp != '"') {
+      if (*cp == '_') {
+  	  cp += 1;
+  	  continue;
       }
 
-	// Detect and s/u flags.
-      if (*cp == 's' || *cp == 'S') {
-	    signed_flag = true;
-	    cp += 1;
-      } else if (*cp == 'u' || *cp == 'U') {
-	    unsigned_flag = true;
-	    cp += 1;
-      }
+      *dp++ = *cp++;
+    }
+    *dp = 0;
 
-	// Now get the base marker.
-      switch (*cp) {
-	  case 'b':
-	  case 'B':
-	    base = 2;
-	    break;
-	  case 'o':
-	  case 'O':
-	    base = 8;
-	    break;
-	  case 'x':
-	  case 'X':
-	    base = 16;
-	    break;
-	  case 'd':
-	  case 'D':
-	    base = 10;
-	    break;
-	  default:
-	    assert(0);
-      }
-      cp += 1;
+    char*res;
+    switch (base) {
+    case 2:
+      res = make_bitstring_bin(width_prefix, signed_flag, unsigned_flag, simplified);
+      break;
+    case 8:
+      res = make_bitstring_oct(width_prefix, signed_flag, unsigned_flag, simplified);
+      break;
+    case 10:
+      res = make_bitstring_dec(width_prefix, signed_flag, unsigned_flag, simplified);
+      break;
+    case 16:
+      res = make_bitstring_hex(width_prefix, signed_flag, unsigned_flag, simplified);
+      break;
+    default:
+      assert(0);
+      res = 0;
+    }
 
-      char*simplified = new char [strlen(cp) + 1];
-      char*dp = simplified;
-      assert(*cp == '"');
-      cp += 1;
-
-      while (*cp && *cp != '"') {
-	    if (*cp == '_') {
-		  cp += 1;
-		  continue;
-	    }
-
-	    *dp++ = *cp++;
-      }
-      *dp = 0;
-
-      char*res;
-      switch (base) {
-	  case 2:
-	    res = make_bitstring_bin(width_prefix, signed_flag, unsigned_flag, simplified);
-	    break;
-	  case 8:
-	    res = make_bitstring_oct(width_prefix, signed_flag, unsigned_flag, simplified);
-	    break;
-	  case 10:
-	    res = make_bitstring_dec(width_prefix, signed_flag, unsigned_flag, simplified);
-	    break;
-	  case 16:
-	    res = make_bitstring_hex(width_prefix, signed_flag, unsigned_flag, simplified);
-	    break;
-	  default:
-	    assert(0);
-	    res = 0;
-      }
-
-      delete[]simplified;
-      return res;
+    delete[]simplified;
+    return res;
 }
 
 /**

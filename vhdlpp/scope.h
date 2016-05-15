@@ -21,13 +21,13 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  <algorithm>
-# include  <list>
-# include  <map>
-# include  "StringHeap.h"
-# include  "entity.h"
-# include  "expression.h"
-# include  "vsignal.h"
+# include <algorithm>
+# include <list>
+# include <map>
+# include "StringHeap.h"
+# include "entity.h"
+# include "expression.h"
+# include "vsignal.h"
 
 class ActiveScope;
 class Architecture;
@@ -37,19 +37,17 @@ class SubprogramHeader;
 class VType;
 class SequentialStmt;
 
-typedef list<SubprogramHeader *>   SubHeaderList;
+typedef list<SubprogramHeader *> SubHeaderList;
 
 template<typename T>
-struct delete_object
-{
+struct delete_object {
     void operator()(T *item) {
         delete item;
     }
 };
 
 template<typename T>
-struct delete_pair_second
-{
+struct delete_pair_second {
     void operator()(pair<perm_string, T *> item) {
         delete item.second;
     }
@@ -57,8 +55,7 @@ struct delete_pair_second
 
 class ScopeBase {
 public:
-    ScopeBase() : package_header_(0)
-    {}
+    ScopeBase() : package_header_(0) {}
 
     explicit ScopeBase(const ActiveScope& ref);
 
@@ -189,6 +186,8 @@ private:
     perm_string name_;
 };
 
+
+
 class Scope : public ScopeBase {
 public:
     explicit Scope(const ActiveScope& ref) : ScopeBase(ref)
@@ -205,6 +204,7 @@ protected:
     int emit_variables(ostream& out, Entity *ent, ScopeBase *scope);
 };
 
+
 /*
  * The active_scope object accumulates declarations for the scope that
  * is in the process of being parsed. When the declarations are over,
@@ -213,13 +213,11 @@ protected:
  */
 class ActiveScope : public ScopeBase {
 public:
-    ActiveScope() : context_entity_(0)
-    {}
+    ActiveScope() : context_entity_(0) {}
 
     explicit ActiveScope(const ActiveScope *par);
 
-    ~ActiveScope()
-    {}
+    ~ActiveScope() {}
 
     // Pull items from "that" scope into "this" scope as is
     // defined by a "use" directive. The parser uses this method

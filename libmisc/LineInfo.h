@@ -32,27 +32,26 @@ using namespace std;
  * deallocated. We can therefore safely store the pointer and never
  * delete the string, even if LineInfo objects are destroyed.
  */
-
 class LineInfo {
-    public:
-      LineInfo();
-      LineInfo(const LineInfo&that);
-      virtual ~LineInfo();
+public:
+    LineInfo();
+    LineInfo(const LineInfo&that);
+    virtual ~LineInfo();
 
 	// Get a fully formatted file/lineno
-      string get_fileline() const;
+    string get_fileline() const;
 	// Set the file/line from another LineInfo object.
-      void set_line(const LineInfo&that);
+    void set_line(const LineInfo&that);
 
 	// Access parts of LineInfo data
-      void set_file(perm_string f);
-      void set_lineno(unsigned n);
+    void set_file(perm_string f);
+    void set_lineno(unsigned n);
 
-      perm_string get_file() const { return file_; }
-      unsigned  get_lineno() const { return lineno_; }
-    private:
-      perm_string file_;
-      unsigned lineno_;
+    perm_string get_file() const { return file_; }
+    unsigned  get_lineno() const { return lineno_; }
+private:
+    perm_string file_;
+    unsigned lineno_;
 };
 
 #endif /* IVL_LineInfo_H */

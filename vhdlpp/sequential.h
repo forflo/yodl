@@ -21,19 +21,17 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "LineInfo.h"
+# include "LineInfo.h"
 # include "parse_types.h"
-# include  <set>
+# include <set>
 
 class ScopeBase;
 class Entity;
 class Expression;
 class SequentialStmt;
 
-struct SeqStmtVisitor
-{
-    virtual ~SeqStmtVisitor()
-    {}
+struct SeqStmtVisitor {
+    virtual ~SeqStmtVisitor() {}
 
     virtual void operator()(SequentialStmt *s) = 0;
 };
@@ -107,9 +105,10 @@ private:           // not implemented
     };
 
 public:
-    IfSequential(Expression *cond, std::list<SequentialStmt *> *tr,
-                 std::list<IfSequential::Elsif *> *elsif,
-                 std::list<SequentialStmt *> *fa);
+    IfSequential(Expression *cond, 
+        std::list<SequentialStmt *> *tr,
+        std::list<IfSequential::Elsif *> *elsif,
+        std::list<SequentialStmt *> *fa);
     ~IfSequential();
 
 public:
@@ -161,6 +160,7 @@ private:
     Expression *val_;
 };
 
+/* Grammar hint: signal_assignment ::= name LEQ waveform ';' */
 class SignalSeqAssignment : public SequentialStmt {
 public:
     SignalSeqAssignment(Expression *sig, std::list<Expression *> *wav);
@@ -177,6 +177,7 @@ private:
     std::list<Expression *> waveform_;
 };
 
+/* Grammar hint: case_statement ::= K_case expression K_is ... */
 class CaseSeqStmt : public SequentialStmt {
 public:
     class CaseStmtAlternative : public LineInfo {
@@ -214,6 +215,9 @@ private:
     std::list<CaseStmtAlternative *> alt_;
 };
 
+/* Grammar rule: procedure_call ::= IDENTIFIER ';' 
+ *                                  | IDENTIFIER '(' argument_list ')' ';' 
+ *                                  */
 class ProcedureCall : public SequentialStmt {
 public:
     explicit ProcedureCall(perm_string name);
@@ -232,6 +236,7 @@ private:
     SubprogramHeader          *def_;
 };
 
+/* Grammar rule: variable_assignment ::= name VASSIGN expression ';' */
 class VariableSeqAssignment : public SequentialStmt {
 public:
     VariableSeqAssignment(Expression *sig, Expression *rval);
@@ -248,6 +253,8 @@ private:
     Expression *rval_;
 };
 
+/* Grammar rule: loop_statement ::= 
+ *   identifier_colon_opt K_while expression ...*/
 class WhileLoopStatement : public LoopStatement {
 public:
     WhileLoopStatement(perm_string loop_name,
@@ -263,6 +270,9 @@ private:
     Expression *cond_;
 };
 
+/* Grammar rule: loop_statement ::= 
+ *   identifier_colon_opt K_for IDENTIFIER K_in range
+ *   K_loop sequence_of_statements ...*/
 class ForLoopStatement : public LoopStatement {
 public:
     ForLoopStatement(perm_string loop_name,
@@ -283,6 +293,9 @@ private:
     ExpRange    *range_;
 };
 
+/* Grammar rule: loop_statement ::=
+ *   identifier_colon_opt K_loop 
+ *   sequence_of_statements K_end ... */
 class BasicLoopStatement : public LoopStatement {
 public:
     BasicLoopStatement(perm_string lname, list<SequentialStmt *> *);
@@ -294,13 +307,14 @@ public:
     void dump(ostream& out, int indent) const;
 };
 
+/* Grammar rule: report_statement ::=
+ *   K_report expression severity_opt ';' */
 class ReportStmt : public SequentialStmt {
 public:
-    typedef enum { UNSPECIFIED, NOTE, WARNING, ERROR, FAILURE }   severity_t;
+    typedef enum { UNSPECIFIED, NOTE, WARNING, ERROR, FAILURE } severity_t;
 
     ReportStmt(Expression *message, severity_t severity);
-    virtual ~ReportStmt()
-    {}
+    virtual ~ReportStmt() {}
 
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -322,6 +336,8 @@ protected:
     severity_t severity_;
 };
 
+/* Grammar rule: assertion_statement ::=
+ *   K_assert expression report_statement */
 class AssertStmt : public ReportStmt {
 public:
     AssertStmt(Expression *condition, Expression *message,
@@ -339,6 +355,8 @@ private:
     static const char *default_msg_;
 };
 
+/* Grammar rule: wait_statement ::=
+ *   K_wait K_for expression ';' */
 class WaitForStmt : public SequentialStmt {
 public:
     explicit WaitForStmt(Expression *delay);
