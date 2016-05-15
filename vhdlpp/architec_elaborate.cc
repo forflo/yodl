@@ -25,80 +25,67 @@
 # include  <typeinfo>
 # include  <cassert>
 
-int Architecture::elaborate(Entity *entity)
-{
+int Architecture::elaborate(Entity *entity) {
     int errors = 0;
 
     // Constant assignments in the architecture get their types
     // from the constant declaration itself. Elaborate the value
     // expression with the declared type.
 
-    for (map < perm_string, struct const_t * > ::iterator cur = use_constants_.begin()
-         ; cur != use_constants_.end(); ++cur)
-    {
+    for (map<perm_string, struct const_t *>::iterator cur = use_constants_.begin()
+         ; cur != use_constants_.end(); ++cur) {
         cur->second->val->elaborate_expr(entity, this, cur->second->typ);
     }
-    for (map < perm_string, struct const_t * > ::iterator cur = cur_constants_.begin()
-         ; cur != cur_constants_.end(); ++cur)
-    {
+    for (map<perm_string, struct const_t *>::iterator cur = cur_constants_.begin()
+         ; cur != cur_constants_.end(); ++cur) {
         cur->second->val->elaborate_expr(entity, this, cur->second->typ);
     }
 
     // Elaborate initializer expressions for signals & variables
-    for (map < perm_string, Signal * > ::iterator cur = old_signals_.begin()
-         ; cur != old_signals_.end(); ++cur)
-    {
+    for (map<perm_string, Signal *>::iterator cur = old_signals_.begin()
+         ; cur != old_signals_.end(); ++cur) {
         cur->second->elaborate(entity, this);
     }
-    for (map < perm_string, Signal * > ::iterator cur = new_signals_.begin()
-         ; cur != new_signals_.end(); ++cur)
-    {
+    for (map<perm_string, Signal *>::iterator cur = new_signals_.begin()
+         ; cur != new_signals_.end(); ++cur) {
         cur->second->elaborate(entity, this);
     }
-    for (map < perm_string, Variable * > ::iterator cur = old_variables_.begin()
-         ; cur != old_variables_.end(); ++cur)
-    {
+    for (map<perm_string, Variable *>::iterator cur = old_variables_.begin()
+         ; cur != old_variables_.end(); ++cur) {
         cur->second->elaborate(entity, this);
     }
-    for (map < perm_string, Variable * > ::iterator cur = new_variables_.begin()
-         ; cur != new_variables_.end(); ++cur)
-    {
+    for (map<perm_string, Variable *>::iterator cur = new_variables_.begin()
+         ; cur != new_variables_.end(); ++cur) {
         cur->second->elaborate(entity, this);
     }
 
     // Elaborate subprograms
-    for (map < perm_string, SubHeaderList > ::const_iterator cur = cur_subprograms_.begin()
-         ; cur != cur_subprograms_.end(); ++cur)
-    {
+    for (map<perm_string, SubHeaderList>::const_iterator cur = cur_subprograms_.begin()
+         ; cur != cur_subprograms_.end(); ++cur) {
         const SubHeaderList& subp_list = cur->second;
 
         for (SubHeaderList::const_iterator it = subp_list.begin();
-             it != subp_list.end(); ++it)
-        {
+             it != subp_list.end(); ++it) {
             errors += (*it)->elaborate();
         }
     }
     // Create 'initial' and 'final' blocks for implicit
     // initialization and clean-up actions
-    if (!initializers_.empty())
-    {
+    if (!initializers_.empty()) {
         statements_.push_front(new InitialStatement(&initializers_));
     }
 
-    if (!finalizers_.empty())
-    {
+    if (!finalizers_.empty()) {
         statements_.push_front(new FinalStatement(&finalizers_));
     }
 
-    for (list < Architecture::Statement * > ::iterator cur = statements_.begin()
-         ; cur != statements_.end(); ++cur)
-    {
+    for (list<Architecture::Statement *>::iterator cur = statements_.begin()
+         ; cur != statements_.end(); ++cur) {
         int cur_errors = (*cur)->elaborate(entity, this);
         errors += cur_errors;
     }
 
-    if (errors > 0)
-    {
+    if (errors > 0) {
         cerr << errors << " errors in "
              << name_ << " architecture of "
              << entity->get_name() << "." << endl;
@@ -108,20 +95,17 @@ int Architecture::elaborate(Entity *entity)
 }
 
 
-int Architecture::Statement::elaborate(Entity *, Architecture *)
-{
+int Architecture::Statement::elaborate(Entity *, Architecture *) {
     return 0;
 }
 
 
-int ComponentInstantiation::elaborate(Entity *ent, Architecture *arc)
-{
+int ComponentInstantiation::elaborate(Entity *ent, Architecture *arc) {
     int errors = 0;
 
     ComponentBase *base = arc->find_component(cname_);
 
-    if (base == 0)
-    {
+    if (base == 0) {
         cerr << get_fileline() << ": error: No component declaration"
              << " for instance " << iname_
              << " of " << cname_ << "." << endl;
@@ -130,39 +114,33 @@ int ComponentInstantiation::elaborate(Entity *ent, Architecture *arc)
 
     arc->set_cur_component(this);
 
-    for (map < perm_string, Expression * > ::const_iterator cur = generic_map_.begin()
-         ; cur != generic_map_.end(); ++cur)
-    {
+    for (map<perm_string, Expression *>::const_iterator cur = generic_map_.begin()
+         ; cur != generic_map_.end(); ++cur) {
         // check if generic from component instantiation
         // exists in the component declaration
         const InterfacePort *iparm = base->find_generic(cur->first);
-        if (iparm == 0)
-        {
+        if (iparm == 0) {
             cerr << get_fileline() << ": warning: No generic " << cur->first
                  << " in component " << cname_ << "." << endl;
             continue;
         }
 
         ExpName *tmp;
-        if (cur->second && (tmp = dynamic_cast < ExpName * > (cur->second)))
-        {
+        if (cur->second && (tmp = dynamic_cast<ExpName *> (cur->second))) {
             errors += tmp->elaborate_rval(ent, arc, iparm);
         }
 
-        if (cur->second)
-        {
+        if (cur->second) {
             errors += cur->second->elaborate_expr(ent, arc, iparm->type);
         }
     }
 
-    for (map < perm_string, Expression * > ::const_iterator cur = port_map_.begin()
-         ; cur != port_map_.end(); ++cur)
-    {
+    for (map<perm_string, Expression *>::const_iterator cur = port_map_.begin()
+         ; cur != port_map_.end(); ++cur) {
         // check if a port from component instantiation
         // exists in the component declaration
         const InterfacePort *iport = base->find_port(cur->first);
-        if (iport == 0)
-        {
+        if (iport == 0) {
             cerr << get_fileline() << ": error: No port " << cur->first
                  << " in component " << cname_ << "." << endl;
             errors += 1;
@@ -170,16 +148,14 @@ int ComponentInstantiation::elaborate(Entity *ent, Architecture *arc)
         }
 
         ExpName *tmp;
-        if (cur->second && (tmp = dynamic_cast < ExpName * > (cur->second)))
-        {
+        if (cur->second && (tmp = dynamic_cast<ExpName *> (cur->second))) {
             errors += tmp->elaborate_rval(ent, arc, iport);
         }
 
         /* It is possible for the port to be explicitly
          * unconnected. In that case, the Expression will be nil */
 
-        if (cur->second)
-        {
+        if (cur->second) {
             cur->second->elaborate_expr(ent, arc, iport->type);
         }
     }
@@ -190,13 +166,11 @@ int ComponentInstantiation::elaborate(Entity *ent, Architecture *arc)
 }
 
 
-int GenerateStatement::elaborate_statements(Entity *ent, Architecture *arc)
-{
+int GenerateStatement::elaborate_statements(Entity *ent, Architecture *arc) {
     int errors = 0;
 
-    for (list < Architecture::Statement * > ::iterator cur = statements_.begin()
-         ; cur != statements_.end(); ++cur)
-    {
+    for (list<Architecture::Statement *>::iterator cur = statements_.begin()
+         ; cur != statements_.end(); ++cur) {
         Architecture::Statement *curp = *cur;
         errors += curp->elaborate(ent, arc);
     }
@@ -204,8 +178,7 @@ int GenerateStatement::elaborate_statements(Entity *ent, Architecture *arc)
 }
 
 
-int ForGenerate::elaborate(Entity *ent, Architecture *arc)
-{
+int ForGenerate::elaborate(Entity *ent, Architecture *arc) {
     int errors = 0;
 
     arc->push_genvar_type(genvar_, lsb_->probe_type(ent, arc));
@@ -215,8 +188,7 @@ int ForGenerate::elaborate(Entity *ent, Architecture *arc)
 }
 
 
-int IfGenerate::elaborate(Entity *ent, Architecture *arc)
-{
+int IfGenerate::elaborate(Entity *ent, Architecture *arc) {
     int errors = 0;
 
     errors += elaborate_statements(ent, arc);
@@ -224,13 +196,11 @@ int IfGenerate::elaborate(Entity *ent, Architecture *arc)
 }
 
 
-int StatementList::elaborate(Entity *ent, ScopeBase *scope)
-{
+int StatementList::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    for (std::list < SequentialStmt * > ::iterator it = statements_.begin();
-         it != statements_.end(); ++it)
-    {
+    for (std::list<SequentialStmt *>::iterator it = statements_.begin();
+         it != statements_.end(); ++it) {
         errors += (*it)->elaborate(ent, scope);
     }
 
@@ -238,15 +208,13 @@ int StatementList::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int ProcessStatement::elaborate(Entity *ent, Architecture *arc)
-{
+int ProcessStatement::elaborate(Entity *ent, Architecture *arc) {
     int errors = 0;
 
     arc->set_cur_process(this);
 
-    for (map < perm_string, Variable * > ::iterator cur = new_variables_.begin()
-         ; cur != new_variables_.end(); ++cur)
-    {
+    for (map<perm_string, Variable *>::iterator cur = new_variables_.begin()
+         ; cur != new_variables_.end(); ++cur) {
         cur->second->elaborate(ent, arc);
     }
 
@@ -258,8 +226,7 @@ int ProcessStatement::elaborate(Entity *ent, Architecture *arc)
 }
 
 
-int SignalAssignment::elaborate(Entity *ent, Architecture *arc)
-{
+int SignalAssignment::elaborate(Entity *ent, Architecture *arc) {
     int errors = 0;
 
     // Elaborate the l-value expression.
@@ -269,19 +236,16 @@ int SignalAssignment::elaborate(Entity *ent, Architecture *arc)
     // l-value expression. We'll use that type to elaborate the
     // r-value.
     const VType *lval_type = lval_->peek_type();
-    if (lval_type == 0)
-    {
-        if (errors == 0)
-        {
+    if (lval_type == 0) {
+        if (errors == 0) {
             errors += 1;
             cerr << get_fileline() << ": error: Unable to calculate type for l-value expression." << endl;
         }
         return errors;
     }
 
-    for (list < Expression * > ::iterator cur = rval_.begin()
-         ; cur != rval_.end(); ++cur)
-    {
+    for (list<Expression *>::iterator cur = rval_.begin()
+         ; cur != rval_.end(); ++cur) {
         errors += (*cur)->elaborate_expr(ent, arc, lval_type);
     }
 
@@ -289,28 +253,25 @@ int SignalAssignment::elaborate(Entity *ent, Architecture *arc)
 }
 
 
-int CondSignalAssignment::elaborate(Entity *ent, Architecture *arc)
-{
+int CondSignalAssignment::elaborate(Entity *ent, Architecture *arc) {
     int errors = 0;
 
     // Visitor to extract signal names occuring in the conditional
     // statements to create the sensitivity list
     struct name_extractor_t : public ExprVisitor
     {
-        name_extractor_t(list < const ExpName * > &name_list)
+        name_extractor_t(list<const ExpName *>& name_list)
             : name_list_(name_list)
-        {
-        }
-        void operator() (Expression * s)
-        {
-            if (const ExpName *name = dynamic_cast < const ExpName * > (s))
-            {
+        {}
+
+        void operator()(Expression *s) {
+            if (const ExpName *name = dynamic_cast<const ExpName *> (s)) {
                 name_list_.push_back(name);
             }
         }
 
 private:
-        list < const ExpName * > &name_list_;
+        list<const ExpName *>& name_list_;
     }
     name_extractor(sens_list_);
 
@@ -321,10 +282,8 @@ private:
     // l-value expression. We'll use that type to elaborate the
     // r-value.
     const VType *lval_type = lval_->peek_type();
-    if (lval_type == 0)
-    {
-        if (errors == 0)
-        {
+    if (lval_type == 0) {
+        if (errors == 0) {
             errors += 1;
             cerr << get_fileline()
                  << ": error: Unable to calculate type for l-value expression."
@@ -333,9 +292,8 @@ private:
         return errors;
     }
 
-    for (list < ExpConditional::case_t * > ::iterator it = options_.begin();
-         it != options_.end(); ++it)
-    {
+    for (list<ExpConditional::case_t *>::iterator it = options_.begin();
+         it != options_.end(); ++it) {
         ExpConditional::case_t *cas = (*it);
         cas->elaborate_expr(ent, arc, lval_type);
         cas->visit(name_extractor);

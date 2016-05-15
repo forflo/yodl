@@ -1,6 +1,7 @@
 /* vhdlpp/vhdlpp_config.h.  Generated from vhdlpp_config.h.in by configure.  */
 #ifndef IVL_vhdlpp_config_H                                   /* -*- c++ -*- */
 #define IVL_vhdlpp_config_H
+
 /*
  * Copyright (c) 2011-2014 Stephen Williams (steve@icarus.com)
  *
@@ -22,17 +23,17 @@
 
 #if defined(__cplusplus)
 #  if !defined(__GNUC__)
-     using namespace std;
+using namespace std;
 #  elif (__GNUC__ == 3)
-     using namespace std;
+using namespace std;
 #  endif
 #endif
 
-# define HAVE_GETOPT_H 1
-# define HAVE_INTTYPES_H 1
+# define HAVE_GETOPT_H      1
+# define HAVE_INTTYPES_H    1
 /* # undef HAVE_LIBIBERTY_H */
 /* # undef HAVE_FCHMOD */
-# define HAVE_SYS_WAIT_H 1
+# define HAVE_SYS_WAIT_H    1
 
 #ifdef HAVE_INTTYPES_H
 # include  <inttypes.h>

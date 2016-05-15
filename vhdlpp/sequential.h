@@ -33,12 +33,12 @@ class SequentialStmt;
 struct SeqStmtVisitor
 {
     virtual ~SeqStmtVisitor()
-    {
-    };
-    virtual void operator() (SequentialStmt * s) = 0;
+    {}
+
+    virtual void operator()(SequentialStmt *s) = 0;
 };
 
-class SequentialStmt: public LineInfo {
+class SequentialStmt : public LineInfo {
 public:
     SequentialStmt();
     virtual ~SequentialStmt() = 0;
@@ -50,8 +50,7 @@ public:
     virtual void write_to_stream(std::ostream& fd);
 
     // Recursively visits a tree of sequential statements.
-    virtual void visit(SeqStmtVisitor& func)
-    {
+    virtual void visit(SeqStmtVisitor& func) {
         func(this);
     }
 };
@@ -60,16 +59,14 @@ public:
  * The LoopStatement is an abstract base class for the various loop
  * statements.
  */
-class LoopStatement: public SequentialStmt {
+class LoopStatement : public SequentialStmt {
 public:
-    LoopStatement(perm_string block_name, list < SequentialStmt * > *);
+    LoopStatement(perm_string block_name, list<SequentialStmt *> *);
     virtual ~LoopStatement();
 
-    inline perm_string loop_name() const
-    {
+    inline perm_string loop_name() const {
         return name_;
     }
-
 
     void dump(ostream& out, int indent)  const;
     void visit(SeqStmtVisitor& func);
@@ -80,15 +77,15 @@ protected:
     void write_to_stream_substatements(ostream& fd);
 
 private:
-    perm_string name_;
-    std::list < SequentialStmt * > stmts_;
+    perm_string                 name_;
+    std::list<SequentialStmt *> stmts_;
 };
 
-class IfSequential: public SequentialStmt {
+class IfSequential : public SequentialStmt {
 public:
-    class Elsif: public LineInfo {
+    class Elsif : public LineInfo {
 public:
-        Elsif(Expression * cond, std::list < SequentialStmt * > *tr);
+        Elsif(Expression *cond, std::list<SequentialStmt *> *tr);
         ~Elsif();
 
         int elaborate(Entity *entity, ScopeBase *scope);
@@ -103,16 +100,16 @@ public:
 
 private:
         Expression *cond_;
-        std::list < SequentialStmt * > if_;
+        std::list<SequentialStmt *> if_;
 private:           // not implemented
-        Elsif(const Elsif &);
-        Elsif&             operator = (const Elsif &);
+        Elsif(const Elsif&);
+        Elsif& operator =(const Elsif&);
     };
 
 public:
-    IfSequential(Expression * cond, std::list < SequentialStmt * > *tr,
-                 std::list < IfSequential::Elsif * > *elsif,
-                 std::list < SequentialStmt * > *fa);
+    IfSequential(Expression *cond, std::list<SequentialStmt *> *tr,
+                 std::list<IfSequential::Elsif *> *elsif,
+                 std::list<SequentialStmt *> *fa);
     ~IfSequential();
 
 public:
@@ -122,31 +119,27 @@ public:
     void dump(ostream& out, int indent) const;
     void visit(SeqStmtVisitor& func);
 
-    const Expression *peek_condition() const
-    {
+    const Expression *peek_condition() const {
         return cond_;
     }
 
-
-    size_t false_size() const
-    {
+    size_t false_size() const {
         return else_.size();
     }
 
-
     // These method extract (and remove) the sub-statements from
     // the true or false clause.
-    void extract_true(std::list < SequentialStmt * >& that);
-    void extract_false(std::list < SequentialStmt * >& that);
+    void extract_true(std::list<SequentialStmt *>& that);
+    void extract_false(std::list<SequentialStmt *>& that);
 
 private:
     Expression *cond_;
-    std::list < SequentialStmt * > if_;
-    std::list < IfSequential::Elsif * > elsif_;
-    std::list < SequentialStmt * > else_;
+    std::list<SequentialStmt *>      if_;
+    std::list<IfSequential::Elsif *> elsif_;
+    std::list<SequentialStmt *>      else_;
 };
 
-class ReturnStmt: public SequentialStmt {
+class ReturnStmt : public SequentialStmt {
 public:
     explicit ReturnStmt(Expression *val);
 
@@ -158,11 +151,9 @@ public:
     void write_to_stream(std::ostream& fd);
     void dump(ostream& out, int indent) const;
 
-    const Expression *peek_expr() const
-    {
+    const Expression *peek_expr() const {
         return val_;
     }
-
 
     void cast_to(const VType *type);
 
@@ -170,9 +161,9 @@ private:
     Expression *val_;
 };
 
-class SignalSeqAssignment: public SequentialStmt {
+class SignalSeqAssignment : public SequentialStmt {
 public:
-    SignalSeqAssignment(Expression * sig, std::list < Expression * > *wav);
+    SignalSeqAssignment(Expression *sig, std::list<Expression *> *wav);
     ~SignalSeqAssignment();
 
 public:
@@ -182,15 +173,15 @@ public:
     void dump(ostream& out, int indent) const;
 
 private:
-    Expression *lval_;
-    std::list < Expression * > waveform_;
+    Expression              *lval_;
+    std::list<Expression *> waveform_;
 };
 
-class CaseSeqStmt: public SequentialStmt {
+class CaseSeqStmt : public SequentialStmt {
 public:
-    class CaseStmtAlternative: public LineInfo {
+    class CaseStmtAlternative : public LineInfo {
 public:
-        CaseStmtAlternative(std::list < Expression * > *exp, std::list < SequentialStmt * > *stmts);
+        CaseStmtAlternative(std::list<Expression *> *exp, std::list<SequentialStmt *> *stmts);
         ~CaseStmtAlternative();
         void dump(std::ostream& out, int indent) const;
         int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
@@ -200,15 +191,15 @@ public:
         void visit(SeqStmtVisitor& func);
 
 private:
-        std::list < Expression * > *exp_;
-        std::list < SequentialStmt * > stmts_;
+        std::list<Expression *>     *exp_;
+        std::list<SequentialStmt *> stmts_;
 private:         // not implemented
-        CaseStmtAlternative(const CaseStmtAlternative &);
-        CaseStmtAlternative& operator = (const CaseStmtAlternative &);
+        CaseStmtAlternative(const CaseStmtAlternative&);
+        CaseStmtAlternative& operator =(const CaseStmtAlternative&);
     };
 
 public:
-    CaseSeqStmt(Expression * cond, std::list < CaseStmtAlternative * > *sp);
+    CaseSeqStmt(Expression *cond, std::list<CaseStmtAlternative *> *sp);
     ~CaseSeqStmt();
 
 public:
@@ -220,15 +211,15 @@ public:
 
 private:
     Expression *cond_;
-    std::list < CaseStmtAlternative * > alt_;
+    std::list<CaseStmtAlternative *> alt_;
 };
 
-class ProcedureCall: public SequentialStmt {
+class ProcedureCall : public SequentialStmt {
 public:
     explicit ProcedureCall(perm_string name);
 
-    ProcedureCall(perm_string name, std::list < named_expr_t * > *param_list);
-    ProcedureCall(perm_string name, std::list < Expression * > *param_list);
+    ProcedureCall(perm_string name, std::list<named_expr_t *> *param_list);
+    ProcedureCall(perm_string name, std::list<Expression *> *param_list);
     ~ProcedureCall();
 
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -236,14 +227,14 @@ public:
     void dump(ostream& out, int indent) const;
 
 private:
-    perm_string name_;
-    std::list < named_expr_t * > *param_list_;
-    SubprogramHeader *def_;
+    perm_string               name_;
+    std::list<named_expr_t *> *param_list_;
+    SubprogramHeader          *def_;
 };
 
-class VariableSeqAssignment: public SequentialStmt {
+class VariableSeqAssignment : public SequentialStmt {
 public:
-    VariableSeqAssignment(Expression * sig, Expression * rval);
+    VariableSeqAssignment(Expression *sig, Expression *rval);
     ~VariableSeqAssignment();
 
 public:
@@ -257,10 +248,10 @@ private:
     Expression *rval_;
 };
 
-class WhileLoopStatement: public LoopStatement {
+class WhileLoopStatement : public LoopStatement {
 public:
     WhileLoopStatement(perm_string loop_name,
-                       Expression *, list < SequentialStmt * > *);
+                       Expression *, list<SequentialStmt *> *);
     ~WhileLoopStatement();
 
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -272,10 +263,10 @@ private:
     Expression *cond_;
 };
 
-class ForLoopStatement: public LoopStatement {
+class ForLoopStatement : public LoopStatement {
 public:
     ForLoopStatement(perm_string loop_name,
-                     perm_string index, ExpRange *, list < SequentialStmt * > *);
+                     perm_string index, ExpRange *, list<SequentialStmt *> *);
     ~ForLoopStatement();
 
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -292,9 +283,9 @@ private:
     ExpRange    *range_;
 };
 
-class BasicLoopStatement: public LoopStatement {
+class BasicLoopStatement : public LoopStatement {
 public:
-    BasicLoopStatement(perm_string lname, list < SequentialStmt * > *);
+    BasicLoopStatement(perm_string lname, list<SequentialStmt *> *);
     ~BasicLoopStatement();
 
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -303,31 +294,26 @@ public:
     void dump(ostream& out, int indent) const;
 };
 
-class ReportStmt: public SequentialStmt {
+class ReportStmt : public SequentialStmt {
 public:
     typedef enum { UNSPECIFIED, NOTE, WARNING, ERROR, FAILURE }   severity_t;
 
-    ReportStmt(Expression * message, severity_t severity);
+    ReportStmt(Expression *message, severity_t severity);
     virtual ~ReportStmt()
-    {
-    }
+    {}
 
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void write_to_stream(std::ostream& fd);
 
-    inline Expression *message() const
-    {
+    inline Expression *message() const {
         return msg_;
     }
 
-
-    inline severity_t severity() const
-    {
+    inline severity_t severity() const {
         return severity_;
     }
-
 
 protected:
     void dump_sev_msg(ostream& out, int indent) const;
@@ -336,9 +322,9 @@ protected:
     severity_t severity_;
 };
 
-class AssertStmt: public ReportStmt {
+class AssertStmt : public ReportStmt {
 public:
-    AssertStmt(Expression * condition, Expression * message,
+    AssertStmt(Expression *condition, Expression *message,
                ReportStmt::severity_t severity = ReportStmt::ERROR);
 
     void dump(ostream& out, int indent) const;
@@ -353,7 +339,7 @@ private:
     static const char *default_msg_;
 };
 
-class WaitForStmt: public SequentialStmt {
+class WaitForStmt : public SequentialStmt {
 public:
     explicit WaitForStmt(Expression *delay);
 
@@ -366,27 +352,25 @@ private:
     Expression *delay_;
 };
 
-class WaitStmt: public SequentialStmt {
+class WaitStmt : public SequentialStmt {
 public:
     typedef enum { ON, UNTIL, FINAL }   wait_type_t;
-    WaitStmt(wait_type_t typ, Expression * expression);
+    WaitStmt(wait_type_t typ, Expression *expression);
 
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void write_to_stream(std::ostream& fd);
 
-    inline wait_type_t type() const
-    {
+    inline wait_type_t type() const {
         return type_;
     }
-
 
 private:
     wait_type_t type_;
     Expression  *expr_;
     // Sensitivity list for 'wait until' statement
-    std::set < ExpName * > sens_list_;
+    std::set<ExpName *> sens_list_;
 };
 
 #endif /* IVL_sequential_H */

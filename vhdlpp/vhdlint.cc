@@ -24,30 +24,25 @@
 
 using namespace std;
 
-bool vhdlint::is_negative() const
-{
+bool vhdlint::is_negative() const {
     return value_ < 0L;
 }
 
 
-bool vhdlint::is_positive() const
-{
+bool vhdlint::is_positive() const {
     return value_ > 0L;
 }
 
 
-bool vhdlint::is_zero() const
-{
+bool vhdlint::is_zero() const {
     return value_ == 0L;
 }
 
 
-vhdlint::vhdlint(const char *text)
-{
+vhdlint::vhdlint(const char *text) {
     unsigned text_length = strlen(text);
 
-    if (text_length == 0)
-    {
+    if (text_length == 0) {
         value_ = 0L;
         return;
     }
@@ -56,14 +51,10 @@ vhdlint::vhdlint(const char *text)
 
     const char *ptr;
     char       *new_ptr;
-    for (ptr = text, new_ptr = new_text; *ptr != 0; ++ptr)
-    {
-        if (*ptr == '_')
-        {
+    for (ptr = text, new_ptr = new_text; *ptr != 0; ++ptr) {
+        if (*ptr == '_') {
             continue;
-        }
-        else
-        {
+        }else  {
             *new_ptr = *ptr;
             ++new_ptr;
         }
@@ -79,19 +70,16 @@ vhdlint::vhdlint(const char *text)
 }
 
 
-vhdlint::vhdlint(const int64_t& val)
-{
+vhdlint::vhdlint(const int64_t& val) {
     value_ = val;
 }
 
 
-vhdlint::vhdlint(const vhdlint& val)
-{
+vhdlint::vhdlint(const vhdlint& val) {
     value_ = val.as_long();
 }
 
 
-int64_t vhdlint::as_long() const
-{
+int64_t vhdlint::as_long() const {
     return value_;
 }

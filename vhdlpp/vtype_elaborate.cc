@@ -21,30 +21,25 @@
 # include  "vtype.h"
 # include  "expression.h"
 
-int VType::elaborate(Entity *, ScopeBase *) const
-{
+int VType::elaborate(Entity *, ScopeBase *) const {
     return 0;
 }
 
 
-int VTypeArray::elaborate(Entity *ent, ScopeBase *scope) const
-{
+int VTypeArray::elaborate(Entity *ent, ScopeBase *scope) const {
     int errors = 0;
 
     errors += etype_->elaborate(ent, scope);
 
-    for (vector < range_t > ::const_iterator cur = ranges_.begin()
-         ; cur != ranges_.end(); ++cur)
-    {
+    for (vector<range_t>::const_iterator cur = ranges_.begin()
+         ; cur != ranges_.end(); ++cur) {
         Expression *tmp = cur->msb();
-        if (tmp)
-        {
+        if (tmp) {
             errors += tmp->elaborate_expr(ent, scope, 0);
         }
 
         tmp = cur->lsb();
-        if (tmp)
-        {
+        if (tmp) {
             errors += tmp->elaborate_expr(ent, scope, 0);
         }
     }
@@ -53,8 +48,7 @@ int VTypeArray::elaborate(Entity *ent, ScopeBase *scope) const
 }
 
 
-int VTypeRangeExpr::elaborate(Entity *ent, ScopeBase *scope) const
-{
+int VTypeRangeExpr::elaborate(Entity *ent, ScopeBase *scope) const {
     int errors = 0;
 
     errors += base_->elaborate(ent, scope);

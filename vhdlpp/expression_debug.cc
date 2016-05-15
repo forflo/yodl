@@ -27,12 +27,10 @@
 
 using namespace std;
 
-void ExpArithmetic::dump(ostream& out, int indent) const
-{
+void ExpArithmetic::dump(ostream& out, int indent) const {
     const char *fun_name = "?";
 
-    switch (fun_)
-    {
+    switch (fun_) {
     case PLUS:
         fun_name = "+";
         break;
@@ -72,16 +70,14 @@ void ExpArithmetic::dump(ostream& out, int indent) const
 }
 
 
-void ExpConcat::dump(ostream& out, int indent) const
-{
+void ExpConcat::dump(ostream& out, int indent) const {
     out << setw(indent) << "" << "Concatenation at " << get_fileline() << endl;
     operand1_->dump(out, indent);
     operand2_->dump(out, indent);
 }
 
 
-void ExpCast::dump(ostream& out, int indent) const
-{
+void ExpCast::dump(ostream& out, int indent) const {
     out << setw(indent) << "" << "Casting ";
     base_->dump(out, indent + 4);
     out << " to ";
@@ -89,27 +85,23 @@ void ExpCast::dump(ostream& out, int indent) const
 }
 
 
-void ExpNew::dump(ostream& out, int indent) const
-{
+void ExpNew::dump(ostream& out, int indent) const {
     out << setw(indent) << "" << "New dynamic array size: " << endl;
     size_->dump(out, indent);
 }
 
 
-void ExpScopedName::dump(ostream& out, int indent) const
-{
+void ExpScopedName::dump(ostream& out, int indent) const {
     out << setw(indent) << "" << "Scoped name expression: " << endl;
     out << "    scope " << scope_name_ << " " << scope_ << endl;
     name_->dump(out, indent + 4);
 }
 
 
-void ExpShift::dump(ostream& out, int indent) const
-{
+void ExpShift::dump(ostream& out, int indent) const {
     const char *fun_name = "?";
 
-    switch (shift_)
-    {
+    switch (shift_) {
     case SRL:
         fun_name = "srl";
         break;
@@ -141,22 +133,19 @@ void ExpShift::dump(ostream& out, int indent) const
 }
 
 
-void ExpTime::dump(ostream& out, int indent) const
-{
+void ExpTime::dump(ostream& out, int indent) const {
     out << setw(indent) << "" << "Time ";
     write_to_stream(out);
 }
 
 
-void ExpRange::dump(ostream& out, int indent) const
-{
+void ExpRange::dump(ostream& out, int indent) const {
     out << setw(indent) << "" << "Range ";
     write_to_stream(out);
 }
 
 
-void ExpDelay::dump(ostream& out, int indent) const
-{
+void ExpDelay::dump(ostream& out, int indent) const {
     out << setw(indent) << "" << "Expression ";
     expr_->write_to_stream(out);
     out << " delayed by ";

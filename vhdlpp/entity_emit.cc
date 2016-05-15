@@ -24,13 +24,11 @@
 # include  <iomanip>
 # include  <ivl_assert.h>
 
-int emit_entities(void)
-{
+int emit_entities(void) {
     int errors = 0;
 
-    for (map < perm_string, Entity * > ::iterator cur = design_entities.begin()
-         ; cur != design_entities.end(); ++cur)
-    {
+    for (map<perm_string, Entity *>::iterator cur = design_entities.begin()
+         ; cur != design_entities.end(); ++cur) {
         errors += cur->second->emit(cout);
     }
 
@@ -38,31 +36,24 @@ int emit_entities(void)
 }
 
 
-int Entity::emit(ostream& out)
-{
+int Entity::emit(ostream& out) {
     int errors = 0;
 
     out << "module \\" << get_name() << " ";
 
     // If there are generics, emit them
-    if (parms_.size() > 0)
-    {
+    if (parms_.size() > 0) {
         out << "#(";
-        for (vector < InterfacePort * > ::const_iterator cur = parms_.begin()
-             ; cur != parms_.end(); ++cur)
-        {
+        for (vector<InterfacePort *>::const_iterator cur = parms_.begin()
+             ; cur != parms_.end(); ++cur) {
             const InterfacePort *curp = *cur;
-            if (cur != parms_.begin())
-            {
+            if (cur != parms_.begin()) {
                 out << ", ";
             }
             out << "parameter \\" << curp->name << " = ";
-            if (curp->expr)
-            {
+            if (curp->expr) {
                 errors += curp->expr->emit(out, this, 0);
-            }
-            else
-            {
+            }else  {
                 // Unlike VHDL, Verilog module parameter port list
                 // elements are always assignments.  Fill in the blank.
                 out << "1'bx";
@@ -72,28 +63,22 @@ int Entity::emit(ostream& out)
     }
 
     // If there are ports, emit them.
-    if (ports_.size() > 0)
-    {
+    if (ports_.size() > 0) {
         out << "(";
         const char *sep = 0;
-        for (vector < InterfacePort * > ::const_iterator cur = ports_.begin()
-             ; cur != ports_.end(); ++cur)
-        {
+        for (vector<InterfacePort *>::const_iterator cur = ports_.begin()
+             ; cur != ports_.end(); ++cur) {
             InterfacePort *port = *cur;
 
             VType::decl_t& decl = declarations_[port->name];
 
-            if (sep)
-            {
+            if (sep) {
                 out << sep << endl;
-            }
-            else
-            {
+            }else  {
                 sep = ", ";
             }
 
-            switch (port->mode)
-            {
+            switch (port->mode) {
             case PORT_NONE:           // Should not happen
                 cerr << get_fileline() << ": error: Undefined port direction." << endl;
                 out << "NO_PORT " << port->name;

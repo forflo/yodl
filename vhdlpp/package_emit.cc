@@ -26,12 +26,10 @@
 
 using namespace std;
 
-int Package::emit_package(ostream& fd) const
-{
+int Package::emit_package(ostream& fd) const {
     // Don't emit the package if there is nothing in it that SV
     // cares about.
-    if (cur_types_.empty() && cur_constants_.empty() && cur_subprograms_.empty())
-    {
+    if (cur_types_.empty() && cur_constants_.empty() && cur_subprograms_.empty()) {
         return 0;
     }
 
@@ -43,11 +41,9 @@ int Package::emit_package(ostream& fd) const
     // Only emit types that were defined within this package. Skip
     // the types that were imported from elsewhere.
     typedef_context_t typedef_ctx;
-    for (map < perm_string, const VType * > ::const_iterator cur = cur_types_.begin()
-         ; cur != cur_types_.end(); ++cur)
-    {
-        if (const VTypeDef *def = dynamic_cast < const VTypeDef * > (cur->second))
-        {
+    for (map<perm_string, const VType *>::const_iterator cur = cur_types_.begin()
+         ; cur != cur_types_.end(); ++cur) {
+        if (const VTypeDef *def = dynamic_cast<const VTypeDef *> (cur->second)) {
             errors += def->emit_typedef(fd, typedef_ctx);
         }
         //fd << "typedef ";
@@ -70,23 +66,18 @@ int Package::emit_package(ostream& fd) const
     //}
 
     fd << "package \\" << name() << " ;" << endl;
-    for (map < perm_string, SubHeaderList > ::const_iterator cur = cur_subprograms_.begin()
-         ; cur != cur_subprograms_.end(); ++cur)
-    {
+    for (map<perm_string, SubHeaderList>::const_iterator cur = cur_subprograms_.begin()
+         ; cur != cur_subprograms_.end(); ++cur) {
         const SubHeaderList& subp_list = cur->second;
 
         for (SubHeaderList::const_iterator it = subp_list.begin();
-             it != subp_list.end(); ++it)
-        {
+             it != subp_list.end(); ++it) {
             SubprogramHeader *header = *it;
 
             // Do not emit unbounded functions, we will just need fixed instances later
-            if (!header->unbounded())
-            {
+            if (!header->unbounded()) {
                 errors += header->emit_package(fd);
-            }
-            else
-            {
+            }else  {
                 fd << "/* function " << header->name()
                    << " has to be instantiated, skipping */" << endl;
             }

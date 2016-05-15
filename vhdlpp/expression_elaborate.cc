@@ -36,25 +36,21 @@
 
 using namespace std;
 
-int Expression::elaborate_lval(Entity *, ScopeBase *, bool)
-{
+int Expression::elaborate_lval(Entity *, ScopeBase *, bool) {
     cerr << get_fileline() << ": error: Expression is not a valid l-value." << endl;
     return 1;
 }
 
 
-const VType *Expression::probe_type(Entity *, ScopeBase *) const
-{
+const VType *Expression::probe_type(Entity *, ScopeBase *) const {
     return 0;
 }
 
 
-const VType *Expression::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *) const
-{
+const VType *Expression::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *) const {
     const VType *res = probe_type(ent, scope);
 
-    if (res == 0)
-    {
+    if (res == 0) {
         cerr << get_fileline() << ": internal error: "
              << "fit_type for " << typeid(*this).name()
              << " is not implemented." << endl;
@@ -65,20 +61,16 @@ const VType *Expression::fit_type(Entity *ent, ScopeBase *scope, const VTypeArra
 
 
 const VType *ExpName::elaborate_adjust_type_with_range_(Entity *ent, ScopeBase *scope,
-                                                        const VType *type)
-{
+                                                        const VType *type) {
     // Unfold typedefs
-    while (const VTypeDef *tdef = dynamic_cast < const VTypeDef * > (type))
-    {
+    while (const VTypeDef *tdef = dynamic_cast<const VTypeDef *> (type)) {
         type = tdef->peek_definition();
     }
 
-    if (const VTypeArray *array = dynamic_cast < const VTypeArray * > (type))
-    {
+    if (const VTypeArray *array = dynamic_cast<const VTypeArray *> (type)) {
         Expression *idx = index(0);
 
-        if (ExpRange *range = dynamic_cast < ExpRange * > (idx))
-        {
+        if (ExpRange *range = dynamic_cast<ExpRange *> (idx)) {
             // If the name is an array, then a part select is
             // also an array, but with different bounds.
             int64_t use_msb, use_lsb;
@@ -90,9 +82,7 @@ const VType *ExpName::elaborate_adjust_type_with_range_(Entity *ent, ScopeBase *
             ivl_assert(*this, flag);
 
             type = new VTypeArray(array->element_type(), use_msb, use_lsb);
-        }
-        else if (idx)
-        {
+        }else if (idx)  {
             // If the name is an array or a vector, then an
             // indexed name has the type of the element.
             type = array->element_type();
@@ -103,20 +93,16 @@ const VType *ExpName::elaborate_adjust_type_with_range_(Entity *ent, ScopeBase *
 }
 
 
-int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpName *suffix)
-{
+int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpName *suffix) {
     int errors = 0;
 
-    if (debug_elaboration)
-    {
+    if (debug_elaboration) {
         debug_log_file << get_fileline() << ": ExpName::elaborate_lval_: "
                        << "name_=" << name_
                        << ", suffix->name()=" << suffix->name();
-        if (indices_)
-        {
-            for (list < Expression * > ::const_iterator it = indices_->begin();
-                 it != indices_->end(); ++it)
-            {
+        if (indices_) {
+            for (list<Expression *>::const_iterator it = indices_->begin();
+                 it != indices_->end(); ++it) {
                 debug_log_file << "[";
                 debug_log_file << **it;
                 debug_log_file << "]";
@@ -125,8 +111,7 @@ int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpNam
         debug_log_file << endl;
     }
 
-    if (prefix_.get())
-    {
+    if (prefix_.get()) {
         cerr << get_fileline() << ": sorry: I don't know how to elaborate "
              << "ExpName prefix of " << name_
              << " in l-value expressions." << endl;
@@ -135,44 +120,33 @@ int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpNam
 
     const VType *found_type = 0;
 
-    if (const InterfacePort *cur = ent->find_port(name_))
-    {
-        if ((cur->mode != PORT_OUT) && (cur->mode != PORT_INOUT))
-        {
+    if (const InterfacePort *cur = ent->find_port(name_)) {
+        if ((cur->mode != PORT_OUT) && (cur->mode != PORT_INOUT)) {
             cerr << get_fileline() << ": error: Assignment to "
                                       "input port " << name_ << "." << endl;
             return errors + 1;
         }
 
-        if (is_sequ)
-        {
+        if (is_sequ) {
             ent->set_declaration_l_value(name_, is_sequ);
         }
 
         found_type = cur->type;
-    }
-    else if (ent->find_generic(name_))
-    {
+    }else if (ent->find_generic(name_))  {
         cerr << get_fileline() << ": error: Assignment to generic "
              << name_ << " from entity "
              << ent->get_name() << "." << endl;
         return errors + 1;
-    }
-    else if (Signal *sig = scope->find_signal(name_))
-    {
+    }else if (Signal *sig = scope->find_signal(name_))  {
         // Tell the target signal that this may be a sequential l-value.
-        if (is_sequ)
-        {
+        if (is_sequ) {
             sig->count_ref_sequ();
         }
 
         found_type = sig->peek_type();
-    }
-    else if (Variable *var = scope->find_variable(name_))
-    {
+    }else if (Variable *var = scope->find_variable(name_))  {
         // Tell the target signal that this may be a sequential l-value.
-        if (is_sequ)
-        {
+        if (is_sequ) {
             var->count_ref_sequ();
         }
 
@@ -180,12 +154,10 @@ int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpNam
     }
 
     // Resolve type definition to get an actual type.
-    while (const VTypeDef *tdef = dynamic_cast < const VTypeDef * > (found_type))
-    {
+    while (const VTypeDef *tdef = dynamic_cast<const VTypeDef *> (found_type)) {
         found_type = tdef->peek_definition();
 
-        if (debug_elaboration)
-        {
+        if (debug_elaboration) {
             debug_log_file << get_fileline() << ": ExpName::elaborate_lval_: "
                            << "Resolve typedef " << tdef->peek_name()
                            << " to defined type=" << typeid(*found_type).name()
@@ -201,17 +173,14 @@ int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpNam
     // where foo is an array, (n) is an array index and foo(n) is
     // something that takes a suffix. For the purpose of our
     // expression type calculations, we need the element type.
-    if (const VTypeArray *array = dynamic_cast < const VTypeArray * > (found_type))
-    {
+    if (const VTypeArray *array = dynamic_cast<const VTypeArray *> (found_type)) {
         found_type = array->element_type();
 
-        while (const VTypeDef *tdef = dynamic_cast < const VTypeDef * > (found_type))
-        {
+        while (const VTypeDef *tdef = dynamic_cast<const VTypeDef *> (found_type)) {
             found_type = tdef->peek_definition();
         }
 
-        if (debug_elaboration)
-        {
+        if (debug_elaboration) {
             debug_log_file << get_fileline() << ": ExpName::elaborate_lval_: "
                            << "Extract array element type=" << typeid(*found_type).name()
                            << endl;
@@ -220,8 +189,7 @@ int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpNam
 
     const VType *suffix_type = 0;
 
-    if (const VTypeRecord *record = dynamic_cast < const VTypeRecord * > (found_type))
-    {
+    if (const VTypeRecord *record = dynamic_cast<const VTypeRecord *> (found_type)) {
         const VTypeRecord::element_t *element = record->element_by_name(suffix->name_);
         ivl_assert(*this, element);
 
@@ -231,8 +199,7 @@ int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpNam
         suffix_type = element_type;
     }
 
-    if (suffix_type == 0)
-    {
+    if (suffix_type == 0) {
         cerr << get_fileline() << ": error: I don't know how to handle prefix " << name_
              << " with suffix " << suffix->name_ << endl;
         errors += 1;
@@ -248,37 +215,29 @@ int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpNam
 }
 
 
-int ExpName::elaborate_lval(Entity *ent, ScopeBase *scope, bool is_sequ)
-{
+int ExpName::elaborate_lval(Entity *ent, ScopeBase *scope, bool is_sequ) {
     int errors = 0;
 
-    if (prefix_.get())
-    {
+    if (prefix_.get()) {
         return prefix_->elaborate_lval_(ent, scope, is_sequ, this);
     }
 
     const VType *found_type = 0;
 
-    if (ent)
-    {
-        if (const InterfacePort *cur = ent->find_port(name_))
-        {
-            if ((cur->mode != PORT_OUT) && (cur->mode != PORT_INOUT))
-            {
+    if (ent) {
+        if (const InterfacePort *cur = ent->find_port(name_)) {
+            if ((cur->mode != PORT_OUT) && (cur->mode != PORT_INOUT)) {
                 cerr << get_fileline() << ": error: Assignment to "
                                           "input port " << name_ << "." << endl;
                 return errors += 1;
             }
 
-            if (is_sequ)
-            {
+            if (is_sequ) {
                 ent->set_declaration_l_value(name_, is_sequ);
             }
 
             found_type = cur->type;
-        }
-        else if (ent->find_generic(name_))
-        {
+        }else if (ent->find_generic(name_))  {
             cerr << get_fileline() << ": error: Assignment to generic "
                  << name_ << " from entity "
                  << ent->get_name() << "." << endl;
@@ -286,36 +245,27 @@ int ExpName::elaborate_lval(Entity *ent, ScopeBase *scope, bool is_sequ)
         }
     }
 
-    if (!found_type && scope)
-    {
-        if (Signal *sig = scope->find_signal(name_))
-        {
+    if (!found_type && scope) {
+        if (Signal *sig = scope->find_signal(name_)) {
             // Tell the target signal that this may be a sequential l-value.
-            if (is_sequ)
-            {
+            if (is_sequ) {
                 sig->count_ref_sequ();
             }
 
             found_type = sig->peek_type();
-        }
-        else if (Variable *var = scope->find_variable(name_))
-        {
+        }else if (Variable *var = scope->find_variable(name_))  {
             // Tell the target signal that this may be a sequential l-value.
-            if (is_sequ)
-            {
+            if (is_sequ) {
                 var->count_ref_sequ();
             }
 
             found_type = var->peek_type();
-        }
-        else if (const InterfacePort *port = scope->find_param(name_))
-        {
+        }else if (const InterfacePort *port = scope->find_param(name_))  {
             found_type = port->type;
         }
     }
 
-    if (found_type == 0)
-    {
+    if (found_type == 0) {
         cerr << get_fileline() << ": error: Signal/variable " << name_
              << " not found in this context." << endl;
         return errors + 1;
@@ -328,12 +278,10 @@ int ExpName::elaborate_lval(Entity *ent, ScopeBase *scope, bool is_sequ)
 }
 
 
-int ExpName::elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *lval)
-{
+int ExpName::elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *lval) {
     int errors = 0;
 
-    if (prefix_.get())
-    {
+    if (prefix_.get()) {
         cerr << get_fileline() << ": sorry: I don't know how to elaborate "
              << "ExpName prefix parts in r-value expressions." << endl;
         errors += 1;
@@ -342,20 +290,17 @@ int ExpName::elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *
     const VType *dummy_type;
     Expression  *dummy_expr;
 
-    if (const InterfacePort *cur = ent->find_port(name_))
-    {
+    if (const InterfacePort *cur = ent->find_port(name_)) {
         /* IEEE 1076-2008, p.80:
          * For a formal port IN, associated port should be IN, OUT, INOUT or BUFFER
          * For a formal port OUT, associated port should be OUT, INOUT or BUFFER
          * For a formal port INOUT, associated port should be OUT, INOUT or BUFFER
          * For a formal port BUFFER, associated port should be OUT, INOUT or BUFFER
          */
-        switch (lval->mode)
-        {
+        switch (lval->mode) {
         case PORT_OUT:
             //case PORT_INOUT:
-            if (cur->mode == PORT_IN)
-            {
+            if (cur->mode == PORT_IN) {
                 cerr << get_fileline() << ": error: Connecting "
                                           "formal output port " << lval->name << " to actual input port "
                      << name_ << "." << endl;
@@ -368,25 +313,15 @@ int ExpName::elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *
         default:
             break;
         }
-    }
-    else if (scope->find_signal(name_))
-    {
+    }else if (scope->find_signal(name_))  {
         /* OK */
-    }
-    else if (ent->find_generic(name_))
-    {
+    }else if (ent->find_generic(name_))  {
         /* OK */
-    }
-    else if (scope->find_constant(name_, dummy_type, dummy_expr))
-    {
+    }else if (scope->find_constant(name_, dummy_type, dummy_expr))  {
         /* OK */
-    }
-    else if (scope->is_enum_name(name_))
-    {
+    }else if (scope->is_enum_name(name_))  {
         /* OK */
-    }
-    else
-    {
+    }else  {
         cerr << get_fileline() << ": error: No port, signal or constant " << name_
              << " to be used as r-value." << endl;
         errors += 1;
@@ -396,39 +331,32 @@ int ExpName::elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *
 }
 
 
-int Expression::elaborate_expr(Entity *, ScopeBase *, const VType *)
-{
+int Expression::elaborate_expr(Entity *, ScopeBase *, const VType *) {
     cerr << get_fileline() << ": internal error: I don't know how to "
          << "elaborate expression type=" << typeid(*this).name() << endl;
     return 1;
 }
 
 
-const VType *ExpBinary::probe_type(Entity *ent, ScopeBase *scope) const
-{
+const VType *ExpBinary::probe_type(Entity *ent, ScopeBase *scope) const {
     const VType *t1 = operand1_->probe_type(ent, scope);
     const VType *t2 = operand2_->probe_type(ent, scope);
 
-    if (t1 == 0)
-    {
+    if (t1 == 0) {
         return t2;
     }
-    if (t2 == 0)
-    {
+    if (t2 == 0) {
         return t1;
     }
 
-    if (t1->type_match(t2))
-    {
+    if (t1->type_match(t2)) {
         return t1;
     }
-    if (t2->type_match(t1))
-    {
+    if (t2->type_match(t1)) {
         return t2;
     }
 
-    if (const VType *tb = resolve_operand_types_(t1, t2))
-    {
+    if (const VType *tb = resolve_operand_types_(t1, t2)) {
         return tb;
     }
 
@@ -442,14 +370,12 @@ const VType *ExpBinary::probe_type(Entity *ent, ScopeBase *scope) const
 }
 
 
-const VType *ExpBinary::resolve_operand_types_(const VType *, const VType *) const
-{
+const VType *ExpBinary::resolve_operand_types_(const VType *, const VType *) const {
     return 0;
 }
 
 
-int ExpBinary::elaborate_exprs(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpBinary::elaborate_exprs(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
     errors += operand1_->elaborate_expr(ent, scope, ltype);
@@ -463,33 +389,29 @@ int ExpBinary::elaborate_exprs(Entity *ent, ScopeBase *scope, const VType *ltype
  * return the fit_type for the operand. The assumption is that the
  * operator doesn't change the type.
  */
-const VType *ExpUnary::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const
-{
+const VType *ExpUnary::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const {
     return operand1_->fit_type(ent, scope, atype);
 }
 
 
-const VType *ExpUnary::probe_type(Entity *ent, ScopeBase *scope) const
-{
+const VType *ExpUnary::probe_type(Entity *ent, ScopeBase *scope) const {
     return operand1_->probe_type(ent, scope);
 }
 
 
-int ExpUnary::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpUnary::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     ivl_assert(*this, ltype != 0);
     set_type(ltype);
     return operand1_->elaborate_expr(ent, scope, ltype);
 }
 
 
-const VType *ExpAggregate::fit_type(Entity *, ScopeBase *, const VTypeArray *host) const
-{
+const VType *ExpAggregate::fit_type(Entity *, ScopeBase *, const VTypeArray *host) const {
     ivl_assert(*this, elements_.size() == 1);
     size_t choice_count = elements_[0]->count_choices();
 
     ivl_assert(*this, choice_count > 0);
-    vector < choice_element > ce(choice_count);
+    vector<choice_element> ce(choice_count);
     elements_[0]->map_choices(&ce[0]);
 
     ivl_assert(*this, ce.size() == 1);
@@ -500,7 +422,7 @@ const VType *ExpAggregate::fit_type(Entity *, ScopeBase *, const VTypeArray *hos
     Expression *use_lsb = prange->lsb();
 
     ivl_assert(*this, host->dimensions() == 1);
-    vector < VTypeArray::range_t > range(1);
+    vector<VTypeArray::range_t> range(1);
 
     range[0] = VTypeArray::range_t(use_msb, use_lsb);
 
@@ -510,27 +432,21 @@ const VType *ExpAggregate::fit_type(Entity *, ScopeBase *, const VTypeArray *hos
 }
 
 
-int ExpAggregate::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
-    if (ltype == 0)
-    {
+int ExpAggregate::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
+    if (ltype == 0) {
         cerr << get_fileline() << ": error: Elaboration of aggregate types needs well known type context?" << endl;
         return 1;
     }
 
     set_type(ltype);
 
-    while (const VTypeDef *cur = dynamic_cast < const VTypeDef * > (ltype))
-    {
+    while (const VTypeDef *cur = dynamic_cast<const VTypeDef *> (ltype)) {
         ltype = cur->peek_definition();
     }
 
-    if (const VTypeArray *larray = dynamic_cast < const VTypeArray * > (ltype))
-    {
+    if (const VTypeArray *larray = dynamic_cast<const VTypeArray *> (ltype)) {
         return elaborate_expr_array_(ent, scope, larray);
-    }
-    else if (const VTypeRecord *lrecord = dynamic_cast < const VTypeRecord * > (ltype))
-    {
+    }else if (const VTypeRecord *lrecord = dynamic_cast<const VTypeRecord *> (ltype))  {
         return elaborate_expr_record_(ent, scope, lrecord);
     }
 
@@ -544,8 +460,7 @@ int ExpAggregate::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *lty
  * expressions (the elements_ member) using the element type as the
  * ltype for the subexpression.
  */
-int ExpAggregate::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *ltype)
-{
+int ExpAggregate::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *ltype) {
     const VType *element_type = ltype->element_type();
     int         errors        = 0;
     size_t      choice_count  = 0;
@@ -553,15 +468,11 @@ int ExpAggregate::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTy
     // Figure out how many total elements we have here. Note that
     // each parsed element may be bound to multiple choices, so
     // account for that.
-    for (size_t edx = 0; edx < elements_.size(); edx += 1)
-    {
+    for (size_t edx = 0; edx < elements_.size(); edx += 1) {
         element_t *ecur = elements_[edx];
-        if (ecur->count_choices() == 0)
-        {
+        if (ecur->count_choices() == 0) {
             choice_count += 1;
-        }
-        else
-        {
+        }else  {
             choice_count += ecur->count_choices();
         }
     }
@@ -572,20 +483,16 @@ int ExpAggregate::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTy
     // the target array, each expression is attached to a single
     // choice.
     size_t cdx = 0;
-    for (size_t edx = 0; edx < elements_.size(); edx += 1)
-    {
+    for (size_t edx = 0; edx < elements_.size(); edx += 1) {
         element_t *ecur = elements_[edx];
-        if (ecur->count_choices() == 0)
-        {
+        if (ecur->count_choices() == 0) {
             // positional associations have no "choice"
             // associated with them.
             aggregate_[cdx].choice     = 0;
             aggregate_[cdx].expr       = ecur->extract_expression();
             aggregate_[cdx].alias_flag = false;
             cdx += 1;
-        }
-        else
-        {
+        }else  {
             ecur->map_choices(&aggregate_[cdx]);
             cdx += ecur->count_choices();
         }
@@ -595,10 +502,8 @@ int ExpAggregate::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTy
 
     // Now run through the more convenient mapping and elaborate
     // all the expressions that I find.
-    for (size_t idx = 0; idx < aggregate_.size(); idx += 1)
-    {
-        if (aggregate_[idx].alias_flag)
-        {
+    for (size_t idx = 0; idx < aggregate_.size(); idx += 1) {
+        if (aggregate_[idx].alias_flag) {
             continue;
         }
 
@@ -612,8 +517,7 @@ int ExpAggregate::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTy
 }
 
 
-int ExpAggregate::elaborate_expr_record_(Entity *ent, ScopeBase *scope, const VTypeRecord *ltype)
-{
+int ExpAggregate::elaborate_expr_record_(Entity *ent, ScopeBase *scope, const VTypeRecord *ltype) {
     int errors = 0;
 
     aggregate_.resize(elements_.size());
@@ -623,8 +527,7 @@ int ExpAggregate::elaborate_expr_record_(Entity *ent, ScopeBase *scope, const VT
     // Translate the elements_ array to the aggregate_ array. In
     // the target array, each expression is attached to a single
     // choice.
-    for (size_t edx = 0; edx < elements_.size(); edx += 1)
-    {
+    for (size_t edx = 0; edx < elements_.size(); edx += 1) {
         element_t *ecur = elements_[edx];
 
         // it is invalid to have more than one choice in record assignment
@@ -637,7 +540,7 @@ int ExpAggregate::elaborate_expr_record_(Entity *ent, ScopeBase *scope, const VT
         ivl_assert(*this, !tmp.alias_flag);
 
         // Get the appropriate type for a field
-        const ExpName *field = dynamic_cast < const ExpName * > (ch->simple_expression(false));
+        const ExpName *field = dynamic_cast<const ExpName *> (ch->simple_expression(false));
         ivl_assert(*this, field);
 
         perm_string field_name = field->peek_name();
@@ -656,10 +559,8 @@ int ExpAggregate::elaborate_expr_record_(Entity *ent, ScopeBase *scope, const VT
 }
 
 
-void ExpAggregate::element_t::map_choices(ExpAggregate::choice_element *dst)
-{
-    for (size_t idx = 0; idx < fields_.size(); idx += 1)
-    {
+void ExpAggregate::element_t::map_choices(ExpAggregate::choice_element *dst) {
+    for (size_t idx = 0; idx < fields_.size(); idx += 1) {
         dst->choice     = fields_[idx];
         dst->expr       = val_;
         dst->alias_flag = (idx != 0);
@@ -668,12 +569,10 @@ void ExpAggregate::element_t::map_choices(ExpAggregate::choice_element *dst)
 }
 
 
-int ExpArithmetic::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpArithmetic::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
@@ -683,19 +582,15 @@ int ExpArithmetic::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *lt
 }
 
 
-const VType *ExpArithmetic::resolve_operand_types_(const VType *t1, const VType *t2) const
-{
-    while (const VTypeRange *tmp = dynamic_cast < const VTypeRange * > (t1))
-    {
+const VType *ExpArithmetic::resolve_operand_types_(const VType *t1, const VType *t2) const {
+    while (const VTypeRange *tmp = dynamic_cast<const VTypeRange *> (t1)) {
         t1 = tmp->base_type();
     }
-    while (const VTypeRange *tmp = dynamic_cast < const VTypeRange * > (t2))
-    {
+    while (const VTypeRange *tmp = dynamic_cast<const VTypeRange *> (t2)) {
         t2 = tmp->base_type();
     }
 
-    if (t1->type_match(t2))
-    {
+    if (t1->type_match(t2)) {
         return t1;
     }
 
@@ -703,15 +598,12 @@ const VType *ExpArithmetic::resolve_operand_types_(const VType *t1, const VType 
 }
 
 
-int ExpAttribute::elaborate_args(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpAttribute::elaborate_args(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (args_)
-    {
-        for (list < Expression * > ::iterator it = args_->begin();
-             it != args_->end(); ++it)
-        {
+    if (args_) {
+        for (list<Expression *>::iterator it = args_->begin();
+             it != args_->end(); ++it) {
             errors += (*it)->elaborate_expr(ent, scope, ltype);
         }
     }
@@ -720,8 +612,7 @@ int ExpAttribute::elaborate_args(Entity *ent, ScopeBase *scope, const VType *lty
 }
 
 
-int ExpObjAttribute::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *)
-{
+int ExpObjAttribute::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *) {
     int         errors    = 0;
     const VType *sub_type = base_->probe_type(ent, scope);
 
@@ -732,10 +623,8 @@ int ExpObjAttribute::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *
 }
 
 
-const VType *ExpObjAttribute::probe_type(Entity *, ScopeBase *) const
-{
-    if ((name_ == "length") || (name_ == "left") || (name_ == "right"))
-    {
+const VType *ExpObjAttribute::probe_type(Entity *, ScopeBase *) const {
+    if ((name_ == "length") || (name_ == "left") || (name_ == "right")) {
         return &primitive_NATURAL;
     }
 
@@ -743,16 +632,13 @@ const VType *ExpObjAttribute::probe_type(Entity *, ScopeBase *) const
 }
 
 
-int ExpTypeAttribute::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpTypeAttribute::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     return elaborate_args(ent, scope, ltype);
 }
 
 
-const VType *ExpTypeAttribute::probe_type(Entity *, ScopeBase *) const
-{
-    if (name_ == "image")
-    {
+const VType *ExpTypeAttribute::probe_type(Entity *, ScopeBase *) const {
+    if (name_ == "image") {
         return &primitive_STRING;
     }
 
@@ -760,60 +646,51 @@ const VType *ExpTypeAttribute::probe_type(Entity *, ScopeBase *) const
 }
 
 
-const VType *ExpBitstring::fit_type(Entity *, ScopeBase *, const VTypeArray *atype) const
-{
+const VType *ExpBitstring::fit_type(Entity *, ScopeBase *, const VTypeArray *atype) const {
     // Really should check that this string can work with the
     // array element type?
     return atype->element_type();
 }
 
 
-int ExpBitstring::elaborate_expr(Entity *, ScopeBase *, const VType *)
-{
+int ExpBitstring::elaborate_expr(Entity *, ScopeBase *, const VType *) {
     int              errors = 0;
-    const VTypeArray *type  = new VTypeArray(& primitive_STDLOGIC, value_.size() - 1, 0);
+    const VTypeArray *type  = new VTypeArray(&primitive_STDLOGIC, value_.size() - 1, 0);
 
     set_type(type);
     return errors;
 }
 
 
-const VType *ExpCharacter::fit_type(Entity *, ScopeBase *, const VTypeArray *atype) const
-{
+const VType *ExpCharacter::fit_type(Entity *, ScopeBase *, const VTypeArray *atype) const {
     // Really should check that this character can work with the
     // array element type?
     return atype->element_type();
 }
 
 
-int ExpCharacter::elaborate_expr(Entity *, ScopeBase *, const VType *ltype)
-{
+int ExpCharacter::elaborate_expr(Entity *, ScopeBase *, const VType *ltype) {
     ivl_assert(*this, ltype != 0);
     set_type(ltype);
     return 0;
 }
 
 
-const VType *ExpConcat::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const
-{
+const VType *ExpConcat::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const {
     Expression  *operands[2] = { operand1_, operand2_ };
     const VType *types[2]    = { NULL, NULL };
     Expression  *sizes[2]    = { NULL, NULL };
 
     // determine the type and size of concatenated expressions
-    for (int i = 0; i < 2; ++i)
-    {
+    for (int i = 0; i < 2; ++i) {
         types[i] = operands[i]->fit_type(ent, scope, atype);
 
-        if (const VTypeArray *arr = dynamic_cast < const VTypeArray * > (types[i]))
-        {
+        if (const VTypeArray *arr = dynamic_cast<const VTypeArray *> (types[i])) {
             types[i] = arr->element_type();
             ivl_assert(*this, arr->dimensions() == 1);
             const VTypeArray::range_t& dim = arr->dimension(0);
             sizes[i] = new ExpArithmetic(ExpArithmetic::MINUS, dim.msb(), dim.lsb());
-        }
-        else
-        {
+        }else  {
             sizes[i] = new ExpInteger(0);
         }
     }
@@ -825,9 +702,9 @@ const VType *ExpConcat::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray
                                          new ExpArithmetic(ExpArithmetic::PLUS, sizes[0], sizes[1]),
                                          new ExpInteger(1));
 
-    std::list < ExpRange * > ranges;
+    std::list<ExpRange *> ranges;
     ranges.push_front(new ExpRange(size, new ExpInteger(0), ExpRange::DOWNTO));
-    const VType *array = new VTypeArray(types[1], & ranges);
+    const VType *array = new VTypeArray(types[1], &ranges);
 
     return array;
 }
@@ -836,30 +713,24 @@ const VType *ExpConcat::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray
 /*
  * I don't know how to probe the type of a concatenation, quite yet.
  */
-const VType *ExpConcat::probe_type(Entity *, ScopeBase *) const
-{
+const VType *ExpConcat::probe_type(Entity *, ScopeBase *) const {
     ivl_assert(*this, 0);
     return 0;
 }
 
 
-int ExpConcat::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpConcat::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
     ivl_assert(*this, ltype != 0);
 
-    if (const VTypeArray *atype = dynamic_cast < const VTypeArray * > (ltype))
-    {
+    if (const VTypeArray *atype = dynamic_cast<const VTypeArray *> (ltype)) {
         errors += elaborate_expr_array_(ent, scope, atype);
-    }
-    else
-    {
+    }else  {
         errors += operand1_->elaborate_expr(ent, scope, ltype);
         errors += operand2_->elaborate_expr(ent, scope, ltype);
     }
@@ -868,8 +739,7 @@ int ExpConcat::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
 }
 
 
-int ExpConcat::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *atype)
-{
+int ExpConcat::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *atype) {
     int errors = 0;
 
     // For now, only support single-dimension arrays here.
@@ -888,18 +758,15 @@ int ExpConcat::elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeA
 }
 
 
-const VType *ExpConditional::probe_type(Entity *, ScopeBase *) const
-{
+const VType *ExpConditional::probe_type(Entity *, ScopeBase *) const {
     return 0;
 }
 
 
-int ExpConditional::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpConditional::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
@@ -910,9 +777,8 @@ int ExpConditional::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *l
     /* Note that the type for the condition expression need not
      * have anything to do with the type of this expression. */
 
-    for (list < case_t * > ::const_iterator cur = options_.begin()
-         ; cur != options_.end(); ++cur)
-    {
+    for (list<case_t *>::const_iterator cur = options_.begin()
+         ; cur != options_.end(); ++cur) {
         errors += (*cur)->elaborate_expr(ent, scope, ltype);
     }
 
@@ -920,18 +786,15 @@ int ExpConditional::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *l
 }
 
 
-int ExpConditional::case_t::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpConditional::case_t::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (cond_)
-    {
+    if (cond_) {
         errors += cond_->elaborate_expr(ent, scope, 0);
     }
 
-    for (list < Expression * > ::const_iterator cur = true_clause_.begin()
-         ; cur != true_clause_.end(); ++cur)
-    {
+    for (list<Expression *>::const_iterator cur = true_clause_.begin()
+         ; cur != true_clause_.end(); ++cur) {
         errors += (*cur)->elaborate_expr(ent, scope, ltype);
     }
 
@@ -939,29 +802,24 @@ int ExpConditional::case_t::elaborate_expr(Entity *ent, ScopeBase *scope, const 
 }
 
 
-const VType *ExpFunc::probe_type(Entity *ent, ScopeBase *scope) const
-{
+const VType *ExpFunc::probe_type(Entity *ent, ScopeBase *scope) const {
     SubprogramHeader *prog = def_;
 
-    if (!prog)
-    {
-        list < const VType * > arg_types;
+    if (!prog) {
+        list<const VType *> arg_types;
 
-        for (vector < Expression * > ::const_iterator it = argv_.begin();
-             it != argv_.end(); ++it)
-        {
+        for (vector<Expression *>::const_iterator it = argv_.begin();
+             it != argv_.end(); ++it) {
             arg_types.push_back((*it)->probe_type(ent, scope));
         }
 
         prog = scope->match_subprogram(name_, &arg_types);
 
-        if (!prog)
-        {
+        if (!prog) {
             prog = library_match_subprogram(name_, &arg_types);
         }
 
-        if (!prog)
-        {
+        if (!prog) {
             cerr << get_fileline() << ": sorry: could not find function ";
             emit_subprogram_sig(cerr, name_, arg_types);
             cerr << endl;
@@ -973,29 +831,25 @@ const VType *ExpFunc::probe_type(Entity *ent, ScopeBase *scope) const
 }
 
 
-int ExpFunc::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *)
-{
+int ExpFunc::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *) {
     int errors = 0;
 
     ivl_assert(*this, def_ == 0);     // do not elaborate twice
 
     // Create a list of argument types to find a matching subprogram
-    list < const VType * > arg_types;
-    for (vector < Expression * > ::iterator it = argv_.begin();
-         it != argv_.end(); ++it)
-    {
+    list<const VType *> arg_types;
+    for (vector<Expression *>::iterator it = argv_.begin();
+         it != argv_.end(); ++it) {
         arg_types.push_back((*it)->probe_type(ent, scope));
     }
 
     def_ = scope->match_subprogram(name_, &arg_types);
 
-    if (!def_)
-    {
+    if (!def_) {
         def_ = library_match_subprogram(name_, &arg_types);
     }
 
-    if (!def_)
-    {
+    if (!def_) {
         cerr << get_fileline() << ": error: could not find function ";
         emit_subprogram_sig(cerr, name_, arg_types);
         cerr << endl;
@@ -1003,16 +857,14 @@ int ExpFunc::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *)
     }
 
     // Elaborate arguments
-    for (size_t idx = 0; idx < argv_.size(); ++idx)
-    {
+    for (size_t idx = 0; idx < argv_.size(); ++idx) {
         errors += def_->elaborate_argument(argv_[idx], idx, ent, scope);
     }
 
     // SystemVerilog functions work only with defined size data types, therefore
     // if header does not specify argument or return type size, create a function
     // instance that work with this particular size.
-    if (def_ && !def_->is_std() && def_->unbounded())
-    {
+    if (def_ && !def_->is_std() && def_->unbounded()) {
         def_  = def_->make_instance(argv_, scope);
         name_ = def_->name();       // TODO necessary?
     }
@@ -1021,31 +873,24 @@ int ExpFunc::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *)
 }
 
 
-const VType *ExpFunc::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *) const
-{
+const VType *ExpFunc::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *) const {
     return probe_type(ent, scope);
 }
 
 
-const VType *ExpInteger::probe_type(Entity *, ScopeBase *) const
-{
-    if (value_ >= 0)
-    {
+const VType *ExpInteger::probe_type(Entity *, ScopeBase *) const {
+    if (value_ >= 0) {
         return &primitive_NATURAL;
-    }
-    else
-    {
+    }else  {
         return &primitive_INTEGER;
     }
 }
 
 
-int ExpInteger::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpInteger::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
@@ -1055,18 +900,15 @@ int ExpInteger::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype
 }
 
 
-const VType *ExpReal::probe_type(Entity *, ScopeBase *) const
-{
+const VType *ExpReal::probe_type(Entity *, ScopeBase *) const {
     return &primitive_REAL;
 }
 
 
-int ExpReal::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpReal::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
@@ -1076,12 +918,10 @@ int ExpReal::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
 }
 
 
-int ExpLogical::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpLogical::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
@@ -1091,10 +931,8 @@ int ExpLogical::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype
 }
 
 
-const VType *ExpName::probe_prefix_type_(Entity *ent, ScopeBase *scope) const
-{
-    if (prefix_.get())
-    {
+const VType *ExpName::probe_prefix_type_(Entity *ent, ScopeBase *scope) const {
+    if (prefix_.get()) {
         cerr << get_fileline() << ": sorry: I do not know how to support nested prefix parts." << endl;
         return 0;
     }
@@ -1109,18 +947,15 @@ const VType *ExpName::probe_prefix_type_(Entity *ent, ScopeBase *scope) const
  * that have prefix parts. In this case we try to get the type of the
  * prefix and interpret the name in that context.
  */
-const VType *ExpName::probe_prefixed_type_(Entity *ent, ScopeBase *scope) const
-{
+const VType *ExpName::probe_prefixed_type_(Entity *ent, ScopeBase *scope) const {
     // First, get the type of the prefix.
     const VType *prefix_type = prefix_->probe_prefix_type_(ent, scope);
 
-    if (prefix_type == 0)
-    {
+    if (prefix_type == 0) {
         return 0;
     }
 
-    while (const VTypeDef *def = dynamic_cast < const VTypeDef * > (prefix_type))
-    {
+    while (const VTypeDef *def = dynamic_cast<const VTypeDef *> (prefix_type)) {
         prefix_type = def->peek_definition();
     }
 
@@ -1128,14 +963,12 @@ const VType *ExpName::probe_prefixed_type_(Entity *ent, ScopeBase *scope) const
     bool        type_changed  = true;
 
     // Keep unwinding the type until we find the basic element type
-    while (type_changed)
-    {
+    while (type_changed) {
         type_changed = false;
 
         // If the prefix type is a record, then the current name is
         // the name of a member.
-        if (const VTypeRecord *pref_record = dynamic_cast < const VTypeRecord * > (element_type))
-        {
+        if (const VTypeRecord *pref_record = dynamic_cast<const VTypeRecord *> (element_type)) {
             const VTypeRecord::element_t *element = pref_record->element_by_name(name_);
             ivl_assert(*this, element);
 
@@ -1144,16 +977,14 @@ const VType *ExpName::probe_prefixed_type_(Entity *ent, ScopeBase *scope) const
             type_changed = true;
         }
 
-        if (const VTypeArray *pref_array = dynamic_cast < const VTypeArray * > (element_type))
-        {
+        if (const VTypeArray *pref_array = dynamic_cast<const VTypeArray *> (element_type)) {
             element_type = pref_array->basic_type(false);
             ivl_assert(*this, element_type);
             type_changed = true;
         }
     }
 
-    if (!element_type)
-    {
+    if (!element_type) {
         cerr << get_fileline() << ": sorry: I don't know how to probe "
              << "prefix type " << typeid(*prefix_type).name()
              << " of " << name_ << "." << endl;
@@ -1164,66 +995,53 @@ const VType *ExpName::probe_prefixed_type_(Entity *ent, ScopeBase *scope) const
 }
 
 
-const VType *ExpName::probe_type(Entity *ent, ScopeBase *scope) const
-{
-    if (prefix_.get())
-    {
+const VType *ExpName::probe_type(Entity *ent, ScopeBase *scope) const {
+    if (prefix_.get()) {
         return probe_prefixed_type_(ent, scope);
     }
 
-    if (ent)
-    {
-        if (const InterfacePort *cur = ent->find_port(name_))
-        {
+    if (ent) {
+        if (const InterfacePort *cur = ent->find_port(name_)) {
             ivl_assert(*this, cur->type);
             return cur->type;
         }
 
-        if (const InterfacePort *cur = ent->find_generic(name_))
-        {
+        if (const InterfacePort *cur = ent->find_generic(name_)) {
             ivl_assert(*this, cur->type);
             return cur->type;
         }
     }
 
-    if (scope)
-    {
-        if (Signal *sig = scope->find_signal(name_))
-        {
+    if (scope) {
+        if (Signal *sig = scope->find_signal(name_)) {
             return sig->peek_type();
         }
 
-        if (Variable *var = scope->find_variable(name_))
-        {
+        if (Variable *var = scope->find_variable(name_)) {
             return var->peek_type();
         }
 
         const VType *type = 0;
         Expression  *cval = 0;
-        if (scope->find_constant(name_, type, cval))
-        {
+        if (scope->find_constant(name_, type, cval)) {
             return type;
         }
 
-        Architecture *arc = dynamic_cast < Architecture * > (scope);
-        if (arc && (type = arc->probe_genvar_type(name_)))
-        {
+        Architecture *arc = dynamic_cast<Architecture *> (scope);
+        if (arc && (type = arc->probe_genvar_type(name_))) {
             return type;
         }
 
-        if (const InterfacePort *port = scope->find_param(name_))
-        {
+        if (const InterfacePort *port = scope->find_param(name_)) {
             return port->type;
         }
 
-        if ((type = scope->is_enum_name(name_)))
-        {
+        if ((type = scope->is_enum_name(name_))) {
             return type;
         }
     }
 
-    if (ent || scope)
-    {
+    if (ent || scope) {
         // Do not display error messages if there was no entity or scope
         // specified. There are functions that are called without any specific
         // context and they still may want to probe the expression type.
@@ -1235,30 +1053,24 @@ const VType *ExpName::probe_type(Entity *ent, ScopeBase *scope) const
 }
 
 
-const VType *ExpName::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *) const
-{
+const VType *ExpName::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *) const {
     return probe_type(ent, scope);
 }
 
 
-int ExpName::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
-    if (ltype)
-    {
+int ExpName::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
+    if (ltype) {
         ivl_assert(*this, ltype != 0);
         set_type(ltype);
     }
 
-    if (prefix_.get())
-    {
+    if (prefix_.get()) {
         prefix_.get()->elaborate_expr(ent, scope, NULL);
     }
 
-    if (indices_)
-    {
-        for (list < Expression * > ::const_iterator it = indices_->begin();
-             it != indices_->end(); ++it)
-        {
+    if (indices_) {
+        for (list<Expression *>::const_iterator it = indices_->begin();
+             it != indices_->end(); ++it) {
             (*it)->elaborate_expr(ent, scope, &primitive_INTEGER);
         }
     }
@@ -1267,24 +1079,20 @@ int ExpName::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
 }
 
 
-const VType *ExpNameALL::probe_type(Entity *, ScopeBase *) const
-{
+const VType *ExpNameALL::probe_type(Entity *, ScopeBase *) const {
     return 0;
 }
 
 
-const VType *ExpRelation::probe_type(Entity *, ScopeBase *) const
-{
+const VType *ExpRelation::probe_type(Entity *, ScopeBase *) const {
     return &type_BOOLEAN;
 }
 
 
-int ExpRelation::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpRelation::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
@@ -1300,12 +1108,10 @@ int ExpRelation::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltyp
 }
 
 
-int ExpShift::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpShift::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (ltype == 0)
-    {
+    if (ltype == 0) {
         ltype = probe_type(ent, scope);
     }
 
@@ -1320,9 +1126,8 @@ int ExpShift::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
  * string is an array with the same element type of the concatenation,
  * but with elements for each character of the string.
  */
-const VType *ExpString::fit_type(Entity *, ScopeBase *, const VTypeArray *atype) const
-{
-    vector < VTypeArray::range_t > range(atype->dimensions());
+const VType *ExpString::fit_type(Entity *, ScopeBase *, const VTypeArray *atype) const {
+    vector<VTypeArray::range_t> range(atype->dimensions());
 
     // Generate an array range for this string
     ivl_assert(*this, range.size() == 1);
@@ -1333,32 +1138,27 @@ const VType *ExpString::fit_type(Entity *, ScopeBase *, const VTypeArray *atype)
 }
 
 
-int ExpString::elaborate_expr(Entity *, ScopeBase *, const VType *ltype)
-{
+int ExpString::elaborate_expr(Entity *, ScopeBase *, const VType *ltype) {
     ivl_assert(*this, ltype != 0);
     set_type(ltype);
     return 0;
 }
 
 
-int ExpTime::elaborate_expr(Entity *, ScopeBase *, const VType *)
-{
+int ExpTime::elaborate_expr(Entity *, ScopeBase *, const VType *) {
     set_type(&primitive_INTEGER);
     return 0;
 }
 
 
-int ExpRange::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *)
-{
+int ExpRange::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *) {
     int errors = 0;
 
-    if (left_)
-    {
+    if (left_) {
         errors += left_->elaborate_expr(ent, scope, &primitive_INTEGER);
     }
 
-    if (right_)
-    {
+    if (right_) {
         errors += right_->elaborate_expr(ent, scope, &primitive_INTEGER);
     }
 
@@ -1366,8 +1166,7 @@ int ExpRange::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *)
 }
 
 
-int ExpDelay::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int ExpDelay::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
     errors += expr_->elaborate_expr(ent, scope, ltype);

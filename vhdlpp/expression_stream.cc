@@ -24,14 +24,11 @@
 
 using namespace std;
 
-void ExpAggregate::write_to_stream(ostream& fd) const
-{
+void ExpAggregate::write_to_stream(ostream& fd) const {
     fd << "(";
-    for (vector < element_t * > ::const_iterator cur = elements_.begin()
-         ; cur != elements_.end(); ++cur)
-    {
-        if (cur != elements_.begin())
-        {
+    for (vector<element_t *>::const_iterator cur = elements_.begin()
+         ; cur != elements_.end(); ++cur) {
+        if (cur != elements_.begin()) {
             fd << ", ";
         }
 
@@ -41,38 +38,31 @@ void ExpAggregate::write_to_stream(ostream& fd) const
 }
 
 
-void ExpAggregate::element_t::write_to_stream(ostream& fd) const
-{
-    for (vector < choice_t * > ::const_iterator cur = fields_.begin()
-         ; cur != fields_.end(); ++cur)
-    {
+void ExpAggregate::element_t::write_to_stream(ostream& fd) const {
+    for (vector<choice_t *>::const_iterator cur = fields_.begin()
+         ; cur != fields_.end(); ++cur) {
         (*cur)->write_to_stream(fd);
     }
 
-    if (!fields_.empty())
-    {
+    if (!fields_.empty()) {
         fd << "=>";
     }
     val_->write_to_stream(fd);
 }
 
 
-void ExpAggregate::choice_t::write_to_stream(ostream& fd)
-{
-    if (others())
-    {
+void ExpAggregate::choice_t::write_to_stream(ostream& fd) {
+    if (others()) {
         fd << "others";
         return;
     }
 
-    if (Expression *sim = simple_expression())
-    {
+    if (Expression *sim = simple_expression()) {
         sim->write_to_stream(fd);
         return;
     }
 
-    if (ExpRange *rp = range_expressions())
-    {
+    if (ExpRange *rp = range_expressions()) {
         rp->write_to_stream(fd);
         return;
     }
@@ -81,14 +71,12 @@ void ExpAggregate::choice_t::write_to_stream(ostream& fd)
 }
 
 
-void ExpArithmetic::write_to_stream(ostream& out) const
-{
+void ExpArithmetic::write_to_stream(ostream& out) const {
     out << "(";
     write_to_stream_operand1(out);
     out << ")";
 
-    switch (fun_)
-    {
+    switch (fun_) {
     case PLUS:
         out << "+";
         break;
@@ -128,34 +116,29 @@ void ExpArithmetic::write_to_stream(ostream& out) const
 }
 
 
-void ExpObjAttribute::write_to_stream(ostream& fd) const
-{
+void ExpObjAttribute::write_to_stream(ostream& fd) const {
     base_->write_to_stream(fd);
     fd << "'" << name_;
 }
 
 
-void ExpTypeAttribute::write_to_stream(ostream& fd) const
-{
+void ExpTypeAttribute::write_to_stream(ostream& fd) const {
     base_->write_to_stream(fd);
     fd << "'" << name_;
 }
 
 
-void ExpBitstring::write_to_stream(ostream& fd) const
-{
+void ExpBitstring::write_to_stream(ostream& fd) const {
     fd << "B\"";
-    for (vector < char > ::const_reverse_iterator it = value_.rbegin();
-         it != value_.rend(); ++it)
-    {
+    for (vector<char>::const_reverse_iterator it = value_.rbegin();
+         it != value_.rend(); ++it) {
         fd << *it;
     }
     fd << "\"";
 }
 
 
-void ExpCharacter::write_to_stream(ostream& fd) const
-{
+void ExpCharacter::write_to_stream(ostream& fd) const {
     char buf[4];
 
     buf[0] = '\'';
@@ -166,8 +149,7 @@ void ExpCharacter::write_to_stream(ostream& fd) const
 }
 
 
-void ExpConcat::write_to_stream(ostream& fd) const
-{
+void ExpConcat::write_to_stream(ostream& fd) const {
     fd << "(";
     operand1_->write_to_stream(fd);
     fd << ")&(";
@@ -176,26 +158,22 @@ void ExpConcat::write_to_stream(ostream& fd) const
 }
 
 
-void ExpConditional::write_to_stream(ostream&) const
-{
+void ExpConditional::write_to_stream(ostream&) const {
     ivl_assert(*this, !"Not supported");
 }
 
 
-void ExpEdge::write_to_stream(ostream&) const
-{
+void ExpEdge::write_to_stream(ostream&) const {
     ivl_assert(*this, !"Not supported");
 }
 
 
-void ExpFunc::write_to_stream(ostream& fd) const
-{
+void ExpFunc::write_to_stream(ostream& fd) const {
     const char *comma = "";
 
     fd << name_ << "(";
-    for (vector < Expression * > ::const_iterator cur = argv_.begin()
-         ; cur != argv_.end(); ++cur)
-    {
+    for (vector<Expression *>::const_iterator cur = argv_.begin()
+         ; cur != argv_.end(); ++cur) {
         fd << comma;
         (*cur)->write_to_stream(fd);
         comma = ", ";
@@ -204,24 +182,20 @@ void ExpFunc::write_to_stream(ostream& fd) const
 }
 
 
-void ExpInteger::write_to_stream(ostream& fd) const
-{
+void ExpInteger::write_to_stream(ostream& fd) const {
     fd << value_;
 }
 
 
-void ExpReal::write_to_stream(ostream& fd) const
-{
+void ExpReal::write_to_stream(ostream& fd) const {
     fd << value_;
 }
 
 
-void ExpLogical::write_to_stream(ostream& out) const
-{
+void ExpLogical::write_to_stream(ostream& out) const {
     peek_operand1()->write_to_stream(out);
 
-    switch (fun_)
-    {
+    switch (fun_) {
     case AND:
         out << " and ";
         break;
@@ -251,29 +225,22 @@ void ExpLogical::write_to_stream(ostream& out) const
 }
 
 
-void ExpName::write_to_stream(ostream& fd) const
-{
-    if (prefix_.get())
-    {
+void ExpName::write_to_stream(ostream& fd) const {
+    if (prefix_.get()) {
         prefix_->write_to_stream(fd);
         fd << ".";
     }
 
     fd << name_;
 
-    if (indices_)
-    {
+    if (indices_) {
         fd << "(";
         bool first = true;
-        for (list < Expression * > ::const_iterator it = indices_->begin();
-             it != indices_->end(); ++it)
-        {
-            if (first)
-            {
+        for (list<Expression *>::const_iterator it = indices_->begin();
+             it != indices_->end(); ++it) {
+            if (first) {
                 first = false;
-            }
-            else
-            {
+            }else  {
                 fd << ",";
             }
 
@@ -284,12 +251,10 @@ void ExpName::write_to_stream(ostream& fd) const
 }
 
 
-void ExpRelation::write_to_stream(ostream& fd) const
-{
+void ExpRelation::write_to_stream(ostream& fd) const {
     peek_operand1()->write_to_stream(fd);
 
-    switch (fun_)
-    {
+    switch (fun_) {
     case EQ:
         fd << " = ";
         break;
@@ -319,14 +284,12 @@ void ExpRelation::write_to_stream(ostream& fd) const
 }
 
 
-void ExpShift::write_to_stream(ostream& out) const
-{
+void ExpShift::write_to_stream(ostream& out) const {
     out << "(";
     write_to_stream_operand1(out);
     out << ")";
 
-    switch (shift_)
-    {
+    switch (shift_) {
     case SRL:
         out << "srl";
         break;
@@ -358,19 +321,14 @@ void ExpShift::write_to_stream(ostream& out) const
 }
 
 
-void ExpString::write_to_stream(ostream& fd) const
-{
+void ExpString::write_to_stream(ostream& fd) const {
     fd << "\"";
 
     // Restore double quotation marks
-    for (string::const_iterator it = value_.begin(); it != value_.end(); ++it)
-    {
-        if (*it == '"')
-        {
+    for (string::const_iterator it = value_.begin(); it != value_.end(); ++it) {
+        if (*it == '"') {
             fd << "\"\"";
-        }
-        else
-        {
+        }else  {
             fd << *it;
         }
     }
@@ -379,34 +337,29 @@ void ExpString::write_to_stream(ostream& fd) const
 }
 
 
-void ExpUAbs::write_to_stream(ostream& fd) const
-{
+void ExpUAbs::write_to_stream(ostream& fd) const {
     fd << "abs ";
     write_to_stream_operand1(fd);
 }
 
 
-void ExpUNot::write_to_stream(ostream& fd) const
-{
+void ExpUNot::write_to_stream(ostream& fd) const {
     fd << "not ";
     write_to_stream_operand1(fd);
 }
 
 
-void ExpCast::write_to_stream(ostream& fd) const
-{
+void ExpCast::write_to_stream(ostream& fd) const {
     // Type casting is introduced only for a few specific cases in
     // SystemVerilog, so no need to use it here
     base_->write_to_stream(fd);
 }
 
 
-void ExpTime::write_to_stream(ostream& fd) const
-{
+void ExpTime::write_to_stream(ostream& fd) const {
     fd << amount_;
 
-    switch (unit_)
-    {
+    switch (unit_) {
     case FS:
         fd << " fs";
         break;
@@ -434,18 +387,13 @@ void ExpTime::write_to_stream(ostream& fd) const
 }
 
 
-void ExpRange::write_to_stream(ostream& fd) const
-{
-    if (range_expr_)
-    {
+void ExpRange::write_to_stream(ostream& fd) const {
+    if (range_expr_) {
         range_base_->write_to_stream(fd);
         fd << (range_reverse_ ? "'reverse_range" : "'range");
-    }
-    else
-    {
+    }else  {
         left_->write_to_stream(fd);
-        switch (direction_)
-        {
+        switch (direction_) {
         case DOWNTO:
             fd << " downto ";
             break;
@@ -463,8 +411,7 @@ void ExpRange::write_to_stream(ostream& fd) const
 }
 
 
-void ExpDelay::write_to_stream(ostream& out) const
-{
+void ExpDelay::write_to_stream(ostream& out) const {
     expr_->write_to_stream(out);
     out << " after ";
     delay_->write_to_stream(out);

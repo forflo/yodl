@@ -38,8 +38,11 @@ class ExpRange;
 class VTypeDef;
 class ScopeBase;
 
-typedef enum typedef_topo_e { NONE = 0, PENDING, MARKED }   typedef_topo_t;
-typedef std::map < const VTypeDef *, typedef_topo_t >       typedef_context_t;
+typedef enum typedef_topo_e
+{
+    NONE = 0, PENDING, MARKED
+} typedef_topo_t;
+typedef std::map<const VTypeDef *, typedef_topo_t>   typedef_context_t;
 
 /*
  * A description of a VHDL type consists of a graph of VType
@@ -49,8 +52,8 @@ typedef std::map < const VTypeDef *, typedef_topo_t >       typedef_context_t;
 class VType {
 public:
     VType()
-    {
-    }
+    {}
+
     virtual ~VType() = 0;
 
     virtual VType *clone() const = 0;
@@ -94,26 +97,20 @@ public:
     virtual int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
 
     // Determines if a type can be used in Verilog packed array.
-    virtual bool can_be_packed() const
-    {
+    virtual bool can_be_packed() const {
         return false;
     }
-
 
     // Returns true if the type has an undefined dimension.
-    virtual bool is_unbounded() const
-    {
+    virtual bool is_unbounded() const {
         return false;
     }
-
 
     // Checks if the variable length is dependent on other expressions, that
     // cannot be evaluated (e.g. 'length, 'left, 'right).
-    virtual bool is_variable_length(ScopeBase *) const
-    {
+    virtual bool is_variable_length(ScopeBase *) const {
         return false;
     }
-
 
     // Returns a perm_string that can be used in automatically created
     // typedefs (i.e. not ones defined by the user).
@@ -121,11 +118,9 @@ public:
 
     // Returns the type width in bits or negative number if it is impossible
     // to evaluate.
-    virtual int get_width(ScopeBase *) const
-    {
+    virtual int get_width(ScopeBase *) const {
         return -1;
     }
-
 
     // This virtual method is called to emit the declaration. This
     // is used by the decl_t object to emit variable/wire/port declarations.
@@ -138,8 +133,8 @@ public:
     struct decl_t
     {
         decl_t() : type(0), reg_flag(false)
-        {
-        }
+        {}
+
         int         emit(std::ostream& out, perm_string name) const;
 
         const VType *type;
@@ -147,32 +142,28 @@ public:
     };
 
 protected:
-    inline void emit_name(std::ostream& out, perm_string name) const
-    {
-        if (name != empty_perm_string)
-        {
+    inline void emit_name(std::ostream& out, perm_string name) const {
+        if (name != empty_perm_string) {
             out << " \\" << name << " ";
         }
     }
 };
 
-inline std::ostream& operator << (std::ostream & out, const VType &item)
-        {
-        item.show(out);
-        return out;
-    }
+inline std::ostream& operator <<(std::ostream& out, const VType& item) {
+    item.show(out);
+    return out;
+}
 
-    extern void preload_global_types(void);
+
+extern void preload_global_types(void);
 
 /*
  * This type is a placeholder for ERROR types.
  */
-class VTypeERROR: public VType {
-    VType *clone() const
-    {
+class VTypeERROR : public VType {
+    VType *clone() const {
         return NULL;
     }
-
 
 public:
     int emit_def(std::ostream& out, perm_string name) const;
@@ -182,7 +173,7 @@ public:
  * This class represents the primitive types that are available to the
  * type subsystem.
  */
-class VTypePrimitive: public VType {
+class VTypePrimitive : public VType {
 public:
     enum type_t { BIT, INTEGER, NATURAL, REAL, STDLOGIC, TIME };
 
@@ -190,31 +181,25 @@ public:
     VTypePrimitive(type_t tt, bool packed = false);
     ~VTypePrimitive();
 
-    VType *clone() const
-    {
+    VType *clone() const {
         return new VTypePrimitive(*this);
     }
-
 
     bool type_match(const VType *that) const;
     void write_to_stream(std::ostream& fd) const;
     void show(std::ostream&) const;
     int get_width(ScopeBase *scope) const;
 
-    type_t type() const
-    {
+    type_t type() const {
         return type_;
     }
-
 
     int emit_primitive_type(std::ostream& fd) const;
     int emit_def(std::ostream& out, perm_string name) const;
 
-    bool can_be_packed() const
-    {
+    bool can_be_packed() const {
         return packed_;
     }
-
 
 private:
     type_t type_;
@@ -227,40 +212,31 @@ private:
  * ranges. The array type can be left incomplete by leaving some
  * ranges as "box" ranges, meaning present but not defined.
  */
-class VTypeArray: public VType {
+class VTypeArray : public VType {
 public:
     class range_t {
 public:
-        range_t(Expression * m = NULL, Expression * l = NULL, bool down_to = true) :
+        range_t(Expression *m = NULL, Expression *l = NULL, bool down_to = true) :
             msb_(m), lsb_(l), direction_(down_to)
-        {
-        }
+        {}
 
         range_t *clone() const;
 
-        inline bool is_box() const
-        {
+        inline bool is_box() const {
             return msb_ == 0 && lsb_ == 0;
         }
 
-
-        inline bool is_downto() const
-        {
+        inline bool is_downto() const {
             return direction_;
         }
 
-
-        inline Expression *msb() const
-        {
+        inline Expression *msb() const {
             return msb_;
         }
 
-
-        inline Expression *lsb() const
-        {
+        inline Expression *lsb() const {
             return lsb_;
         }
-
 
 private:
         Expression *msb_;
@@ -269,9 +245,9 @@ private:
     };
 
 public:
-    VTypeArray(const VType * etype, const std::vector < range_t > &r, bool signed_vector = false);
-    VTypeArray(const VType * etype, std::list < ExpRange * > *r, bool signed_vector = false);
-    VTypeArray(const VType * etype, int msb, int lsb, bool signed_vector = false);
+    VTypeArray(const VType *etype, const std::vector<range_t>& r, bool signed_vector = false);
+    VTypeArray(const VType *etype, std::list<ExpRange *> *r, bool signed_vector = false);
+    VTypeArray(const VType *etype, int msb, int lsb, bool signed_vector = false);
     ~VTypeArray();
 
     VType *clone() const;
@@ -283,30 +259,22 @@ public:
     void show(std::ostream&) const;
     int get_width(ScopeBase *scope) const;
 
-    inline size_t dimensions() const
-    {
+    inline size_t dimensions() const {
         return ranges_.size();
     }
 
-
-    const range_t& dimension(size_t idx) const
-    {
+    const range_t& dimension(size_t idx) const {
         return ranges_[idx];
     }
 
-
-    inline bool signed_vector() const
-    {
+    inline bool signed_vector() const {
         return signed_flag_;
     }
 
-
     // returns the type of element held in the array
-    inline const VType *element_type() const
-    {
+    inline const VType *element_type() const {
         return parent_ ? parent_->element_type() : etype_;
     }
-
 
     // returns the basic type of element held in the array
     // (unfolds typedefs and multidimensional arrays)
@@ -317,22 +285,18 @@ public:
     int emit_def(std::ostream& out, perm_string name) const;
     int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
 
-    bool can_be_packed() const
-    {
+    bool can_be_packed() const {
         return etype_->can_be_packed();
     }
-
 
     bool is_unbounded() const;
 
     bool is_variable_length(ScopeBase *scope) const;
 
     // To handle subtypes
-    inline void set_parent_type(const VTypeArray *parent)
-    {
+    inline void set_parent_type(const VTypeArray *parent) {
         parent_ = parent;
     }
-
 
     // Wherever it is possible, replaces range lsb & msb expressions with
     // constant integers.
@@ -345,15 +309,15 @@ private:
     bool write_special_case(std::ostream& out) const;
     void write_range_to_stream_(std::ostream& fd) const;
 
-    const VType *etype_;
-    std::vector < range_t > ranges_;
-    bool             signed_flag_;
-    const VTypeArray *parent_;
+    const VType          *etype_;
+    std::vector<range_t> ranges_;
+    bool                 signed_flag_;
+    const VTypeArray     *parent_;
 };
 
-class VTypeRange: public VType {
+class VTypeRange : public VType {
 public:
-    VTypeRange(const VType * base);
+    VTypeRange(const VType *base);
     virtual ~VTypeRange() = 0;
 
     bool write_std_types(std::ostream& fd) const;
@@ -361,37 +325,29 @@ public:
     bool type_match(const VType *that) const;
 
     // Get the type that is limited by the range.
-    inline const VType *base_type() const
-    {
+    inline const VType *base_type() const {
         return base_;
     }
-
 
 protected:
     const VType *base_;
 };
 
-class VTypeRangeConst: public VTypeRange {
+class VTypeRangeConst : public VTypeRange {
 public:
-    VTypeRangeConst(const VType * base, int64_t end, int64_t start);
+    VTypeRangeConst(const VType *base, int64_t end, int64_t start);
 
-    VType *clone() const
-    {
+    VType *clone() const {
         return new VTypeRangeConst(base_type()->clone(), start_, end_);
     }
 
-
-    int64_t start() const
-    {
+    int64_t start() const {
         return start_;
     }
 
-
-    int64_t end() const
-    {
+    int64_t end() const {
         return end_;
     }
-
 
     void write_to_stream(std::ostream& fd) const;
 
@@ -399,9 +355,9 @@ private:
     const int64_t start_, end_;
 };
 
-class VTypeRangeExpr: public VTypeRange {
+class VTypeRangeExpr : public VTypeRange {
 public:
-    VTypeRangeExpr(const VType * base, Expression * end, Expression * start, bool downto);
+    VTypeRangeExpr(const VType *base, Expression *end, Expression *start, bool downto);
     ~VTypeRangeExpr();
 
     VType *clone() const;
@@ -418,26 +374,22 @@ private:
     bool downto_;
 };
 
-class VTypeEnum: public VType {
+class VTypeEnum : public VType {
 public:
-    explicit VTypeEnum(const std::list < perm_string > *names);
+    explicit VTypeEnum(const std::list<perm_string> *names);
 
     ~VTypeEnum();
 
-    VType *clone() const
-    {
+    VType *clone() const {
         return new VTypeEnum(*this);
     }
-
 
     void write_to_stream(std::ostream& fd) const;
     void show(std::ostream&) const;
 
-    int get_width(ScopeBase *) const
-    {
+    int get_width(ScopeBase *) const {
         return 32;
     }
-
 
     int emit_def(std::ostream& out, perm_string name) const;
     int emit_decl(std::ostream& out, perm_string name, bool reg_flag) const;
@@ -446,89 +398,78 @@ public:
     bool has_name(perm_string name) const;
 
 private:
-    std::vector < perm_string > names_;
+    std::vector<perm_string> names_;
 };
 
-class VTypeRecord: public VType {
+class VTypeRecord : public VType {
 public:
     class element_t {
 public:
-        element_t(perm_string name, const VType * type);
+        element_t(perm_string name, const VType *type);
 
         void write_to_stream(std::ostream&) const;
 
-        inline perm_string peek_name() const
-        {
+        inline perm_string peek_name() const {
             return name_;
         }
 
-
-        inline const VType *peek_type() const
-        {
+        inline const VType *peek_type() const {
             return type_;
         }
-
 
 private:
         perm_string name_;
         const VType *type_;
 
 private:          // Not implement
-        element_t(const element_t &);
-        element_t&                 operator = (const element_t);
+        element_t(const element_t&);
+        element_t& operator =(const element_t);
     };
 
 public:
-    explicit VTypeRecord(std::list < element_t * > *elements);
+    explicit VTypeRecord(std::list<element_t *> *elements);
 
     ~VTypeRecord();
 
-    VType *clone() const
-    {
+    VType *clone() const {
         return new VTypeRecord(*this);
     }
-
 
     void write_to_stream(std::ostream& fd) const;
     void show(std::ostream&) const;
     int get_width(ScopeBase *scope) const;
     int emit_def(std::ostream& out, perm_string name) const;
 
-    bool can_be_packed() const
-    {
+    bool can_be_packed() const {
         return true;
     }
 
-
     const element_t *element_by_name(perm_string name, int *index = NULL) const;
 
-    inline const std::vector < element_t * > get_elements() const { return elements_;
+    inline const std::vector<element_t *> get_elements() const {
+        return elements_;
     }
 
 private:
-    std::vector < element_t * > elements_;
+    std::vector<element_t *> elements_;
 };
 
-class VTypeDef: public VType {
+class VTypeDef : public VType {
 public:
     explicit VTypeDef(perm_string name);
     explicit VTypeDef(perm_string name, const VType *is);
 
     virtual ~VTypeDef();
 
-    VType *clone() const
-    {
+    VType *clone() const {
         return new VTypeDef(*this);
     }
 
-
     bool type_match(const VType *that) const;
 
-    inline perm_string peek_name() const
-    {
+    inline perm_string peek_name() const {
         return name_;
     }
-
 
     // If the type is not given a definition in the constructor,
     // then this must be used to set the definition later.
@@ -536,51 +477,43 @@ public:
 
     // In some situations, we only need the definition of the
     // type, and this method gets it for us.
-    inline const VType *peek_definition(void) const
-    {
+    inline const VType *peek_definition(void) const {
         return type_;
     }
-
 
     virtual void write_to_stream(std::ostream& fd) const;
     void write_type_to_stream(std::ostream& fd) const;
 
-    int get_width(ScopeBase *scope) const
-    {
+    int get_width(ScopeBase *scope) const {
         return type_->get_width(scope);
     }
-
 
     int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
 
     int emit_def(std::ostream& out, perm_string name) const;
     int emit_decl(std::ostream& out, perm_string name, bool reg_flag) const;
 
-    bool can_be_packed() const
-    {
+    bool can_be_packed() const {
         return type_->can_be_packed();
     }
 
-
-    bool is_unbounded() const
-    {
+    bool is_unbounded() const {
         return type_->is_unbounded();
     }
-
 
 protected:
     perm_string name_;
     const VType *type_;
 };
 
-class VSubTypeDef: public VTypeDef {
+class VSubTypeDef : public VTypeDef {
 public:
     explicit VSubTypeDef(perm_string name) : VTypeDef(name)
-    {
-    }
+    {}
+
     explicit VSubTypeDef(perm_string name, const VType *is) : VTypeDef(name, is)
-    {
-    }
+    {}
+
     void write_typedef_to_stream(std::ostream& fd, perm_string name) const;
 };
 

@@ -24,19 +24,16 @@
 # include  "subprogram.h"
 # include  "std_types.h"
 
-int SequentialStmt::elaborate(Entity *, ScopeBase *)
-{
+int SequentialStmt::elaborate(Entity *, ScopeBase *) {
     return 0;
 }
 
 
-int LoopStatement::elaborate_substatements(Entity *ent, ScopeBase *scope)
-{
+int LoopStatement::elaborate_substatements(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    for (list < SequentialStmt * > ::iterator cur = stmts_.begin()
-         ; cur != stmts_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = stmts_.begin()
+         ; cur != stmts_.end(); ++cur) {
         errors += (*cur)->elaborate(ent, scope);
     }
 
@@ -44,17 +41,15 @@ int LoopStatement::elaborate_substatements(Entity *ent, ScopeBase *scope)
 }
 
 
-int CaseSeqStmt::elaborate(Entity *ent, ScopeBase *scope)
-{
+int CaseSeqStmt::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     const VType *ctype = cond_->probe_type(ent, scope);
 
     errors += cond_->elaborate_expr(ent, scope, ctype);
 
-    for (list < CaseStmtAlternative * > ::iterator cur = alt_.begin()
-         ; cur != alt_.end(); ++cur)
-    {
+    for (list<CaseStmtAlternative *>::iterator cur = alt_.begin()
+         ; cur != alt_.end(); ++cur) {
         CaseStmtAlternative *curp = *cur;
         errors += curp->elaborate_expr(ent, scope, ctype);
         errors += curp->elaborate(ent, scope);
@@ -69,15 +64,12 @@ int CaseSeqStmt::elaborate(Entity *ent, ScopeBase *scope)
  * ltype is the probed type for the main case condition. The
  * expression needs to elaborate itself in that context.
  */
-int CaseSeqStmt::CaseStmtAlternative::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype)
-{
+int CaseSeqStmt::CaseStmtAlternative::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     int errors = 0;
 
-    if (exp_)
-    {
-        for (list < Expression * > ::iterator it = exp_->begin(); it != exp_->end();
-             ++it)
-        {
+    if (exp_) {
+        for (list<Expression *>::iterator it = exp_->begin(); it != exp_->end();
+             ++it) {
             errors += (*it)->elaborate_expr(ent, scope, ltype);
         }
     }
@@ -85,13 +77,11 @@ int CaseSeqStmt::CaseStmtAlternative::elaborate_expr(Entity *ent, ScopeBase *sco
 }
 
 
-int CaseSeqStmt::CaseStmtAlternative::elaborate(Entity *ent, ScopeBase *scope)
-{
+int CaseSeqStmt::CaseStmtAlternative::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    for (list < SequentialStmt * > ::iterator cur = stmts_.begin()
-         ; cur != stmts_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = stmts_.begin()
+         ; cur != stmts_.end(); ++cur) {
         SequentialStmt *curp = *cur;
         errors += curp->elaborate(ent, scope);
     }
@@ -100,8 +90,7 @@ int CaseSeqStmt::CaseStmtAlternative::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int ForLoopStatement::elaborate(Entity *ent, ScopeBase *scope)
-{
+int ForLoopStatement::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     errors += elaborate_substatements(ent, scope);
@@ -109,27 +98,23 @@ int ForLoopStatement::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int IfSequential::elaborate(Entity *ent, ScopeBase *scope)
-{
+int IfSequential::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     errors += cond_->elaborate_expr(ent, scope, &type_BOOLEAN);
 
-    for (list < SequentialStmt * > ::iterator cur = if_.begin()
-         ; cur != if_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = if_.begin()
+         ; cur != if_.end(); ++cur) {
         errors += (*cur)->elaborate(ent, scope);
     }
 
-    for (list < IfSequential::Elsif * > ::iterator cur = elsif_.begin()
-         ; cur != elsif_.end(); ++cur)
-    {
+    for (list<IfSequential::Elsif *>::iterator cur = elsif_.begin()
+         ; cur != elsif_.end(); ++cur) {
         errors += (*cur)->elaborate(ent, scope);
     }
 
-    for (list < SequentialStmt * > ::iterator cur = else_.begin()
-         ; cur != else_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = else_.begin()
+         ; cur != else_.end(); ++cur) {
         errors += (*cur)->elaborate(ent, scope);
     }
 
@@ -137,15 +122,13 @@ int IfSequential::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int IfSequential::Elsif::elaborate(Entity *ent, ScopeBase *scope)
-{
+int IfSequential::Elsif::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     errors += cond_->elaborate_expr(ent, scope, &type_BOOLEAN);
 
-    for (list < SequentialStmt * > ::iterator cur = if_.begin()
-         ; cur != if_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = if_.begin()
+         ; cur != if_.end(); ++cur) {
         errors += (*cur)->elaborate(ent, scope);
     }
 
@@ -153,18 +136,15 @@ int IfSequential::Elsif::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int ReturnStmt::elaborate(Entity *ent, ScopeBase *scope)
-{
+int ReturnStmt::elaborate(Entity *ent, ScopeBase *scope) {
     const VType *ltype = NULL;
 
     // Try to determine the expression type by
     // looking up the function return type.
-    const SubprogramBody *subp = dynamic_cast < const SubprogramBody * > (scope);
+    const SubprogramBody *subp = dynamic_cast<const SubprogramBody *> (scope);
 
-    if (subp)
-    {
-        if (const SubprogramHeader *header = subp->header())
-        {
+    if (subp) {
+        if (const SubprogramHeader *header = subp->header()) {
             ltype = header->peek_return_type();
         }
     }
@@ -173,8 +153,7 @@ int ReturnStmt::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int SignalSeqAssignment::elaborate(Entity *ent, ScopeBase *scope)
-{
+int SignalSeqAssignment::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     // Elaborate the l-value expression.
@@ -184,19 +163,16 @@ int SignalSeqAssignment::elaborate(Entity *ent, ScopeBase *scope)
     // l-value expression. We'll use that type to elaborate the
     // r-value.
     const VType *lval_type = lval_->peek_type();
-    if (lval_type == 0)
-    {
-        if (errors == 0)
-        {
+    if (lval_type == 0) {
+        if (errors == 0) {
             errors += 1;
         }
         return errors;
     }
 
     // Elaborate the r-value expressions.
-    for (list < Expression * > ::iterator cur = waveform_.begin()
-         ; cur != waveform_.end(); ++cur)
-    {
+    for (list<Expression *>::iterator cur = waveform_.begin()
+         ; cur != waveform_.end(); ++cur) {
         errors += (*cur)->elaborate_expr(ent, scope, lval_type);
     }
 
@@ -204,19 +180,16 @@ int SignalSeqAssignment::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int ProcedureCall::elaborate(Entity *ent, ScopeBase *scope)
-{
+int ProcedureCall::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     assert(!def_);     // do not elaborate twice
 
     // Create a list of argument types to find a matching subprogram
-    list < const VType * > arg_types;
-    if (param_list_)
-    {
-        for (list < named_expr_t * > ::iterator it = param_list_->begin();
-             it != param_list_->end(); ++it)
-        {
+    list<const VType *> arg_types;
+    if (param_list_) {
+        for (list<named_expr_t *>::iterator it = param_list_->begin();
+             it != param_list_->end(); ++it) {
             named_expr_t *e = *it;
             arg_types.push_back(e->expr()->probe_type(ent, scope));
         }
@@ -224,13 +197,11 @@ int ProcedureCall::elaborate(Entity *ent, ScopeBase *scope)
 
     def_ = scope->match_subprogram(name_, &arg_types);
 
-    if (!def_)
-    {
+    if (!def_) {
         def_ = library_match_subprogram(name_, &arg_types);
     }
 
-    if (!def_)
-    {
+    if (!def_) {
         cerr << get_fileline() << ": error: could not find procedure ";
         emit_subprogram_sig(cerr, name_, arg_types);
         cerr << endl;
@@ -239,11 +210,9 @@ int ProcedureCall::elaborate(Entity *ent, ScopeBase *scope)
 
     // Elaborate arguments
     size_t idx = 0;
-    if (param_list_)
-    {
-        for (list < named_expr_t * > ::iterator cur = param_list_->begin()
-             ; cur != param_list_->end(); ++cur)
-        {
+    if (param_list_) {
+        for (list<named_expr_t *>::iterator cur = param_list_->begin()
+             ; cur != param_list_->end(); ++cur) {
             errors += def_->elaborate_argument((*cur)->expr(), idx, ent, scope);
             ++idx;
         }
@@ -253,8 +222,7 @@ int ProcedureCall::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int VariableSeqAssignment::elaborate(Entity *ent, ScopeBase *scope)
-{
+int VariableSeqAssignment::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     // Elaborate the l-value expression.
@@ -264,10 +232,8 @@ int VariableSeqAssignment::elaborate(Entity *ent, ScopeBase *scope)
     // l-value expression. We'll use that type to elaborate the
     // r-value.
     const VType *lval_type = lval_->peek_type();
-    if (lval_type == 0)
-    {
-        if (errors == 0)
-        {
+    if (lval_type == 0) {
+        if (errors == 0) {
             errors += 1;
         }
         return errors;
@@ -280,8 +246,7 @@ int VariableSeqAssignment::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int WhileLoopStatement::elaborate(Entity *ent, ScopeBase *scope)
-{
+int WhileLoopStatement::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     errors += elaborate_substatements(ent, scope);
@@ -290,20 +255,17 @@ int WhileLoopStatement::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int BasicLoopStatement::elaborate(Entity *ent, ScopeBase *scope)
-{
+int BasicLoopStatement::elaborate(Entity *ent, ScopeBase *scope) {
     return elaborate_substatements(ent, scope);
 }
 
 
-int ReportStmt::elaborate(Entity *ent, ScopeBase *scope)
-{
+int ReportStmt::elaborate(Entity *ent, ScopeBase *scope) {
     return msg_->elaborate_expr(ent, scope, &primitive_STRING);
 }
 
 
-int AssertStmt::elaborate(Entity *ent, ScopeBase *scope)
-{
+int AssertStmt::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     errors += ReportStmt::elaborate(ent, scope);
@@ -312,41 +274,33 @@ int AssertStmt::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-int WaitForStmt::elaborate(Entity *ent, ScopeBase *scope)
-{
+int WaitForStmt::elaborate(Entity *ent, ScopeBase *scope) {
     return delay_->elaborate_expr(ent, scope, &primitive_TIME);
 }
 
 
-int WaitStmt::elaborate(Entity *ent, ScopeBase *scope)
-{
-    if (type_ == UNTIL)
-    {
+int WaitStmt::elaborate(Entity *ent, ScopeBase *scope) {
+    if (type_ == UNTIL) {
         struct fill_sens_list_t : public ExprVisitor
         {
-            explicit fill_sens_list_t(set < ExpName * >& sig_list)
+            explicit fill_sens_list_t(set<ExpName *>& sig_list)
                 : sig_list_(sig_list)
-            {
-            };
+            {}
 
-            void operator() (Expression * s)
-            {
-                if (ExpName *name = dynamic_cast < ExpName * > (s))
-                {
+            void operator()(Expression *s) {
+                if (ExpName *name = dynamic_cast<ExpName *> (s)) {
                     sig_list_.insert(name);
                 }
             }
 
 private:
-            set < ExpName * > &sig_list_;
+            set<ExpName *>& sig_list_;
         }
         fill_sens_list(sens_list_);
 
         // Fill the sensitivity list
         expr_->visit(fill_sens_list);
-    }
-    else if (type_ == FINAL)
-    {
+    }else if (type_ == FINAL)  {
         return 0;   // nothing to be elaborated
     }
 

@@ -33,8 +33,7 @@
 # include  <limits>
 # include  <ivl_assert.h>
 
-int SequentialStmt::emit(ostream& out, Entity *, ScopeBase *)
-{
+int SequentialStmt::emit(ostream& out, Entity *, ScopeBase *) {
     out << " // " << get_fileline() << ": internal error: "
         << "I don't know how to emit this sequential statement! "
         << "type=" << typeid(*this).name() << endl;
@@ -42,44 +41,38 @@ int SequentialStmt::emit(ostream& out, Entity *, ScopeBase *)
 }
 
 
-void SequentialStmt::write_to_stream(std::ostream& fd)
-{
+void SequentialStmt::write_to_stream(std::ostream& fd) {
     fd << " // " << get_fileline() << ": internal error: "
        << "I don't know how to write_to_stream this sequential statement! "
        << "type=" << typeid(*this).name() << endl;
 }
 
 
-int IfSequential::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int IfSequential::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "if (";
     errors += cond_->emit(out, ent, scope);
     out << ") begin" << endl;
 
-    for (list < SequentialStmt * > ::iterator cur = if_.begin()
-         ; cur != if_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = if_.begin()
+         ; cur != if_.end(); ++cur) {
         errors += (*cur)->emit(out, ent, scope);
     }
 
-    for (list < IfSequential::Elsif * > ::iterator cur = elsif_.begin()
-         ; cur != elsif_.end(); ++cur)
-    {
+    for (list<IfSequential::Elsif *>::iterator cur = elsif_.begin()
+         ; cur != elsif_.end(); ++cur) {
         out << "end else if (";
         errors += (*cur)->condition_emit(out, ent, scope);
         out << ") begin" << endl;
         errors += (*cur)->statement_emit(out, ent, scope);
     }
 
-    if (!else_.empty())
-    {
+    if (!else_.empty()) {
         out << "end else begin" << endl;
 
-        for (list < SequentialStmt * > ::iterator cur = else_.begin()
-             ; cur != else_.end(); ++cur)
-        {
+        for (list<SequentialStmt *>::iterator cur = else_.begin()
+             ; cur != else_.end(); ++cur) {
             errors += (*cur)->emit(out, ent, scope);
         }
     }
@@ -89,34 +82,29 @@ int IfSequential::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void IfSequential::write_to_stream(std::ostream& fd)
-{
+void IfSequential::write_to_stream(std::ostream& fd) {
     fd << "if ";
     cond_->write_to_stream(fd);
     fd << " then" << endl;
 
-    for (list < SequentialStmt * > ::iterator cur = if_.begin()
-         ; cur != if_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = if_.begin()
+         ; cur != if_.end(); ++cur) {
         (*cur)->write_to_stream(fd);
     }
 
-    for (list < IfSequential::Elsif * > ::iterator cur = elsif_.begin()
-         ; cur != elsif_.end(); ++cur)
-    {
+    for (list<IfSequential::Elsif *>::iterator cur = elsif_.begin()
+         ; cur != elsif_.end(); ++cur) {
         fd << "elsif ";
         (*cur)->condition_write_to_stream(fd);
         fd << " " << endl;
         (*cur)->statement_write_to_stream(fd);
     }
 
-    if (!else_.empty())
-    {
+    if (!else_.empty()) {
         fd << " else " << endl;
 
-        for (list < SequentialStmt * > ::iterator cur = else_.begin()
-             ; cur != else_.end(); ++cur)
-        {
+        for (list<SequentialStmt *>::iterator cur = else_.begin()
+             ; cur != else_.end(); ++cur) {
             (*cur)->write_to_stream(fd);
         }
     }
@@ -125,19 +113,16 @@ void IfSequential::write_to_stream(std::ostream& fd)
 }
 
 
-int IfSequential::Elsif::condition_emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int IfSequential::Elsif::condition_emit(ostream& out, Entity *ent, ScopeBase *scope) {
     return cond_->emit(out, ent, scope);
 }
 
 
-int IfSequential::Elsif::statement_emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int IfSequential::Elsif::statement_emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    for (list < SequentialStmt * > ::iterator cur = if_.begin()
-         ; cur != if_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = if_.begin()
+         ; cur != if_.end(); ++cur) {
         errors += (*cur)->emit(out, ent, scope);
     }
 
@@ -145,24 +130,20 @@ int IfSequential::Elsif::statement_emit(ostream& out, Entity *ent, ScopeBase *sc
 }
 
 
-void IfSequential::Elsif::condition_write_to_stream(ostream& fd)
-{
+void IfSequential::Elsif::condition_write_to_stream(ostream& fd) {
     cond_->write_to_stream(fd);
 }
 
 
-void IfSequential::Elsif::statement_write_to_stream(ostream& fd)
-{
-    for (list < SequentialStmt * > ::iterator cur = if_.begin()
-         ; cur != if_.end(); ++cur)
-    {
+void IfSequential::Elsif::statement_write_to_stream(ostream& fd) {
+    for (list<SequentialStmt *>::iterator cur = if_.begin()
+         ; cur != if_.end(); ++cur) {
         (*cur)->write_to_stream(fd);
     }
 }
 
 
-int ReturnStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int ReturnStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "return ";
@@ -172,27 +153,22 @@ int ReturnStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void ReturnStmt::write_to_stream(ostream& fd)
-{
+void ReturnStmt::write_to_stream(ostream& fd) {
     fd << "return ";
     val_->write_to_stream(fd);
     fd << ";" << endl;
 }
 
 
-int SignalSeqAssignment::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int SignalSeqAssignment::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     errors += lval_->emit(out, ent, scope);
 
-    if (waveform_.size() != 1)
-    {
+    if (waveform_.size() != 1) {
         out << "/* Confusing waveform? */;" << endl;
         errors += 1;
-    }
-    else
-    {
+    }else  {
         Expression *tmp = waveform_.front();
         out << " <= ";
         errors += tmp->emit(out, ent, scope);
@@ -203,16 +179,12 @@ int SignalSeqAssignment::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void SignalSeqAssignment::write_to_stream(ostream& fd)
-{
+void SignalSeqAssignment::write_to_stream(ostream& fd) {
     lval_->write_to_stream(fd);
 
-    if (waveform_.size() != 1)
-    {
+    if (waveform_.size() != 1) {
         fd << "-- Confusing waveform?" << endl;
-    }
-    else
-    {
+    }else  {
         Expression *tmp = waveform_.front();
         fd << " <= ";
         tmp->write_to_stream(fd);
@@ -221,8 +193,7 @@ void SignalSeqAssignment::write_to_stream(ostream& fd)
 }
 
 
-int VariableSeqAssignment::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int VariableSeqAssignment::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     errors += lval_->emit(out, ent, scope);
@@ -235,8 +206,7 @@ int VariableSeqAssignment::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void VariableSeqAssignment::write_to_stream(ostream& fd)
-{
+void VariableSeqAssignment::write_to_stream(ostream& fd) {
     lval_->write_to_stream(fd);
     fd << " := ";
     rval_->write_to_stream(fd);
@@ -244,26 +214,22 @@ void VariableSeqAssignment::write_to_stream(ostream& fd)
 }
 
 
-int ProcedureCall::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int ProcedureCall::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    vector < Expression * > argv;
+    vector<Expression *> argv;
 
-    if (!def_)
-    {
+    if (!def_) {
         cerr << get_fileline() << ": error: unknown procedure: " << name_ << endl;
         return 1;
     }
 
     // Convert the parameter list to vector
-    if (param_list_)
-    {
+    if (param_list_) {
         argv.reserve(param_list_->size());
 
-        for (std::list < named_expr_t * > ::iterator it = param_list_->begin();
-             it != param_list_->end(); ++it)
-        {
+        for (std::list<named_expr_t *>::iterator it = param_list_->begin();
+             it != param_list_->end(); ++it) {
             argv.push_back((*it)->expr());
         }
     }
@@ -271,8 +237,7 @@ int ProcedureCall::emit(ostream& out, Entity *ent, ScopeBase *scope)
     def_->emit_full_name(argv, out, ent, scope);
     out << " (";
 
-    if (param_list_)
-    {
+    if (param_list_) {
         errors += def_->emit_args(argv, out, ent, scope);
     }
 
@@ -281,13 +246,11 @@ int ProcedureCall::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-int LoopStatement::emit_substatements(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int LoopStatement::emit_substatements(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    for (list < SequentialStmt * > ::iterator cur = stmts_.begin()
-         ; cur != stmts_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = stmts_.begin()
+         ; cur != stmts_.end(); ++cur) {
         SequentialStmt *tmp = *cur;
         errors += tmp->emit(out, ent, scope);
     }
@@ -295,28 +258,24 @@ int LoopStatement::emit_substatements(ostream& out, Entity *ent, ScopeBase *scop
 }
 
 
-void LoopStatement::write_to_stream_substatements(ostream& fd)
-{
-    for (list < SequentialStmt * > ::iterator cur = stmts_.begin()
-         ; cur != stmts_.end(); ++cur)
-    {
+void LoopStatement::write_to_stream_substatements(ostream& fd) {
+    for (list<SequentialStmt *>::iterator cur = stmts_.begin()
+         ; cur != stmts_.end(); ++cur) {
         SequentialStmt *tmp = *cur;
         tmp->write_to_stream(fd);
     }
 }
 
 
-int CaseSeqStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int CaseSeqStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "case (";
     errors += cond_->emit(out, ent, scope);
     out << ")" << endl;
 
-    for (list < CaseStmtAlternative * > ::iterator cur = alt_.begin()
-         ; cur != alt_.end(); ++cur)
-    {
+    for (list<CaseStmtAlternative *>::iterator cur = alt_.begin()
+         ; cur != alt_.end(); ++cur) {
         CaseStmtAlternative *curp = *cur;
         errors += curp->emit(out, ent, scope);
     }
@@ -327,15 +286,13 @@ int CaseSeqStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void CaseSeqStmt::write_to_stream(ostream& fd)
-{
+void CaseSeqStmt::write_to_stream(ostream& fd) {
     fd << "case ";
     cond_->write_to_stream(fd);
     fd << " is" << endl;
 
-    for (list < CaseStmtAlternative * > ::iterator cur = alt_.begin()
-         ; cur != alt_.end(); ++cur)
-    {
+    for (list<CaseStmtAlternative *>::iterator cur = alt_.begin()
+         ; cur != alt_.end(); ++cur) {
         CaseStmtAlternative *curp = *cur;
         curp->write_to_stream(fd);
     }
@@ -344,37 +301,28 @@ void CaseSeqStmt::write_to_stream(ostream& fd)
 }
 
 
-int CaseSeqStmt::CaseStmtAlternative::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int CaseSeqStmt::CaseStmtAlternative::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     bool first = true;
 
-    if (exp_)
-    {
-        for (list < Expression * > ::iterator it = exp_->begin(); it != exp_->end(); ++it)
-        {
-            if (first)
-            {
+    if (exp_) {
+        for (list<Expression *>::iterator it = exp_->begin(); it != exp_->end(); ++it) {
+            if (first) {
                 first = false;
-            }
-            else
-            {
+            }else  {
                 out << ",";
             }
             errors += (*it)->emit(out, ent, scope);
         }
-    }
-    else
-    {
+    }else  {
         out << "default";
     }
     out << ":" << endl;
 
     SequentialStmt *curp;
 
-    switch (stmts_.size())
-    {
+    switch (stmts_.size()) {
     case 0:
         out << "/* no op */;" << endl;
         break;
@@ -386,9 +334,8 @@ int CaseSeqStmt::CaseStmtAlternative::emit(ostream& out, Entity *ent, ScopeBase 
 
     default:
         out << "begin" << endl;
-        for (list < SequentialStmt * > ::iterator cur = stmts_.begin()
-             ; cur != stmts_.end(); ++cur)
-        {
+        for (list<SequentialStmt *>::iterator cur = stmts_.begin()
+             ; cur != stmts_.end(); ++cur) {
             curp    = *cur;
             errors += curp->emit(out, ent, scope);
         }
@@ -400,42 +347,32 @@ int CaseSeqStmt::CaseStmtAlternative::emit(ostream& out, Entity *ent, ScopeBase 
 }
 
 
-void CaseSeqStmt::CaseStmtAlternative::write_to_stream(ostream& fd)
-{
+void CaseSeqStmt::CaseStmtAlternative::write_to_stream(ostream& fd) {
     fd << "when ";
-    if (exp_)
-    {
+    if (exp_) {
         bool first = true;
-        for (list < Expression * > ::iterator it = exp_->begin(); it != exp_->end(); ++it)
-        {
-            if (first)
-            {
+        for (list<Expression *>::iterator it = exp_->begin(); it != exp_->end(); ++it) {
+            if (first) {
                 first = false;
-            }
-            else
-            {
+            }else  {
                 fd << "|";
             }
 
             (*it)->write_to_stream(fd);
         }
-    }
-    else
-    {
+    }else  {
         fd << "others" << endl;
     }
     fd << "=>" << endl;
 
-    for (list < SequentialStmt * > ::iterator cur = stmts_.begin()
-         ; cur != stmts_.end(); ++cur)
-    {
+    for (list<SequentialStmt *>::iterator cur = stmts_.begin()
+         ; cur != stmts_.end(); ++cur) {
         (*cur)->write_to_stream(fd);
     }
 }
 
 
-int WhileLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int WhileLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "while(";
@@ -448,8 +385,7 @@ int WhileLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void WhileLoopStatement::write_to_stream(ostream& out)
-{
+void WhileLoopStatement::write_to_stream(ostream& out) {
     out << "while(";
     cond_->write_to_stream(out);
     out << ") loop" << endl;
@@ -458,8 +394,7 @@ void WhileLoopStatement::write_to_stream(ostream& out)
 }
 
 
-int ForLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int ForLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     ivl_assert(*this, range_);
@@ -471,8 +406,7 @@ int ForLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
     bool    finish_rc = range_->right()->evaluate(ent, scope, finish_val);
 
     perm_string scope_name = loop_name();
-    if (scope_name.nil())
-    {
+    if (scope_name.nil()) {
         char buf[80];
         snprintf(buf, sizeof buf, "__%p", this);
         scope_name = lex_strings.make(buf);
@@ -481,24 +415,19 @@ int ForLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
     out << "begin : " << scope_name << endl;
     out << "longint \\" << it_ << " ;" << endl;
 
-    if (!start_rc || !finish_rc)
-    {
+    if (!start_rc || !finish_rc) {
         // Could not evaluate one of the loop boundaries, it has to be
         // determined during the run-time
         errors += emit_runtime_(out, ent, scope);
-    }
-    else
-    {
+    }else  {
         ExpRange::range_dir_t dir = range_->direction();
 
-        if (dir == ExpRange::AUTO)
-        {
+        if (dir == ExpRange::AUTO) {
             dir = start_val < finish_val ? ExpRange::TO : ExpRange::DOWNTO;
         }
 
         if (((dir == ExpRange::DOWNTO) && (start_val < finish_val)) ||
-            ((dir == ExpRange::TO) && (start_val > finish_val)))
-        {
+            ((dir == ExpRange::TO) && (start_val > finish_val))) {
             out << "begin /* Degenerate loop at " << get_fileline()
                 << ": " << start_val;
             out << (dir == ExpRange::DOWNTO ? " downto " : " to ");
@@ -509,23 +438,17 @@ int ForLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
 
         out << "for (\\" << it_ << " = " << start_val << " ; ";
 
-        if (dir == ExpRange::DOWNTO)
-        {
+        if (dir == ExpRange::DOWNTO) {
             out << "\\" << it_ << " >= " << finish_val;
-        }
-        else
-        {
+        }else  {
             out << "\\" << it_ << " <= " << finish_val;
         }
 
         out << "; \\" << it_ << " = \\" << it_;
 
-        if (dir == ExpRange::DOWNTO)
-        {
+        if (dir == ExpRange::DOWNTO) {
             out << " - 1)";
-        }
-        else
-        {
+        }else  {
             out << " + 1)";
         }
     }
@@ -541,8 +464,7 @@ int ForLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void ForLoopStatement::write_to_stream(ostream& fd)
-{
+void ForLoopStatement::write_to_stream(ostream& fd) {
     fd << "for " << it_ << " in ";
     range_->write_to_stream(fd);
     fd << " loop" << endl;
@@ -551,8 +473,7 @@ void ForLoopStatement::write_to_stream(ostream& fd)
 }
 
 
-int ForLoopStatement::emit_runtime_(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int ForLoopStatement::emit_runtime_(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "for (\\" << it_ << " = ";
@@ -577,8 +498,7 @@ int ForLoopStatement::emit_runtime_(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-int BasicLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int BasicLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "forever begin" << endl;
@@ -589,20 +509,17 @@ int BasicLoopStatement::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void BasicLoopStatement::write_to_stream(std::ostream& fd)
-{
+void BasicLoopStatement::write_to_stream(std::ostream& fd) {
     fd << "loop" << endl;
     write_to_stream_substatements(fd);
     fd << "end loop;" << endl;
 }
 
 
-int ReportStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int ReportStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     out << "$display(\"** ";
 
-    switch (severity_)
-    {
+    switch (severity_) {
     case NOTE:
         out << "Note";
         break;
@@ -628,41 +545,31 @@ int ReportStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
 
     struct emitter : public ExprVisitor
     {
-        emitter(ostream & outp, Entity * enti, ScopeBase * scop)
+        emitter(ostream& outp, Entity *enti, ScopeBase *scop)
             : out_(outp), ent_(enti), scope_(scop),
-              level_lock_(numeric_limits < int > ::max())
-        {
-        }
+            level_lock_(numeric_limits<int>::max())
+        {}
 
-        void operator() (Expression * s)
-        {
-            if (!dynamic_cast < ExpConcat * > (s))
-            {
-                if (level() > level_lock_)
-                {
+        void operator()(Expression *s) {
+            if (!dynamic_cast<ExpConcat *> (s)) {
+                if (level() > level_lock_) {
                     return;
                 }
 
-                if (dynamic_cast < ExpAttribute * > (s))
-                {
+                if (dynamic_cast<ExpAttribute *> (s)) {
                     level_lock_ = level();
-                }
-                else
-                {
-                    level_lock_ = numeric_limits < int > ::max();
+                }else  {
+                    level_lock_ = numeric_limits<int>::max();
                 }
 
                 const VType *type = s->probe_type(ent_, scope_);
 
-                if ((dynamic_cast < ExpName * > (s)) && type &&
-                    type->type_match(&primitive_STRING))
-                {
+                if ((dynamic_cast<ExpName *> (s)) && type &&
+                    type->type_match(&primitive_STRING)) {
                     out_ << "$sformatf(\"%s\", (";
                     s->emit(out_, ent_, scope_);
                     out_ << "))";
-                }
-                else
-                {
+                }else  {
                     s->emit(out_, ent_, scope_);
                 }
 
@@ -682,8 +589,7 @@ private:
 
     out << "\" (" << get_fileline() << ")\");";
 
-    if (severity_ == FAILURE)
-    {
+    if (severity_ == FAILURE) {
         out << "$finish();";
     }
 
@@ -693,14 +599,12 @@ private:
 }
 
 
-void ReportStmt::write_to_stream(std::ostream& fd)
-{
+void ReportStmt::write_to_stream(std::ostream& fd) {
     fd << "report ";
     msg_->write_to_stream(fd);
 
     fd << "severity ";
-    switch (severity_)
-    {
+    switch (severity_) {
     case NOTE:
         fd << "NOTE";
         break;
@@ -724,8 +628,7 @@ void ReportStmt::write_to_stream(std::ostream& fd)
 }
 
 
-int AssertStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int AssertStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "if(!(";
@@ -738,8 +641,7 @@ int AssertStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void AssertStmt::write_to_stream(std::ostream& fd)
-{
+void AssertStmt::write_to_stream(std::ostream& fd) {
     fd << "assert ";
     cond_->write_to_stream(fd);
     fd << std::endl;
@@ -747,8 +649,7 @@ void AssertStmt::write_to_stream(std::ostream& fd)
 }
 
 
-int WaitForStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int WaitForStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     out << "#(";
@@ -759,33 +660,27 @@ int WaitForStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void WaitForStmt::write_to_stream(std::ostream& fd)
-{
+void WaitForStmt::write_to_stream(std::ostream& fd) {
     fd << "wait for ";
     delay_->write_to_stream(fd);
 }
 
 
-int WaitStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int WaitStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    switch (type_)
-    {
+    switch (type_) {
     case ON:
         out << "@(";
         break;
 
     case UNTIL:
-        if (!sens_list_.empty())
-        {
+        if (!sens_list_.empty()) {
             out << "@(";
 
-            for (std::set < ExpName * > ::iterator it = sens_list_.begin();
-                 it != sens_list_.end(); ++it)
-            {
-                if (it != sens_list_.begin())
-                {
+            for (std::set<ExpName *>::iterator it = sens_list_.begin();
+                 it != sens_list_.end(); ++it) {
+                if (it != sens_list_.begin()) {
                     out << ",";
                 }
 
@@ -810,10 +705,8 @@ int WaitStmt::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void WaitStmt::write_to_stream(std::ostream& fd)
-{
-    switch (type_)
-    {
+void WaitStmt::write_to_stream(std::ostream& fd) {
+    switch (type_) {
     case ON:
         fd << "wait on ";
         break;

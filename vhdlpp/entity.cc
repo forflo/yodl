@@ -23,40 +23,32 @@
 
 using namespace std;
 
-std::map < perm_string, Entity * > design_entities;
+std::map<perm_string, Entity *> design_entities;
 
 ComponentBase::ComponentBase(perm_string name)
     : name_(name)
-{
-}
+{}
 
 
-ComponentBase::~ComponentBase()
-{
-    for (std::vector < InterfacePort * > ::iterator it = ports_.begin()
-         ; it != ports_.end(); ++it)
-    {
+ComponentBase::~ComponentBase() {
+    for (std::vector<InterfacePort *>::iterator it = ports_.begin()
+         ; it != ports_.end(); ++it) {
         delete *it;
     }
 }
 
 
-void ComponentBase::set_interface(std::list < InterfacePort * > *parms,
-                                  std::list < InterfacePort * > *ports)
-{
-    if (parms)
-    {
-        while (!parms->empty())
-        {
+void ComponentBase::set_interface(std::list<InterfacePort *> *parms,
+                                  std::list<InterfacePort *> *ports) {
+    if (parms) {
+        while (!parms->empty()) {
             parms_.push_back(parms->front());
             parms->pop_front();
         }
     }
 
-    if (ports)
-    {
-        while (!ports->empty())
-        {
+    if (ports) {
+        while (!ports->empty()) {
             ports_.push_back(ports->front());
             ports->pop_front();
         }
@@ -64,12 +56,9 @@ void ComponentBase::set_interface(std::list < InterfacePort * > *parms,
 }
 
 
-const InterfacePort *ComponentBase::find_port(perm_string my_name) const
-{
-    for (size_t idx = 0; idx < ports_.size(); idx += 1)
-    {
-        if (ports_[idx]->name == my_name)
-        {
+const InterfacePort *ComponentBase::find_port(perm_string my_name) const {
+    for (size_t idx = 0; idx < ports_.size(); idx += 1) {
+        if (ports_[idx]->name == my_name) {
             return ports_[idx];
         }
     }
@@ -78,12 +67,9 @@ const InterfacePort *ComponentBase::find_port(perm_string my_name) const
 }
 
 
-const InterfacePort *ComponentBase::find_generic(perm_string my_name) const
-{
-    for (size_t idx = 0; idx < parms_.size(); idx += 1)
-    {
-        if (parms_[idx]->name == my_name)
-        {
+const InterfacePort *ComponentBase::find_generic(perm_string my_name) const {
+    for (size_t idx = 0; idx < parms_.size(); idx += 1) {
+        if (parms_[idx]->name == my_name) {
             return parms_[idx];
         }
     }
@@ -93,26 +79,21 @@ const InterfacePort *ComponentBase::find_generic(perm_string my_name) const
 
 
 Entity::Entity(perm_string name)
-    : ComponentBase(name)
-{
+    : ComponentBase(name) {
     bind_arch_ = 0;
 }
 
 
-Entity::~Entity()
-{
-    for (map < perm_string, Architecture * > ::reverse_iterator it = arch_.rbegin()
-         ; it != arch_.rend(); ++it)
-    {
+Entity::~Entity() {
+    for (map<perm_string, Architecture *>::reverse_iterator it = arch_.rbegin()
+         ; it != arch_.rend(); ++it) {
         delete it->second;
     }
 }
 
 
-Architecture *Entity::add_architecture(Architecture *that)
-{
-    if (Architecture *tmp = arch_ [that->get_name()])
-    {
+Architecture *Entity::add_architecture(Architecture *that) {
+    if (Architecture *tmp = arch_ [that->get_name()]) {
         return tmp;
     }
 
@@ -120,9 +101,8 @@ Architecture *Entity::add_architecture(Architecture *that)
 }
 
 
-void Entity::set_declaration_l_value(perm_string nam, bool flag)
-{
-    map < perm_string, VType::decl_t > ::iterator cur = declarations_.find(nam);
+void Entity::set_declaration_l_value(perm_string nam, bool flag) {
+    map<perm_string, VType::decl_t>::iterator cur = declarations_.find(nam);
     assert(cur != declarations_.end());
     cur->second.reg_flag = flag;
 }

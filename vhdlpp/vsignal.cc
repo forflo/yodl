@@ -29,19 +29,15 @@ using namespace std;
 
 SigVarBase::SigVarBase(perm_string nam, const VType *typ, Expression *exp)
     : name_(nam), type_(typ), init_expr_(exp), refcnt_sequ_(0)
-{
-}
+{}
 
 
 SigVarBase::~SigVarBase()
-{
-}
+{}
 
 
-void SigVarBase::elaborate(Entity *ent, ScopeBase *scope)
-{
-    if (init_expr_)
-    {
+void SigVarBase::elaborate(Entity *ent, ScopeBase *scope) {
+    if (init_expr_) {
         init_expr_->elaborate_expr(ent, scope, peek_type());
     }
 
@@ -49,14 +45,12 @@ void SigVarBase::elaborate(Entity *ent, ScopeBase *scope)
 }
 
 
-void SigVarBase::type_elaborate_(VType::decl_t& decl)
-{
+void SigVarBase::type_elaborate_(VType::decl_t& decl) {
     decl.type = type_;
 }
 
 
-int Signal::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int Signal::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     VType::decl_t decl;
@@ -65,18 +59,15 @@ int Signal::emit(ostream& out, Entity *ent, ScopeBase *scope)
 
     const VType *type = peek_type();
     if ((peek_refcnt_sequ_() > 0) ||
-        (!type->can_be_packed() && (dynamic_cast < const VTypeArray * > (type))))
-    {
+        (!type->can_be_packed() && (dynamic_cast<const VTypeArray *> (type)))) {
         decl.reg_flag = true;
     }
     errors += decl.emit(out, peek_name());
 
     Expression *init_expr = peek_init_expr();
-    if (init_expr)
-    {
+    if (init_expr) {
         /* Emit initialization value for wires as a weak assignment */
-        if (!decl.reg_flag && !type->type_match(&primitive_REAL))
-        {
+        if (!decl.reg_flag && !type->type_match(&primitive_REAL)) {
             out << ";" << endl << "/*init*/ assign (weak1, weak0) " << peek_name();
         }
 
@@ -88,8 +79,7 @@ int Signal::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-int Variable::emit(ostream& out, Entity *ent, ScopeBase *scope)
-{
+int Variable::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
     VType::decl_t decl;
@@ -99,8 +89,7 @@ int Variable::emit(ostream& out, Entity *ent, ScopeBase *scope)
     errors       += decl.emit(out, peek_name());
 
     Expression *init_expr = peek_init_expr();
-    if (init_expr)
-    {
+    if (init_expr) {
         out << " = ";
         init_expr->emit(out, ent, scope);
     }
@@ -109,8 +98,7 @@ int Variable::emit(ostream& out, Entity *ent, ScopeBase *scope)
 }
 
 
-void Variable::write_to_stream(std::ostream& fd)
-{
+void Variable::write_to_stream(std::ostream& fd) {
     fd << "variable " << peek_name() << " : ";
     peek_type()->write_to_stream(fd);
     fd << ";" << endl;

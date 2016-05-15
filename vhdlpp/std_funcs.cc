@@ -22,41 +22,35 @@
 #include "std_types.h"
 #include "scope.h"
 
-static std::map < perm_string, SubHeaderList > std_subprograms;
+static std::map<perm_string, SubHeaderList> std_subprograms;
 
-static inline void register_std_subprogram(SubprogramHeader *header)
-{
+static inline void register_std_subprogram(SubprogramHeader *header) {
     std_subprograms[header->name()].push_back(header);
 }
 
 
 // Special case: to_integer function
-class SubprogramToInteger: public SubprogramStdHeader {
+class SubprogramToInteger : public SubprogramStdHeader {
 public:
     SubprogramToInteger()
-        : SubprogramStdHeader(perm_string::literal("to_integer"), NULL, &primitive_REAL)
-    {
-        ports_ = new list < InterfacePort * > ();
+        : SubprogramStdHeader(perm_string::literal("to_integer"), NULL, &primitive_REAL) {
+        ports_ = new list<InterfacePort *> ();
         ports_->push_back(new InterfacePort(&primitive_INTEGER));
     }
 
-    int emit_name(const std::vector < Expression * >& argv,
-                  std::ostream& out, Entity *ent, ScopeBase *scope) const
-    {
+    int emit_name(const std::vector<Expression *>& argv,
+                  std::ostream& out, Entity *ent, ScopeBase *scope) const {
         bool signed_flag = false;
 
         // to_integer converts unsigned to natural
         //                     signed   to integer
         // try to determine the converted type
         const VType      *type  = argv[0]->probe_type(ent, scope);
-        const VTypeArray *array = dynamic_cast < const VTypeArray * > (type);
+        const VTypeArray *array = dynamic_cast<const VTypeArray *> (type);
 
-        if (array)
-        {
+        if (array) {
             signed_flag = array->signed_vector();
-        }
-        else
-        {
+        }else  {
             cerr << get_fileline() << ": sorry: Could not determine the "
                  << "expression sign. Output may be erroneous." << endl;
             return 1;
@@ -68,24 +62,21 @@ public:
 };
 
 // Special case: size casting (e.g. conv_std_logic_vector() / resize()).
-class SubprogramSizeCast: public SubprogramStdHeader {
+class SubprogramSizeCast : public SubprogramStdHeader {
 public:
     explicit SubprogramSizeCast(perm_string nam, const VType *base, const VType *target)
-        : SubprogramStdHeader(nam, NULL, target)
-    {
-        ports_ = new list < InterfacePort * > ();
+        : SubprogramStdHeader(nam, NULL, target) {
+        ports_ = new list<InterfacePort *> ();
         ports_->push_back(new InterfacePort(base));
         ports_->push_back(new InterfacePort(&primitive_INTEGER));
     }
 
-    int emit_name(const std::vector < Expression * >& argv,
-                  std::ostream& out, Entity *ent, ScopeBase *scope) const
-    {
+    int emit_name(const std::vector<Expression *>& argv,
+                  std::ostream& out, Entity *ent, ScopeBase *scope) const {
         int64_t use_size;
         bool    rc = argv[1]->evaluate(ent, scope, use_size);
 
-        if (!rc)
-        {
+        if (!rc) {
             cerr << get_fileline() << ": sorry: Could not evaluate the "
                  << "expression size. Size casting impossible." << endl;
             return 1;
@@ -95,20 +86,17 @@ public:
         return 0;
     }
 
-
-    int emit_args(const std::vector < Expression * >& argv,
-                  std::ostream& out, Entity *ent, ScopeBase *scope) const
-    {
+    int emit_args(const std::vector<Expression *>& argv,
+                  std::ostream& out, Entity *ent, ScopeBase *scope) const {
         return argv[0]->emit(out, ent, scope);
     }
 };
 
-class SubprogramReadWrite: public SubprogramBuiltin {
+class SubprogramReadWrite : public SubprogramBuiltin {
 public:
     SubprogramReadWrite(perm_string nam, perm_string newnam, bool hex = false)
-        : SubprogramBuiltin(nam, newnam, NULL, NULL), hex_format_(hex)
-    {
-        ports_ = new list < InterfacePort * > ();
+        : SubprogramBuiltin(nam, newnam, NULL, NULL), hex_format_(hex) {
+        ports_ = new list<InterfacePort *> ();
         ports_->push_back(new InterfacePort(&primitive_STRING));
         ports_->push_back(new InterfacePort(NULL));
     }
@@ -116,73 +104,53 @@ public:
     // Format types handled by $ivlh_read/write (see vpi/vhdl_textio.c)
     enum format_t { FORMAT_STD, FORMAT_BOOL, FORMAT_TIME, FORMAT_HEX, FORMAT_STRING };
 
-    int emit_args(const std::vector < Expression * >& argv,
-                  std::ostream& out, Entity *ent, ScopeBase *scope) const
-    {
+    int emit_args(const std::vector<Expression *>& argv,
+                  std::ostream& out, Entity *ent, ScopeBase *scope) const {
         int errors = 0;
 
-        for (int i = 0; i < 2; ++i)
-        {
+        for (int i = 0; i < 2; ++i) {
             errors += argv[i]->emit(out, ent, scope);
             out << ", ";
         }
 
         const VType *arg_type = argv[1]->probe_type(ent, scope);
 
-        while (const VTypeDef *tdef = dynamic_cast < const VTypeDef * > (arg_type))
-        {
+        while (const VTypeDef *tdef = dynamic_cast<const VTypeDef *> (arg_type)) {
             arg_type = tdef->peek_definition();
         }
 
         // Pick the right format
-        if (hex_format_)
-        {
+        if (hex_format_) {
             out << FORMAT_HEX;
-        }
-        else if (arg_type)
-        {
-            if (arg_type->type_match(&primitive_TIME))
-            {
+        }else if (arg_type)  {
+            if (arg_type->type_match(&primitive_TIME)) {
                 out << FORMAT_TIME;
-            }
-            else if (arg_type->type_match(&type_BOOLEAN))
-            {
+            }else if (arg_type->type_match(&type_BOOLEAN))  {
                 out << FORMAT_BOOL;
-            }
-            else if (arg_type->type_match(&primitive_CHARACTER))
-            {
+            }else if (arg_type->type_match(&primitive_CHARACTER))  {
                 out << FORMAT_STRING;
-            }
-            else
-            {
-                const VTypeArray *arr = dynamic_cast < const VTypeArray * > (arg_type);
+            }else  {
+                const VTypeArray *arr = dynamic_cast<const VTypeArray *> (arg_type);
 
-                if (arr && (arr->element_type() == &primitive_CHARACTER))
-                {
+                if (arr && (arr->element_type() == &primitive_CHARACTER)) {
                     out << FORMAT_STRING;
-                }
-                else
-                {
+                }else  {
                     out << FORMAT_STD;
                 }
             }
-        }
-        else
-        {
+        }else  {
             out << FORMAT_STD;
         }
 
         return errors;
     }
 
-
 private:
     bool hex_format_;
 };
 
-void preload_std_funcs(void)
-{
-    list < InterfacePort * > *args;
+void preload_std_funcs(void) {
+    list<InterfacePort *> *args;
 
     /* function now */
     SubprogramBuiltin *fn_now = new SubprogramBuiltin(perm_string::literal("now"),
@@ -193,13 +161,13 @@ void preload_std_funcs(void)
     /* numeric_std library
      * function unsigned
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_INTEGER));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("unsigned"),
                                                   perm_string::literal("$unsigned"),
                                                   args, &primitive_UNSIGNED));
 
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_STDLOGIC_VECTOR));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("unsigned"),
                                                   perm_string::literal("$unsigned"),
@@ -207,7 +175,7 @@ void preload_std_funcs(void)
 
     /* function integer
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_REAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("integer"),
                                                   perm_string::literal("$signed"),
@@ -218,7 +186,7 @@ void preload_std_funcs(void)
      * argument to std_logic_vector. Internally, we don't
      * have to do anything for that to work.
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_STDLOGIC_VECTOR));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("std_logic_vector"),
                                                   empty_perm_string,
@@ -228,14 +196,14 @@ void preload_std_funcs(void)
      * function shift_left (arg: unsigned; count: natural) return unsigned;
      * function shift_left (arg: signed; count: natural) return signed;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_UNSIGNED));
     args->push_back(new InterfacePort(&primitive_NATURAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("shift_left"),
                                                   perm_string::literal("$ivlh_shift_left"),
                                                   args, &primitive_UNSIGNED));
 
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_SIGNED));
     args->push_back(new InterfacePort(&primitive_NATURAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("shift_left"),
@@ -246,7 +214,7 @@ void preload_std_funcs(void)
      * function shift_right (arg: unsigned; count: natural) return unsigned;
      * function shift_right (arg: signed; count: natural) return signed;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_SIGNED));
     args->push_back(new InterfacePort(&primitive_NATURAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("shift_right"),
@@ -267,7 +235,7 @@ void preload_std_funcs(void)
     /* numeric_bit library
      * function to_integer (arg: unsigned) return natural;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_UNSIGNED));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("to_integer"),
                                                   perm_string::literal("$unsigned"),
@@ -276,7 +244,7 @@ void preload_std_funcs(void)
     /* numeric_bit library
      * function to_integer (arg: signed) return integer;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_SIGNED));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("to_integer"),
                                                   perm_string::literal("$signed"),
@@ -285,7 +253,7 @@ void preload_std_funcs(void)
     /* std_logic_1164 library
      * function rising_edge  (signal s : std_ulogic) return boolean;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_STDLOGIC));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("rising_edge"),
                                                   perm_string::literal("$ivlh_rising_edge"),
@@ -294,7 +262,7 @@ void preload_std_funcs(void)
     /* std_logic_1164 library
      * function falling_edge (signal s : std_ulogic) return boolean;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_STDLOGIC));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("falling_edge"),
                                                   perm_string::literal("$ivlh_falling_edge"),
@@ -303,7 +271,7 @@ void preload_std_funcs(void)
     /* reduce_pack library
      * function or_reduce(arg : std_logic_vector) return std_logic;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_STDLOGIC_VECTOR));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("or_reduce"),
                                                   perm_string::literal("|"),
@@ -312,7 +280,7 @@ void preload_std_funcs(void)
     /* reduce_pack library
      * function and_reduce(arg : std_logic_vector) return std_logic;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_STDLOGIC_VECTOR));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("and_reduce"),
                                                   perm_string::literal("&"),
@@ -324,7 +292,7 @@ void preload_std_funcs(void)
      *   constant size : natural)            -- length of output
      * return unsigned;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_REAL));
     args->push_back(new InterfacePort(&primitive_NATURAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("to_unsigned"),
@@ -334,7 +302,7 @@ void preload_std_funcs(void)
     /* numeric_std library
      * function to_unsigned(arg, size : natural) return unsigned;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_NATURAL));
     args->push_back(new InterfacePort(&primitive_NATURAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("to_unsigned"),
@@ -344,7 +312,7 @@ void preload_std_funcs(void)
     /* numeric_std library
      * function to_unsigned(arg : std_logic_vector, size : natural) return unsigned;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_STDLOGIC_VECTOR));
     args->push_back(new InterfacePort(&primitive_NATURAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("to_unsigned"),
@@ -353,7 +321,7 @@ void preload_std_funcs(void)
 
     /* procedure file_open (file f: text; filename: in string, file_open_kind: in mode);
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_INTEGER, PORT_IN));
     args->push_back(new InterfacePort(&primitive_STRING, PORT_IN));
     args->push_back(new InterfacePort(&type_FILE_OPEN_KIND, PORT_IN));
@@ -363,7 +331,7 @@ void preload_std_funcs(void)
 
     /* procedure file_open (status: out file_open_status, file f: text; filename: in string, file_open_kind: in mode);
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&type_FILE_OPEN_STATUS, PORT_OUT));
     args->push_back(new InterfacePort(&primitive_INTEGER, PORT_IN));
     args->push_back(new InterfacePort(&primitive_STRING, PORT_IN));
@@ -375,7 +343,7 @@ void preload_std_funcs(void)
     /* std.textio library
      * procedure file_close (file f: text);
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_INTEGER, PORT_IN));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("file_close"),
                                                   perm_string::literal("$fclose"),
@@ -408,7 +376,7 @@ void preload_std_funcs(void)
     /* std.textio library
      * procedure readline (file f: text; l: inout line);
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_INTEGER, PORT_IN));
     args->push_back(new InterfacePort(&primitive_STRING, PORT_OUT));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("readline"),
@@ -418,7 +386,7 @@ void preload_std_funcs(void)
     /* std.textio library
      * procedure writeline (file f: text; l: inout line);
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_INTEGER, PORT_IN));
     args->push_back(new InterfacePort(&primitive_STRING, PORT_IN));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("writeline"),
@@ -427,7 +395,7 @@ void preload_std_funcs(void)
 
     /* function endline (file f: text) return boolean;
      */
-    args = new list < InterfacePort * > ();
+    args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_INTEGER, PORT_IN));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("endfile"),
                                                   perm_string::literal("$feof"),
@@ -435,25 +403,20 @@ void preload_std_funcs(void)
 }
 
 
-void delete_std_funcs()
-{
-    for (std::map < perm_string, SubHeaderList > ::iterator cur = std_subprograms.begin();
-         cur != std_subprograms.end(); ++cur)
-    {
+void delete_std_funcs() {
+    for (std::map<perm_string, SubHeaderList>::iterator cur = std_subprograms.begin();
+         cur != std_subprograms.end(); ++cur) {
         for (SubHeaderList::const_iterator it = cur->second.begin();
-             it != cur->second.end(); ++it)
-        {
+             it != cur->second.end(); ++it) {
             delete *it;
         }
     }
 }
 
 
-SubHeaderList find_std_subprogram(perm_string name)
-{
-    map < perm_string, SubHeaderList > ::const_iterator cur = std_subprograms.find(name);
-    if (cur != std_subprograms.end())
-    {
+SubHeaderList find_std_subprogram(perm_string name) {
+    map<perm_string, SubHeaderList>::const_iterator cur = std_subprograms.find(name);
+    if (cur != std_subprograms.end()) {
         return cur->second;
     }
 

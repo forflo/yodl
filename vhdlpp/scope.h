@@ -37,22 +37,20 @@ class SubprogramHeader;
 class VType;
 class SequentialStmt;
 
-typedef list < SubprogramHeader * >   SubHeaderList;
+typedef list<SubprogramHeader *>   SubHeaderList;
 
-template < typename T >
+template<typename T>
 struct delete_object
 {
-    void operator()(T * item)
-    {
+    void operator()(T *item) {
         delete item;
     }
 };
 
-template < typename T >
+template<typename T>
 struct delete_pair_second
 {
-    void operator()(pair < perm_string, T * > item)
-    {
+    void operator()(pair<perm_string, T *> item) {
         delete item.second;
     }
 };
@@ -60,8 +58,8 @@ struct delete_pair_second
 class ScopeBase {
 public:
     ScopeBase() : package_header_(0)
-    {
-    }
+    {}
+
     explicit ScopeBase(const ActiveScope& ref);
 
     virtual ~ScopeBase() = 0;
@@ -84,67 +82,52 @@ public:
     enum transfer_type_t { SIGNALS = 1, VARIABLES = 2, COMPONENTS = 4, ALL = 0xffff };
     void transfer_from(ScopeBase& ref, transfer_type_t what = ALL);
 
-    inline void bind_subprogram(perm_string name, SubprogramHeader *obj)
-    {
-        map < perm_string, SubHeaderList > ::iterator it;
-        if ((it = use_subprograms_.find(name)) != use_subprograms_.end())
-        {
+    inline void bind_subprogram(perm_string name, SubprogramHeader *obj) {
+        map<perm_string, SubHeaderList>::iterator it;
+        if ((it = use_subprograms_.find(name)) != use_subprograms_.end()) {
             it->second.remove(obj);
         }
         cur_subprograms_[name].push_back(obj);
     }
 
-
     // Adds a statement to implicit initializers list
     // (emitted in a 'initial block).
-    void add_initializer(SequentialStmt *s)
-    {
+    void add_initializer(SequentialStmt *s) {
         initializers_.push_back(s);
     }
 
-
     // Adds a statement to implicit finalizers list
     // (emitted in a 'final' block).
-    void add_finalizer(SequentialStmt *s)
-    {
+    void add_finalizer(SequentialStmt *s) {
         finalizers_.push_back(s);
     }
-
 
     void dump_scope(ostream& out) const;
 
     // Looks for a subprogram with specified name and parameter types.
-    SubprogramHeader *match_subprogram(perm_string                  name,
-                                       const list < const VType * > *params) const;
+    SubprogramHeader *match_subprogram(perm_string               name,
+                                       const list<const VType *> *params) const;
 
-    perm_string peek_name() const
-    {
+    perm_string peek_name() const {
         return name_;
     }
 
-
-    void set_package_header(Package *pkg)
-    {
+    void set_package_header(Package *pkg) {
         assert(package_header_ == 0);
         package_header_ = pkg;
     }
-
 
 protected:
     void cleanup();
 
     //containers' cleaning helper functions
-    template < typename T > void delete_all(list < T * >& c)
-    {
-        for_each(c.begin(), c.end(), ::delete_object < T > ());
+    template<typename T> void delete_all(list<T *>& c) {
+        for_each(c.begin(), c.end(), ::delete_object<T> ());
     }
 
-
-    template < typename T > void delete_all(map < perm_string, T * >& c)
-    {
-        for_each(c.begin(), c.end(), ::delete_pair_second < T > ());
+    template<typename T> void delete_all(map<perm_string, T *>& c) {
+        for_each(c.begin(), c.end(), ::delete_pair_second<T> ());
     }
-
 
     // The new_*_ maps below are managed only by the ActiveScope
     // derived class. When any scope is constructed from the
@@ -153,46 +136,45 @@ protected:
     // classes should only use the old_*_ maps.
 
     // Signal declarations...
-    std::map < perm_string, Signal * > old_signals_;           //previous scopes
-    std::map < perm_string, Signal * > new_signals_;           //current scope
+    std::map<perm_string, Signal *> old_signals_;              //previous scopes
+    std::map<perm_string, Signal *> new_signals_;              //current scope
     // Variable declarations...
-    std::map < perm_string, Variable * > old_variables_;       //previous scopes
-    std::map < perm_string, Variable * > new_variables_;       //current scope
+    std::map<perm_string, Variable *> old_variables_;          //previous scopes
+    std::map<perm_string, Variable *> new_variables_;          //current scope
     // Component declarations...
-    std::map < perm_string, ComponentBase * > old_components_; //previous scopes
-    std::map < perm_string, ComponentBase * > new_components_; //current scope
+    std::map<perm_string, ComponentBase *> old_components_;    //previous scopes
+    std::map<perm_string, ComponentBase *> new_components_;    //current scope
     // Type declarations...
-    std::map < perm_string, const VType * > use_types_;        //imported types
-    std::map < perm_string, const VType * > cur_types_;        //current types
+    std::map<perm_string, const VType *> use_types_;           //imported types
+    std::map<perm_string, const VType *> cur_types_;           //current types
     // Constant declarations...
     struct const_t
     {
-        ~const_t()
-        {
+        ~const_t() {
             delete val;
         }
-        const_t(const VType * t, Expression * v) : typ(t), val(v)
-        {
-        };
+
+        const_t(const VType *t, Expression *v) : typ(t), val(v)
+        {}
 
         const VType *typ;
         Expression  *val;
     };
-    std::map < perm_string, struct const_t * > use_constants_; //imported constants
-    std::map < perm_string, struct const_t * > cur_constants_; //current constants
+    std::map<perm_string, struct const_t *> use_constants_;    //imported constants
+    std::map<perm_string, struct const_t *> cur_constants_;    //current constants
 
-    std::map < perm_string, SubHeaderList > use_subprograms_;  //imported
-    std::map < perm_string, SubHeaderList > cur_subprograms_;  //current
+    std::map<perm_string, SubHeaderList> use_subprograms_;     //imported
+    std::map<perm_string, SubHeaderList> cur_subprograms_;     //current
 
-    std::map < perm_string, ScopeBase * > scopes_;
+    std::map<perm_string, ScopeBase *> scopes_;
 
-    std::list < const VTypeEnum * > use_enums_;
+    std::list<const VTypeEnum *> use_enums_;
 
     // List of statements that should be emitted in a 'initial' block
-    std::list < SequentialStmt * > initializers_;
+    std::list<SequentialStmt *> initializers_;
 
     // List of statements that should be emitted in a 'final' block
-    std::list < SequentialStmt * > finalizers_;
+    std::list<SequentialStmt *> finalizers_;
 
     void do_use_from(const ScopeBase *that);
 
@@ -207,14 +189,13 @@ private:
     perm_string name_;
 };
 
-class Scope: public ScopeBase {
+class Scope : public ScopeBase {
 public:
     explicit Scope(const ActiveScope& ref) : ScopeBase(ref)
-    {
-    }
+    {}
+
     virtual ~Scope()
-    {
-    }
+    {}
 
     ComponentBase *find_component(perm_string by_name);
 
@@ -230,25 +211,22 @@ protected:
  * they are transferred over to the specific scope. The ActiveScope is
  * used by the parser to build up scopes.
  */
-class ActiveScope: public ScopeBase {
+class ActiveScope : public ScopeBase {
 public:
     ActiveScope() : context_entity_(0)
-    {
-    }
+    {}
+
     explicit ActiveScope(const ActiveScope *par);
 
     ~ActiveScope()
-    {
-    }
+    {}
 
     // Pull items from "that" scope into "this" scope as is
     // defined by a "use" directive. The parser uses this method
     // to implement the "use <pkg>::*" directive.
-    void use_from(const Scope *that)
-    {
+    void use_from(const Scope *that) {
         do_use_from(that);
     }
-
 
     // This function returns true if the name is a vectorable
     // name. The parser uses this to distinguish between function
@@ -265,95 +243,70 @@ public:
      * is not freed), in order to implement name shadowing. The pointer
      * be freed only in the scope where the object was defined. This is
      * done in ScopeBase::cleanup() function .*/
-    void bind_name(perm_string name, Signal *obj)
-    {
-        map < perm_string, Signal * > ::iterator it;
-        if ((it = old_signals_.find(name)) != old_signals_.end())
-        {
+    void bind_name(perm_string name, Signal *obj) {
+        map<perm_string, Signal *>::iterator it;
+        if ((it = old_signals_.find(name)) != old_signals_.end()) {
             old_signals_.erase(it);
         }
         new_signals_[name] = obj;
     }
 
-
-    void bind_name(perm_string name, Variable *obj)
-    {
-        map < perm_string, Variable * > ::iterator it;
-        if ((it = old_variables_.find(name)) != old_variables_.end())
-        {
+    void bind_name(perm_string name, Variable *obj) {
+        map<perm_string, Variable *>::iterator it;
+        if ((it = old_variables_.find(name)) != old_variables_.end()) {
             old_variables_.erase(it);
         }
         new_variables_[name] = obj;
     }
 
-
-    void bind_name(perm_string name, ComponentBase *obj)
-    {
-        map < perm_string, ComponentBase * > ::iterator it;
-        if ((it = old_components_.find(name)) != old_components_.end())
-        {
+    void bind_name(perm_string name, ComponentBase *obj) {
+        map<perm_string, ComponentBase *>::iterator it;
+        if ((it = old_components_.find(name)) != old_components_.end()) {
             old_components_.erase(it);
         }
         new_components_[name] = obj;
     }
 
-
-    void bind_name(perm_string name, const VType *t)
-    {
-        map < perm_string, const VType * > ::iterator it;
-        if ((it = use_types_.find(name)) != use_types_.end())
-        {
+    void bind_name(perm_string name, const VType *t) {
+        map<perm_string, const VType *>::iterator it;
+        if ((it = use_types_.find(name)) != use_types_.end()) {
             use_types_.erase(it);
         }
         cur_types_[name] = t;
     }
 
-
-    void bind_scope(perm_string name, ScopeBase *scope)
-    {
+    void bind_scope(perm_string name, ScopeBase *scope) {
         assert(scopes_.find(name) == scopes_.end());
         scopes_[name] = scope;
     }
 
-
-    inline void use_enum(const VTypeEnum *t)
-    {
+    inline void use_enum(const VTypeEnum *t) {
         use_enums_.push_back(t);
     }
 
-
-    inline void use_name(perm_string name, const VType *t)
-    {
+    inline void use_name(perm_string name, const VType *t) {
         use_types_[name] = t;
     }
 
-
-    void bind_name(perm_string name, const VType *obj, Expression *val)
-    {
-        map < perm_string, const_t * > ::iterator it;
-        if ((it = use_constants_.find(name)) != use_constants_.end())
-        {
+    void bind_name(perm_string name, const VType *obj, Expression *val) {
+        map<perm_string, const_t *>::iterator it;
+        if ((it = use_constants_.find(name)) != use_constants_.end()) {
             use_constants_.erase(it);
         }
         cur_constants_[name] = new const_t(obj, val);
     }
 
-
-    void bind(Entity *ent)
-    {
+    void bind(Entity *ent) {
         context_entity_ = ent;
     }
 
-
-    void destroy_global_scope()
-    {
+    void destroy_global_scope() {
         cleanup();
     }
 
-
     // Keep track of incomplete types until their proper
     // definition shows up.
-    std::map < perm_string, VTypeDef * > incomplete_types;
+    std::map<perm_string, VTypeDef *> incomplete_types;
 
 private:
     Entity *context_entity_;

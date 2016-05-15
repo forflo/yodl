@@ -22,29 +22,24 @@
 
 using namespace std;
 
-void ComponentBase::write_to_stream(ostream& fd) const
-{
+void ComponentBase::write_to_stream(ostream& fd) const {
     fd << "  component " << name_ << " is" << endl;
 
-    if (!parms_.empty())
-    {
+    if (!parms_.empty()) {
         fd << "   generic(" << endl;
 
-        for (vector < InterfacePort * > ::const_iterator it = parms_.begin();
-             it != parms_.end(); ++it)
-        {
+        for (vector<InterfacePort *>::const_iterator it = parms_.begin();
+             it != parms_.end(); ++it) {
             const InterfacePort *parm = *it;
 
-            if (it != parms_.begin())
-            {
+            if (it != parms_.begin()) {
                 fd << ";";
             }
 
             fd << "     " << parm->name << " : ";
             parm->type->write_to_stream(fd);
 
-            if (parm->expr)
-            {
+            if (parm->expr) {
                 fd << " := ";
                 parm->expr->write_to_stream(fd);
             }
@@ -55,19 +50,16 @@ void ComponentBase::write_to_stream(ostream& fd) const
         fd << "   );" << endl;
     }
 
-    if (!ports_.empty())
-    {
+    if (!ports_.empty()) {
         fd << "   port(" << endl;
 
-        vector < InterfacePort * > ::const_iterator cur = ports_.begin();
-        while (cur != ports_.end())
-        {
+        vector<InterfacePort *>::const_iterator cur = ports_.begin();
+        while (cur != ports_.end()) {
             InterfacePort *item = *cur;
             ++cur;
 
             fd << "     " << item->name << " : ";
-            switch (item->mode)
-            {
+            switch (item->mode) {
             case PORT_NONE:
                 fd << "???? ";
                 break;
@@ -87,12 +79,9 @@ void ComponentBase::write_to_stream(ostream& fd) const
 
             item->type->write_to_stream(fd);
 
-            if (cur != ports_.end())
-            {
+            if (cur != ports_.end()) {
                 fd << ";" << endl;
-            }
-            else
-            {
+            }else  {
                 fd << endl;
             }
         }

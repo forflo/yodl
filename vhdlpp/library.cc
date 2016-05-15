@@ -45,13 +45,13 @@ static const char *library_work_path = 0;
  * find a named library. The library name is the name given to the
  * "import" statement.
  */
-static list < string > library_search_path;
+static list<string> library_search_path;
 
 /*
  * The "import" statement causes me to build a map of a library name
  * to a library directory.
  */
-static map < perm_string, string > library_dir;
+static map<perm_string, string> library_dir;
 
 /*
  * The "libraries" table maps library name to a set of packages. This
@@ -59,19 +59,17 @@ static map < perm_string, string > library_dir;
  */
 struct library_contents
 {
-    map < perm_string, Package * > packages;
+    map<perm_string, Package *> packages;
 };
-static map < perm_string, struct library_contents > libraries;
+static map<perm_string, struct library_contents> libraries;
 
-void library_add_directory(const char *directory)
-{
+void library_add_directory(const char *directory) {
     // Make sure the directory path really is a directory. Ignore
     // it if it is not.
     struct stat stat_buf;
     int         rc = stat(directory, &stat_buf);
 
-    if ((rc < 0) || !S_ISDIR(stat_buf.st_mode))
-    {
+    if ((rc < 0) || !S_ISDIR(stat_buf.st_mode)) {
         return;
     }
 
@@ -79,21 +77,17 @@ void library_add_directory(const char *directory)
 }
 
 
-SubprogramHeader *library_match_subprogram(perm_string name, const list < const VType * > *params)
-{
+SubprogramHeader *library_match_subprogram(perm_string name, const list<const VType *> *params) {
     SubprogramHeader *subp;
 
-    map < perm_string, struct library_contents > ::const_iterator lib_it;
+    map<perm_string, struct library_contents>::const_iterator lib_it;
 
-    for (lib_it = libraries.begin(); lib_it != libraries.end(); ++lib_it)
-    {
-        const struct library_contents& lib = lib_it->second;
-        map < perm_string, Package * > ::const_iterator pack_it;
+    for (lib_it = libraries.begin(); lib_it != libraries.end(); ++lib_it) {
+        const struct library_contents&              lib = lib_it->second;
+        map<perm_string, Package *>::const_iterator pack_it;
 
-        for (pack_it = lib.packages.begin(); pack_it != lib.packages.end(); ++pack_it)
-        {
-            if ((subp = pack_it->second->match_subprogram(name, params)))
-            {
+        for (pack_it = lib.packages.begin(); pack_it != lib.packages.end(); ++pack_it) {
+            if ((subp = pack_it->second->match_subprogram(name, params))) {
                 return subp;
             }
         }
@@ -105,18 +99,15 @@ SubprogramHeader *library_match_subprogram(perm_string name, const list < const 
 
 static void store_package_in_work(const Package *pack);
 
-static string make_work_package_path(const char *name)
-{
+static string make_work_package_path(const char *name) {
     return string(library_work_path).append("/").append(name).append(".pkg");
 }
 
 
-static string make_library_package_path(perm_string lib_name, perm_string name)
-{
+static string make_library_package_path(perm_string lib_name, perm_string name) {
     string path = library_dir[lib_name];
 
-    if (path == "")
-    {
+    if (path == "") {
         return "";
     }
 
@@ -129,36 +120,28 @@ static void import_ieee(void);
 static void import_ieee_use(ActiveScope *res, perm_string package, perm_string name);
 static void import_std_use(const YYLTYPE& loc, ActiveScope *res, perm_string package, perm_string name);
 
-static void dump_library_package(ostream& file, perm_string lname, perm_string pname, Package *pack)
-{
+static void dump_library_package(ostream& file, perm_string lname, perm_string pname, Package *pack) {
     file << "package " << lname << "." << pname << endl;
-    if (pack)
-    {
+    if (pack) {
         pack->dump_scope(file);
-    }
-    else
-    {
+    }else  {
         file << "   <missing>" << endl;
     }
     file << "end package " << lname << "." << pname << endl;
 }
 
 
-static void dump_library_packages(ostream& file, perm_string lname, map < perm_string, Package * > packages)
-{
-    for (map < perm_string, Package * > ::iterator cur = packages.begin()
-         ; cur != packages.end(); ++cur)
-    {
+static void dump_library_packages(ostream& file, perm_string lname, map<perm_string, Package *> packages) {
+    for (map<perm_string, Package *>::iterator cur = packages.begin()
+         ; cur != packages.end(); ++cur) {
         dump_library_package(file, lname, cur->first, cur->second);
     }
 }
 
 
-void dump_libraries(ostream& file)
-{
-    for (map < perm_string, struct library_contents > ::iterator cur = libraries.begin()
-         ; cur != libraries.end(); ++cur)
-    {
+void dump_libraries(ostream& file) {
+    for (map<perm_string, struct library_contents>::iterator cur = libraries.begin()
+         ; cur != libraries.end(); ++cur) {
         dump_library_packages(file, cur->first, cur->second.packages);
     }
 }
@@ -169,8 +152,7 @@ void dump_libraries(ostream& file)
  * library if necessary. The parser uses this when it is finished with
  * a package declaration.
  */
-void library_save_package(perm_string parse_library_name, Package *pack)
-{
+void library_save_package(perm_string parse_library_name, Package *pack) {
     perm_string use_libname = parse_library_name.str()
                               ? parse_library_name
                               : perm_string::literal("work");
@@ -180,12 +162,9 @@ void library_save_package(perm_string parse_library_name, Package *pack)
 
     // If this is a work package, and we are NOT parsing the work
     // library right now, then store it in the work library.
-    if (parse_library_name.str() == 0)
-    {
+    if (parse_library_name.str() == 0) {
         store_package_in_work(pack);
-    }
-    else
-    {
+    }else  {
         pack->set_library(parse_library_name);
     }
 }
@@ -195,21 +174,18 @@ void library_save_package(perm_string parse_library_name, Package *pack)
  * The parser uses this function in the package body rule to recall
  * the package that was declared earlier.
  */
-Package *library_recall_package(perm_string parse_library_name, perm_string package_name)
-{
+Package *library_recall_package(perm_string parse_library_name, perm_string package_name) {
     perm_string use_libname = parse_library_name.str()
                               ? parse_library_name
                               : perm_string::literal("work");
 
-    map < perm_string, struct library_contents > ::iterator lib = libraries.find(use_libname);
-    if (lib == libraries.end())
-    {
+    map<perm_string, struct library_contents>::iterator lib = libraries.find(use_libname);
+    if (lib == libraries.end()) {
         return 0;
     }
 
-    map < perm_string, Package * > ::iterator pkg = lib->second.packages.find(package_name);
-    if (pkg == lib->second.packages.end())
-    {
+    map<perm_string, Package *>::iterator pkg = lib->second.packages.find(package_name);
+    if (pkg == lib->second.packages.end()) {
         return 0;
     }
 
@@ -217,27 +193,22 @@ Package *library_recall_package(perm_string parse_library_name, perm_string pack
 }
 
 
-static void import_library_name(const YYLTYPE& loc, perm_string name)
-{
-    if (library_dir[name] != string())
-    {
+static void import_library_name(const YYLTYPE& loc, perm_string name) {
+    if (library_dir[name] != string()) {
         return;
     }
 
-    for (list < string > ::const_iterator cur = library_search_path.begin()
-         ; cur != library_search_path.end(); ++cur)
-    {
+    for (list<string>::const_iterator cur = library_search_path.begin()
+         ; cur != library_search_path.end(); ++cur) {
         string curdir   = *cur;
         string try_path = curdir.append("/").append(name);
 
         struct stat stat_buf;
         int         rc = stat(try_path.c_str(), &stat_buf);
-        if (rc < 0)
-        {
+        if (rc < 0) {
             continue;
         }
-        if (!S_ISDIR(stat_buf.st_mode))
-        {
+        if (!S_ISDIR(stat_buf.st_mode)) {
             continue;
         }
 
@@ -249,27 +220,18 @@ static void import_library_name(const YYLTYPE& loc, perm_string name)
 }
 
 
-void library_import(const YYLTYPE& loc, const std::list < perm_string > *names)
-{
-    for (std::list < perm_string > ::const_iterator cur = names->begin()
-         ; cur != names->end(); ++cur)
-    {
-        if (*cur == "ieee")
-        {
+void library_import(const YYLTYPE& loc, const std::list<perm_string> *names) {
+    for (std::list<perm_string>::const_iterator cur = names->begin()
+         ; cur != names->end(); ++cur) {
+        if (*cur == "ieee") {
             // The ieee library is special and handled by an
             // internal function.
             import_ieee();
-        }
-        else if (*cur == "std")
-        {
+        }else if (*cur == "std")  {
             // The std library is always implicitly imported.
-        }
-        else if (*cur == "work")
-        {
+        }else if (*cur == "work")  {
             // The work library is always implicitly imported.
-        }
-        else
-        {
+        }else  {
             // Otherwise, do a generic library import
             import_library_name(loc, *cur);
         }
@@ -278,10 +240,8 @@ void library_import(const YYLTYPE& loc, const std::list < perm_string > *names)
 
 
 void library_use(const YYLTYPE& loc, ActiveScope *res,
-                 const char *libname, const char *package, const char *name)
-{
-    if (libname == 0)
-    {
+                 const char *libname, const char *package, const char *name) {
+    if (libname == 0) {
         errormsg(loc, "error: No library name for this use clause?\n");
         return;
     }
@@ -291,14 +251,12 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
     perm_string use_name    = name ? lex_strings.make(name) : perm_string::literal("all");
 
     // Special case handling for the IEEE library.
-    if (use_library == "ieee")
-    {
+    if (use_library == "ieee") {
         import_ieee_use(res, use_package, use_name);
         return;
     }
     // Special case handling for the STD library.
-    if (use_library == "std")
-    {
+    if (use_library == "std") {
         import_std_use(loc, res, use_package, use_name);
         return;
     }
@@ -307,38 +265,28 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
     Package                  *pack = lib.packages[use_package];
     // If the package is not found in the work library already
     // parsed, then see if it exists unparsed.
-    if ((use_library == "work") && (pack == 0))
-    {
+    if ((use_library == "work") && (pack == 0)) {
         string path = make_work_package_path(use_package.str());
         parse_source_file(path.c_str(), use_library);
         pack = lib.packages[use_package];
-    }
-    else if ((use_library != "ieee") && (pack == 0))
-    {
+    }else if ((use_library != "ieee") && (pack == 0))  {
         string path = make_library_package_path(use_library, use_package);
-        if (path == "")
-        {
+        if (path == "") {
             errormsg(loc, "Unable to find library %s\n", use_library.str());
             return;
         }
         int rc = parse_source_file(path.c_str(), use_library);
-        if (rc < 0)
-        {
+        if (rc < 0) {
             errormsg(loc, "Unable to open library file %s\n", path.c_str());
-        }
-        else if (rc > 0)
-        {
+        }else if (rc > 0)  {
             errormsg(loc, "Errors in library file %s\n", path.c_str());
-        }
-        else
-        {
+        }else  {
             pack = lib.packages[use_package];
         }
     }
 
     // If the package is still not found, then error.
-    if (pack == 0)
-    {
+    if (pack == 0) {
         errormsg(loc, "No package %s in library %s\n",
                  use_package.str(), use_library.str());
         return;
@@ -348,14 +296,12 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
     // from. Use the name to get the selected objects, and write
     // results into the "res" members.
 
-    if (use_name == "all")
-    {
+    if (use_name == "all") {
         res->use_from(pack);
         return;
     }
 
-    if (ComponentBase *cur = pack->find_component(use_name))
-    {
+    if (ComponentBase *cur = pack->find_component(use_name)) {
         res->bind_name(use_name, cur);
         return;
     }
@@ -366,135 +312,109 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
 
 
 static void import_ieee(void)
-{
-}
+{}
 
 
-static void import_ieee_use_std_logic_1164(ActiveScope *res, perm_string name)
-{
+static void import_ieee_use_std_logic_1164(ActiveScope *res, perm_string name) {
     bool all_flag = name == "all";
 
-    if (all_flag || (name == "std_logic_vector"))
-    {
+    if (all_flag || (name == "std_logic_vector")) {
         res->use_name(perm_string::literal("std_logic_vector"), &primitive_STDLOGIC_VECTOR);
     }
 }
 
 
 static void import_ieee_use_std_logic_arith(ActiveScope *, perm_string)
-{
-}
+{}
 
 
-static void import_ieee_use_numeric_bit(ActiveScope *res, perm_string name)
-{
+static void import_ieee_use_numeric_bit(ActiveScope *res, perm_string name) {
     bool all_flag = name == "all";
 
-    if (all_flag || (name == "signed"))
-    {
+    if (all_flag || (name == "signed")) {
         res->use_name(perm_string::literal("signed"), &primitive_SIGNED);
     }
-    if (all_flag || (name == "unsigned"))
-    {
+    if (all_flag || (name == "unsigned")) {
         res->use_name(perm_string::literal("unsigned"), &primitive_UNSIGNED);
     }
 }
 
 
-static void import_ieee_use_numeric_std(ActiveScope *res, perm_string name)
-{
+static void import_ieee_use_numeric_std(ActiveScope *res, perm_string name) {
     bool all_flag = name == "all";
 
-    if (all_flag || (name == "signed"))
-    {
+    if (all_flag || (name == "signed")) {
         res->use_name(perm_string::literal("signed"), &primitive_SIGNED);
     }
-    if (all_flag || (name == "unsigned"))
-    {
+    if (all_flag || (name == "unsigned")) {
         res->use_name(perm_string::literal("unsigned"), &primitive_UNSIGNED);
     }
 }
 
 
-static void import_ieee_use(ActiveScope *res, perm_string package, perm_string name)
-{
-    if (package == "std_logic_1164")
-    {
+static void import_ieee_use(ActiveScope *res, perm_string package, perm_string name) {
+    if (package == "std_logic_1164") {
         import_ieee_use_std_logic_1164(res, name);
         return;
     }
 
-    if (package == "std_logic_arith")
-    {
+    if (package == "std_logic_arith") {
         import_ieee_use_std_logic_arith(res, name);
         return;
     }
 
-    if (package == "numeric_bit")
-    {
+    if (package == "numeric_bit") {
         import_ieee_use_numeric_bit(res, name);
         return;
     }
 
-    if (package == "numeric_std")
-    {
+    if (package == "numeric_std") {
         import_ieee_use_numeric_std(res, name);
         return;
     }
 }
 
 
-static void import_std_use(const YYLTYPE& loc, ActiveScope *res, perm_string package, perm_string name)
-{
-    if (package == "standard")
-    {
+static void import_std_use(const YYLTYPE& loc, ActiveScope *res, perm_string package, perm_string name) {
+    if (package == "standard") {
         // do nothing
         return;
-    }
-    else if (package == "textio")
-    {
+    }else if (package == "textio")  {
         res->use_name(perm_string::literal("text"), &primitive_INTEGER);
         res->use_name(perm_string::literal("line"), &primitive_STRING);
         res->use_name(type_FILE_OPEN_KIND.peek_name(), &type_FILE_OPEN_KIND);
         res->use_name(type_FILE_OPEN_STATUS.peek_name(), &type_FILE_OPEN_STATUS);
         return;
-    }
-    else
-    {
+    }else  {
         sorrymsg(loc, "package %s of library %s not yet supported", package.str(), name.str());
         return;
     }
 }
 
 
-void library_set_work_path(const char *path)
-{
+void library_set_work_path(const char *path) {
     assert(library_work_path == 0);
     library_work_path = path;
 }
 
 
-list < const Package * > work_packages;
-static void store_package_in_work(const Package *pack)
-{
+list<const Package *> work_packages;
+static void store_package_in_work(const Package *pack) {
     work_packages.push_back(pack);
 }
 
 
-static int emit_packages(perm_string, const map < perm_string, Package * >& packages)
-{
+static int emit_packages(perm_string, const map<perm_string, Package *>& packages) {
     int errors = 0;
 
-    for (map < perm_string, Package * > ::const_iterator cur = packages.begin()
-         ; cur != packages.end(); ++cur)
-    {
+    for (map<perm_string, Package *>::const_iterator cur = packages.begin()
+         ; cur != packages.end(); ++cur) {
         errors += cur->second->emit_package(cout);
     }
 
-    for (list < const Package * > ::const_iterator cur = work_packages.begin()
-         ; cur != work_packages.end(); ++cur)
-    {
-        string path = make_work_package_path((*cur)->name());
+    for (list<const Package *>::const_iterator cur = work_packages.begin()
+         ; cur != work_packages.end(); ++cur) {
+        string   path = make_work_package_path((*cur)->name());
         ofstream file(path.c_str(), ios_base::out);
 
         (*cur)->write_to_stream(file);
@@ -504,13 +424,11 @@ static int emit_packages(perm_string, const map < perm_string, Package * >& pack
 }
 
 
-int emit_packages(void)
-{
+int emit_packages(void) {
     int errors = 0;
 
-    for (map < perm_string, struct library_contents > ::iterator cur = libraries.begin()
-         ; cur != libraries.end(); ++cur)
-    {
+    for (map<perm_string, struct library_contents>::iterator cur = libraries.begin()
+         ; cur != libraries.end(); ++cur) {
         errors += emit_packages(cur->first, cur->second.packages);
     }
 
@@ -518,13 +436,11 @@ int emit_packages(void)
 }
 
 
-static int elaborate_library_packages(map < perm_string, Package * > packages)
-{
+static int elaborate_library_packages(map<perm_string, Package *> packages) {
     int errors = 0;
 
-    for (map < perm_string, Package * > ::iterator cur = packages.begin()
-         ; cur != packages.end(); ++cur)
-    {
+    for (map<perm_string, Package *>::iterator cur = packages.begin()
+         ; cur != packages.end(); ++cur) {
         errors += cur->second->elaborate();
     }
 
@@ -532,13 +448,11 @@ static int elaborate_library_packages(map < perm_string, Package * > packages)
 }
 
 
-int elaborate_libraries()
-{
+int elaborate_libraries() {
     int errors = 0;
 
-    for (map < perm_string, struct library_contents > ::iterator cur = libraries.begin()
-         ; cur != libraries.end(); ++cur)
-    {
+    for (map<perm_string, struct library_contents>::iterator cur = libraries.begin()
+         ; cur != libraries.end(); ++cur) {
         errors += elaborate_library_packages(cur->second.packages);
     }
 

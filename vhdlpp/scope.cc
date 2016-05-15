@@ -47,18 +47,15 @@ ScopeBase::ScopeBase(const ActiveScope& ref)
     scopes_(ref.scopes_), use_enums_(ref.use_enums_),
     initializers_(ref.initializers_), finalizers_(ref.finalizers_),
     package_header_(ref.package_header_), name_(ref.name_)
-{
-}
+{}
 
 
-ScopeBase::~ScopeBase()
-{
+ScopeBase::~ScopeBase() {
     //freeing of member objects is performed by child classes
 }
 
 
-void ScopeBase::cleanup()
-{
+void ScopeBase::cleanup() {
     /*
      * A parent scope is destroyed only if all child scopes
      * were previously destroyed. There for we can delete all
@@ -70,20 +67,17 @@ void ScopeBase::cleanup()
     delete_all(new_components_);
     delete_all(cur_types_);
     delete_all(cur_constants_);
-    for (map < perm_string, SubHeaderList > ::iterator cur = cur_subprograms_.begin()
-         ; cur != cur_subprograms_.end(); ++cur)
-    {
+    for (map<perm_string, SubHeaderList>::iterator cur = cur_subprograms_.begin()
+         ; cur != cur_subprograms_.end(); ++cur) {
         delete_all(cur->second);
     }
 }
 
 
-ScopeBase *ScopeBase::find_scope(perm_string name) const
-{
-    map < perm_string, ScopeBase * > ::const_iterator it = scopes_.find(name);
+ScopeBase *ScopeBase::find_scope(perm_string name) const {
+    map<perm_string, ScopeBase *>::const_iterator it = scopes_.find(name);
 
-    if (it != scopes_.end())
-    {
+    if (it != scopes_.end()) {
         return it->second;
     }
 
@@ -91,14 +85,11 @@ ScopeBase *ScopeBase::find_scope(perm_string name) const
 }
 
 
-const VType *ScopeBase::find_type(perm_string by_name)
-{
-    map < perm_string, const VType * > ::const_iterator cur = cur_types_.find(by_name);
-    if (cur == cur_types_.end())
-    {
+const VType *ScopeBase::find_type(perm_string by_name) {
+    map<perm_string, const VType *>::const_iterator cur = cur_types_.find(by_name);
+    if (cur == cur_types_.end()) {
         cur = use_types_.find(by_name);
-        if (cur == use_types_.end())
-        {
+        if (cur == use_types_.end()) {
             return NULL;   // nothing found
         }
     }
@@ -107,17 +98,14 @@ const VType *ScopeBase::find_type(perm_string by_name)
 }
 
 
-bool ScopeBase::find_constant(perm_string by_name, const VType *& typ, Expression *& exp) const
-{
+bool ScopeBase::find_constant(perm_string by_name, const VType *& typ, Expression *& exp) const {
     typ = NULL;
     exp = NULL;
 
-    map < perm_string, struct const_t * > ::const_iterator cur = cur_constants_.find(by_name);
-    if (cur == cur_constants_.end())
-    {
+    map<perm_string, struct const_t *>::const_iterator cur = cur_constants_.find(by_name);
+    if (cur == cur_constants_.end()) {
         cur = use_constants_.find(by_name);
-        if (cur == use_constants_.end())
-        {
+        if (cur == use_constants_.end()) {
             return false;   // nothing found
         }
     }
@@ -128,14 +116,11 @@ bool ScopeBase::find_constant(perm_string by_name, const VType *& typ, Expressio
 }
 
 
-Signal *ScopeBase::find_signal(perm_string by_name) const
-{
-    map < perm_string, Signal * > ::const_iterator cur = new_signals_.find(by_name);
-    if (cur == new_signals_.end())
-    {
+Signal *ScopeBase::find_signal(perm_string by_name) const {
+    map<perm_string, Signal *>::const_iterator cur = new_signals_.find(by_name);
+    if (cur == new_signals_.end()) {
         cur = old_signals_.find(by_name);
-        if (cur == old_signals_.end())
-        {
+        if (cur == old_signals_.end()) {
             return NULL;        // nothing found
         }
     }
@@ -144,14 +129,11 @@ Signal *ScopeBase::find_signal(perm_string by_name) const
 }
 
 
-Variable *ScopeBase::find_variable(perm_string by_name) const
-{
-    map < perm_string, Variable * > ::const_iterator cur = new_variables_.find(by_name);
-    if (cur == new_variables_.end())
-    {
+Variable *ScopeBase::find_variable(perm_string by_name) const {
+    map<perm_string, Variable *>::const_iterator cur = new_variables_.find(by_name);
+    if (cur == new_variables_.end()) {
         cur = old_variables_.find(by_name);
-        if (cur == old_variables_.end())
-        {
+        if (cur == old_variables_.end()) {
             return 0;         // nothing found
         }
     }
@@ -160,39 +142,31 @@ Variable *ScopeBase::find_variable(perm_string by_name) const
 }
 
 
-const InterfacePort *ScopeBase::find_param(perm_string) const
-{
+const InterfacePort *ScopeBase::find_param(perm_string) const {
     return NULL;
 }
 
 
-const InterfacePort *ScopeBase::find_param_all(perm_string by_name) const
-{
-    for (map < perm_string, SubHeaderList > ::const_iterator cur = use_subprograms_.begin();
-         cur != use_subprograms_.end(); ++cur)
-    {
+const InterfacePort *ScopeBase::find_param_all(perm_string by_name) const {
+    for (map<perm_string, SubHeaderList>::const_iterator cur = use_subprograms_.begin();
+         cur != use_subprograms_.end(); ++cur) {
         const SubHeaderList& subp_list = cur->second;
 
         for (SubHeaderList::const_iterator it = subp_list.begin();
-             it != subp_list.end(); ++it)
-        {
-            if (const InterfacePort *port = (*it)->find_param(by_name))
-            {
+             it != subp_list.end(); ++it) {
+            if (const InterfacePort *port = (*it)->find_param(by_name)) {
                 return port;
             }
         }
     }
 
-    for (map < perm_string, SubHeaderList > ::const_iterator cur = cur_subprograms_.begin();
-         cur != cur_subprograms_.end(); ++cur)
-    {
+    for (map<perm_string, SubHeaderList>::const_iterator cur = cur_subprograms_.begin();
+         cur != cur_subprograms_.end(); ++cur) {
         const SubHeaderList& subp_list = cur->second;
 
         for (SubHeaderList::const_iterator it = subp_list.begin();
-             it != subp_list.end(); ++it)
-        {
-            if (const InterfacePort *port = (*it)->find_param(by_name))
-            {
+             it != subp_list.end(); ++it) {
+            if (const InterfacePort *port = (*it)->find_param(by_name)) {
                 return port;
             }
         }
@@ -202,19 +176,16 @@ const InterfacePort *ScopeBase::find_param_all(perm_string by_name) const
 }
 
 
-SubHeaderList ScopeBase::find_subprogram(perm_string name) const
-{
-    map < perm_string, SubHeaderList > ::const_iterator cur;
+SubHeaderList ScopeBase::find_subprogram(perm_string name) const {
+    map<perm_string, SubHeaderList>::const_iterator cur;
 
     cur = cur_subprograms_.find(name);
-    if (cur != cur_subprograms_.end())
-    {
+    if (cur != cur_subprograms_.end()) {
         return cur->second;
     }
 
     cur = use_subprograms_.find(name);
-    if (cur != use_subprograms_.end())
-    {
+    if (cur != use_subprograms_.end()) {
         return cur->second;
     }
 
@@ -222,13 +193,10 @@ SubHeaderList ScopeBase::find_subprogram(perm_string name) const
 }
 
 
-const VTypeEnum *ScopeBase::is_enum_name(perm_string name) const
-{
-    for (list < const VTypeEnum * > ::const_iterator it = use_enums_.begin();
-         it != use_enums_.end(); ++it)
-    {
-        if ((*it)->has_name(name))
-        {
+const VTypeEnum *ScopeBase::is_enum_name(perm_string name) const {
+    for (list<const VTypeEnum *>::const_iterator it = use_enums_.begin();
+         it != use_enums_.end(); ++it) {
+        if ((*it)->has_name(name)) {
             return *it;
         }
     }
@@ -241,50 +209,40 @@ const VTypeEnum *ScopeBase::is_enum_name(perm_string name) const
  * This method is only used by the ActiveScope derived class to import
  * definition from another scope.
  */
-void ScopeBase::do_use_from(const ScopeBase *that)
-{
-    for (map < perm_string, ComponentBase * > ::const_iterator cur = that->old_components_.begin()
-         ; cur != that->old_components_.end(); ++cur)
-    {
-        if (cur->second == 0)
-        {
+void ScopeBase::do_use_from(const ScopeBase *that) {
+    for (map<perm_string, ComponentBase *>::const_iterator cur = that->old_components_.begin()
+         ; cur != that->old_components_.end(); ++cur) {
+        if (cur->second == 0) {
             continue;
         }
         old_components_[cur->first] = cur->second;
     }
-    for (map < perm_string, ComponentBase * > ::const_iterator cur = that->new_components_.begin()
-         ; cur != that->new_components_.end(); ++cur)
-    {
-        if (cur->second == 0)
-        {
+    for (map<perm_string, ComponentBase *>::const_iterator cur = that->new_components_.begin()
+         ; cur != that->new_components_.end(); ++cur) {
+        if (cur->second == 0) {
             continue;
         }
         old_components_[cur->first] = cur->second;
     }
 
-    for (map < perm_string, SubHeaderList > ::const_iterator cur = that->cur_subprograms_.begin()
-         ; cur != that->cur_subprograms_.end(); ++cur)
-    {
-        if (cur->second.empty())
-        {
+    for (map<perm_string, SubHeaderList>::const_iterator cur = that->cur_subprograms_.begin()
+         ; cur != that->cur_subprograms_.end(); ++cur) {
+        if (cur->second.empty()) {
             continue;
         }
         use_subprograms_[cur->first] = cur->second;
     }
 
-    for (map < perm_string, const VType * > ::const_iterator cur = that->cur_types_.begin()
-         ; cur != that->cur_types_.end(); ++cur)
-    {
-        if (cur->second == 0)
-        {
+    for (map<perm_string, const VType *>::const_iterator cur = that->cur_types_.begin()
+         ; cur != that->cur_types_.end(); ++cur) {
+        if (cur->second == 0) {
             continue;
         }
         use_types_[cur->first] = cur->second;
     }
 
-    for (map < perm_string, const_t * > ::const_iterator cur = that->cur_constants_.begin()
-         ; cur != that->cur_constants_.end(); ++cur)
-    {
+    for (map<perm_string, const_t *>::const_iterator cur = that->cur_constants_.begin()
+         ; cur != that->cur_constants_.end(); ++cur) {
         use_constants_[cur->first] = cur->second;
     }
 
@@ -292,30 +250,26 @@ void ScopeBase::do_use_from(const ScopeBase *that)
 }
 
 
-void ScopeBase::transfer_from(ScopeBase& ref, transfer_type_t what)
-{
-    if (what & SIGNALS)
-    {
+void ScopeBase::transfer_from(ScopeBase& ref, transfer_type_t what) {
+    if (what & SIGNALS) {
         std::copy(ref.new_signals_.begin(), ref.new_signals_.end(),
-                  insert_iterator < map < perm_string, Signal * >> (
+                  insert_iterator<map<perm_string, Signal *> > (
                       new_signals_, new_signals_.end())
                   );
         ref.new_signals_.clear();
     }
 
-    if (what & VARIABLES)
-    {
+    if (what & VARIABLES) {
         std::copy(ref.new_variables_.begin(), ref.new_variables_.end(),
-                  insert_iterator < map < perm_string, Variable * >> (
+                  insert_iterator<map<perm_string, Variable *> > (
                       new_variables_, new_variables_.end())
                   );
         ref.new_variables_.clear();
     }
 
-    if (what & COMPONENTS)
-    {
+    if (what & COMPONENTS) {
         std::copy(ref.new_components_.begin(), ref.new_components_.end(),
-                  insert_iterator < map < perm_string, ComponentBase * >> (
+                  insert_iterator<map<perm_string, ComponentBase *> > (
                       new_components_, new_components_.end())
                   );
         ref.new_components_.clear();
@@ -323,53 +277,45 @@ void ScopeBase::transfer_from(ScopeBase& ref, transfer_type_t what)
 }
 
 
-SubprogramHeader *ScopeBase::match_subprogram(perm_string                  name,
-                                              const list < const VType * > *params) const
-{
+SubprogramHeader *ScopeBase::match_subprogram(perm_string               name,
+                                              const list<const VType *> *params) const {
     int req_param_count = params ? params->size() : 0;
 
     // Find all subprograms with matching name
     SubHeaderList l = find_std_subprogram(name);
 
-    map < perm_string, SubHeaderList > ::const_iterator cur;
+    map<perm_string, SubHeaderList>::const_iterator cur;
 
     cur = use_subprograms_.find(name);
-    if (cur != use_subprograms_.end())
-    {
+    if (cur != use_subprograms_.end()) {
         copy(cur->second.begin(), cur->second.end(),
-             front_insert_iterator < SubHeaderList > (l));
+             front_insert_iterator<SubHeaderList> (l));
     }
 
     cur = cur_subprograms_.find(name);
-    if (cur != cur_subprograms_.end())
-    {
+    if (cur != cur_subprograms_.end()) {
         copy(cur->second.begin(), cur->second.end(),
-             front_insert_iterator < SubHeaderList > (l));
+             front_insert_iterator<SubHeaderList> (l));
     }
 
     // Find the matching one
-    for (SubHeaderList::iterator it = l.begin(); it != l.end(); ++it)
-    {
+    for (SubHeaderList::iterator it = l.begin(); it != l.end(); ++it) {
         SubprogramHeader *subp = *it;
 
-        if (req_param_count != subp->param_count())
-        {
+        if (req_param_count != subp->param_count()) {
             continue;
         }
 
         // Do not check the return type here, it might depend on the arguments
 
-        if (params)
-        {
-            list < const VType * > ::const_iterator p = params->begin();
+        if (params) {
+            list<const VType *>::const_iterator p = params->begin();
             bool ok = true;
 
-            for (int i = 0; i < req_param_count; ++i)
-            {
+            for (int i = 0; i < req_param_count; ++i) {
                 const VType *param_type = subp->peek_param_type(i);
 
-                if (*p && param_type && !param_type->type_match(*p))
-                {
+                if (*p && param_type && !param_type->type_match(*p)) {
                     ok = false;
                     break;
                 }
@@ -377,8 +323,7 @@ SubprogramHeader *ScopeBase::match_subprogram(perm_string                  name,
                 ++p;
             }
 
-            if (!ok)
-            {
+            if (!ok) {
                 continue;   // check another function
             }
         }
@@ -391,8 +336,7 @@ SubprogramHeader *ScopeBase::match_subprogram(perm_string                  name,
 }
 
 
-void ScopeBase::generate_name()
-{
+void ScopeBase::generate_name() {
     char buf[64];
 
     // Generate a name for the scope
@@ -401,24 +345,20 @@ void ScopeBase::generate_name()
 }
 
 
-SubprogramHeader *ActiveScope::recall_subprogram(const SubprogramHeader *subp) const
-{
-    list < const VType * > arg_types;
-    SubprogramHeader *tmp;
+SubprogramHeader *ActiveScope::recall_subprogram(const SubprogramHeader *subp) const {
+    list<const VType *> arg_types;
+    SubprogramHeader    *tmp;
 
-    for (int i = 0; i < subp->param_count(); ++i)
-    {
+    for (int i = 0; i < subp->param_count(); ++i) {
         arg_types.push_back(subp->peek_param_type(i));
     }
 
-    if ((tmp = match_subprogram(subp->name(), &arg_types)))
-    {
+    if ((tmp = match_subprogram(subp->name(), &arg_types))) {
         assert(!tmp->body());
         return tmp;
     }
 
-    if (package_header_)
-    {
+    if (package_header_) {
         tmp = package_header_->match_subprogram(subp->name(), &arg_types);
         assert(!tmp || !tmp->body());
         return tmp;
@@ -428,26 +368,21 @@ SubprogramHeader *ActiveScope::recall_subprogram(const SubprogramHeader *subp) c
 }
 
 
-bool ActiveScope::is_vector_name(perm_string name) const
-{
-    if (find_signal(name))
-    {
+bool ActiveScope::is_vector_name(perm_string name) const {
+    if (find_signal(name)) {
         return true;
     }
-    if (find_variable(name))
-    {
+    if (find_variable(name)) {
         return true;
     }
 
     const VType *dummy_type;
     Expression  *dummy_exp;
-    if (find_constant(name, dummy_type, dummy_exp))
-    {
+    if (find_constant(name, dummy_type, dummy_exp)) {
         return true;
     }
 
-    if (context_entity_ && context_entity_->find_port(name))
-    {
+    if (context_entity_ && context_entity_->find_port(name)) {
         return true;
     }
 
@@ -455,58 +390,50 @@ bool ActiveScope::is_vector_name(perm_string name) const
 }
 
 
-ComponentBase *Scope::find_component(perm_string by_name)
-{
-    map < perm_string, ComponentBase * > ::const_iterator cur = new_components_.find(by_name);
-    if (cur == new_components_.end())
-    {
+ComponentBase *Scope::find_component(perm_string by_name) {
+    map<perm_string, ComponentBase *>::const_iterator cur = new_components_.find(by_name);
+    if (cur == new_components_.end()) {
         cur = old_components_.find(by_name);
-        if (cur == old_components_.end())
-        {
+        if (cur == old_components_.end()) {
             return 0;
-        }
-        else
-        {
+        }else  {
             return cur->second;
         }
-    }
-    else
-    {
+    }else  {
         return cur->second;
     }
 }
 
 
 ActiveScope::ActiveScope(const ActiveScope *par)
-    : ScopeBase(*par), context_entity_(par->context_entity_)
-{
+    : ScopeBase(*par), context_entity_(par->context_entity_) {
     generate_name();
 
     // Move all the objects available in higher level scopes to use*/old* maps.
     // This way we can store the new items in now empty cur*/new* maps.
     merge(par->old_signals_.begin(), par->old_signals_.end(),
           par->new_signals_.begin(), par->new_signals_.end(),
-          insert_iterator < map < perm_string, Signal * >> (
+          insert_iterator<map<perm_string, Signal *> > (
               old_signals_, old_signals_.end())
           );
     merge(par->old_variables_.begin(), par->old_variables_.end(),
           par->new_variables_.begin(), par->new_variables_.end(),
-          insert_iterator < map < perm_string, Variable * >> (
+          insert_iterator<map<perm_string, Variable *> > (
               old_variables_, old_variables_.end())
           );
     merge(par->old_components_.begin(), par->old_components_.end(),
           par->new_components_.begin(), par->new_components_.end(),
-          insert_iterator < map < perm_string, ComponentBase * >> (
+          insert_iterator<map<perm_string, ComponentBase *> > (
               old_components_, old_components_.end())
           );
     merge(par->use_types_.begin(), par->use_types_.end(),
           par->cur_types_.begin(), par->cur_types_.end(),
-          insert_iterator < map < perm_string, const VType * >> (
+          insert_iterator<map<perm_string, const VType *> > (
               use_types_, use_types_.end())
           );
     merge(par->use_subprograms_.begin(), par->use_subprograms_.end(),
           par->cur_subprograms_.begin(), par->cur_subprograms_.end(),
-          insert_iterator < map < perm_string, SubHeaderList >> (
+          insert_iterator<map<perm_string, SubHeaderList> > (
               use_subprograms_, use_subprograms_.end())
           );
 }

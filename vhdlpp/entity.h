@@ -28,30 +28,30 @@
 # include  "StringHeap.h"
 # include  "LineInfo.h"
 
-typedef enum { PORT_NONE = 0, PORT_IN, PORT_OUT, PORT_INOUT }   port_mode_t;
+typedef enum
+{
+    PORT_NONE = 0, PORT_IN, PORT_OUT, PORT_INOUT
+} port_mode_t;
 
 class Architecture;
 class Expression;
 
-class InterfacePort: public LineInfo {
+class InterfacePort : public LineInfo {
 public:
     InterfacePort(port_mode_t mod = PORT_NONE,
                   perm_string nam = empty_perm_string,
-                  const VType * typ = NULL,
-                  Expression * exp = NULL)
+                  const VType *typ = NULL,
+                  Expression  *exp = NULL)
         : mode(mod), name(nam), type(typ), expr(exp)
-    {
-    }
+    {}
 
     explicit InterfacePort(const VType *typ)
         : mode(PORT_NONE), type(typ), expr(NULL)
-    {
-    }
+    {}
 
-    InterfacePort(const VType * typ, port_mode_t mod)
+    InterfacePort(const VType *typ, port_mode_t mod)
         : mode(mod), type(typ), expr(NULL)
-    {
-    }
+    {}
 
     // Port direction from the source code.
     port_mode_t mode;
@@ -69,31 +69,30 @@ public:
  * declaration of an entity. Elaboration will match it to a proper
  * entity. Or this can be the base class for a full-out Entity.
  */
-class ComponentBase: public LineInfo {
+class ComponentBase : public LineInfo {
 public:
     explicit ComponentBase(perm_string name);
 
     ~ComponentBase();
 
     // Entities have names.
-    perm_string get_name() const
-    {
+    perm_string get_name() const {
         return name_;
     }
-
 
     const InterfacePort *find_port(perm_string by_name) const;
     const InterfacePort *find_generic(perm_string by_name) const;
 
-    const std::vector < InterfacePort * >& get_generics() const { return parms_;
+    const std::vector<InterfacePort *>& get_generics() const {
+        return parms_;
     }
 
     // Declare the ports for the entity. The parser calls this
     // method with a list of interface elements that were parsed
     // for the entity. This method collects those entities, and
     // empties the list in the process.
-    void set_interface(std::list < InterfacePort * > *parms,
-                       std::list < InterfacePort * > *ports);
+    void set_interface(std::list<InterfacePort *> *parms,
+                       std::list<InterfacePort *> *ports);
 
 
     void write_to_stream(std::ostream& fd) const;
@@ -105,14 +104,14 @@ public:
 private:
     perm_string name_;
 protected:
-    std::vector < InterfacePort * > parms_;
-    std::vector < InterfacePort * > ports_;
+    std::vector<InterfacePort *> parms_;
+    std::vector<InterfacePort *> ports_;
 };
 
 /*
  * Entities are fully declared components.
  */
-class Entity: public ComponentBase {
+class Entity : public ComponentBase {
 public:
     explicit Entity(perm_string name);
 
@@ -142,10 +141,10 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
 private:
-    std::map < perm_string, Architecture * > arch_;
+    std::map<perm_string, Architecture *> arch_;
     Architecture *bind_arch_;
 
-    map < perm_string, VType::decl_t > declarations_;
+    map<perm_string, VType::decl_t> declarations_;
 
     int elaborate_generic_exprs_(void);
     int elaborate_ports_(void);
@@ -155,7 +154,7 @@ private:
  * As the parser parses entities, it puts them into this map. It uses
  * a map because sometimes it needs to look back at an entity by name.
  */
-extern std::map < perm_string, Entity * > design_entities;
+extern std::map<perm_string, Entity *> design_entities;
 
 /*
  * Elaborate the collected entities, and return the number of

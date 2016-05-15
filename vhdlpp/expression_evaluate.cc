@@ -25,25 +25,21 @@
 # include  <limits>
 # include  <cmath>
 
-bool ExpArithmetic::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
-{
+bool ExpArithmetic::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const {
     int64_t val1, val2;
     bool    rc;
 
     rc = eval_operand1(ent, scope, val1);
-    if (rc == false)
-    {
+    if (rc == false) {
         return false;
     }
 
     rc = eval_operand2(ent, scope, val2);
-    if (rc == false)
-    {
+    if (rc == false) {
         return false;
     }
 
-    switch (fun_)
-    {
+    switch (fun_) {
     case PLUS:
         val = val1 + val2;
         break;
@@ -57,24 +53,21 @@ bool ExpArithmetic::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
         break;
 
     case DIV:
-        if (val2 == 0)
-        {
+        if (val2 == 0) {
             return false;
         }
         val = val1 / val2;
         break;
 
     case MOD:
-        if (val2 == 0)
-        {
+        if (val2 == 0) {
             return false;
         }
         val = val1 % val2;
         break;
 
     case REM:
-        if (val2 == 0)
-        {
+        if (val2 == 0) {
             return false;
         }
         val = val1 - (val1 / val2) * val2;
@@ -92,12 +85,10 @@ bool ExpArithmetic::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
 }
 
 
-bool ExpAttribute::test_array_type(const VType *type) const
-{
-    const VTypeArray *arr = dynamic_cast < const VTypeArray * > (type);
+bool ExpAttribute::test_array_type(const VType *type) const {
+    const VTypeArray *arr = dynamic_cast<const VTypeArray *> (type);
 
-    if (arr == 0)
-    {
+    if (arr == 0) {
         cerr << endl << get_fileline() << ": error: "
              << "Cannot apply the '" << name_ << " attribute to non-array objects"
              << endl;
@@ -105,16 +96,14 @@ bool ExpAttribute::test_array_type(const VType *type) const
         return false;
     }
 
-    if (arr->dimensions() > 1)
-    {
+    if (arr->dimensions() > 1) {
         cerr << endl << get_fileline() << ": error: "
              << "Cannot apply the '" << name_
              << " attribute to multidimensional arrays" << endl;
         return false;
     }
 
-    if (arr->dimension(0).is_box())
-    {
+    if (arr->dimension(0).is_box()) {
         return false;
     }
 
@@ -122,26 +111,19 @@ bool ExpAttribute::test_array_type(const VType *type) const
 }
 
 
-bool ExpAttribute::evaluate_type_attr(const VType *type, Entity *ent, ScopeBase *scope, int64_t& val) const
-{
-    if ((name_ == "length") && test_array_type(type))
-    {
+bool ExpAttribute::evaluate_type_attr(const VType *type, Entity *ent, ScopeBase *scope, int64_t& val) const {
+    if ((name_ == "length") && test_array_type(type)) {
         int64_t size = type->get_width(scope);
 
-        if (size > 0)
-        {
+        if (size > 0) {
             val = size;
             return true;
         }
-    }
-    else if ((name_ == "left") && test_array_type(type))
-    {
-        const VTypeArray *arr = dynamic_cast < const VTypeArray * > (type);
+    }else if ((name_ == "left") && test_array_type(type))  {
+        const VTypeArray *arr = dynamic_cast<const VTypeArray *> (type);
         return arr->dimension(0).msb()->evaluate(ent, scope, val);
-    }
-    else if ((name_ == "right") && test_array_type(type))
-    {
-        const VTypeArray *arr = dynamic_cast < const VTypeArray * > (type);
+    }else if ((name_ == "right") && test_array_type(type))  {
+        const VTypeArray *arr = dynamic_cast<const VTypeArray *> (type);
         return arr->dimension(0).lsb()->evaluate(ent, scope, val);
     }
 
@@ -149,17 +131,14 @@ bool ExpAttribute::evaluate_type_attr(const VType *type, Entity *ent, ScopeBase 
 }
 
 
-bool ExpObjAttribute::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
-{
+bool ExpObjAttribute::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const {
     const VType *base_type = base_->peek_type();
 
-    if (base_type == NULL)
-    {
+    if (base_type == NULL) {
         base_type = base_->probe_type(ent, scope);
     }
 
-    if (base_type)
-    {
+    if (base_type) {
         return evaluate_type_attr(base_type, ent, scope, val);
     }
 
@@ -167,29 +146,23 @@ bool ExpObjAttribute::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) cons
 }
 
 
-bool ExpTypeAttribute::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
-{
+bool ExpTypeAttribute::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const {
     return evaluate_type_attr(base_, ent, scope, val);
 }
 
 
-bool ExpName::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
-{
-    if (prefix_.get())
-    {
+bool ExpName::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const {
+    if (prefix_.get()) {
         cerr << get_fileline() << ": sorry: I don't know how to evaluate "
              << "ExpName prefix parts." << endl;
         return false;
     }
 
-    if (ent)
-    {
+    if (ent) {
         const InterfacePort *gen = ent->find_generic(name_);
-        if (gen)
-        {
+        if (gen) {
             // Evaluate the default expression and use that.
-            if (gen->expr && gen->expr->evaluate(ent, scope, val))
-            {
+            if (gen->expr && gen->expr->evaluate(ent, scope, val)) {
                 return true;
             }
 
@@ -199,13 +172,11 @@ bool ExpName::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
         }
     }
 
-    if (scope)
-    {
+    if (scope) {
         const VType *type;
         Expression  *exp;
 
-        if (scope->find_constant(name_, type, exp))
-        {
+        if (scope->find_constant(name_, type, exp)) {
             return exp->evaluate(ent, scope, val);
         }
     }
@@ -214,25 +185,21 @@ bool ExpName::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
 }
 
 
-bool ExpShift::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const
-{
+bool ExpShift::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const {
     int64_t val1, val2;
     bool    rc;
 
     rc = eval_operand1(ent, scope, val1);
-    if (rc == false)
-    {
+    if (rc == false) {
         return false;
     }
 
     rc = eval_operand2(ent, scope, val2);
-    if (rc == false)
-    {
+    if (rc == false) {
         return false;
     }
 
-    switch (shift_)
-    {
+    switch (shift_) {
     case SRL:
         val = (uint64_t)val1 >> (uint64_t)val2;
         break;

@@ -25,20 +25,18 @@
 # include  "LineInfo.h"
 # include  <iostream>
 
-class Package: public Scope, public LineInfo {
+class Package : public Scope, public LineInfo {
 public:
-    Package(perm_string name, const ActiveScope &ref);
+    Package(perm_string name, const ActiveScope& ref);
     ~Package();
 
     // The the library from which this package came. Having a
     // source library influences the emit_package() method.
     void set_library(perm_string);
 
-    perm_string name() const
-    {
+    perm_string name() const {
         return name_;
     }
-
 
     // This method writes a package header to a library file.
     void write_to_stream(std::ostream& fd) const;

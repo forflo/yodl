@@ -37,7 +37,7 @@ extern void bind_architecture_to_entity(const char *ename, Architecture *arch);
 
 extern const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base_name,
                                             ScopeBase *scope,
-                                            std::list < ExpRange * > *ranges);
+                                            std::list<ExpRange *> *ranges);
 extern const VType *calculate_subtype_range(const YYLTYPE& loc, const char *base_name,
                                             ScopeBase *scope,
                                             Expression *range_left,
@@ -61,7 +61,7 @@ extern void library_save_package(perm_string library_parse_name, Package *pack);
 
 extern Package *library_recall_package(perm_string library_parse_name, perm_string name);
 
-extern void library_import(const YYLTYPE& loc, const std::list < perm_string > *names);
+extern void library_import(const YYLTYPE& loc, const std::list<perm_string> *names);
 
 extern void library_use(const YYLTYPE& loc, ActiveScope *res, const char *libname, const char *pack, const char *ident);
 

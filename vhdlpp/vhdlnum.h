@@ -8,8 +8,7 @@
 class vhdlnum {
 public:
     vhdlnum(char *text)
-    {
-    }
+    {}
 };
 
 #endif /* IVL_vhdlnum_H */

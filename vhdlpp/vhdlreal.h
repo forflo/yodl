@@ -31,31 +31,34 @@
 class vhdlreal
 {
 public:
-    friend std::ostream& operator << (std::ostream &, const vhdlreal &);
-    friend vhdlreal      operator + (const vhdlreal &, const vhdlreal &);
-    friend vhdlreal      operator - (const vhdlreal &, const vhdlreal &);
-    friend vhdlreal operator * (const vhdlreal &, const vhdlreal &);
-    friend vhdlreal operator / (const vhdlreal &, const vhdlreal &);
-    friend vhdlreal operator % (const vhdlreal &, const vhdlreal &);
+    friend std::ostream& operator <<(std::ostream&, const vhdlreal&);
+
+    friend vhdlreal operator +(const vhdlreal&, const vhdlreal&);
+
+    friend vhdlreal operator -(const vhdlreal&, const vhdlreal&);
+
+    friend vhdlreal operator *(const vhdlreal&, const vhdlreal&);
+
+    friend vhdlreal operator /(const vhdlreal&, const vhdlreal&);
+
+    friend vhdlreal operator %(const vhdlreal&, const vhdlreal&);
+
     friend vhdlreal pow(const vhdlreal&, const vhdlreal&);
 
     // Unary minus.
-    friend vhdlreal operator - (const vhdlreal &);
+    friend vhdlreal operator -(const vhdlreal&);
 
     explicit vhdlreal();
     explicit vhdlreal(const char *text);
     explicit vhdlreal(const double& val);
 
-    vhdlreal(const vhdlreal &val);
+    vhdlreal(const vhdlreal& val);
     virtual ~vhdlreal()
-    {
-    };
+    {}
 
-    double as_double() const
-    {
+    double as_double() const {
         return value_;
     }
-
 
 private:
     double value_;

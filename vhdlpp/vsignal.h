@@ -29,16 +29,14 @@ class ScopeBase;
 class Entity;
 class Expression;
 
-class SigVarBase: public LineInfo {
+class SigVarBase : public LineInfo {
 public:
-    SigVarBase(perm_string name, const VType * type, Expression * init_expr);
+    SigVarBase(perm_string name, const VType *type, Expression *init_expr);
     virtual ~SigVarBase();
 
-    const VType *peek_type(void) const
-    {
+    const VType *peek_type(void) const {
         return type_;
     }
-
 
     // Call this method for each occasion where this signal is the
     // l-value of a sequential assignment.
@@ -49,26 +47,20 @@ public:
     // Elaborates type & initializer expressions.
     void elaborate(Entity *ent, ScopeBase *scope);
 
-    perm_string peek_name() const
-    {
+    perm_string peek_name() const {
         return name_;
     }
 
-
 protected:
-    unsigned peek_refcnt_sequ_() const
-    {
+    unsigned peek_refcnt_sequ_() const {
         return refcnt_sequ_;
     }
 
-
     void type_elaborate_(VType::decl_t& decl);
 
-    Expression *peek_init_expr() const
-    {
+    Expression *peek_init_expr() const {
         return init_expr_;
     }
-
 
 private:
     perm_string name_;
@@ -78,41 +70,38 @@ private:
     unsigned refcnt_sequ_;
 
 private:     // Not implemented
-    SigVarBase(const SigVarBase &);
-    SigVarBase& operator = (const SigVarBase &);
+    SigVarBase(const SigVarBase&);
+    SigVarBase& operator =(const SigVarBase&);
 };
 
-class Signal: public SigVarBase {
+class Signal : public SigVarBase {
 public:
-    Signal(perm_string name, const VType * type, Expression * init_expr);
+    Signal(perm_string name, const VType *type, Expression *init_expr);
 
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
 };
 
-class Variable: public SigVarBase {
+class Variable : public SigVarBase {
 public:
-    Variable(perm_string name, const VType * type, Expression * init_expr = NULL);
+    Variable(perm_string name, const VType *type, Expression *init_expr = NULL);
 
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
     void write_to_stream(std::ostream& fd);
 };
 
-inline void SigVarBase::count_ref_sequ()
-{
+inline void SigVarBase::count_ref_sequ() {
     refcnt_sequ_ += 1;
 }
 
 
 inline Signal::Signal(perm_string name, const VType *type, Expression *init_expr)
     : SigVarBase(name, type, init_expr)
-{
-}
+{}
 
 
 inline Variable::Variable(perm_string name, const VType *type, Expression *init_expr)
     : SigVarBase(name, type, init_expr)
-{
-}
+{}
 
 
 #endif /* IVL_vsignal_H */

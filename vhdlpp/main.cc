@@ -110,30 +110,18 @@ ofstream debug_log_file;
 extern void dump_libraries(ostream& file);
 extern void parser_cleanup();
 
-static void process_debug_token(const char *word)
-{
-    if (strcmp(word, "yydebug") == 0)
-    {
+static void process_debug_token(const char *word) {
+    if (strcmp(word, "yydebug") == 0) {
         yydebug = 1;
-    }
-    else if (strcmp(word, "no-yydebug") == 0)
-    {
+    }else if (strcmp(word, "no-yydebug") == 0)  {
         yydebug = 0;
-    }
-    else if (strncmp(word, "entities=", 9) == 0)
-    {
+    }else if (strncmp(word, "entities=", 9) == 0)  {
         dump_design_entities_path = strdup(word + 9);
-    }
-    else if (strncmp(word, "libraries=", 10) == 0)
-    {
+    }else if (strncmp(word, "libraries=", 10) == 0)  {
         dump_libraries_path = strdup(word + 10);
-    }
-    else if (strncmp(word, "log=", 4) == 0)
-    {
+    }else if (strncmp(word, "log=", 4) == 0)  {
         debug_log_path = strdup(word + 4);
-    }
-    else if (strcmp(word, "elaboration") == 0)
-    {
+    }else if (strcmp(word, "elaboration") == 0)  {
         debug_elaboration = true;
     }
 }
@@ -142,16 +130,13 @@ static void process_debug_token(const char *word)
 #define VERSION_TAG    "VERSION_TAG"
 #define NOTICE         "NOTICE\n"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int        opt;
     int        rc;
     const char *work_path = "ivl_vhdl_work";
 
-    while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF)
-    {
-        switch (opt)
-        {
+    while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF) {
+        switch (opt) {
         case 'D':
             process_debug_token(optarg);
             break;
@@ -181,29 +166,25 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (debug_log_path)
-    {
+    if (debug_log_path) {
         debug_log_file.open(debug_log_path);
     }
 
-    if ((rc = mkdir(work_path, 0777)) < 0)
-    {
-        if (errno != EEXIST)
-        {
+    if ((rc = mkdir(work_path, 0777)) < 0) {
+        if (errno != EEXIST) {
             fprintf(stderr, "Icarus Verilog VHDL unable to create work directory %s, errno=%d\n", work_path, errno);
             return -1;
         }
         struct stat stat_buf;
         rc = stat(work_path, &stat_buf);
 
-        if (!S_ISDIR(stat_buf.st_mode))
-        {
+        if (!S_ISDIR(stat_buf.st_mode)) {
             fprintf(stderr, "Icarus Verilog VHDL work path `%s' is not a directory.\n", work_path);
             return -1;
         }
     }
 
-    std::cout.precision(std::numeric_limits < double > ::digits10);
+    std::cout.precision(std::numeric_limits<double>::digits10);
     library_set_work_path(work_path);
 
     preload_global_types();
@@ -211,69 +192,58 @@ int main(int argc, char *argv[])
 
     int errors = 0;
 
-    for (int idx = optind; idx < argc; idx += 1)
-    {
+    for (int idx = optind; idx < argc; idx += 1) {
         parse_errors = 0;
         parse_sorrys = 0;
         rc           = parse_source_file(argv[idx], perm_string());
-        if (rc < 0)
-        {
+        if (rc < 0) {
             return 1;
         }
 
-        if (verbose_flag)
-        {
+        if (verbose_flag) {
             fprintf(stderr, "parse_source_file() returns %d, parse_errors=%d, parse_sorrys=%d\n", rc, parse_errors, parse_sorrys);
         }
 
-        if (parse_errors > 0)
-        {
+        if (parse_errors > 0) {
             fprintf(stderr, "Encountered %d errors parsing %s\n", parse_errors, argv[idx]);
         }
-        if (parse_sorrys > 0)
-        {
+        if (parse_sorrys > 0) {
             fprintf(stderr, "Encountered %d unsupported constructs parsing %s\n", parse_sorrys, argv[idx]);
         }
 
-        if (parse_errors || parse_sorrys)
-        {
+        if (parse_errors || parse_sorrys) {
             errors += parse_errors;
             errors += parse_sorrys;
             break;
         }
     }
 
-    if (dump_libraries_path)
-    {
+    if (dump_libraries_path) {
         ofstream file(dump_libraries_path);
 
         dump_libraries(file);
     }
 
-    if (dump_design_entities_path)
-    {
+    if (dump_design_entities_path) {
         ofstream file(dump_design_entities_path);
 
         dump_design_entities(file);
     }
 
-    if (errors > 0)
-    {
+    if (errors > 0) {
         parser_cleanup();
         return 2;
     }
 
     errors = elaborate_entities();
-    if (errors > 0)
-    {
+    if (errors > 0) {
         fprintf(stderr, "%d errors elaborating design.\n", errors);
         parser_cleanup();
         return 3;
     }
 
     errors = elaborate_libraries();
-    if (errors > 0)
-    {
+    if (errors > 0) {
         fprintf(stderr, "%d errors elaborating libraries.\n", errors);
         parser_cleanup();
         return 4;
@@ -282,16 +252,14 @@ int main(int argc, char *argv[])
     emit_std_types(cout);
 
     errors = emit_packages();
-    if (errors > 0)
-    {
+    if (errors > 0) {
         fprintf(stderr, "%d errors emitting packages.\n", errors);
         parser_cleanup();
         return 5;
     }
 
     errors = emit_entities();
-    if (errors > 0)
-    {
+    if (errors > 0) {
         fprintf(stderr, "%d errors emitting design.\n", errors);
         parser_cleanup();
         return 6;

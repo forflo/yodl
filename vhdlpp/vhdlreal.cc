@@ -24,34 +24,28 @@
 
 using namespace std;
 
-vhdlreal::vhdlreal()
-{
+vhdlreal::vhdlreal() {
     value_ = 0.0;
 }
 
 
-vhdlreal::vhdlreal(const double& r)
-{
+vhdlreal::vhdlreal(const double& r) {
     value_ = r;
 }
 
 
-vhdlreal::vhdlreal(const vhdlreal& val)
-{
+vhdlreal::vhdlreal(const vhdlreal& val) {
     value_ = val.as_double();
 }
 
 
-vhdlreal::vhdlreal(const char *text)
-{
+vhdlreal::vhdlreal(const char *text) {
     assert(strlen(text) != 0);
     char *buffer = new char[strlen(text) + 1];
 
     char *buf_ptr;
-    for (buf_ptr = buffer; *text != 0; ++buf_ptr, ++text)
-    {
-        if (*text == '_')
-        {
+    for (buf_ptr = buffer; *text != 0; ++buf_ptr, ++text) {
+        if (*text == '_') {
             continue;
         }
         *buf_ptr = *text;
@@ -63,30 +57,41 @@ vhdlreal::vhdlreal(const char *text)
 }
 
 
-ostream& operator << (ostream & str, const vhdlreal &r) {
+ostream& operator <<(ostream& str, const vhdlreal& r) {
     return(str << r.as_double());
-    }
-    vhdlreal operator + (const vhdlreal &r1, const vhdlreal &r2) {
+}
+
+
+vhdlreal operator +(const vhdlreal& r1, const vhdlreal& r2) {
     return vhdlreal(r1.as_double() + r2.as_double());
-    }
-    vhdlreal operator - (const vhdlreal &r1, const vhdlreal &r2) {
+}
+
+
+vhdlreal operator -(const vhdlreal& r1, const vhdlreal& r2) {
     return vhdlreal(r1.as_double() - r2.as_double());
-    }
-    vhdlreal operator * (const vhdlreal &r1, const vhdlreal &r2) {
+}
+
+
+vhdlreal operator *(const vhdlreal& r1, const vhdlreal& r2) {
     return vhdlreal(r1.as_double() * r2.as_double());
-    }
-    vhdlreal operator / (const vhdlreal &r1, const vhdlreal &r2) {
+}
+
+
+vhdlreal operator /(const vhdlreal& r1, const vhdlreal& r2) {
     return vhdlreal(r1.as_double() / r2.as_double());
-    }
-    vhdlreal operator % (const vhdlreal &r1, const vhdlreal &r2) {
+}
+
+
+vhdlreal operator %(const vhdlreal& r1, const vhdlreal& r2) {
     return vhdlreal(fmod(r1.as_double(), r2.as_double()));
-    }
-    vhdlreal pow(const vhdlreal& r1, const vhdlreal& r2)
-        {
-        return vhdlreal(pow(r1.as_double(), r2.as_double()));
-    }
+}
 
 
-    vhdlreal operator - (const vhdlreal &r) {
+vhdlreal pow(const vhdlreal& r1, const vhdlreal& r2) {
+    return vhdlreal(pow(r1.as_double(), r2.as_double()));
+}
+
+
+vhdlreal operator -(const vhdlreal& r) {
     return vhdlreal(-r.as_double());
-    }
+}

@@ -34,8 +34,7 @@ struct yyltype
 {
     unsigned   first_line;
     const char *text;
-    yyltype()
-    {
+    yyltype() {
         first_line = 1;
         text       = "";
     }
