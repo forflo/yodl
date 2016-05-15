@@ -25,35 +25,35 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include "vhdlpp_config.h"
-# include "vhdlint.h"
-# include "vhdlreal.h"
-# include "compiler.h"
-# include "parse_api.h"
-# include "parse_misc.h"
-# include "architec.h"
-# include "expression.h"
-# include "sequential.h"
-# include "subprogram.h"
-# include "package.h"
-# include "vsignal.h"
-# include "vtype.h"
-# include "std_funcs.h"
-# include "std_types.h"
-# include <cstdarg>
-# include <cstring>
-# include <list>
-# include <stack>
-# include <map>
-# include <vector>
-# include "parse_types.h"
-# include <ivl_assert.h>
-# include <assert.h>
+#include <cstdarg>
+#include <cstring>
+#include <list>
+#include <stack>
+#include <map>
+#include <vector>
+#include <ivl_assert.h>
+#include <assert.h>
 
-inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where)
-{
-      tmp->set_lineno(where.first_line);
-      tmp->set_file(filename_strings.make(where.text));
+#include "vhdlpp_config.h"
+#include "vhdlint.h"
+#include "vhdlreal.h"
+#include "compiler.h"
+#include "parse_api.h"
+#include "parse_misc.h"
+#include "architec.h"
+#include "expression.h"
+#include "sequential.h"
+#include "subprogram.h"
+#include "package.h"
+#include "vsignal.h"
+#include "vtype.h"
+#include "std_funcs.h"
+#include "std_types.h"
+#include "parse_types.h"
+
+inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where) {
+    tmp->set_lineno(where.first_line);
+    tmp->set_file(filename_strings.make(where.text));
 }
 
 
@@ -65,18 +65,22 @@ inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where)
   (Current).first_line   = (Rhs)[1].first_line;      \
   (Current).text         = file_path; /* (Rhs)[1].text; */ } while (0)
 
-static void yyerror(YYLTYPE*yyllocp,yyscan_t yyscanner,const char*file_path,bool, const char*msg);
+static void yyerror(YYLTYPE*yyllocp,
+        yyscan_t yyscanner,
+        const char*file_path,
+        bool, 
+        const char*msg);
 
 int parse_errors = 0;
 int parse_sorrys = 0;
 
 /* The parser calls yylex to get the next lexical token. It is only
  * called by the bison-generated parser.  */
-extern int yylex(union YYSTYPE*yylvalp,YYLTYPE*yyllocp,yyscan_t yyscanner);
+extern int yylex(union YYSTYPE*yylvalp, YYLTYPE*yyllocp, yyscan_t yyscanner);
 
 /* Create an initial scope that collects all the global
  * declarations. Also save a stack of previous scopes, as a way to
- * manage lexical scopes.  */
+ * manage lexical scopes. */
 static ActiveScope*active_scope = new ActiveScope;
 static stack<ActiveScope*> scope_stack;
 static SubprogramHeader*active_sub = NULL;
@@ -108,7 +112,7 @@ static bool is_subprogram_param(perm_string name) {
 }
 
 void preload_global_types(void) {
-      generate_global_types(active_scope);
+    generate_global_types(active_scope);
 }
 
 //Remove the scope created at the beginning of parser's work.
@@ -122,8 +126,9 @@ static void delete_global_scope(void) {
 //delete global entities that were gathered over the parsing process
 static void delete_design_entities(void) {
     for(map<perm_string,Entity*>::iterator cur = design_entities.begin()
-    ; cur != design_entities.end(); ++cur)
-      delete cur->second;
+            ; cur != design_entities.end(); 
+            ++cur)
+        delete cur->second;
 }
 
 //clean the mess caused by the parser
@@ -135,7 +140,7 @@ void parser_cleanup(void) {
 }
 
 const VType*parse_type_by_name(perm_string name) {
-      return active_scope->find_type(name);
+    return active_scope->find_type(name);
 }
 
 // This function is called when an aggregate expression is detected by
@@ -149,36 +154,38 @@ const VType*parse_type_by_name(perm_string name) {
 // primary and fix the parse by returning an Expression instead of an
 // ExpAggregate.
 static Expression*aggregate_or_primary(const YYLTYPE&loc, std::list<ExpAggregate::element_t*>*el) {
-      if (el->size() != 1) {
-	    ExpAggregate*tmp = new ExpAggregate(el);
-	    FILE_NAME(tmp,loc);
-	    return tmp;
-      }
+    if (el->size() != 1) {
+        ExpAggregate*tmp = new ExpAggregate(el);
+        FILE_NAME(tmp,loc);
+        return tmp;
+    }
 
-      ExpAggregate::element_t*el1 = el->front();
-      if (el1->count_choices() > 0) {
-	    ExpAggregate*tmp = new ExpAggregate(el);
-	    FILE_NAME(tmp,loc);
-	    return tmp;
-      }
+    ExpAggregate::element_t*el1 = el->front();
+    if (el1->count_choices() > 0) {
+        ExpAggregate*tmp = new ExpAggregate(el);
+        FILE_NAME(tmp,loc);
+        return tmp;
+    }
 
-      return el1->extract_expression();
+    return el1->extract_expression();
 }
 
-static list<VTypeRecord::element_t*>* 
-        record_elements(list<perm_string>*names, const VType*type) {
-      list<VTypeRecord::element_t*>*res = new list<VTypeRecord::element_t*>;
+static list<VTypeRecord::element_t*>* record_elements(
+        list<perm_string>*names, 
+        const VType*type) {
 
-      for (list<perm_string>::iterator cur = names->begin()
-		 ; cur != names->end() ; ++cur) {
-	    res->push_back(new VTypeRecord::element_t(*cur, type));
-      }
+    list<VTypeRecord::element_t*>*res = new list<VTypeRecord::element_t*>;
 
-      return res;
+    for (list<perm_string>::iterator cur = names->begin()
+            ; cur != names->end() 
+            ; ++cur) {
+        res->push_back(new VTypeRecord::element_t(*cur, type));
+    }
+
+    return res;
 }
 
-static void touchup_interface_for_functions(std::list<InterfacePort*>*ports)
-{
+static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
       for (list<InterfacePort*>::iterator cur = ports->begin()
 		 ; cur != ports->end() ; ++cur) {
 	    InterfacePort*curp = *cur;
@@ -188,66 +195,64 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports)
 }
 
 %}
-
-
 %union {
-      port_mode_t port_mode;
+    port_mode_t port_mode;
 
-      char*text;
+    char*text;
 
-      std::list<perm_string>* name_list;
+    std::list<perm_string>* name_list;
 
-      bool flag;
-      int64_t uni_integer;
-      double  uni_real;
+    bool flag;
+    int64_t uni_integer;
+    double  uni_real;
 
-      Expression*expr;
-      std::list<Expression*>* expr_list;
+    Expression*expr;
+    std::list<Expression*>* expr_list;
 
-      SequentialStmt* sequ;
-      std::list<SequentialStmt*>*sequ_list;
+    SequentialStmt* sequ;
+    std::list<SequentialStmt*>*sequ_list;
 
-      IfSequential::Elsif*elsif;
-      std::list<IfSequential::Elsif*>*elsif_list;
+    IfSequential::Elsif*elsif;
+    std::list<IfSequential::Elsif*>*elsif_list;
 
-      ExpConditional::case_t*exp_options;
-      std::list<ExpConditional::case_t*>*exp_options_list;
+    ExpConditional::case_t*exp_options;
+    std::list<ExpConditional::case_t*>*exp_options_list;
 
-      CaseSeqStmt::CaseStmtAlternative* case_alt;
-      std::list<CaseSeqStmt::CaseStmtAlternative*>* case_alt_list;
+    CaseSeqStmt::CaseStmtAlternative* case_alt;
+    std::list<CaseSeqStmt::CaseStmtAlternative*>* case_alt_list;
 
-      named_expr_t*named_expr;
-      std::list<named_expr_t*>*named_expr_list;
-      entity_aspect_t* entity_aspect;
-      instant_list_t* instantiation_list;
-      std::pair<instant_list_t*, ExpName*>* component_specification;
+    named_expr_t*named_expr;
+    std::list<named_expr_t*>*named_expr_list;
+    entity_aspect_t* entity_aspect;
+    instant_list_t* instantiation_list;
+    std::pair<instant_list_t*, ExpName*>* component_specification;
 
-      const VType* vtype;
+    const VType* vtype;
 
-      ExpRange*range;
-      std::list<ExpRange*>*range_list;
-      ExpRange::range_dir_t range_dir;
+    ExpRange*range;
+    std::list<ExpRange*>*range_list;
+    ExpRange::range_dir_t range_dir;
 
-      ExpArithmetic::fun_t arithmetic_op;
-      std::list<struct adding_term>*adding_terms;
+    ExpArithmetic::fun_t arithmetic_op;
+    std::list<struct adding_term>*adding_terms;
 
-      ExpAggregate::choice_t*choice;
-      std::list<ExpAggregate::choice_t*>*choice_list;
-      ExpAggregate::element_t*element;
-      std::list<ExpAggregate::element_t*>*element_list;
+    ExpAggregate::choice_t*choice;
+    std::list<ExpAggregate::choice_t*>*choice_list;
+    ExpAggregate::element_t*element;
+    std::list<ExpAggregate::element_t*>*element_list;
 
-      std::list<VTypeRecord::element_t*>*record_elements;
+    std::list<VTypeRecord::element_t*>*record_elements;
 
-      std::list<InterfacePort*>* interface_list;
+    std::list<InterfacePort*>* interface_list;
 
-      Architecture::Statement* arch_statement;
-      std::list<Architecture::Statement*>* arch_statement_list;
+    Architecture::Statement* arch_statement;
+    std::list<Architecture::Statement*>* arch_statement_list;
 
-      ReportStmt::severity_t severity;
+    ReportStmt::severity_t severity;
 
-      SubprogramHeader*subprogram;
+    SubprogramHeader*subprogram;
 
-      file_open_info_t*file_info;
+    file_open_info_t*file_info;
 };
 
   /* The keywords are all tokens. */
@@ -413,10 +418,9 @@ architecture_body_start
 	arc_scope = active_scope;
       }
   ;
-/*
- * The architecture_statement_part is a list of concurrent
- * statements.
- */
+
+/* The architecture_statement_part is a list of concurrent
+ * statements. */
 architecture_statement_part
   : architecture_statement_part concurrent_statement
       { std::list<Architecture::Statement*>*tmp = $1;
