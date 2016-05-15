@@ -645,7 +645,6 @@ GIT
 PS2PDF
 MAN
 XGPERF
-WINDRES
 STRIP
 DLLTOOL
 AR
@@ -4480,98 +4479,6 @@ else
   STRIP="$ac_cv_prog_STRIP"
 fi
 
-if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}windres", so it can be a program name with args.
-set dummy ${ac_tool_prefix}windres; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_WINDRES+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$WINDRES"; then
-  ac_cv_prog_WINDRES="$WINDRES" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_WINDRES="${ac_tool_prefix}windres"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-WINDRES=$ac_cv_prog_WINDRES
-if test -n "$WINDRES"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $WINDRES" >&5
-$as_echo "$WINDRES" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_WINDRES"; then
-  ac_ct_WINDRES=$WINDRES
-  # Extract the first word of "windres", so it can be a program name with args.
-set dummy windres; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ac_ct_WINDRES+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ac_ct_WINDRES"; then
-  ac_cv_prog_ac_ct_WINDRES="$ac_ct_WINDRES" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_WINDRES="windres"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_WINDRES=$ac_cv_prog_ac_ct_WINDRES
-if test -n "$ac_ct_WINDRES"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_WINDRES" >&5
-$as_echo "$ac_ct_WINDRES" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_ct_WINDRES" = x; then
-    WINDRES="false"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    WINDRES=$ac_ct_WINDRES
-  fi
-else
-  WINDRES="$ac_cv_prog_WINDRES"
-fi
-
 for ac_prog in gperf
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -7285,7 +7192,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
 $as_echo "ok" >&6; }
 
-ac_config_files="$ac_config_files Makefile ivlpp/Makefile vhdlpp/Makefile vvp/Makefile vpi/Makefile driver/Makefile driver-vpi/Makefile cadpli/Makefile libveriuser/Makefile tgt-null/Makefile tgt-stub/Makefile tgt-vvp/Makefile tgt-vhdl/Makefile tgt-fpga/Makefile tgt-verilog/Makefile tgt-pal/Makefile tgt-vlog95/Makefile tgt-pcb/Makefile tgt-blif/Makefile tgt-sizer/Makefile"
+ac_config_files="$ac_config_files vhdlpp/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -7980,26 +7887,7 @@ do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "vhdlpp/vhdlpp_config.h") CONFIG_HEADERS="$CONFIG_HEADERS vhdlpp/vhdlpp_config.h" ;;
-    "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "ivlpp/Makefile") CONFIG_FILES="$CONFIG_FILES ivlpp/Makefile" ;;
     "vhdlpp/Makefile") CONFIG_FILES="$CONFIG_FILES vhdlpp/Makefile" ;;
-    "vvp/Makefile") CONFIG_FILES="$CONFIG_FILES vvp/Makefile" ;;
-    "vpi/Makefile") CONFIG_FILES="$CONFIG_FILES vpi/Makefile" ;;
-    "driver/Makefile") CONFIG_FILES="$CONFIG_FILES driver/Makefile" ;;
-    "driver-vpi/Makefile") CONFIG_FILES="$CONFIG_FILES driver-vpi/Makefile" ;;
-    "cadpli/Makefile") CONFIG_FILES="$CONFIG_FILES cadpli/Makefile" ;;
-    "libveriuser/Makefile") CONFIG_FILES="$CONFIG_FILES libveriuser/Makefile" ;;
-    "tgt-null/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-null/Makefile" ;;
-    "tgt-stub/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-stub/Makefile" ;;
-    "tgt-vvp/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-vvp/Makefile" ;;
-    "tgt-vhdl/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-vhdl/Makefile" ;;
-    "tgt-fpga/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-fpga/Makefile" ;;
-    "tgt-verilog/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-verilog/Makefile" ;;
-    "tgt-pal/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-pal/Makefile" ;;
-    "tgt-vlog95/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-vlog95/Makefile" ;;
-    "tgt-pcb/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-pcb/Makefile" ;;
-    "tgt-blif/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-blif/Makefile" ;;
-    "tgt-sizer/Makefile") CONFIG_FILES="$CONFIG_FILES tgt-sizer/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

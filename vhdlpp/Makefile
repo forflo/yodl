@@ -35,7 +35,7 @@ YACC = bison
 INCLUDE_PATH = -I. -I.. -I../libmisc
 
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
-CXXFLAGS = -Wall -Wextra -Wshadow   -g -O2
+CXXFLAGS = -Wall -Wextra -Wshadow --std=c++11 -g -O2
 LDFLAGS =  
 LIBS = -lm -lbz2 -lz -lpthread -lhistory -lreadline  
 

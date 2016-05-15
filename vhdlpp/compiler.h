@@ -1,5 +1,6 @@
 #ifndef IVL_compiler_H
 #define IVL_compiler_H
+
 /*
  * Copyright (c) 2011-2014 Stephen Williams (steve@icarus.com)
  *
@@ -22,12 +23,12 @@
 # include  "StringHeap.h"
 # include  <fstream>
 
-const int GN_KEYWORD_2008  = 0x0001;
+const int GN_KEYWORD_2008 = 0x0001;
 
 // TRUE if processing is supposed to dump progress to stderr.
 extern bool verbose_flag;
 
-extern bool debug_elaboration;
+extern bool          debug_elaboration;
 extern std::ofstream debug_log_file;
 
 // Stores strings created by the lexer

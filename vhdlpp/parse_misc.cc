@@ -33,135 +33,158 @@
 
 using namespace std;
 
-void bind_entity_to_active_scope(const char*ename, ActiveScope*scope)
+void bind_entity_to_active_scope(const char *ename, ActiveScope *scope)
 {
-      perm_string ekey = lex_strings.make(ename);
-      std::map<perm_string,Entity*>::const_iterator idx = design_entities.find(ekey);
-      if (idx == design_entities.end()) {
-	    return;
-      }
+    perm_string ekey = lex_strings.make(ename);
+    std::map < perm_string, Entity * > ::const_iterator idx = design_entities.find(ekey);
 
-      scope->bind(idx->second);
+    if (idx == design_entities.end())
+    {
+        return;
+    }
+
+    scope->bind(idx->second);
 }
 
-void bind_architecture_to_entity(const char*ename, Architecture*arch)
-{
-      perm_string ekey = lex_strings.make(ename);
-      std::map<perm_string,Entity*>::const_iterator idx = design_entities.find(ekey);
-      if (idx == design_entities.end()) {
-	    cerr << arch->get_fileline() << ": error: No entity " << ekey
-		 << " for architecture " << arch->get_name()
-		 << "." << endl;
-	    parse_errors += 1;
-	    return;
-      }
 
-      /* FIXME: entities can have multiple architectures attached to them
-      This is to be configured by VHDL's configurations (not yet implemented) */
-      Architecture*old_arch = idx->second->add_architecture(arch);
-      if (old_arch != arch) {
-	    cerr << arch->get_fileline() << ": warning: "
-		 << "Architecture " << arch->get_name()
-		 << " for entity " << idx->first
-		 << " is already defined here: " << old_arch->get_fileline() << endl;
-	    parse_errors += 1;
-      }
+void bind_architecture_to_entity(const char *ename, Architecture *arch)
+{
+    perm_string ekey = lex_strings.make(ename);
+    std::map < perm_string, Entity * > ::const_iterator idx = design_entities.find(ekey);
+
+    if (idx == design_entities.end())
+    {
+        cerr << arch->get_fileline() << ": error: No entity " << ekey
+             << " for architecture " << arch->get_name()
+             << "." << endl;
+        parse_errors += 1;
+        return;
+    }
+
+    /* FIXME: entities can have multiple architectures attached to them
+     * This is to be configured by VHDL's configurations (not yet implemented) */
+    Architecture *old_arch = idx->second->add_architecture(arch);
+    if (old_arch != arch)
+    {
+        cerr << arch->get_fileline() << ": warning: "
+             << "Architecture " << arch->get_name()
+             << " for entity " << idx->first
+             << " is already defined here: " << old_arch->get_fileline() << endl;
+        parse_errors += 1;
+    }
 }
 
-static const VType* calculate_subtype_array(const YYLTYPE&loc, const char*base_name,
-					    ScopeBase* /* scope */,
-					    Expression*array_left,
-					    bool downto,
-					    Expression*array_right)
+
+static const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base_name,
+                                            ScopeBase * /* scope */,
+                                            Expression *array_left,
+                                            bool downto,
+                                            Expression *array_right)
 {
-      const VType*base_type = parse_type_by_name(lex_strings.make(base_name));
+    const VType *base_type = parse_type_by_name(lex_strings.make(base_name));
 
-      if (base_type == 0) {
-	    errormsg(loc, "Unable to find base type %s of array.\n", base_name);
-	    return 0;
-      }
+    if (base_type == 0)
+    {
+        errormsg(loc, "Unable to find base type %s of array.\n", base_name);
+        return 0;
+    }
 
-      assert(array_left==0 || array_right!=0);
+    assert(array_left == 0 || array_right != 0);
 
-      // unfold typedef, there might be VTypeArray inside
-      const VType*origin_type = base_type;
-      const VTypeDef*type_def = dynamic_cast<const VTypeDef*> (base_type);
-      if (type_def) {
-          base_type = type_def->peek_definition();
-      }
+    // unfold typedef, there might be VTypeArray inside
+    const VType    *origin_type = base_type;
+    const VTypeDef *type_def    = dynamic_cast < const VTypeDef * > (base_type);
+    if (type_def)
+    {
+        base_type = type_def->peek_definition();
+    }
 
-      const VTypeArray*base_array = dynamic_cast<const VTypeArray*> (base_type);
-      if (base_array) {
-	    assert(array_left && array_right);
+    const VTypeArray *base_array = dynamic_cast < const VTypeArray * > (base_type);
+    if (base_array)
+    {
+        assert(array_left && array_right);
 
-	    vector<VTypeArray::range_t> range (base_array->dimensions());
+        vector < VTypeArray::range_t > range(base_array->dimensions());
 
-	      // For now, I only know how to handle 1 dimension
-	    assert(base_array->dimensions() == 1);
+        // For now, I only know how to handle 1 dimension
+        assert(base_array->dimensions() == 1);
 
-	    range[0] = VTypeArray::range_t(array_left, array_right, downto);
+        range[0] = VTypeArray::range_t(array_left, array_right, downto);
 
-	      // use typedef as the element type if possible
-	    const VType*element = type_def ? origin_type : base_array->element_type();
+        // use typedef as the element type if possible
+        const VType *element = type_def ? origin_type : base_array->element_type();
 
-	    VTypeArray*subtype = new VTypeArray(element, range,
-                                                base_array->signed_vector());
-	    subtype->set_parent_type(base_array);
-	    return subtype;
-      }
+        VTypeArray *subtype = new VTypeArray(element, range,
+                                             base_array->signed_vector());
 
-      return base_type;
+        subtype->set_parent_type(base_array);
+        return subtype;
+    }
+
+    return base_type;
 }
 
-const VType* calculate_subtype_array(const YYLTYPE&loc, const char*base_name,
-				     ScopeBase*scope, list<ExpRange*>*ranges)
-{
-      if (ranges->size() == 1) {
-	    ExpRange*tmpr = ranges->front();
-	    Expression*lef = tmpr->left();
-	    Expression*rig = tmpr->right();
-	    return calculate_subtype_array(loc, base_name, scope,
-					   lef, tmpr->direction(), rig);
-      }
 
-      sorrymsg(loc, "Don't know how to handle multiple ranges here.\n");
-      return 0;
+const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base_name,
+                                     ScopeBase *scope, list < ExpRange * > *ranges)
+{
+    if (ranges->size() == 1)
+    {
+        ExpRange   *tmpr = ranges->front();
+        Expression *lef  = tmpr->left();
+        Expression *rig  = tmpr->right();
+        return calculate_subtype_array(loc, base_name, scope,
+                                       lef, tmpr->direction(), rig);
+    }
+
+    sorrymsg(loc, "Don't know how to handle multiple ranges here.\n");
+    return 0;
 }
 
-const VType* calculate_subtype_range(const YYLTYPE&loc, const char*base_name,
-				     ScopeBase*scope,
-				     Expression*range_left,
-				     int direction,
-				     Expression*range_right)
+
+const VType *calculate_subtype_range(const YYLTYPE& loc, const char *base_name,
+                                     ScopeBase *scope,
+                                     Expression *range_left,
+                                     int direction,
+                                     Expression *range_right)
 {
-      const VType*base_type = parse_type_by_name(lex_strings.make(base_name));
+    const VType *base_type = parse_type_by_name(lex_strings.make(base_name));
 
-      if (base_type == 0) {
-	    errormsg(loc, "Unable to find base type %s of range.\n", base_name);
-	    return 0;
-      }
+    if (base_type == 0)
+    {
+        errormsg(loc, "Unable to find base type %s of range.\n", base_name);
+        return 0;
+    }
 
-      assert(range_left && range_right);
+    assert(range_left && range_right);
 
-      int64_t left_val, right_val;
-      VTypeRange*subtype;
+    int64_t    left_val, right_val;
+    VTypeRange *subtype;
 
-      if(range_left->evaluate(scope, left_val) && range_right->evaluate(scope, right_val)) {
-	    subtype = new VTypeRangeConst(base_type, left_val, right_val);
-      } else {
-	    subtype = new VTypeRangeExpr(base_type, range_left, range_right, direction);
-      }
+    if (range_left->evaluate(scope, left_val) && range_right->evaluate(scope, right_val))
+    {
+        subtype = new VTypeRangeConst(base_type, left_val, right_val);
+    }
+    else
+    {
+        subtype = new VTypeRangeExpr(base_type, range_left, range_right, direction);
+    }
 
-      return subtype;
+    return subtype;
 }
 
-ExpString*parse_char_enums(const char*str)
+
+ExpString *parse_char_enums(const char *str)
 {
-      if(!strcasecmp(str, "LF"))
-	    return new ExpString("\\n");
+    if (!strcasecmp(str, "LF"))
+    {
+        return new ExpString("\\n");
+    }
 
-      if(!strcasecmp(str, "CR"))
-	    return new ExpString("\\r");
+    if (!strcasecmp(str, "CR"))
+    {
+        return new ExpString("\\r");
+    }
 
-      return NULL;
+    return NULL;
 }

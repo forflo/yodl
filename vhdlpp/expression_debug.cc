@@ -27,114 +27,138 @@
 
 using namespace std;
 
-void ExpArithmetic::dump(ostream&out, int indent) const
+void ExpArithmetic::dump(ostream& out, int indent) const
 {
-      const char*fun_name = "?";
-      switch (fun_) {
-	  case PLUS:
-	    fun_name = "+";
-	    break;
-	  case MINUS:
-	    fun_name = "-";
-	    break;
-	  case MULT:
-	    fun_name = "*";
-	    break;
-	  case DIV:
-	    fun_name = "/";
-	    break;
-	  case MOD:
-	    fun_name = "mod";
-	    break;
-	  case REM:
-	    fun_name = "rem";
-	    break;
-	  case POW:
-	    fun_name = "**";
-	    break;
-	  case xCONCAT:
-	    ivl_assert(*this, 0);
-	    break;
-      }
+    const char *fun_name = "?";
 
-      out << setw(indent) << "" << "Arithmetic " << fun_name
-	  << " at " << get_fileline() << endl;
-      dump_operands(out, indent+4);
+    switch (fun_)
+    {
+    case PLUS:
+        fun_name = "+";
+        break;
+
+    case MINUS:
+        fun_name = "-";
+        break;
+
+    case MULT:
+        fun_name = "*";
+        break;
+
+    case DIV:
+        fun_name = "/";
+        break;
+
+    case MOD:
+        fun_name = "mod";
+        break;
+
+    case REM:
+        fun_name = "rem";
+        break;
+
+    case POW:
+        fun_name = "**";
+        break;
+
+    case xCONCAT:
+        ivl_assert(*this, 0);
+        break;
+    }
+
+    out << setw(indent) << "" << "Arithmetic " << fun_name
+        << " at " << get_fileline() << endl;
+    dump_operands(out, indent + 4);
 }
 
-void ExpConcat::dump(ostream&out, int indent) const
+
+void ExpConcat::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "Concatenation at " << get_fileline() << endl;
-      operand1_->dump(out, indent);
-      operand2_->dump(out, indent);
+    out << setw(indent) << "" << "Concatenation at " << get_fileline() << endl;
+    operand1_->dump(out, indent);
+    operand2_->dump(out, indent);
 }
 
-void ExpCast::dump(ostream&out, int indent) const
+
+void ExpCast::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "Casting ";
-      base_->dump(out, indent+4);
-      out << " to ";
-      type_->emit_def(out, empty_perm_string);
+    out << setw(indent) << "" << "Casting ";
+    base_->dump(out, indent + 4);
+    out << " to ";
+    type_->emit_def(out, empty_perm_string);
 }
 
-void ExpNew::dump(ostream&out, int indent) const
+
+void ExpNew::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "New dynamic array size: " << endl;
-      size_->dump(out, indent);
+    out << setw(indent) << "" << "New dynamic array size: " << endl;
+    size_->dump(out, indent);
 }
 
-void ExpScopedName::dump(ostream&out, int indent) const
+
+void ExpScopedName::dump(ostream& out, int indent) const
 {
     out << setw(indent) << "" << "Scoped name expression: " << endl;
     out << "    scope " << scope_name_ << " " << scope_ << endl;
-    name_->dump(out, indent+4);
+    name_->dump(out, indent + 4);
 }
 
-void ExpShift::dump(ostream&out, int indent) const
-{
-      const char*fun_name = "?";
-      switch (shift_) {
-	  case SRL:
-	    fun_name = "srl";
-	    break;
-	  case SLL:
-	    fun_name = "sll";
-	    break;
-	  case SLA:
-	    fun_name = "sla";
-	    break;
-	  case SRA:
-	    fun_name = "sra";
-	    break;
-	  case ROR:
-	    fun_name = "ror";
-	    break;
-	  case ROL:
-	    fun_name = "rol";
-	    break;
-      }
 
-      out << setw(indent) << "" << "Shift " << fun_name
-	  << " at " << get_fileline() << endl;
-      dump_operands(out, indent+4);
+void ExpShift::dump(ostream& out, int indent) const
+{
+    const char *fun_name = "?";
+
+    switch (shift_)
+    {
+    case SRL:
+        fun_name = "srl";
+        break;
+
+    case SLL:
+        fun_name = "sll";
+        break;
+
+    case SLA:
+        fun_name = "sla";
+        break;
+
+    case SRA:
+        fun_name = "sra";
+        break;
+
+    case ROR:
+        fun_name = "ror";
+        break;
+
+    case ROL:
+        fun_name = "rol";
+        break;
+    }
+
+    out << setw(indent) << "" << "Shift " << fun_name
+        << " at " << get_fileline() << endl;
+    dump_operands(out, indent + 4);
 }
 
-void ExpTime::dump(ostream&out, int indent) const
+
+void ExpTime::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "Time ";
-      write_to_stream(out);
+    out << setw(indent) << "" << "Time ";
+    write_to_stream(out);
 }
 
-void ExpRange::dump(ostream&out, int indent) const
+
+void ExpRange::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "Range ";
-      write_to_stream(out);
+    out << setw(indent) << "" << "Range ";
+    write_to_stream(out);
 }
 
-void ExpDelay::dump(ostream&out, int indent) const
+
+void ExpDelay::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "Expression ";
-      expr_->write_to_stream(out);
-      out << " delayed by ";
-      delay_->write_to_stream(out);
+    out << setw(indent) << "" << "Expression ";
+    expr_->write_to_stream(out);
+    out << " delayed by ";
+    delay_->write_to_stream(out);
 }

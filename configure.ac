@@ -13,17 +13,15 @@ AC_PROG_CXX
 AC_PROG_RANLIB
 AC_CHECK_TOOL(LD, ld, false)
 AC_CHECK_TOOL(AR, ar, false)
-AC_CHECK_TOOL(DLLTOOL, dlltool, false)
 AC_CHECK_TOOL(STRIP, strip, true)
-AC_CHECK_TOOL(WINDRES,windres,false)
-AC_CHECK_PROGS(XGPERF,gperf,none)
-AC_CHECK_PROGS(MAN,man,none)
-AC_CHECK_PROGS(PS2PDF,ps2pdf,none)
-AC_CHECK_PROGS(GIT,git,none)
+AC_CHECK_PROGS(XGPERF, gperf, none)
+AC_CHECK_PROGS(MAN, man, none)
+AC_CHECK_PROGS(PS2PDF, ps2pdf, none)
+AC_CHECK_PROGS(GIT, git, none)
 if test "$XGPERF" = "none"
 then
 	echo ""
-        echo "*** Warning: No suitable gperf found. ***"
+    echo "*** Warning: No suitable gperf found. ***"
 	echo "    The gperf package is essential for building ivl from"
 	echo "    git sources, or modifying the parse engine of ivl itself."
 	echo "    You can get away without it when simply building from"
@@ -49,9 +47,6 @@ fi
 
 AC_EXEEXT
 AC_SUBST(EXEEXT)
-
-# Combined check for Microsoft-related bogosities; sets WIN32 if found
-AX_WIN32
 
 # Check to see if we are using the Sun compiler. If so then configure
 # some of the flags to match the Sun compiler syntax. This is also used
@@ -84,7 +79,7 @@ AC_LANG(C++)
 AC_ARG_WITH([m32], [AC_HELP_STRING([--with-m32], [Compile 32-bit on x86_64])],
             [ with_m32=yes ],[ with_m32=no ])
 
-AS_IF( [test "x$with_m32" = xyes],
+AS_IF([test "x$with_m32" = xyes],
     [ AC_MSG_NOTICE([Compiling for 32-bit environment - needs gcc on x86_64])
       LDTARGETFLAGS="-m elf_i386"
       CTARGETFLAGS="-m32"
@@ -178,7 +173,7 @@ AC_MSG_RESULT($do_times)
 # Look for a dl library to use. First look for the standard dlopen
 # functions, and failing that look for the HP specific shl_load function.
 
-AC_CHECK_HEADERS(dlfcn.h dl.h, break)
+AC_CHECK_HEADERS(dlfcn.h dl.h break)
 
 DLLIB=''
 AC_CHECK_LIB(dl,dlopen,[DLLIB=-ldl])
@@ -196,19 +191,6 @@ AC_PROG_INSTALL
 
 AC_LANG(C)
 AC_C_BIGENDIAN
-
-# $host
-
-AX_ENABLE_SUFFIX
-
-AX_LD_EXTRALIBS
-
-# Compiler option for position independent code, needed when making shared objects.
-# CFLAGS inherited by cadpli/Makefile?
-AX_C_PICFLAG
-
-# may modify LDFLAGS
-AX_C99_STRTOD
 
 # Processor specific compile flags
 case "${host}" in
@@ -229,10 +211,13 @@ esac
 file64_support=''
 case "${host}" in
     *-*-linux*)
-	AC_DEFINE([_LARGEFILE_SOURCE], [1], [Indicates LFS (i.e. the ability to create files larger than 2 GiB on 32-bit operating systems).])
+	AC_DEFINE([_LARGEFILE_SOURCE], 
+              [1], 
+              [Indicates LFS (i.e. the ability to create files larger than 2 GiB on 32-bit operating systems).])
 	file64_support='-D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64'
 	;;
 esac
+
 AC_SUBST(file64_support)
 
 # fstapi.c (from GTKWave) needs this define.
@@ -247,7 +232,7 @@ AC_CHECK_FUNCS(fopen64)
 # We requested C99 mode earlier with AC_PROG_CC_C99.
 AC_SEARCH_LIBS([lround], [m], [AC_DEFINE([HAVE_LROUND], [1], [])])
 AC_SEARCH_LIBS([llround], [m], [AC_DEFINE([HAVE_LLROUND], [1], [])])
-AC_SEARCH_LIBS([nan], [m], [AC_DEFINE([HAVE_NAN], [1]), []])
+AC_SEARCH_LIBS([nan], [m], [AC_DEFINE([HAVE_NAN], [1], [])])
 AC_SEARCH_LIBS([fmin], [m], [AC_DEFINE([HAVE_FMIN], [1], [])])
 AC_SEARCH_LIBS([fmax], [m], [AC_DEFINE([HAVE_FMAX], [1], [])])
 
@@ -260,39 +245,24 @@ AC_SEARCH_LIBS([fmax], [m], [AC_DEFINE([HAVE_FMAX], [1], [])])
 # that reason we don't care.
 AC_LANG(C++)
 AC_MSG_CHECKING(if uint64_t and unsigned long are identical)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include "inttypes.h"
-static bool check(unsigned long val)
-{
-  return val != 0;
-}
-static bool check(uint64_t val)
-{
-  return val != 0;
-}]], [[unsigned long ulval = 1;
-bool result = check(ulval);
-uint64_t uival = 1;
-result &= check(uival);
-return !result;]])],
-   [AC_MSG_RESULT(no)],
-   [AC_DEFINE([UINT64_T_AND_ULONG_SAME], [1]) AC_MSG_RESULT(yes)])
-
-# Linker option used when compiling the target
-AX_LD_RDYNAMIC
-
-# linker options when building a shared library
-AX_LD_SHAREDLIB_OPTS
-
-#######################
-## test for underscores. The vpi module loader needs to know this
-## in order to know the name of the start symbol for the .vpi module.
-#######################
-
-AX_C_UNDERSCORES_LEADING
-AX_C_UNDERSCORES_TRAILING
-
-#######################
-## end of test for underscores
-#######################
+AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([ 
+            #include "inttypes.h"
+            static bool check(unsigned long val) {
+              return val != 0;
+            }
+            static bool check(uint64_t val) {
+              return val != 0;
+            }
+        ],[
+            unsigned long ulval = 1;
+            bool result = check(ulval);
+            uint64_t uival = 1;
+            result &= check(uival);
+            return !result; ])
+    ], [AC_MSG_RESULT(no)],
+    [AC_DEFINE([UINT64_T_AND_ULONG_SAME], [1])
+    AC_MSG_RESULT(yes)])
 
 #######################
 # Sanity check the configured results

@@ -1,5 +1,6 @@
 #ifndef IVL_ivl_assert_H
 #define IVL_ivl_assert_H
+
 /*
  * Copyright (c) 2007-2014 Stephen Williams (steve@icarus.com)
  *
@@ -21,14 +22,14 @@
 
 # include  <cstdlib>
 
-#define ivl_assert(tok, expression)  \
-      do { \
-	    if (! (expression)) { \
-		  cerr << (tok).get_fileline() << ": assert: " \
-		       << __FILE__ << ":" << __LINE__ \
-		       << ": failed assertion " << #expression << endl; \
-		  abort(); \
-	    } \
-      } while (0)
+#define ivl_assert(tok, expression)                                \
+    do {                                                           \
+        if (!(expression)) {                                       \
+            cerr << (tok).get_fileline() << ": assert: "           \
+                 << __FILE__ << ":" << __LINE__                    \
+                 << ": failed assertion " << # expression << endl; \
+            abort();                                               \
+        }                                                          \
+    } while (0)
 
 #endif /* IVL_ivl_assert_H */

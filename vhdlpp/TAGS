@@ -45,6 +45,12 @@ void InitialStatement::dump(120,3865
 void FinalStatement::dump(127,4057
 void ProcessStatement::dump(134,4245
 
+architec_debug.o,60
+l®l304,11175
+dd306,11205
+Q©Q440,13738
+dd442,13768
+
 architec_elaborate.cc,690
 int Architecture::elaborate(28,1023
 int Architecture::Statement::elaborate(97,3441
@@ -61,21 +67,51 @@ int CondSignalAssignment::elaborate(246,7636
           void operator() name_extractor_t::operator()255,8005
             list<const ExpName*>& name_list_;name_extractor_t::name_list_261,8197
 
-architec_emit.cc,521
-int Scope::emit_signals(31,1098
-int Scope::emit_variables(43,1393
-int Architecture::emit(55,1696
-int Architecture::Statement::emit(119,3883
-int SignalAssignment::emit(127,4134
-int CondSignalAssignment::emit(150,4759
-int ComponentInstantiation::emit(200,5957
-int GenerateStatement::emit_statements(257,7618
-int ForGenerate::emit(268,7959
-int IfGenerate::emit(289,8663
-int StatementList::emit(303,8960
-int InitialStatement::emit(315,9257
-int FinalStatement::emit(324,9476
-int ProcessStatement::emit(341,10011
+architec_elaborate.o,371
+ïff24,5434
+ßff70,6069
+Ùdd86,6331
+Ùdd90,6373
+ßff97,6520
+ßff111,7301
+ßff122,7445
+ßff142,7677
+ßff158,7929
+ßff183,8323
+vv203,8568
+vv208,8619
+vv220,8767
+RR232,8879
+≠ff248,9096
+ßff255,9271
+ßff262,9394
+ßff273,9563
+ßff284,9732
+ßff295,9901
+ßff306,10070
+ßff325,10372
+√dd701,26854
+‰ll821,34190
+‚gg1242,56501
+
+architec_emit.cc,629
+int Scope::emit_signals(32,1111
+int Scope::emit_variables(44,1406
+int print_vector(57,1716
+tree<string> Architecture::to_tree(70,1969
+int Architecture::emit_dot(75,2047
+int Architecture::emit(92,2470
+int Architecture::Statement::emit(156,4657
+int SignalAssignment::emit(164,4908
+int CondSignalAssignment::emit(187,5533
+int ComponentInstantiation::emit(237,6731
+int GenerateStatement::emit_statements(294,8392
+int ForGenerate::emit(305,8733
+int IfGenerate::emit(326,9437
+int StatementList::emit(340,9734
+int InitialStatement::emit(352,10031
+int FinalStatement::emit(361,10250
+int ProcessStatement::emit(378,10785
 
 architec.h,3478
 #define IVL_architec_H2,23
@@ -84,56 +120,56 @@ class Architecture 44,1371
       perm_string get_name(Architecture::get_name67,2080
       void set_cur_component(Architecture::set_cur_component73,2362
       void set_cur_process(Architecture::set_cur_process79,2608
-      perm_string name_;Architecture::name_109,3775
-      std::list<Architecture::Statement*> statements_;Architecture::statements_111,3853
-      struct genvar_type_t Architecture::genvar_type_t113,3909
-	    perm_string name;Architecture::genvar_type_t::name114,3938
-	    const VType*vtype;Architecture::genvar_type_t::vtype115,3961
-      std::list<genvar_type_t> genvar_type_stack_;Architecture::genvar_type_stack_117,3994
-      struct genvar_emit_t Architecture::genvar_emit_t119,4046
-	    perm_string name;Architecture::genvar_emit_t::name120,4075
-	    const GenerateStatement*gen;Architecture::genvar_emit_t::gen121,4098
-      std::list<genvar_emit_t> genvar_emit_stack_;Architecture::genvar_emit_stack_123,4141
-      ComponentInstantiation*cur_component_;Architecture::cur_component_126,4251
-      ProcessStatement*cur_process_;Architecture::cur_process_129,4354
-class GenerateStatement 136,4534
-      inline perm_string get_name(GenerateStatement::get_name142,4718
-      perm_string name_;GenerateStatement::name_150,4999
-      std::list<Architecture::Statement*> statements_;GenerateStatement::statements_151,5024
-class ForGenerate 154,5083
-      perm_string genvar_;ForGenerate::genvar_166,5459
-      Expression*lsb_;ForGenerate::lsb_167,5486
-      Expression*msb_;ForGenerate::msb_168,5509
-class IfGenerate 171,5536
-      Expression*cond_;IfGenerate::cond_182,5840
-class SignalAssignment 189,5987
-      ExpName*lval_;SignalAssignment::lval_201,6414
-      std::list<Expression*> rval_;SignalAssignment::rval_202,6435
-class CondSignalAssignment 205,6475
-      ExpName*lval_;CondSignalAssignment::lval_216,6847
-      std::list<ExpConditional::case_t*> options_;CondSignalAssignment::options_217,6868
-      std::list<const ExpName*>sens_list_;CondSignalAssignment::sens_list_221,7060
-class ComponentInstantiation 224,7107
-      inline perm_string instance_name(ComponentInstantiation::instance_name239,7697
-      inline perm_string component_name(ComponentInstantiation::component_name240,7763
-      perm_string iname_;ComponentInstantiation::iname_243,7844
-      perm_string cname_;ComponentInstantiation::cname_244,7870
-      std::map<ComponentInstantiation::std::map246,7897
-      std::map<perm_string,Expression*> generic_map_;ComponentInstantiation::generic_map_246,7897
-      std::map<ComponentInstantiation::std::map247,7951
-      std::map<perm_string,Expression*> port_map_;ComponentInstantiation::port_map_247,7951
-class StatementList 250,8006
-      int elaborate(StatementList::elaborate255,8170
-      int emit(StatementList::emit259,8294
-      std::list<SequentialStmt*>& stmt_list(StatementList::stmt_list267,8613
-      std::list<SequentialStmt*> statements_;StatementList::statements_270,8697
-class InitialStatement 275,8871
-      InitialStatement(InitialStatement::InitialStatement277,8931
-class FinalStatement 286,9281
-      FinalStatement(FinalStatement::FinalStatement288,9339
-class ProcessStatement 295,9565
-      perm_string iname_;ProcessStatement::iname_309,10023
-      std::list<Expression*> sensitivity_list_;ProcessStatement::sensitivity_list_310,10049
+      perm_string name_;Architecture::name_111,3825
+      std::list<Architecture::Statement*> statements_;Architecture::statements_113,3903
+      struct genvar_type_t Architecture::genvar_type_t115,3959
+	    perm_string name;Architecture::genvar_type_t::name116,3988
+	    const VType*vtype;Architecture::genvar_type_t::vtype117,4011
+      std::list<genvar_type_t> genvar_type_stack_;Architecture::genvar_type_stack_119,4044
+      struct genvar_emit_t Architecture::genvar_emit_t121,4096
+	    perm_string name;Architecture::genvar_emit_t::name122,4125
+	    const GenerateStatement*gen;Architecture::genvar_emit_t::gen123,4148
+      std::list<genvar_emit_t> genvar_emit_stack_;Architecture::genvar_emit_stack_125,4191
+      ComponentInstantiation*cur_component_;Architecture::cur_component_128,4301
+      ProcessStatement*cur_process_;Architecture::cur_process_131,4404
+class GenerateStatement 138,4584
+      inline perm_string get_name(GenerateStatement::get_name144,4768
+      perm_string name_;GenerateStatement::name_152,5049
+      std::list<Architecture::Statement*> statements_;GenerateStatement::statements_153,5074
+class ForGenerate 156,5133
+      perm_string genvar_;ForGenerate::genvar_168,5509
+      Expression*lsb_;ForGenerate::lsb_169,5536
+      Expression*msb_;ForGenerate::msb_170,5559
+class IfGenerate 173,5586
+      Expression*cond_;IfGenerate::cond_184,5890
+class SignalAssignment 191,6037
+      ExpName*lval_;SignalAssignment::lval_203,6464
+      std::list<Expression*> rval_;SignalAssignment::rval_204,6485
+class CondSignalAssignment 207,6525
+      ExpName*lval_;CondSignalAssignment::lval_218,6897
+      std::list<ExpConditional::case_t*> options_;CondSignalAssignment::options_219,6918
+      std::list<const ExpName*>sens_list_;CondSignalAssignment::sens_list_223,7110
+class ComponentInstantiation 226,7157
+      inline perm_string instance_name(ComponentInstantiation::instance_name241,7747
+      inline perm_string component_name(ComponentInstantiation::component_name242,7813
+      perm_string iname_;ComponentInstantiation::iname_245,7894
+      perm_string cname_;ComponentInstantiation::cname_246,7920
+      std::map<ComponentInstantiation::std::map248,7947
+      std::map<perm_string,Expression*> generic_map_;ComponentInstantiation::generic_map_248,7947
+      std::map<ComponentInstantiation::std::map249,8001
+      std::map<perm_string,Expression*> port_map_;ComponentInstantiation::port_map_249,8001
+class StatementList 252,8056
+      int elaborate(StatementList::elaborate257,8220
+      int emit(StatementList::emit261,8344
+      std::list<SequentialStmt*>& stmt_list(StatementList::stmt_list269,8663
+      std::list<SequentialStmt*> statements_;StatementList::statements_272,8747
+class InitialStatement 277,8921
+      InitialStatement(InitialStatement::InitialStatement279,8981
+class FinalStatement 288,9331
+      FinalStatement(FinalStatement::FinalStatement290,9389
+class ProcessStatement 297,9615
+      perm_string iname_;ProcessStatement::iname_311,10073
+      std::list<Expression*> sensitivity_list_;ProcessStatement::sensitivity_list_312,10099
 
 compiler.cc,107
 StringHeapLex lex_strings;21,874
@@ -143,6 +179,10 @@ StringHeapLex gen_strings;25,935
 compiler.h,62
 #define IVL_compiler_H2,23
 const int GN_KEYWORD_2008 25,949
+
+compiler.o,28
+ELFELF1,0
+ZZ162,3886
 
 debug.cc,1307
 static ostream& operator << operator <<35,1259
@@ -181,6 +221,9 @@ ostream& ExpInteger::dump_inline(474,13541
 ostream& ExpReal::dump_inline(480,13637
 void SubprogramBody::dump(486,13730
 void SubprogramHeader::dump(499,14086
+
+debug.o,16
+A∆A1044,56367
 
 entity.cc,430
 std::map<perm_string,Entity*> design_entities;27,941
@@ -232,128 +275,131 @@ class Entity 105,3339
       map<Entity::map138,4493
       map<perm_string,VType::decl_t> declarations_;Entity::declarations_138,4493
 
+entity.o,11
+Z119,7135
+
 entity_stream.cc,44
 void ComponentBase::write_to_stream(25,921
 
 expression.cc,4667
 Expression::Expression(35,1233
-Expression::~Expression(40,1274
-void Expression::set_type(44,1305
-bool Expression::symbolic_compare(50,1410
-ExpAttribute::ExpAttribute(58,1646
-ExpAttribute::~ExpAttribute(63,1745
-list<Expression*>*ExpAttribute::clone_args(ExpAttribute::clone_args75,1961
-void ExpAttribute::visit_args(88,2268
-ExpObjAttribute::ExpObjAttribute(103,2561
-ExpObjAttribute::~ExpObjAttribute(108,2695
-Expression*ExpObjAttribute::clone(ExpObjAttribute::clone113,2754
-void ExpObjAttribute::visit(119,2928
-ExpTypeAttribute::ExpTypeAttribute(128,3083
-Expression*ExpTypeAttribute::clone(ExpTypeAttribute::clone133,3223
-void ExpTypeAttribute::visit(138,3334
-const perm_string ExpAttribute::LEFT 146,3464
-const perm_string ExpAttribute::RIGHT 147,3533
-ExpBinary::ExpBinary(149,3605
-ExpBinary::~ExpBinary(154,3696
-bool ExpBinary::eval_operand1(160,3773
-bool ExpBinary::eval_operand2(165,3907
-void ExpBinary::visit(170,4041
-ExpUnary::ExpUnary(179,4200
-ExpUnary::~ExpUnary(184,4257
-void ExpUnary::visit(189,4308
-ExpAggregate::ExpAggregate(197,4428
-ExpAggregate::~ExpAggregate(210,4709
-Expression* ExpAggregate::clone(224,5085
-void ExpAggregate::visit(241,5595
-ExpAggregate::choice_t::choice_t(262,6124
-ExpAggregate::choice_t::choice_t(267,6191
-ExpAggregate::choice_t::choice_t(271,6231
-ExpAggregate::choice_t::choice_t(276,6299
-ExpAggregate::choice_t::~choice_t(285,6536
-bool ExpAggregate::choice_t::others(289,6577
-Expression*ExpAggregate::choice_t::simple_expression(ExpAggregate::choice_t::simple_expression294,6678
-ExpRange*ExpAggregate::choice_t::range_expressions(ExpAggregate::choice_t::range_expressions300,6839
-ExpAggregate::element_t::element_t(305,6928
-ExpAggregate::element_t::element_t(318,7243
-ExpAggregate::element_t::~element_t(330,7569
-ExpArithmetic::ExpArithmetic(338,7719
-ExpArithmetic::~ExpArithmetic(345,7914
-ExpBitstring::ExpBitstring(352,8003
-ExpBitstring::~ExpBitstring(359,8162
-ExpCharacter::ExpCharacter(363,8197
-ExpCharacter::~ExpCharacter(368,8253
-ExpConcat::ExpConcat(372,8288
-ExpConcat::~ExpConcat(377,8379
-void ExpConcat::visit(383,8456
-ExpConditional::ExpConditional(392,8615
-ExpConditional::~ExpConditional(399,8860
-Expression*ExpConditional::clone(ExpConditional::clone408,9021
-void ExpConditional::visit(423,9448
-ExpConditional::case_t::case_t(435,9688
-ExpConditional::case_t::case_t(441,9845
-ExpConditional::case_t::~case_t(451,10147
-ExpSelected::ExpSelected(461,10345
-ExpSelected::~ExpSelected(475,10873
-Expression*ExpSelected::clone(ExpSelected::clone479,10906
-void ExpConditional::case_t::visit(494,11335
-ExpEdge::ExpEdge(506,11622
-ExpEdge::~ExpEdge(511,11705
-ExpFunc::ExpFunc(515,11730
-ExpFunc::ExpFunc(520,11789
-ExpFunc::~ExpFunc(531,12098
-Expression*ExpFunc::clone(ExpFunc::clone537,12206
-void ExpFunc::visit(553,12615
-const VType* ExpFunc::func_ret_type(567,12879
-ExpInteger::ExpInteger(572,12979
-ExpInteger::~ExpInteger(577,13034
-bool ExpInteger::evaluate(581,13065
-ExpReal::ExpReal(587,13175
-ExpReal::~ExpReal(592,13223
-ExpLogical::ExpLogical(596,13248
-ExpLogical::~ExpLogical(601,13362
-ExpName::ExpName(605,13393
-ExpName::ExpName(610,13459
-ExpName::ExpName(615,13555
-ExpName::~ExpName(620,13689
-Expression*ExpName::clone(ExpName::clone632,13910
-void ExpName::add_index(648,14351
-bool ExpName::symbolic_compare(656,14522
-Expression*ExpName::index(ExpName::index692,15412
-void ExpName::visit(709,15726
-int ExpName::index_t::emit(727,16084
-ExpRelation::ExpRelation(749,16522
-ExpRelation::~ExpRelation(754,16639
-ExpScopedName::ExpScopedName(758,16672
-ExpScopedName::~ExpScopedName(763,16785
-void ExpScopedName::visit(768,16840
-ScopeBase*ExpScopedName::get_scope(ExpScopedName::get_scope776,16961
-ScopeBase*ExpScopedName::get_scope(ExpScopedName::get_scope784,17109
-ExpShift::ExpShift(789,17239
-ExpString::ExpString(794,17351
-ExpString::~ExpString(799,17412
-ExpUAbs::ExpUAbs(803,17441
-ExpUAbs::~ExpUAbs(808,17495
-ExpUNot::ExpUNot(812,17520
-ExpUNot::~ExpUNot(817,17574
-ExpCast::ExpCast(821,17599
-ExpCast::~ExpCast(826,17687
-void ExpCast::visit(830,17712
-ExpNew::ExpNew(838,17827
-ExpNew::~ExpNew(843,17882
-void ExpNew::visit(848,17923
-ExpTime::ExpTime(856,18037
-double ExpTime::to_fs(861,18124
-ExpRange::ExpRange(878,18485
-ExpRange::ExpRange(884,18666
-ExpRange::~ExpRange(890,18843
-Expression*ExpRange::clone(ExpRange::clone897,18931
-Expression* ExpRange::msb(905,19164
-Expression* ExpRange::lsb(918,19389
-Expression*ExpRange::left(ExpRange::left931,19614
-Expression*ExpRange::right(ExpRange::right941,19889
-ExpDelay::ExpDelay(950,20168
-ExpDelay::~ExpDelay(955,20256
-void ExpDelay::visit(961,20320
+Expression::~Expression(38,1278
+void Expression::set_type(41,1308
+bool Expression::symbolic_compare(47,1413
+ExpAttribute::ExpAttribute(55,1649
+ExpAttribute::~ExpAttribute(60,1748
+list<Expression*>*ExpAttribute::clone_args(ExpAttribute::clone_args72,1964
+void ExpAttribute::visit_args(85,2271
+ExpObjAttribute::ExpObjAttribute(100,2564
+ExpObjAttribute::~ExpObjAttribute(105,2698
+Expression*ExpObjAttribute::clone(ExpObjAttribute::clone110,2757
+void ExpObjAttribute::visit(116,2931
+ExpTypeAttribute::ExpTypeAttribute(125,3086
+Expression*ExpTypeAttribute::clone(ExpTypeAttribute::clone130,3226
+void ExpTypeAttribute::visit(135,3337
+const perm_string ExpAttribute::LEFT 143,3467
+const perm_string ExpAttribute::RIGHT 144,3536
+ExpBinary::ExpBinary(146,3608
+ExpBinary::~ExpBinary(151,3699
+bool ExpBinary::eval_operand1(157,3776
+bool ExpBinary::eval_operand2(162,3910
+void ExpBinary::visit(167,4044
+ExpUnary::ExpUnary(176,4203
+ExpUnary::~ExpUnary(181,4260
+void ExpUnary::visit(186,4311
+ExpAggregate::ExpAggregate(194,4431
+ExpAggregate::~ExpAggregate(207,4712
+Expression* ExpAggregate::clone(221,5088
+void ExpAggregate::visit(238,5598
+ExpAggregate::choice_t::choice_t(259,6127
+ExpAggregate::choice_t::choice_t(264,6194
+ExpAggregate::choice_t::choice_t(268,6234
+ExpAggregate::choice_t::choice_t(273,6302
+ExpAggregate::choice_t::~choice_t(282,6539
+bool ExpAggregate::choice_t::others(286,6580
+Expression*ExpAggregate::choice_t::simple_expression(ExpAggregate::choice_t::simple_expression291,6681
+ExpRange*ExpAggregate::choice_t::range_expressions(ExpAggregate::choice_t::range_expressions297,6842
+ExpAggregate::element_t::element_t(302,6931
+ExpAggregate::element_t::element_t(315,7246
+ExpAggregate::element_t::~element_t(327,7572
+ExpArithmetic::ExpArithmetic(335,7722
+ExpArithmetic::~ExpArithmetic(342,7917
+ExpBitstring::ExpBitstring(349,8006
+ExpBitstring::~ExpBitstring(356,8165
+ExpCharacter::ExpCharacter(360,8200
+ExpCharacter::~ExpCharacter(365,8256
+ExpConcat::ExpConcat(369,8291
+ExpConcat::~ExpConcat(374,8382
+void ExpConcat::visit(380,8459
+ExpConditional::ExpConditional(389,8618
+ExpConditional::~ExpConditional(396,8863
+Expression*ExpConditional::clone(ExpConditional::clone405,9024
+void ExpConditional::visit(420,9451
+ExpConditional::case_t::case_t(432,9691
+ExpConditional::case_t::case_t(438,9848
+ExpConditional::case_t::~case_t(448,10150
+ExpSelected::ExpSelected(458,10348
+ExpSelected::~ExpSelected(472,10876
+Expression*ExpSelected::clone(ExpSelected::clone476,10909
+void ExpConditional::case_t::visit(491,11338
+ExpEdge::ExpEdge(503,11625
+ExpEdge::~ExpEdge(508,11708
+ExpFunc::ExpFunc(512,11733
+ExpFunc::ExpFunc(517,11792
+ExpFunc::~ExpFunc(528,12101
+Expression*ExpFunc::clone(ExpFunc::clone534,12209
+void ExpFunc::visit(550,12618
+const VType* ExpFunc::func_ret_type(564,12882
+ExpInteger::ExpInteger(569,12982
+ExpInteger::~ExpInteger(574,13037
+bool ExpInteger::evaluate(578,13068
+ExpReal::ExpReal(584,13178
+ExpReal::~ExpReal(589,13226
+ExpLogical::ExpLogical(593,13251
+ExpLogical::~ExpLogical(598,13365
+ExpName::ExpName(602,13396
+ExpName::ExpName(607,13462
+ExpName::ExpName(612,13558
+ExpName::~ExpName(617,13692
+Expression*ExpName::clone(ExpName::clone629,13913
+void ExpName::add_index(645,14354
+bool ExpName::symbolic_compare(653,14525
+Expression*ExpName::index(ExpName::index689,15415
+void ExpName::visit(706,15729
+int ExpName::index_t::emit(724,16087
+ExpRelation::ExpRelation(746,16525
+ExpRelation::~ExpRelation(751,16642
+ExpScopedName::ExpScopedName(755,16675
+ExpScopedName::~ExpScopedName(760,16788
+void ExpScopedName::visit(765,16843
+ScopeBase*ExpScopedName::get_scope(ExpScopedName::get_scope773,16964
+ScopeBase*ExpScopedName::get_scope(ExpScopedName::get_scope781,17112
+ExpShift::ExpShift(786,17242
+ExpString::ExpString(791,17354
+ExpString::~ExpString(796,17415
+ExpUAbs::ExpUAbs(800,17444
+ExpUAbs::~ExpUAbs(805,17498
+ExpUNot::ExpUNot(809,17523
+ExpUNot::~ExpUNot(814,17577
+ExpCast::ExpCast(818,17602
+ExpCast::~ExpCast(823,17690
+void ExpCast::visit(827,17715
+ExpNew::ExpNew(835,17830
+ExpNew::~ExpNew(840,17885
+void ExpNew::visit(845,17926
+ExpTime::ExpTime(853,18040
+double ExpTime::to_fs(858,18127
+ExpRange::ExpRange(875,18488
+ExpRange::ExpRange(881,18669
+ExpRange::~ExpRange(887,18846
+Expression*ExpRange::clone(ExpRange::clone894,18934
+Expression* ExpRange::msb(902,19167
+Expression* ExpRange::lsb(915,19392
+Expression*ExpRange::left(ExpRange::left928,19617
+Expression*ExpRange::right(ExpRange::right938,19892
+ExpDelay::ExpDelay(947,20171
+ExpDelay::~ExpDelay(952,20259
+void ExpDelay::visit(958,20323
 
 expression_debug.cc,271
 void ExpArithmetic::dump(30,1035
@@ -480,6 +526,14 @@ int ExpTime::emit(1070,28270
 int ExpRange::emit(1086,28636
 int ExpDelay::emit(1108,29223
 
+expression_emit.o,96
+x·x1801,80423
+TÈT1853,82277
+zÈz1857,82349
+zÈz1862,82419
+ZÓZ1974,83942
+LL2203,93307
+
 expression_evaluate.cc,280
 bool ExpArithmetic::evaluate(28,1047
 bool ExpAttribute::test_array_type(76,1945
@@ -489,232 +543,262 @@ bool ExpTypeAttribute::evaluate(134,3715
 bool ExpName::evaluate(139,3857
 bool ExpShift::evaluate(171,4768
 
-expression.h,12931
+expression_evaluate.o,316
+r;465,15020
+k;496,16429
+k;503,16913
+k;504,16980
+y;531,18249
+y;532,18254
+k;533,18695
+k;536,18750
+åAA617,19933
+k;672,21016
+1DD688,21770
+bJ690,22328
+JD716,23100
+k;720,23137
+k;721,23142
+r;723,23186
+r;724,23191
+CM736,23315
+k;742,23402
+k;745,23433
+y;752,23536
+y;753,23541
+k;757,23594
+k;760,23625
+
+expression.h,12983
 #define IVL_expression_H2,25
-struct ExprVisitor 46,1442
-    ExprVisitor(ExprVisitor::ExprVisitor47,1463
-    virtual ~ExprVisitor(ExprVisitor::~ExprVisitor48,1496
-    inline void down(ExprVisitor::down53,1714
-    inline void up(ExprVisitor::up54,1751
-    int level(ExprVisitor::level57,1819
-    int level_;ExprVisitor::level_60,1870
-class Expression 68,2076
-      inline const VType*peek_type(Expression::peek_type107,3822
-      virtual bool evaluate(Expression::evaluate127,4751
-      bool evaluate(Expression::evaluate128,4834
-      virtual void visit(Expression::visit146,5694
-      const VType*type_;Expression::type_155,6006
-static inline Expression*safe_clone(safe_clone165,6237
-static inline void FILE_NAME(169,6348
-static inline ostream& operator <<(operator <<174,6445
-class ExpUnary 179,6555
-      inline const Expression*peek_operand(ExpUnary::peek_operand185,6677
-      inline void write_to_stream_operand1(ExpUnary::write_to_stream_operand1193,7030
-      Expression*operand1_;ExpUnary::operand1_200,7287
-class ExpBinary 207,7421
-      inline const Expression* peek_operand1(ExpBinary::peek_operand1213,7553
-      inline const Expression* peek_operand2(ExpBinary::peek_operand2214,7632
-      inline void write_to_stream_operand1(ExpBinary::write_to_stream_operand1228,8189
-      inline void write_to_stream_operand2(ExpBinary::write_to_stream_operand2230,8303
-      Expression*operand1_;ExpBinary::operand1_239,8595
-      Expression*operand2_;ExpBinary::operand2_240,8623
-class ExpAggregate 243,8655
-      class choice_t ExpAggregate::choice_t250,8917
-	    std::auto_ptr<Expression>expr_;ExpAggregate::choice_t::expr_276,9705
-	    std::auto_ptr<ExpRange>  range_;ExpAggregate::choice_t::range_277,9742
-      struct choice_element ExpAggregate::choice_element282,9865
-	    choice_element(ExpAggregate::choice_element::choice_element283,9895
-	    choice_element(ExpAggregate::choice_element::choice_element285,9940
-	    choice_t*choice;ExpAggregate::choice_element::choice290,10107
-	    Expression*expr;ExpAggregate::choice_element::expr291,10129
-	    bool alias_flag;ExpAggregate::choice_element::alias_flag292,10151
-      class element_t ExpAggregate::element_t298,10347
-	    size_t count_choices(ExpAggregate::element_t::count_choices304,10511
-	    inline Expression* extract_expression(ExpAggregate::element_t::extract_expression307,10616
-	    std::vector<choice_t*>fields_;ExpAggregate::element_t::fields_313,10789
-	    Expression*val_;ExpAggregate::element_t::val_314,10825
-      std::vector<element_t*> elements_;ExpAggregate::elements_340,11863
-      std::vector<choice_element> aggregate_;ExpAggregate::aggregate_344,11994
-class ExpArithmetic 347,12044
-      enum fun_t ExpArithmetic::fun_t350,12098
-      enum fun_t { PLUS,ExpArithmetic::fun_t::PLUS350,12098
-      enum fun_t { PLUS, MINUS,ExpArithmetic::fun_t::MINUS350,12098
-      enum fun_t { PLUS, MINUS, MULT,ExpArithmetic::fun_t::MULT350,12098
-      enum fun_t { PLUS, MINUS, MULT, DIV,ExpArithmetic::fun_t::DIV350,12098
-      enum fun_t { PLUS, MINUS, MULT, DIV, MOD,ExpArithmetic::fun_t::MOD350,12098
-      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM,ExpArithmetic::fun_t::REM350,12098
-      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM, POW,ExpArithmetic::fun_t::POW350,12098
-      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM, POW, xCONCAT ExpArithmetic::fun_t::xCONCAT350,12098
-      Expression*clone(ExpArithmetic::clone356,12283
-      fun_t fun_;ExpArithmetic::fun_370,12846
-class ExpAttribute 373,12868
-      inline perm_string peek_attribute(ExpAttribute::peek_attribute379,13020
-      static const perm_string LEFT;ExpAttribute::LEFT382,13134
-      static const perm_string RIGHT;ExpAttribute::RIGHT383,13171
-      perm_string name_;ExpAttribute::name_393,13541
-      std::list<Expression*>*args_;ExpAttribute::args_394,13566
-class ExpObjAttribute 397,13606
-      inline const ExpName* peek_base(ExpObjAttribute::peek_base404,13808
-      ExpName*base_;ExpObjAttribute::base_416,14352
-class ExpTypeAttribute 419,14377
-      inline const VType* peek_base(ExpTypeAttribute::peek_base426,14642
-      const VType*base_;ExpTypeAttribute::base_439,15241
-class ExpBitstring 442,15270
-      ExpBitstring(ExpBitstring::ExpBitstring446,15366
-      Expression*clone(ExpBitstring::clone449,15477
-      std::vector<char>value_;ExpBitstring::value_458,15887
-class ExpCharacter 462,15923
-      ExpCharacter(ExpCharacter::ExpCharacter466,16016
-      Expression*clone(ExpCharacter::clone469,16127
-      char value(ExpCharacter::value478,16559
-      char value_;ExpCharacter::value_485,16747
-class ExpConcat 488,16770
-      Expression*clone(ExpConcat::clone494,16891
-      Expression*operand1_;ExpConcat::operand1_511,17584
-      Expression*operand2_;ExpConcat::operand2_512,17612
-class ExpConditional 520,17828
-      class case_t ExpConditional::case_t523,17884
-	    inline Expression*condition(ExpConditional::case_t::condition529,18042
-	    inline void set_condition(ExpConditional::case_t::set_condition530,18101
-	    inline const std::list<Expression*>& true_clause(ExpConditional::case_t::true_clause531,18167
-            std::list<Expression*>& extract_true_clause(ExpConditional::case_t::extract_true_clause537,18517
-	    Expression*cond_;ExpConditional::case_t::cond_541,18656
-	    std::list<Expression*> true_clause_;ExpConditional::case_t::true_clause_542,18679
-      std::list<case_t*> options_;ExpConditional::options_560,19279
-class ExpSelected 566,19411
-      Expression*selector_;ExpSelected::selector_574,19604
-class ExpEdge 581,19749
-      enum fun_t ExpEdge::fun_t584,19796
-      enum fun_t { NEGEDGE,ExpEdge::fun_t::NEGEDGE584,19796
-      enum fun_t { NEGEDGE, ANYEDGE,ExpEdge::fun_t::ANYEDGE584,19796
-      enum fun_t { NEGEDGE, ANYEDGE, POSEDGE ExpEdge::fun_t::POSEDGE584,19796
-      Expression*clone(ExpEdge::clone590,19934
-      inline fun_t edge_fun(ExpEdge::edge_fun592,20021
-      fun_t fun_;ExpEdge::fun_599,20256
-class ExpFunc 602,20278
-      inline perm_string func_name(ExpFunc::func_name612,20566
-      inline size_t func_args(ExpFunc::func_args613,20627
-      inline const Expression*func_arg(ExpFunc::func_arg614,20690
-      perm_string name_;ExpFunc::name_626,21248
-      std::vector<Expression*> argv_;ExpFunc::argv_627,21273
-      SubprogramHeader*def_;ExpFunc::def_628,21311
-class ExpInteger 631,21344
-      ExpInteger(ExpInteger::ExpInteger635,21436
-      Expression*clone(ExpInteger::clone638,21539
-      bool is_primary(ExpInteger::is_primary645,21907
-      int64_t value_;ExpInteger::value_651,22148
-class ExpReal 654,22174
-      ExpReal(ExpReal::ExpReal658,22259
-      Expression*clone(ExpReal::clone661,22353
-      double value_;ExpReal::value_673,22874
-class ExpLogical 676,22899
-      enum fun_t ExpLogical::fun_t679,22950
-      enum fun_t { AND,ExpLogical::fun_t::AND679,22950
-      enum fun_t { AND, OR,ExpLogical::fun_t::OR679,22950
-      enum fun_t { AND, OR, NAND,ExpLogical::fun_t::NAND679,22950
-      enum fun_t { AND, OR, NAND, NOR,ExpLogical::fun_t::NOR679,22950
-      enum fun_t { AND, OR, NAND, NOR, XOR,ExpLogical::fun_t::XOR679,22950
-      enum fun_t { AND, OR, NAND, NOR, XOR, XNOR ExpLogical::fun_t::XNOR679,22950
-      Expression*clone(ExpLogical::clone685,23109
-      inline fun_t logic_fun(ExpLogical::logic_fun689,23242
-      fun_t fun_;ExpLogical::fun_697,23552
-class ExpName 705,23788
-      inline const char* name(ExpName::name727,24879
-      inline const perm_string& peek_name(ExpName::peek_name728,24935
-      class index_t ExpName::index_t733,25104
-          index_t(ExpName::index_t::index_t735,25140
-          ~index_t(ExpName::index_t::~index_t737,25274
-          Expression*idx_;ExpName::index_t::idx_746,25485
-          Expression*size_;ExpName::index_t::size_747,25512
-          Expression*offset_;ExpName::index_t::offset_748,25540
-      std::auto_ptr<ExpName> prefix_;ExpName::prefix_778,26948
-      perm_string name_;ExpName::name_779,26986
-      std::list<Expression*>*indices_;ExpName::indices_780,27011
-class ExpNameALL 783,27054
-      ExpNameALL(ExpNameALL::ExpNameALL786,27103
-class ExpRelation 793,27289
-      enum fun_t ExpRelation::fun_t796,27341
-      enum fun_t { EQ,ExpRelation::fun_t::EQ796,27341
-      enum fun_t { EQ, LT,ExpRelation::fun_t::LT796,27341
-      enum fun_t { EQ, LT, GT,ExpRelation::fun_t::GT796,27341
-      enum fun_t { EQ, LT, GT, NEQ,ExpRelation::fun_t::NEQ796,27341
-      enum fun_t { EQ, LT, GT, NEQ, LE,ExpRelation::fun_t::LE796,27341
-      enum fun_t { EQ, LT, GT, NEQ, LE, GE ExpRelation::fun_t::GE796,27341
-      inline fun_t relation_fun(ExpRelation::relation_fun798,27388
-      Expression*clone(ExpRelation::clone804,27559
-      fun_t fun_;ExpRelation::fun_815,28014
-class ExpScopedName 822,28203
-        Expression*clone(ExpScopedName::clone827,28339
-        int elaborate_lval(ExpScopedName::elaborate_lval830,28463
-        int elaborate_rval(ExpScopedName::elaborate_rval833,28608
-        const VType* probe_type(ExpScopedName::probe_type836,28762
-        const VType* fit_type(ExpScopedName::fit_type839,28891
-        int elaborate_expr(ExpScopedName::elaborate_expr842,29045
-        void write_to_stream(ExpScopedName::write_to_stream845,29193
-        int emit(ExpScopedName::emit848,29286
-        bool is_primary(ExpScopedName::is_primary853,29452
-        bool evaluate(ExpScopedName::evaluate856,29529
-        bool symbolic_compare(ExpScopedName::symbolic_compare859,29649
-        perm_string scope_name_;ExpScopedName::scope_name_871,30052
-        ScopeBase*scope_;ExpScopedName::scope_872,30085
-        ExpName*name_;ExpScopedName::name_873,30111
-class ExpShift 876,30138
-      enum shift_t ExpShift::shift_t878,30186
-      enum shift_t { SRL,ExpShift::shift_t::SRL878,30186
-      enum shift_t { SRL, SLL,ExpShift::shift_t::SLL878,30186
-      enum shift_t { SRL, SLL, SRA,ExpShift::shift_t::SRA878,30186
-      enum shift_t { SRL, SLL, SRA, SLA,ExpShift::shift_t::SLA878,30186
-      enum shift_t { SRL, SLL, SRA, SLA, ROL,ExpShift::shift_t::ROL878,30186
-      enum shift_t { SRL, SLL, SRA, SLA, ROL, ROR ExpShift::shift_t::ROR878,30186
-      Expression*clone(ExpShift::clone883,30323
-      shift_t shift_;ExpShift::shift_894,30780
-class ExpString 897,30806
-      ExpString(ExpString::ExpString901,30896
-      Expression*clone(ExpString::clone904,30996
-      const std::string& get_value(ExpString::get_value912,31424
-      std::string value_;ExpString::value_922,31759
-class ExpUAbs 925,31789
-      Expression*clone(ExpUAbs::clone931,31895
-class ExpUNot 938,32147
-      Expression*clone(ExpUNot::clone944,32253
-class ExpCast 954,32579
-      Expression*clone(ExpCast::clone960,32697
-      inline int elaborate_expr(ExpCast::elaborate_expr962,32785
-      Expression*base_;ExpCast::base_971,33149
-      const VType*type_;ExpCast::type_972,33173
-class ExpNew 979,33343
-      Expression*clone(ExpNew::clone985,33449
-      void write_to_stream(ExpNew::write_to_stream988,33578
-      Expression*size_;ExpNew::size_994,33797
-class ExpTime 997,33825
-        typedef enum { FS,ExpTime::FS999,33873
-        typedef enum { FS, PS,ExpTime::PS999,33873
-        typedef enum { FS, PS, NS,ExpTime::NS999,33873
-        typedef enum { FS, PS, NS, US,ExpTime::US999,33873
-        typedef enum { FS, PS, NS, US, MS,ExpTime::MS999,33873
-        typedef enum { FS, PS, NS, US, MS, S ExpTime::S999,33873
-        typedef enum { FS, PS, NS, US, MS, S } timeunit_t;ExpTime::timeunit_t999,33873
-        Expression*clone(ExpTime::clone1003,33985
-        uint64_t amount_;ExpTime::amount_1014,34483
-        timeunit_t unit_;ExpTime::unit_1015,34509
-class ExpRange 1018,34539
-        typedef enum { DOWNTO,ExpRange::DOWNTO1020,34588
-        typedef enum { DOWNTO, TO,ExpRange::TO1020,34588
-        typedef enum { DOWNTO, TO, AUTO ExpRange::AUTO1020,34588
-        typedef enum { DOWNTO, TO, AUTO } range_dir_t;ExpRange::range_dir_t1020,34588
-        range_dir_t direction(ExpRange::direction1038,35084
-        Expression*left_,ExpRange::left_1046,35446
-        Expression*left_, *right_;ExpRange::right_1046,35446
-        range_dir_t direction_;ExpRange::direction_1047,35481
-        bool range_expr_;ExpRange::range_expr_1051,35641
-        ExpName*range_base_;ExpRange::range_base_1053,35724
-        bool range_reverse_;ExpRange::range_reverse_1055,35816
-class ExpDelay 1059,35911
-    Expression*clone(ExpDelay::clone1064,36023
-    const Expression*peek_expr(ExpDelay::peek_expr1072,36378
-    const Expression*peek_delay(ExpDelay::peek_delay1073,36435
-    Expression*expr_;ExpDelay::expr_1076,36504
-    Expression*delay_;ExpDelay::delay_1077,36526
+struct ExprVisitor 47,1462
+    ExprVisitor(ExprVisitor::ExprVisitor48,1483
+    virtual ~ExprVisitor(ExprVisitor::~ExprVisitor49,1516
+    inline void down(ExprVisitor::down54,1734
+    inline void up(ExprVisitor::up55,1771
+    int level(ExprVisitor::level58,1839
+    int level_;ExprVisitor::level_61,1890
+class Expression 69,2096
+      int count;Expression::count78,2286
+      inline const VType*peek_type(Expression::peek_type111,3907
+      virtual bool evaluate(Expression::evaluate131,4836
+      bool evaluate(Expression::evaluate132,4919
+      virtual void visit(Expression::visit150,5779
+      const VType*type_;Expression::type_159,6091
+static inline Expression*safe_clone(safe_clone169,6322
+static inline void FILE_NAME(173,6433
+static inline ostream& operator <<(operator <<178,6530
+class ExpUnary 183,6640
+      inline const Expression*peek_operand(ExpUnary::peek_operand189,6762
+      inline void write_to_stream_operand1(ExpUnary::write_to_stream_operand1197,7115
+      Expression*operand1_;ExpUnary::operand1_204,7372
+class ExpBinary 211,7506
+      inline const Expression* peek_operand1(ExpBinary::peek_operand1217,7638
+      inline const Expression* peek_operand2(ExpBinary::peek_operand2218,7717
+      inline void write_to_stream_operand1(ExpBinary::write_to_stream_operand1232,8274
+      inline void write_to_stream_operand2(ExpBinary::write_to_stream_operand2234,8388
+      Expression*operand1_;ExpBinary::operand1_243,8680
+      Expression*operand2_;ExpBinary::operand2_244,8708
+class ExpAggregate 247,8740
+      class choice_t ExpAggregate::choice_t254,9002
+	    std::auto_ptr<Expression>expr_;ExpAggregate::choice_t::expr_280,9790
+	    std::auto_ptr<ExpRange>  range_;ExpAggregate::choice_t::range_281,9827
+      struct choice_element ExpAggregate::choice_element286,9950
+	    choice_element(ExpAggregate::choice_element::choice_element287,9980
+	    choice_element(ExpAggregate::choice_element::choice_element289,10025
+	    choice_t*choice;ExpAggregate::choice_element::choice294,10192
+	    Expression*expr;ExpAggregate::choice_element::expr295,10214
+	    bool alias_flag;ExpAggregate::choice_element::alias_flag296,10236
+      class element_t ExpAggregate::element_t302,10432
+	    size_t count_choices(ExpAggregate::element_t::count_choices308,10596
+	    inline Expression* extract_expression(ExpAggregate::element_t::extract_expression311,10701
+	    std::vector<choice_t*>fields_;ExpAggregate::element_t::fields_317,10874
+	    Expression*val_;ExpAggregate::element_t::val_318,10910
+      std::vector<element_t*> elements_;ExpAggregate::elements_344,11948
+      std::vector<choice_element> aggregate_;ExpAggregate::aggregate_348,12079
+class ExpArithmetic 351,12129
+      enum fun_t ExpArithmetic::fun_t354,12183
+      enum fun_t { PLUS,ExpArithmetic::fun_t::PLUS354,12183
+      enum fun_t { PLUS, MINUS,ExpArithmetic::fun_t::MINUS354,12183
+      enum fun_t { PLUS, MINUS, MULT,ExpArithmetic::fun_t::MULT354,12183
+      enum fun_t { PLUS, MINUS, MULT, DIV,ExpArithmetic::fun_t::DIV354,12183
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD,ExpArithmetic::fun_t::MOD354,12183
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM,ExpArithmetic::fun_t::REM354,12183
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM, POW,ExpArithmetic::fun_t::POW354,12183
+      enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM, POW, xCONCAT ExpArithmetic::fun_t::xCONCAT354,12183
+      Expression*clone(ExpArithmetic::clone360,12368
+      fun_t fun_;ExpArithmetic::fun_374,12931
+class ExpAttribute 377,12953
+      inline perm_string peek_attribute(ExpAttribute::peek_attribute383,13105
+      static const perm_string LEFT;ExpAttribute::LEFT386,13219
+      static const perm_string RIGHT;ExpAttribute::RIGHT387,13256
+      perm_string name_;ExpAttribute::name_397,13626
+      std::list<Expression*>*args_;ExpAttribute::args_398,13651
+class ExpObjAttribute 401,13691
+      inline const ExpName* peek_base(ExpObjAttribute::peek_base408,13893
+      ExpName*base_;ExpObjAttribute::base_420,14437
+class ExpTypeAttribute 423,14462
+      inline const VType* peek_base(ExpTypeAttribute::peek_base430,14727
+      const VType*base_;ExpTypeAttribute::base_443,15326
+class ExpBitstring 446,15355
+      ExpBitstring(ExpBitstring::ExpBitstring450,15451
+      Expression*clone(ExpBitstring::clone453,15562
+      std::vector<char>value_;ExpBitstring::value_462,15972
+class ExpCharacter 466,16008
+      ExpCharacter(ExpCharacter::ExpCharacter470,16101
+      Expression*clone(ExpCharacter::clone473,16212
+      char value(ExpCharacter::value482,16644
+      char value_;ExpCharacter::value_489,16832
+class ExpConcat 492,16855
+      Expression*clone(ExpConcat::clone498,16976
+      Expression*operand1_;ExpConcat::operand1_515,17669
+      Expression*operand2_;ExpConcat::operand2_516,17697
+class ExpConditional 524,17913
+      class case_t ExpConditional::case_t527,17969
+	    inline Expression*condition(ExpConditional::case_t::condition533,18127
+	    inline void set_condition(ExpConditional::case_t::set_condition534,18186
+	    inline const std::list<Expression*>& true_clause(ExpConditional::case_t::true_clause535,18252
+            std::list<Expression*>& extract_true_clause(ExpConditional::case_t::extract_true_clause541,18602
+	    Expression*cond_;ExpConditional::case_t::cond_545,18741
+	    std::list<Expression*> true_clause_;ExpConditional::case_t::true_clause_546,18764
+      std::list<case_t*> options_;ExpConditional::options_564,19364
+class ExpSelected 570,19496
+      Expression*selector_;ExpSelected::selector_578,19689
+class ExpEdge 585,19834
+      enum fun_t ExpEdge::fun_t588,19881
+      enum fun_t { NEGEDGE,ExpEdge::fun_t::NEGEDGE588,19881
+      enum fun_t { NEGEDGE, ANYEDGE,ExpEdge::fun_t::ANYEDGE588,19881
+      enum fun_t { NEGEDGE, ANYEDGE, POSEDGE ExpEdge::fun_t::POSEDGE588,19881
+      Expression*clone(ExpEdge::clone594,20019
+      inline fun_t edge_fun(ExpEdge::edge_fun596,20106
+      fun_t fun_;ExpEdge::fun_603,20341
+class ExpFunc 606,20363
+      inline perm_string func_name(ExpFunc::func_name616,20651
+      inline size_t func_args(ExpFunc::func_args617,20712
+      inline const Expression*func_arg(ExpFunc::func_arg618,20775
+      perm_string name_;ExpFunc::name_630,21333
+      std::vector<Expression*> argv_;ExpFunc::argv_631,21358
+      SubprogramHeader*def_;ExpFunc::def_632,21396
+class ExpInteger 635,21429
+      ExpInteger(ExpInteger::ExpInteger639,21521
+      Expression*clone(ExpInteger::clone642,21624
+      bool is_primary(ExpInteger::is_primary649,21992
+      int64_t value_;ExpInteger::value_655,22233
+class ExpReal 658,22259
+      ExpReal(ExpReal::ExpReal662,22344
+      Expression*clone(ExpReal::clone665,22438
+      double value_;ExpReal::value_677,22959
+class ExpLogical 680,22984
+      enum fun_t ExpLogical::fun_t683,23035
+      enum fun_t { AND,ExpLogical::fun_t::AND683,23035
+      enum fun_t { AND, OR,ExpLogical::fun_t::OR683,23035
+      enum fun_t { AND, OR, NAND,ExpLogical::fun_t::NAND683,23035
+      enum fun_t { AND, OR, NAND, NOR,ExpLogical::fun_t::NOR683,23035
+      enum fun_t { AND, OR, NAND, NOR, XOR,ExpLogical::fun_t::XOR683,23035
+      enum fun_t { AND, OR, NAND, NOR, XOR, XNOR ExpLogical::fun_t::XNOR683,23035
+      Expression*clone(ExpLogical::clone689,23194
+      inline fun_t logic_fun(ExpLogical::logic_fun693,23327
+      fun_t fun_;ExpLogical::fun_701,23637
+class ExpName 709,23873
+      inline const char* name(ExpName::name731,24964
+      inline const perm_string& peek_name(ExpName::peek_name732,25020
+      class index_t ExpName::index_t737,25189
+          index_t(ExpName::index_t::index_t739,25225
+          ~index_t(ExpName::index_t::~index_t741,25359
+          Expression*idx_;ExpName::index_t::idx_750,25570
+          Expression*size_;ExpName::index_t::size_751,25597
+          Expression*offset_;ExpName::index_t::offset_752,25625
+      std::auto_ptr<ExpName> prefix_;ExpName::prefix_782,27033
+      perm_string name_;ExpName::name_783,27071
+      std::list<Expression*>*indices_;ExpName::indices_784,27096
+class ExpNameALL 787,27139
+      ExpNameALL(ExpNameALL::ExpNameALL790,27188
+class ExpRelation 797,27374
+      enum fun_t ExpRelation::fun_t800,27426
+      enum fun_t { EQ,ExpRelation::fun_t::EQ800,27426
+      enum fun_t { EQ, LT,ExpRelation::fun_t::LT800,27426
+      enum fun_t { EQ, LT, GT,ExpRelation::fun_t::GT800,27426
+      enum fun_t { EQ, LT, GT, NEQ,ExpRelation::fun_t::NEQ800,27426
+      enum fun_t { EQ, LT, GT, NEQ, LE,ExpRelation::fun_t::LE800,27426
+      enum fun_t { EQ, LT, GT, NEQ, LE, GE ExpRelation::fun_t::GE800,27426
+      inline fun_t relation_fun(ExpRelation::relation_fun802,27473
+      Expression*clone(ExpRelation::clone808,27644
+      fun_t fun_;ExpRelation::fun_819,28099
+class ExpScopedName 826,28288
+        Expression*clone(ExpScopedName::clone831,28424
+        int elaborate_lval(ExpScopedName::elaborate_lval834,28548
+        int elaborate_rval(ExpScopedName::elaborate_rval837,28693
+        const VType* probe_type(ExpScopedName::probe_type840,28847
+        const VType* fit_type(ExpScopedName::fit_type843,28976
+        int elaborate_expr(ExpScopedName::elaborate_expr846,29130
+        void write_to_stream(ExpScopedName::write_to_stream849,29278
+        int emit(ExpScopedName::emit852,29371
+        bool is_primary(ExpScopedName::is_primary857,29537
+        bool evaluate(ExpScopedName::evaluate860,29614
+        bool symbolic_compare(ExpScopedName::symbolic_compare863,29734
+        perm_string scope_name_;ExpScopedName::scope_name_875,30137
+        ScopeBase*scope_;ExpScopedName::scope_876,30170
+        ExpName*name_;ExpScopedName::name_877,30196
+class ExpShift 880,30223
+      enum shift_t ExpShift::shift_t882,30271
+      enum shift_t { SRL,ExpShift::shift_t::SRL882,30271
+      enum shift_t { SRL, SLL,ExpShift::shift_t::SLL882,30271
+      enum shift_t { SRL, SLL, SRA,ExpShift::shift_t::SRA882,30271
+      enum shift_t { SRL, SLL, SRA, SLA,ExpShift::shift_t::SLA882,30271
+      enum shift_t { SRL, SLL, SRA, SLA, ROL,ExpShift::shift_t::ROL882,30271
+      enum shift_t { SRL, SLL, SRA, SLA, ROL, ROR ExpShift::shift_t::ROR882,30271
+      Expression*clone(ExpShift::clone887,30408
+      shift_t shift_;ExpShift::shift_898,30865
+class ExpString 901,30891
+      ExpString(ExpString::ExpString905,30981
+      Expression*clone(ExpString::clone908,31081
+      const std::string& get_value(ExpString::get_value916,31509
+      std::string value_;ExpString::value_926,31844
+class ExpUAbs 929,31874
+      Expression*clone(ExpUAbs::clone935,31980
+class ExpUNot 942,32232
+      Expression*clone(ExpUNot::clone948,32338
+class ExpCast 958,32664
+      Expression*clone(ExpCast::clone964,32782
+      inline int elaborate_expr(ExpCast::elaborate_expr966,32870
+      Expression*base_;ExpCast::base_975,33234
+      const VType*type_;ExpCast::type_976,33258
+class ExpNew 983,33428
+      Expression*clone(ExpNew::clone989,33534
+      void write_to_stream(ExpNew::write_to_stream992,33663
+      Expression*size_;ExpNew::size_998,33882
+class ExpTime 1001,33910
+        typedef enum { FS,ExpTime::FS1003,33958
+        typedef enum { FS, PS,ExpTime::PS1003,33958
+        typedef enum { FS, PS, NS,ExpTime::NS1003,33958
+        typedef enum { FS, PS, NS, US,ExpTime::US1003,33958
+        typedef enum { FS, PS, NS, US, MS,ExpTime::MS1003,33958
+        typedef enum { FS, PS, NS, US, MS, S ExpTime::S1003,33958
+        typedef enum { FS, PS, NS, US, MS, S } timeunit_t;ExpTime::timeunit_t1003,33958
+        Expression*clone(ExpTime::clone1007,34070
+        uint64_t amount_;ExpTime::amount_1018,34568
+        timeunit_t unit_;ExpTime::unit_1019,34594
+class ExpRange 1022,34624
+        typedef enum { DOWNTO,ExpRange::DOWNTO1024,34673
+        typedef enum { DOWNTO, TO,ExpRange::TO1024,34673
+        typedef enum { DOWNTO, TO, AUTO ExpRange::AUTO1024,34673
+        typedef enum { DOWNTO, TO, AUTO } range_dir_t;ExpRange::range_dir_t1024,34673
+        range_dir_t direction(ExpRange::direction1042,35169
+        Expression*left_,ExpRange::left_1050,35531
+        Expression*left_, *right_;ExpRange::right_1050,35531
+        range_dir_t direction_;ExpRange::direction_1051,35566
+        bool range_expr_;ExpRange::range_expr_1055,35726
+        ExpName*range_base_;ExpRange::range_base_1057,35809
+        bool range_reverse_;ExpRange::range_reverse_1059,35901
+class ExpDelay 1063,35996
+    Expression*clone(ExpDelay::clone1068,36108
+    const Expression*peek_expr(ExpDelay::peek_expr1076,36463
+    const Expression*peek_delay(ExpDelay::peek_delay1077,36520
+    Expression*expr_;ExpDelay::expr_1080,36589
+    Expression*delay_;ExpDelay::delay_1081,36611
+
+expression.o,16
+HãHHãH3,3145
 
 expression_stream.cc,1088
 void ExpAggregate::write_to_stream(27,974
@@ -742,6 +826,14 @@ void ExpCast::write_to_stream(330,6590
 void ExpTime::write_to_stream(337,6796
 void ExpRange::write_to_stream(351,7134
 void ExpDelay::write_to_stream(367,7615
+
+expression_stream.o,32
+DODO297,11542
+aÉa984,41627
+
+generate_dot_ast.cc,59
+#define XTL_DEFAULT_SYNTAX 2,1
+class DotGenerator 23,551
 
 ivl_assert.h,57
 #define IVL_ivl_assert_H2,25
@@ -892,6 +984,18 @@ int elaborate_libraries(436,13114
 library.h,27
 #define IVL_library_H2,22
 
+library.o,52
+g;315,23072
+g;316,23077
+g;320,23240
+g;321,23245
+
+LineInfo.o,52
+ÉMM32,2684
+@J117,4588
+bJ182,5560
+ÉMM628,17268
+
 main.cc,490
 const char COPYRIGHT[COPYRIGHT2,1
 const char NOTICE[NOTICE60,2163
@@ -906,6 +1010,9 @@ static void process_debug_token(113,3897
 #define VERSION_TAG 130,4466
 #define NOTICE 131,4500
 int main(133,4527
+
+main.o,48
+Copyright CERN 2012 / Stephen Williams 21,2236
 
 Makefile,721
 SHELL 18,800
@@ -975,6 +1082,20 @@ lexor_keyword.cc:lexor_keyword.cc108,3173
 stamp-vhdlpp_config-h:stamp-vhdlpp_config-h112,3393
 vhplpp_config.h:vhplpp_config.h115,3529
 
+numbers.cpp,273
+#define XTL_DEFAULT_SYNTAX 58,2232
+int factorial(69,2579
+int fac(78,2715
+inline T sqr(93,2924
+double power(95,2966
+double power_opt(103,3132
+double power1(113,3323
+double power2(124,3540
+int fib(138,3779
+int fib_opt(145,3948
+int fib1(156,4156
+int fib2(166,4396
+
 package.cc,159
 Package::Package(30,1105
 Package::~Package(35,1188
@@ -984,6 +1105,12 @@ void Package::write_to_stream(69,2001
 
 package_emit.cc,35
 int Package::emit_package(29,1049
+
+package_emit.o,58
+R¢R336,18364
+xO462,24546
+M®M624,33456
+fîf696,36487
 
 package.h,208
 #define IVL_package_H2,22
@@ -1013,6 +1140,19 @@ ExpString*parse_char_enums(parse_char_enums158,5235
 
 parse_misc.h,30
 #define IVL_parse_misc_H2,25
+
+parse_misc.o,62
+e\e638,26973
+R•R674,29327
+émm726,31634
+7iñi1269,58806
+
+parse.o,19
+yy21153,2066633
+
+parse.output,38
+Terminals,705,25292
+error 732,26211
 
 parse_types.h,2398
 #define IVL_parse_types_H2,26
@@ -1168,6 +1308,9 @@ class ActiveScope 197,6880
       std::map<perm_string,VTypeDef*> incomplete_types;ActiveScope::incomplete_types283,9938
       Entity*context_entity_;ActiveScope::context_entity_286,10008
 
+scope.o,20
+Î0HãH9HãH2,1710
+
 sequential.cc,1797
 inline static void visit_stmt_list(25,945
 SequentialStmt::SequentialStmt(32,1151
@@ -1298,6 +1441,9 @@ void WaitForStmt::write_to_stream(615,16049
 int WaitStmt::emit(621,16161
 void WaitStmt::write_to_stream(659,17014
 
+sequential_emit.o,28
+ˇˇˇHãE8Lçt$HãE8Lçt42,9891
+
 sequential.h,3984
 #define IVL_sequential_H2,25
 struct SeqStmtVisitor 32,1106
@@ -1407,6 +1553,10 @@ const VTypeEnum*find_std_enum_name(find_std_enum_name103,5091
 void emit_std_types(114,5345
 bool is_global_type(126,5713
 
+std_types.o,42
+HâÛH9∆w}Hç<vHâ’vHâ6,6323
+HüH211,19147
+
 subprogram.cc,1396
 SubprogramBody::SubprogramBody(33,1181
 SubprogramBody::~SubprogramBody(38,1258
@@ -1472,6 +1622,10 @@ class SubprogramBuiltin 158,5793
       ~SubprogramBuiltin(SubprogramBuiltin::~SubprogramBuiltin164,6085
       perm_string sv_name_;SubprogramBuiltin::sv_name_170,6273
 
+subprogram.o,73
+HãˇP`Ñ¿u/HãE HÖ¿HÖ6,3106
+HãˇP`Ñ¿u/HãE HÖ¿t;HãH9ÿuÎHãH9ÿu6,3106
+
 test.vhd,165
 library ieee;7,148
 use ieee.std_logic_1164.all;all8,162
@@ -1507,6 +1661,11 @@ vhdlnum.h,88
 #define IVL_vhdlnum_H2,22
 class vhdlnum 8,84
         vhdlnum(vhdlnum::vhdlnum10,112
+
+vhdlpp,57
+W†W5253,685042
+K6K633967,2045715
+~©~53268,3255182
 
 vhdlpp_config.h,202
 #define IVL_vhdlpp_config_H3,160
@@ -1619,6 +1778,11 @@ int VType::elaborate(24,959
 int VTypeArray::elaborate(29,1028
 int VTypeRangeExpr::elaborate(48,1477
 
+vtype_elaborate.o,40
+πBB9,1286
+ZZ177,4568
+ZZ189,4721
+
 vtype_emit.cc,576
 int VType::decl_t::emit(33,1097
 int VType::emit_decl(38,1214
@@ -1636,6 +1800,16 @@ int VTypeRecord::emit_def(224,5423
 int VTypeDef::emit_def(247,6146
 int VTypeDef::emit_decl(255,6285
 int VTypeDef::emit_typedef(260,6418
+
+vtype_emit.o,228
+zu115,10925
+jj117,11154
+OM406,25780
+,k407,25901
+‡NN411,26185
+,k414,26376
+II615,33054
+¨•vû›	<£vXí~êìJÌ{»ìXﬂ}X°»ﬂ}X°<»Û~<Ô|∫πêÂ}÷Çø}ÇmJ.sÚsuïsÚsu907,93450
 
 vtype.h,5393
 #define IVL_vtype_H2,20
@@ -1740,6 +1914,18 @@ bool VTypePrimitive::type_match(44,1359
 bool VTypeArray::type_match(66,2081
 bool VTypeRange::type_match(89,2739
 
+vtype.o,173
+HãHHâJ∂HàJHãHHâJ∂HàJ7,7137
+à$$384,19785
+à$$386,19876
+à$$388,19913
+à$$391,19955
+K€K395,20002
+à$$406,20299
+h‹h462,22922
+HæH478,23768
+TæT490,23912
+
 vtype_stream.cc,809
 # define __STDC_LIMIT_MACROS20,850
 void VType::write_to_stream(29,1018
@@ -1760,263 +1946,1004 @@ void VTypeRecord::element_t::write_to_stream(231,5372
 void VTypeEnum::write_to_stream(237,5501
 void VSubTypeDef::write_typedef_to_stream(251,5796
 
+lexor.cc,7844
+#define  YY_INT_ALIGNED 5,40
+#define FLEX_SCANNER9,118
+#define YY_FLEX_MAJOR_VERSION 10,139
+#define YY_FLEX_MINOR_VERSION 11,171
+#define YY_FLEX_SUBMINOR_VERSION 12,203
+#define FLEX_BETA14,271
+#define FLEXINT_H30,569
+#define __STDC_LIMIT_MACROS 40,880
+typedef int8_t flex_int8_t;44,940
+typedef uint8_t flex_uint8_t;45,968
+typedef int16_t flex_int16_t;46,998
+typedef uint16_t flex_uint16_t;47,1028
+typedef int32_t flex_int32_t;48,1060
+typedef uint32_t flex_uint32_t;49,1090
+typedef signed char flex_int8_t;51,1128
+typedef short int flex_int16_t;52,1161
+typedef int flex_int32_t;53,1193
+typedef unsigned char flex_uint8_t;54,1219
+typedef unsigned short int flex_uint16_t;55,1256
+typedef unsigned int flex_uint32_t;56,1298
+#define INT8_MIN 60,1384
+#define INT16_MIN 63,1447
+#define INT32_MIN 66,1514
+#define INT8_MAX 69,1585
+#define INT16_MAX 72,1647
+#define INT32_MAX 75,1711
+#define UINT8_MAX 78,1780
+#define UINT16_MAX 81,1844
+#define UINT32_MAX 84,1910
+#define YY_USE_CONST94,2080
+#define YY_USE_CONST101,2201
+#define yyconst 107,2303
+#define yyconst109,2331
+#define YY_NULL 113,2388
+#define YY_SC_TO_UI(120,2635
+#define YY_TYPEDEF_YY_SCANNER_T124,2751
+typedef void* yyscan_t;125,2783
+#define yyin 130,2921
+#define yyout 131,2946
+#define yyextra 132,2973
+#define yyleng 133,3004
+#define yytext 134,3033
+#define yylineno 135,3062
+#define yycolumn 136,3120
+#define yy_flex_debug 137,3178
+#define BEGIN 143,3394
+#define YY_START 149,3596
+#define YYSTATE 150,3639
+#define YY_STATE_EOF(153,3722
+#define YY_NEW_FILE 156,3842
+#define YY_END_OF_BUFFER_CHAR 158,3891
+#define YY_BUF_SIZE 167,4157
+#define YY_BUF_SIZE 169,4189
+#define YY_STATE_BUF_SIZE 175,4339
+#define YY_TYPEDEF_YY_BUFFER_STATE178,4447
+typedef struct yy_buffer_state *YY_BUFFER_STATE;YY_BUFFER_STATE179,4482
+#define YY_TYPEDEF_YY_SIZE_T183,4568
+typedef size_t yy_size_t;184,4597
+#define EOB_ACT_CONTINUE_SCAN 187,4631
+#define EOB_ACT_END_OF_FILE 188,4663
+#define EOB_ACT_LAST_MATCH 189,4693
+    #define YY_LESS_LINENO(191,4723
+    #define YY_LINENO_REWIND_TO(192,4753
+#define yyless(195,4875
+#define unput(208,5236
+#define YY_STRUCT_YY_BUFFER_STATE211,5330
+struct yy_buffer_state212,5364
+	FILE *yy_input_file;yy_buffer_state::yy_input_file214,5390
+	char *yy_ch_buf;yy_buffer_state::yy_ch_buf216,5413
+	char *yy_buf_pos;yy_buffer_state::yy_buf_pos217,5451
+	yy_size_t yy_buf_size;yy_buffer_state::yy_buf_size222,5594
+	yy_size_t yy_n_chars;yy_buffer_state::yy_n_chars227,5704
+	int yy_is_our_buffer;yy_buffer_state::yy_is_our_buffer233,5872
+	int yy_is_interactive;yy_buffer_state::yy_is_interactive240,6110
+	int yy_at_bol;yy_buffer_state::yy_at_bol246,6277
+    int yy_bs_lineno;yy_buffer_state::yy_bs_lineno248,6294
+    int yy_bs_column;yy_buffer_state::yy_bs_column249,6340
+	int yy_fill_buffer;yy_buffer_state::yy_fill_buffer254,6475
+	int yy_buffer_status;yy_buffer_state::yy_buffer_status256,6497
+#define YY_BUFFER_NEW 258,6521
+#define YY_BUFFER_NORMAL 259,6545
+#define YY_BUFFER_EOF_PENDING 270,7043
+#define YY_CURRENT_BUFFER 281,7315
+#define YY_CURRENT_BUFFER_LVALUE 288,7620
+#define YY_FLUSH_BUFFER 302,8355
+#define yy_new_buffer 312,8821
+#define yy_set_interactive(314,8861
+#define yy_set_bol(324,9156
+#define YY_AT_BOL(334,9418
+#define yywrap(338,9501
+#define YY_SKIP_YYWRAP339,9544
+typedef unsigned char YY_CHAR;341,9568
+typedef int yy_state_type;343,9600
+#define yytext_ptr 345,9628
+#define YY_DO_BEFORE_ACTION 358,10125
+#define YY_NUM_RULES 366,10347
+#define YY_END_OF_BUFFER 367,10371
+struct yy_trans_info370,10480
+	flex_int32_t yy_verify;yy_trans_info::yy_verify372,10504
+	flex_int32_t yy_nxt;yy_trans_info::yy_nxt373,10529
+static yyconst flex_int16_t yy_accept[yy_accept375,10555
+static yyconst YY_CHAR yy_ec[yy_ec388,11203
+static yyconst YY_CHAR yy_meta[yy_meta420,12920
+static yyconst flex_uint16_t yy_base[yy_base427,13141
+static yyconst flex_int16_t yy_def[yy_def443,13872
+static yyconst flex_uint16_t yy_nxt[yy_nxt459,14601
+static yyconst flex_int16_t yy_chk[yy_chk485,15947
+#define REJECT 514,17394
+#define yymore(515,17438
+#define YY_MORE_ADJ 516,17479
+#define YY_RESTORE_YY_MORE_OFFSET517,17516
+#define INITIAL 590,19823
+#define CCOMMENT 591,19841
+#define LCOMMENT 592,19860
+#define YY_EXTRA_TYPE 603,20163
+struct yyguts_t607,20255
+    YY_EXTRA_TYPE yyextra_r;yyguts_t::yyextra_r611,20323
+    FILE *yyin_r,yyguts_t::yyin_r614,20439
+    FILE *yyin_r, *yyout_r;yyguts_t::yyout_r614,20439
+    size_t yy_buffer_stack_top;yyguts_t::yy_buffer_stack_top615,20467
+    size_t yy_buffer_stack_max;yyguts_t::yy_buffer_stack_max616,20530
+    YY_BUFFER_STATE * yy_buffer_stack;yyguts_t::yy_buffer_stack617,20589
+    char yy_hold_char;yyguts_t::yy_hold_char618,20655
+    yy_size_t yy_n_chars;yyguts_t::yy_n_chars619,20678
+    yy_size_t yyleng_r;yyguts_t::yyleng_r620,20704
+    char *yy_c_buf_p;yyguts_t::yy_c_buf_p621,20728
+    int yy_init;yyguts_t::yy_init622,20750
+    int yy_start;yyguts_t::yy_start623,20767
+    int yy_did_buffer_switch_on_eof;yyguts_t::yy_did_buffer_switch_on_eof624,20785
+    int yy_start_stack_ptr;yyguts_t::yy_start_stack_ptr625,20822
+    int yy_start_stack_depth;yyguts_t::yy_start_stack_depth626,20850
+    int *yy_start_stack;yyguts_t::yy_start_stack627,20880
+    yy_state_type yy_last_accepting_state;yyguts_t::yy_last_accepting_state628,20905
+    char* yy_last_accepting_cpos;yyguts_t::yy_last_accepting_cpos629,20948
+    int yylineno_r;yyguts_t::yylineno_r631,20983
+    int yy_flex_debug_r;yyguts_t::yy_flex_debug_r632,21003
+    char *yytext_r;yyguts_t::yytext_r634,21029
+    int yy_more_flag;yyguts_t::yy_more_flag635,21049
+    int yy_more_len;yyguts_t::yy_more_len636,21071
+#define YY_READ_BUF_SIZE 717,22879
+#define YY_READ_BUF_SIZE 719,22916
+#define ECHO 728,23156
+#define YY_INPUT(735,23366
+#define yyterminate(772,24280
+#define YY_START_STACK_INCR 777,24415
+#define YY_FATAL_ERROR(782,24505
+#define YY_DECL_IS_OURS 791,24749
+#define YY_DECL 795,24816
+#define YY_USER_ACTION802,25006
+#define YY_BREAK 807,25099
+#define YY_RULE_SETUP 810,25141
+case YY_STATE_EOF(1158,32029
+	case YY_END_OF_BUFFER:YY_END_OF_BUFFER1163,32154
+static int yy_get_next_buffer 1301,36147
+    static yy_state_type yy_get_previous_state 1436,39888
+    static yy_state_type yy_try_NUL_trans 1469,40844
+    static int yyinput 1500,41702
+    void yyrestart 1578,43680
+    void yy_switch_to_buffer 1596,44188
+static void yy_load_buffer_state 1628,45137
+    YY_BUFFER_STATE yy_create_buffer 1643,45728
+    void yy_delete_buffer 1671,46516
+    static void yy_init_buffer 1691,47058
+    void yy_flush_buffer 1720,47872
+void yypush_buffer_state 1750,48676
+void yypop_buffer_state 1781,49586
+static void yyensure_buffer_stack 1801,50076
+YY_BUFFER_STATE yy_scan_buffer 1851,51934
+YY_BUFFER_STATE yy_scan_string 1888,53083
+YY_BUFFER_STATE yy_scan_bytes 1901,53566
+#define YY_EXIT_FAILURE 1932,54341
+static void yy_fatal_error 1935,54375
+#undef yyless1945,54636
+#define yyless(1946,54650
+YY_EXTRA_TYPE yyget_extra 1965,55175
+int yyget_lineno 1974,55382
+int yyget_column 1987,55648
+FILE *yyget_in yyget_in2000,55905
+FILE *yyget_out yyget_out2009,56092
+yy_size_t yyget_leng 2018,56295
+char *yyget_text yyget_text2028,56491
+void yyset_extra 2038,56797
+void yyset_lineno 2048,57068
+void yyset_column 2063,57494
+void yyset_in 2080,57995
+void yyset_out 2086,58131
+int yyget_debug 2092,58271
+void yyset_debug 2098,58397
+int yylex_init(2113,58854
+int yylex_init_extra(2142,59766
+static int yy_init_globals 2170,60460
+int yylex_destroy 2204,61329
+static void yy_flex_strncpy 2238,62237
+static int yy_flex_strlen 2250,62476
+void *yyalloc yyalloc2260,62604
+void *yyrealloc yyrealloc2267,62761
+void yyfree 2282,63304
+#define YYTABLES_NAME 2289,63484
+
+lexor.lex,804
+# define YY_NO_INPUT37,
+# define YY_DECL 39,
+#define yylloc 52,
+#define yylval 53,
+static char* strdupnew(67,
+static int comment_enter;72,
+YY_RULE_SETUP143,
+static bool are_underscores_correct(220,
+static bool is_based_correct(245,
+static char* escape_quot_and_dup(340,
+static char* escape_apostrophe_and_dup(381,
+static char*make_bitstring_bin(make_bitstring_bin389,
+static char*make_bitstring_oct(make_bitstring_oct416,
+static char*make_bitstring_hex(make_bitstring_hex463,
+static char*make_bitstring_dec(make_bitstring_dec526,
+static char* make_bitstring_literal(532,
+static double make_double_from_based(629,
+static unsigned short short_from_hex_char(686,
+static int64_t make_long_from_based(700,
+static int64_t lpow(737,
+yyscan_t prepare_lexor(744,
+void destroy_lexor(752,
+
+lexor_keyword.gperf,664
+struct lexor_keyword 18,
+struct lexor_keyword { const char*name;lexor_keyword::name18,
+struct lexor_keyword { const char*name; int mask;lexor_keyword::mask18,
+struct lexor_keyword { const char*name; int mask; int tokenType;lexor_keyword::tokenType18,
+#define TOTAL_KEYWORDS 20,
+#define MIN_WORD_LENGTH 21,
+#define MAX_WORD_LENGTH 22,
+#define MIN_HASH_VALUE 23,
+#define MAX_HASH_VALUE 24,
+#define GPERF_DOWNCASE 28,
+static unsigned char gperf_downcase[gperf_downcase29,
+#define GPERF_CASE_STRCMP 53,
+gperf_case_strcmp 55,
+class Lkwd68,
+Lkwd::keyword_hash 77,
+Lkwd::check_identifier 138,
+int lexor_keyword_mask 134,
+int lexor_keyword_code(136,
+
+parse.cc,11694
+#define YYBISON 44,2037
+#define YYBISON_VERSION 47,2078
+#define YYSKELETON_NAME 50,2133
+#define YYPURE 53,2188
+#define YYPUSH 56,2227
+#define YYPULL 59,2266
+#   define YY_NULLPTR 272,8483
+#   define YY_NULLPTR 274,8521
+# undef YYERROR_VERBOSE280,8626
+# define YYERROR_VERBOSE 281,8650
+# define YYERROR_VERBOSE 283,8683
+# define YY_YY_PARSE_HH_INCLUDED289,8844
+# define YYDEBUG 292,8914
+# define YYTOKENTYPE300,9019
+  enum yytokentype301,9040
+    K_abs yytokentype::K_abs303,9063
+    K_access yytokentype::K_access304,9080
+    K_after yytokentype::K_after305,9100
+    K_alias yytokentype::K_alias306,9119
+    K_all yytokentype::K_all307,9138
+    K_and yytokentype::K_and308,9155
+    K_architecture yytokentype::K_architecture309,9172
+    K_array yytokentype::K_array310,9198
+    K_assert yytokentype::K_assert311,9217
+    K_assume yytokentype::K_assume312,9237
+    K_assume_guarantee yytokentype::K_assume_guarantee313,9257
+    K_attribute yytokentype::K_attribute314,9287
+    K_begin yytokentype::K_begin315,9310
+    K_block yytokentype::K_block316,9329
+    K_body yytokentype::K_body317,9348
+    K_buffer yytokentype::K_buffer318,9366
+    K_bus yytokentype::K_bus319,9386
+    K_case yytokentype::K_case320,9403
+    K_component yytokentype::K_component321,9421
+    K_configuration yytokentype::K_configuration322,9444
+    K_constant yytokentype::K_constant323,9471
+    K_context yytokentype::K_context324,9493
+    K_cover yytokentype::K_cover325,9514
+    K_default yytokentype::K_default326,9533
+    K_disconnect yytokentype::K_disconnect327,9554
+    K_downto yytokentype::K_downto328,9578
+    K_else yytokentype::K_else329,9598
+    K_elsif yytokentype::K_elsif330,9616
+    K_end yytokentype::K_end331,9635
+    K_entity yytokentype::K_entity332,9652
+    K_exit yytokentype::K_exit333,9672
+    K_fairness yytokentype::K_fairness334,9690
+    K_file yytokentype::K_file335,9712
+    K_for yytokentype::K_for336,9730
+    K_force yytokentype::K_force337,9747
+    K_function yytokentype::K_function338,9766
+    K_generate yytokentype::K_generate339,9788
+    K_generic yytokentype::K_generic340,9810
+    K_group yytokentype::K_group341,9831
+    K_guarded yytokentype::K_guarded342,9850
+    K_if yytokentype::K_if343,9871
+    K_impure yytokentype::K_impure344,9887
+    K_in yytokentype::K_in345,9907
+    K_inertial yytokentype::K_inertial346,9923
+    K_inout yytokentype::K_inout347,9945
+    K_is yytokentype::K_is348,9964
+    K_label yytokentype::K_label349,9980
+    K_library yytokentype::K_library350,9999
+    K_linkage yytokentype::K_linkage351,10020
+    K_literal yytokentype::K_literal352,10041
+    K_loop yytokentype::K_loop353,10062
+    K_map yytokentype::K_map354,10080
+    K_mod yytokentype::K_mod355,10097
+    K_nand yytokentype::K_nand356,10114
+    K_new yytokentype::K_new357,10132
+    K_next yytokentype::K_next358,10149
+    K_nor yytokentype::K_nor359,10167
+    K_not yytokentype::K_not360,10184
+    K_null yytokentype::K_null361,10201
+    K_of yytokentype::K_of362,10219
+    K_on yytokentype::K_on363,10235
+    K_open yytokentype::K_open364,10251
+    K_or yytokentype::K_or365,10269
+    K_others yytokentype::K_others366,10285
+    K_out yytokentype::K_out367,10305
+    K_package yytokentype::K_package368,10322
+    K_parameter yytokentype::K_parameter369,10343
+    K_port yytokentype::K_port370,10366
+    K_postponed yytokentype::K_postponed371,10384
+    K_procedure yytokentype::K_procedure372,10407
+    K_process yytokentype::K_process373,10430
+    K_property yytokentype::K_property374,10451
+    K_protected yytokentype::K_protected375,10473
+    K_pure yytokentype::K_pure376,10496
+    K_range yytokentype::K_range377,10514
+    K_record yytokentype::K_record378,10533
+    K_register yytokentype::K_register379,10553
+    K_reject yytokentype::K_reject380,10575
+    K_release yytokentype::K_release381,10595
+    K_rem yytokentype::K_rem382,10616
+    K_report yytokentype::K_report383,10633
+    K_restrict yytokentype::K_restrict384,10653
+    K_restrict_guarantee yytokentype::K_restrict_guarantee385,10675
+    K_return yytokentype::K_return386,10707
+    K_reverse_range yytokentype::K_reverse_range387,10727
+    K_rol yytokentype::K_rol388,10754
+    K_ror yytokentype::K_ror389,10771
+    K_select yytokentype::K_select390,10788
+    K_sequence yytokentype::K_sequence391,10808
+    K_severity yytokentype::K_severity392,10830
+    K_signal yytokentype::K_signal393,10852
+    K_shared yytokentype::K_shared394,10872
+    K_sla yytokentype::K_sla395,10892
+    K_sll yytokentype::K_sll396,10909
+    K_sra yytokentype::K_sra397,10926
+    K_srl yytokentype::K_srl398,10943
+    K_strong yytokentype::K_strong399,10960
+    K_subtype yytokentype::K_subtype400,10980
+    K_then yytokentype::K_then401,11001
+    K_to yytokentype::K_to402,11019
+    K_transport yytokentype::K_transport403,11035
+    K_type yytokentype::K_type404,11058
+    K_unaffected yytokentype::K_unaffected405,11076
+    K_units yytokentype::K_units406,11100
+    K_until yytokentype::K_until407,11119
+    K_use yytokentype::K_use408,11138
+    K_variable yytokentype::K_variable409,11155
+    K_vmode yytokentype::K_vmode410,11177
+    K_vprop yytokentype::K_vprop411,11196
+    K_vunit yytokentype::K_vunit412,11215
+    K_wait yytokentype::K_wait413,11234
+    K_when yytokentype::K_when414,11252
+    K_while yytokentype::K_while415,11270
+    K_with yytokentype::K_with416,11289
+    K_xnor yytokentype::K_xnor417,11307
+    K_xor yytokentype::K_xor418,11325
+    IDENTIFIER yytokentype::IDENTIFIER419,11342
+    INT_LITERAL yytokentype::INT_LITERAL420,11364
+    REAL_LITERAL yytokentype::REAL_LITERAL421,11387
+    STRING_LITERAL yytokentype::STRING_LITERAL422,11411
+    CHARACTER_LITERAL yytokentype::CHARACTER_LITERAL423,11437
+    BITSTRING_LITERAL yytokentype::BITSTRING_LITERAL424,11466
+    LEQ yytokentype::LEQ425,11495
+    GEQ yytokentype::GEQ426,11510
+    VASSIGN yytokentype::VASSIGN427,11525
+    NE yytokentype::NE428,11544
+    BOX yytokentype::BOX429,11558
+    EXP yytokentype::EXP430,11573
+    ARROW yytokentype::ARROW431,11588
+    DLT yytokentype::DLT432,11605
+    DGT yytokentype::DGT433,11620
+    CC yytokentype::CC434,11635
+    M_EQ yytokentype::M_EQ435,11649
+    M_NE yytokentype::M_NE436,11665
+    M_LT yytokentype::M_LT437,11681
+    M_LEQ yytokentype::M_LEQ438,11697
+    M_GT yytokentype::M_GT439,11714
+    M_GEQ yytokentype::M_GEQ440,11730
+union YYSTYPE447,11834
+typedef union YYSTYPE YYSTYPE;512,13502
+# define YYSTYPE_IS_TRIVIAL 513,13533
+# define YYSTYPE_IS_DECLARED 514,13563
+typedef struct YYLTYPE YYLTYPE;519,13679
+struct YYLTYPE520,13711
+  int first_line;YYLTYPE::first_line522,13728
+  int first_column;YYLTYPE::first_column523,13746
+  int last_line;YYLTYPE::last_line524,13766
+  int last_column;YYLTYPE::last_column525,13783
+# define YYLTYPE_IS_DECLARED 527,13805
+# define YYLTYPE_IS_TRIVIAL 528,13836
+# undef short542,14109
+typedef YYTYPE_UINT8 yytype_uint8;546,14151
+typedef unsigned char yytype_uint8;548,14192
+typedef YYTYPE_INT8 yytype_int8;552,14255
+typedef signed char yytype_int8;554,14294
+typedef YYTYPE_UINT16 yytype_uint16;558,14356
+typedef unsigned short int yytype_uint16;560,14399
+typedef YYTYPE_INT16 yytype_int16;564,14469
+typedef short int yytype_int16;566,14510
+#  define YYSIZE_T 571,14589
+#  define YYSIZE_T 573,14644
+#  define YYSIZE_T 576,14753
+#  define YYSIZE_T 578,14786
+#define YYSIZE_MAXIMUM 582,14834
+#   define YY_(588,15004
+#  define YY_(592,15090
+#  define YY_ATTRIBUTE(600,15347
+#  define YY_ATTRIBUTE(602,15403
+# define YY_ATTRIBUTE_PURE 607,15486
+# define YY_ATTRIBUTE_UNUSED 611,15577
+#  define _Noreturn 617,15774
+#  define _Noreturn 619,15823
+# define YYUSE(625,15983
+# define YYUSE(627,16020
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN 632,16195
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END 636,16405
+# define YY_INITIAL_VALUE(639,16491
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN642,16581
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END643,16626
+# define YY_INITIAL_VALUE(646,16701
+#    define YYSTACK_ALLOC 657,16949
+#    define YYSTACK_ALLOC 661,17112
+#    define alloca 664,17232
+#    define YYSTACK_ALLOC 666,17268
+#      define EXIT_SUCCESS 671,17498
+#  define YYSTACK_FREE(680,17648
+#   define YYSTACK_ALLOC_MAXIMUM 686,18038
+#  define YYSTACK_ALLOC 689,18120
+#  define YYSTACK_FREE 690,18153
+#   define YYSTACK_ALLOC_MAXIMUM 692,18215
+#    define EXIT_SUCCESS 699,18512
+#   define YYMALLOC 703,18577
+#   define YYFREE 709,18750
+union yyalloc724,19213
+  yytype_int16 yyss_alloc;yyalloc::yyss_alloc726,19229
+  YYSTYPE yyvs_alloc;yyalloc::yyvs_alloc727,19256
+  YYLTYPE yyls_alloc;yyalloc::yyls_alloc728,19278
+# define YYSTACK_GAP_MAXIMUM 732,19379
+# define YYSTACK_BYTES(736,19527
+# define YYCOPY_NEEDED 740,19665
+# define YYSTACK_RELOCATE(747,19974
+#   define YYCOPY(765,20853
+#   define YYCOPY(768,20959
+#define YYFINAL 781,21428
+#define YYLAST 783,21487
+#define YYNTOKENS 786,21551
+#define YYNNTS 788,21615
+#define YYNRULES 790,21671
+#define YYNSTATES 792,21731
+#define YYUNDEFTOK 796,21871
+#define YYMAXUTOK 797,21893
+#define YYTRANSLATE(799,21918
+static const yytype_uint8 yytranslate[yytranslate804,22194
+static const yytype_uint16 yyrline[yyrline850,25217
+static const char *const yytname[yytname904,28735
+static const yytype_uint16 yytoknum[yytoknum1009,35318
+#define YYPACT_NINF 1030,36518
+#define yypact_value_is_default(1032,36544
+#define YYTABLE_NINF 1035,36616
+#define yytable_value_is_error(1037,36643
+static const yytype_int16 yypact[yypact1042,36785
+static const yytype_uint16 yydefact[yydefact1138,43468
+static const yytype_int16 yypgoto[yypgoto1232,49997
+static const yytype_int16 yydefgoto[yydefgoto1257,51517
+static const yytype_int16 yytable[yytable1284,53212
+static const yytype_int16 yycheck[yycheck1417,62630
+static const yytype_uint16 yystos[yystos1552,72149
+static const yytype_uint16 yyr1[yyr11646,78716
+static const yytype_uint8 yyr2[yyr21697,82128
+#define yyerrok 1748,85464
+#define yyclearin 1749,85506
+#define YYEMPTY 1750,85549
+#define YYEOF 1751,85578
+#define YYACCEPT 1753,85605
+#define YYABORT 1754,85646
+#define YYERROR 1755,85686
+#define YYRECOVERING(1758,85728
+#define YYBACKUP(1760,85769
+#define YYTERROR 1778,86835
+#define YYERRCODE 1779,86861
+# define YYLLOC_DEFAULT(1787,87096
+#define YYRHSLOC(1806,88302
+#  define YYFPRINTF 1814,88466
+# define YYDPRINTF(1817,88503
+yy_location_print_ 1835,89099
+#  define YY_LOCATION_PRINT(1859,89832
+#  define YY_LOCATION_PRINT(1863,89926
+# define YY_SYMBOL_PRINT(1868,89993
+yy_symbol_value_print 1885,90846
+yy_symbol_print 1908,91449
+yy_stack_print 1925,92253
+# define YY_STACK_PRINT(1936,92503
+yy_reduce_print 1948,92950
+# define YY_REDUCE_PRINT(1967,93722
+int yydebug;1975,94061
+# define YYDPRINTF(1977,94095
+# define YY_SYMBOL_PRINT(1978,94120
+# define YY_STACK_PRINT(1979,94175
+# define YY_REDUCE_PRINT(1980,94212
+# define YYINITDEPTH 1986,94346
+# define YYMAXDEPTH 1997,94702
+#   define yystrlen 2005,94821
+yystrlen 2009,94907
+#   define yystpcpy 2021,95133
+yystpcpy 2026,95271
+yytnamerr 2048,95919
+yysyntax_error 2096,97081
+  enum { YYERROR_VERBOSE_ARGS_MAXIMUM ::YYERROR_VERBOSE_ARGS_MAXIMUM2101,97278
+# define YYCASE_(2172,100467
+# undef YYCASE_2182,101018
+yydestruct 2228,102142
+yyparse 2252,102659
+#define YYPOPSTACK(2323,104529
+#  undef YYSTACK_RELOCATE2402,107058
+# define YYSYNTAX_ERROR 5700,202039
+# undef YYSYNTAX_ERROR5729,203037
+
+parse.h,3192
+# define YY_YY_PARSE_HH_INCLUDED34,1546
+# define YYDEBUG 37,1616
+# define YYTOKENTYPE45,1721
+  enum yytokentype46,1742
+    K_abs 48,1765
+    K_access 49,1782
+    K_after 50,1802
+    K_alias 51,1821
+    K_all 52,1840
+    K_and 53,1857
+    K_architecture 54,1874
+    K_array 55,1900
+    K_assert 56,1919
+    K_assume 57,1939
+    K_assume_guarantee 58,1959
+    K_attribute 59,1989
+    K_begin 60,2012
+    K_block 61,2031
+    K_body 62,2050
+    K_buffer 63,2068
+    K_bus 64,2088
+    K_case 65,2105
+    K_component 66,2123
+    K_configuration 67,2146
+    K_constant 68,2173
+    K_context 69,2195
+    K_cover 70,2216
+    K_default 71,2235
+    K_disconnect 72,2256
+    K_downto 73,2280
+    K_else 74,2300
+    K_elsif 75,2318
+    K_end 76,2337
+    K_entity 77,2354
+    K_exit 78,2374
+    K_fairness 79,2392
+    K_file 80,2414
+    K_for 81,2432
+    K_force 82,2449
+    K_function 83,2468
+    K_generate 84,2490
+    K_generic 85,2512
+    K_group 86,2533
+    K_guarded 87,2552
+    K_if 88,2573
+    K_impure 89,2589
+    K_in 90,2609
+    K_inertial 91,2625
+    K_inout 92,2647
+    K_is 93,2666
+    K_label 94,2682
+    K_library 95,2701
+    K_linkage 96,2722
+    K_literal 97,2743
+    K_loop 98,2764
+    K_map 99,2782
+    K_mod 100,2799
+    K_nand 101,2816
+    K_new 102,2834
+    K_next 103,2851
+    K_nor 104,2869
+    K_not 105,2886
+    K_null 106,2903
+    K_of 107,2921
+    K_on 108,2937
+    K_open 109,2953
+    K_or 110,2971
+    K_others 111,2987
+    K_out 112,3007
+    K_package 113,3024
+    K_parameter 114,3045
+    K_port 115,3068
+    K_postponed 116,3086
+    K_procedure 117,3109
+    K_process 118,3132
+    K_property 119,3153
+    K_protected 120,3175
+    K_pure 121,3198
+    K_range 122,3216
+    K_record 123,3235
+    K_register 124,3255
+    K_reject 125,3277
+    K_release 126,3297
+    K_rem 127,3318
+    K_report 128,3335
+    K_restrict 129,3355
+    K_restrict_guarantee 130,3377
+    K_return 131,3409
+    K_reverse_range 132,3429
+    K_rol 133,3456
+    K_ror 134,3473
+    K_select 135,3490
+    K_sequence 136,3510
+    K_severity 137,3532
+    K_signal 138,3554
+    K_shared 139,3574
+    K_sla 140,3594
+    K_sll 141,3611
+    K_sra 142,3628
+    K_srl 143,3645
+    K_strong 144,3662
+    K_subtype 145,3682
+    K_then 146,3703
+    K_to 147,3721
+    K_transport 148,3737
+    K_type 149,3760
+    K_unaffected 150,3778
+    K_units 151,3802
+    K_until 152,3821
+    K_use 153,3840
+    K_variable 154,3857
+    K_vmode 155,3879
+    K_vprop 156,3898
+    K_vunit 157,3917
+    K_wait 158,3936
+    K_when 159,3954
+    K_while 160,3972
+    K_with 161,3991
+    K_xnor 162,4009
+    K_xor 163,4027
+    IDENTIFIER 164,4044
+    INT_LITERAL 165,4066
+    REAL_LITERAL 166,4089
+    STRING_LITERAL 167,4113
+    CHARACTER_LITERAL 168,4139
+    BITSTRING_LITERAL 169,4168
+    LEQ 170,4197
+    GEQ 171,4212
+    VASSIGN 172,4227
+    NE 173,4246
+    BOX 174,4260
+    EXP 175,4275
+    ARROW 176,4290
+    DLT 177,4307
+    DGT 178,4322
+    CC 179,4337
+    M_EQ 180,4351
+    M_NE 181,4367
+    M_LT 182,4383
+    M_LEQ 183,4399
+    M_GT 184,4416
+    M_GEQ 185,4432
+union YYSTYPE192,4536
+
+parse.hh,407
+typedef union YYSTYPE YYSTYPE;257,
+# define YYSTYPE_IS_TRIVIAL 258,
+# define YYSTYPE_IS_DECLARED 259,
+typedef struct YYLTYPE YYLTYPE;264,
+struct YYLTYPE265,
+  int first_line;YYLTYPE::first_line267,
+  int first_column;YYLTYPE::first_column268,
+  int last_line;YYLTYPE::last_line269,
+  int last_column;YYLTYPE::last_column270,
+# define YYLTYPE_IS_DECLARED 272,
+# define YYLTYPE_IS_TRIVIAL 273,
+
 parse.y,12685
-inline void FILE_NAME(54,1691
-# define YYLLOC_DEFAULT(65,2099
-int parse_errors 71,2381
-int parse_sorrys 72,2403
-static ActiveScope*active_scope active_scope86,2776
-static stack<ActiveScope*> scope_stack;87,2827
-static SubprogramHeader*active_sub active_sub88,2867
-static ActiveScope*arc_scope arc_scope89,2910
-static void push_scope(98,3273
-static void pop_scope(105,3426
-static bool is_subprogram_param(113,3588
-void preload_global_types(121,3737
-static void delete_global_scope(129,3938
-static void delete_design_entities(136,4117
-void parser_cleanup(144,4349
-const VType*parse_type_by_name(parse_type_by_name152,4488
-static Expression*aggregate_or_primary(aggregate_or_primary167,5056
-static list<VTypeRecord::element_t*>* record_elements(185,5509
-static void touchup_interface_for_functions(198,5885
-      port_mode_t port_mode;212,6180
-      char*text;text214,6210
-      std::list<perm_string>* name_list;216,6228
-      bool flag;218,6270
-      int64_t uni_integer;219,6287
-      double  uni_real;220,6314
-      Expression*expr;expr222,6339
-      std::list<Expression*>* expr_list;223,6362
-      SequentialStmt* sequ;225,6404
-      std::list<SequentialStmt*>*sequ_list;sequ_list226,6432
-      IfSequential::Elsif*elsif;elsif228,6477
-      std::list<IfSequential::Elsif*>*elsif_list;elsif_list229,6510
-      ExpConditional::case_t*exp_options;exp_options231,6561
-      std::list<ExpConditional::case_t*>*exp_options_list;exp_options_list232,6603
-      CaseSeqStmt::CaseStmtAlternative* case_alt;234,6663
-      std::list<CaseSeqStmt::CaseStmtAlternative*>* case_alt_list;235,6713
-      named_expr_t*named_expr;named_expr237,6781
-      std::list<named_expr_t*>*named_expr_list;named_expr_list238,6812
-      entity_aspect_t* entity_aspect;239,6860
-      instant_list_t* instantiation_list;240,6898
-      std::pair<instant_list_t*instant_list_t241,6940
-      std::pair<instant_list_t*, ExpName*>* component_specification;241,6940
-      const VType* vtype;243,7010
-      ExpRange*range;range245,7037
-      std::list<ExpRange*>*range_list;range_list246,7059
-      ExpRange::range_dir_t range_dir;247,7098
-      ExpArithmetic::fun_t arithmetic_op;249,7138
-      std::list<struct adding_term>*adding_terms;adding_terms250,7180
-      ExpAggregate::choice_t*choice;choice252,7231
-      std::list<ExpAggregate::choice_t*>*choice_list;choice_list253,7268
-      ExpAggregate::element_t*element;element254,7322
-      std::list<ExpAggregate::element_t*>*element_list;element_list255,7361
-      std::list<VTypeRecord::element_t*>*record_elements;record_elements257,7418
-      std::list<InterfacePort*>* interface_list;259,7477
-      Architecture::Statement* arch_statement;261,7527
-      std::list<Architecture::Statement*>* arch_statement_list;262,7574
-      ReportStmt::severity_t severity;264,7639
-      SubprogramHeader*subprogram;subprogram266,7679
-      file_open_info_t*file_info;file_info268,7715
-design_file 392,13146
-  : '+' { $$ = Eadding_operator394,13205
-  : architecture_barchitecture_body400,13344
-  : K_architecture IDENTarchitecture_body_start422,13979
-  : architecture_statement_parchitecture_statement_part434,14206
-argument_list 453,14667
-  : argument_list argument_list_opt455,14722
-  : K_assert expressassertion_statement460,14792
-  : IDENTIFIER ARROWassociation_element476,15215
-  : association_lassociation_list494,15622
-  : K_use entity_asbinding_indication507,15905
-  : binding_indication ';' { $$ =binding_indication_semicolon_opt517,16222
-  : K_for IDENTIFIERblock_configuration522,16316
-  : block_configurationblock_configuration_opt530,16450
-  : K_signal identifierblock_declarative_item535,16507
-  : block_declarative_itblock_declarative_items576,17537
-  : block_declarative_itemsblock_declarative_items_opt581,17644
-  : K_case exprcase_statement586,17709
-  : case_statement_alternative_lcase_statement_alternative_list597,17919
-  : K_when choices ARROW secase_statement_alternative617,18570
-  : simchoice655,19916
-  : choichoices664,20137
-  : K_for component_speccomponent_configuration677,20406
-  : K_component IDENTIcomponent_declaration694,20825
-  : IDENTIFIERinstantiated_unit722,21541
-  : IDENTIFIER ':' instantiated_uncomponent_instantiation_statement727,21619
-  : instantiation_list 'component_specification747,22157
-  : K_array index_constraicomposite_type_definition756,22396
-  : assertion_statementconcurrent_assertion_statement779,23021
-  : name LEQ waveform K_when expression econcurrent_conditional_signal_assignment799,23780
-  : name LEQ waveform ';'concurrent_simple_signal_assignment831,24770
-  : else_when_wavefoelse_when_waveforms842,25010
-  : else_when_waveforms else_when_waveforms_opt855,25309
-  : K_else waveformelse_when_waveform861,25392
-  : concurrent_simple_signal_assignmentconcurrent_signal_assignment_statement874,25700
-  : component_instantconcurrent_statement907,26417
-  : K_configuration IDENTIconfiguration_declaration915,26604
-  : use_clauseconfiguration_declarative_item933,27332
-  : configuration_declarative_itconfiguration_declarative_items937,27383
-  : configuration_declarative_iconfiguration_declarative_part942,27522
-  : block_configuraconfiguration_item947,27598
-  : configuration_itconfiguration_items952,27674
-  : configuration_itemsconfiguration_items_opt957,27765
-  : K_constant identiconstant_declaration962,27822
-context_clause 1000,28972
-  : library_ccontext_item1002,29008
-  : context_itcontext_items1007,29064
-  : context_design_unit1013,29132
-  : design_undesign_units1018,29234
-  : K_to {direction1023,29297
-  : choices ARROW exelement_association1028,29384
-  : element_association_lelement_association_list1040,29652
-  : identifier_list element_declaration1053,29984
-  : element_declaration_lelement_declaration_list1060,30121
-  : K_entity nentity_aspect1071,30381
-  : entity_aspect entity_aspect_opt1091,30879
-  : K_entity IDENTIentity_declaration1096,30949
-  : IDENTIFIERenumeration_literal1121,31662
-  : enumeration_literal_lenumeration_literal_list1130,31828
-  : expression_lexpression_list1146,32150
-  : expressexpression1159,32392
-  : relation { $$ =expression_logical1189,33268
-  : relationexpression_logical_and1223,34180
-  : relationexpression_logical_or1233,34388
-  : relationexpression_logical_xnor1243,34592
-  : relationexpression_logical_xor1253,34804
-  : prifactor1263,35012
-  : K_file identifile_declaration1283,35388
-  : K_open IDENTIFIER file_open_information1327,36874
-  : file_open_information file_open_information_opt1340,37212
-  : IDENTIFIER ':' K_fofor_generate_statement1345,37298
-  : K_function IDENTIFIfunction_specification1366,37827
-  : if_generate_stagenerate_statement1380,38272
-  : architecture_statemegenerate_statement_body1385,38376
-  : generic_clausegeneric_clause_opt1389,38450
-  : K_generic pgeneric_clause1396,38533
-  : generic_map_aspect generic_map_aspect_opt1406,38728
-  : K_generic K_mapgeneric_map_aspect1411,38827
-  : identifier_lidentifier_list1421,39046
-identifier_opt 1436,39366
-identifier_colon_opt 1438,39424
-  : IDENTIFIER ':' K_iif_generate_statement1444,39701
-  : K_if exprif_statement1463,40177
-  : if_statement_elsif_list if_statement_elsif_list_opt1497,40946
-  : if_statement_elsif_lif_statement_elsif_list1502,41061
-  : K_elsif expressif_statement_elsif1515,41358
-  : K_else sequencif_statement_else1529,41685
-  : '(' range_lisindex_constraint1541,41894
-  : IDENTIFIER K_range BOindex_subtype_definition1552,42125
-  : index_subtype_definition_lindex_subtype_definition_list1556,42212
-  : identifier_listinstantiation_list1561,42339
-  : identifier_lisinterface_element1580,42752
-  : VASSIGN expression { $$ =interface_element_expression1598,43257
-  : interface_linterface_list1603,43362
-  : K_library llibrary_clause1616,43614
-  : primary_ulibrary_unit1627,43924
-logical_name 1632,43978
-  : logical_name_llogical_name_list1634,44020
-  : identifier_loop_statement1649,44347
-  : Kmode1704,46188
-mode_opt 1710,46288
-  : Iname1712,46338
-  : IDENTIFIEindexed_name1745,47301
-  : name_lname_list1770,48176
-  : package_declaratpackage_declaration1783,48409
-  : K_package IDENTIFIERpackage_declaration_start1809,49235
-  : use_clausepackage_body_declarative_item1818,49417
-  : package_body_declarative_itpackage_body_declarative_items1823,49512
-  : package_body_declarative_itemspackage_body_declarative_part_opt1827,49646
-  : component_declarationpackage_declarative_item1832,49724
-  : package_declarative_itpackage_declarative_items1845,49993
-  : package_declarative_itemspackage_declarative_part_opt1850,50108
-  : package_bpackage_body1855,50176
-  : K_package K_bodpackage_body_start1878,50830
-  : '(' interfaparameter_list1892,51183
-  : parameter_list parameter_list_opt1896,51243
-  : K_port pport_clause1901,51332
-port_clause_opt 1911,51508
-  : K_port K_mapport_map_aspect1913,51564
-  : port_map_aspect port_map_aspect_opt1922,51755
-  : namprefix1928,51848
-  : nameprimary1933,51914
-  : entity_deprimary_unit2029,54289
-  : IDENTIFIER procedure_call2035,54384
-  : IDENTIFIER ':' procedprocedure_call_statement2066,55101
-  : K_procedure IDENTIFIprocedure_specification2074,55236
-  : variable_declarationprocess_declarative_item2085,55541
-  : process_declarative_pprocess_declarative_part2090,55617
-  : process_declarative_partprocess_declarative_part_opt2095,55730
-  : identifierprocess_start2100,55797
-  : process_start process_statement2107,55917
-  : '(' process_sensitivity_lprocess_sensitivity_list_opt2148,57103
-  : K_allprocess_sensitivity_list2160,57321
-  : sirange2172,57552
-  : rangerange_list2204,58412
-  : K_record element_derecord_type_definition2217,58628
-  : shiftrelation2224,58775
-  : K_report exprreport_statement2259,59771
-  : K_return exprreturn_statement2266,59918
-  : architectursecondary_unit2286,60332
-  : prefix '.'selected_name2291,60391
-  : selected_naselected_names2310,60853
-  : IDENTIFIER '.'selected_name_lib2326,61316
-  : selected_names_selected_names_lib2344,61701
-  : K_with expression K_selselected_signal_assignment2349,61792
-  : waveform K_wheselected_waveform2365,62155
-  : selected_waveform_lselected_waveform_list2378,62464
-  : list_of_statemelist_of_statements2391,62770
-  : list_of_statements sequence_of_statements2406,63097
-  : if_statement     sequential_statement2411,63180
-  : K_sevseverity2430,63719
-  : severity severity_opt2447,64212
-  : simple_expresshift_expression2451,64290
-  : 'sign2487,65392
-  : VASSIGN expression { $$ = signal_declaration_assign_opt2492,65418
-  : sign simple_exsimple_expression2516,66419
-  : termsimple_expression_22525,66594
-  : adding_operator termsimple_expression_terms2545,67056
-  : name LEQ wavefsignal_assignment2564,67450
-  : signal_assignmentsignal_assignment_statement2579,67850
-  : subprogram_specifisubprogram_body_start2586,67977
-  : subprogram_bsubprogram_body2596,68246
-  : subprogram_specificsubprogram_declaration2628,69089
-  : variable_declarationsubprogram_declarative_item2633,69215
-  : subprogram_declarative_item_lsubprogram_declarative_item_list2638,69320
-  : subprogram_declarative_isubprogram_declarative_part2643,69455
-  : K_functionsubprogram_kind2648,69555
-subprogram_kind_opt 2653,69633
-  : function_specificatiosubprogram_specification2655,69676
-  : sequence_of_statementssubprogram_statement_part2664,69977
-  : K_subtype IDENTIsubtype_declaration2668,70048
-  : IDENTIFIERsubtype_indication2689,70678
-  : IDEsuffix2718,71450
-  : fterm2729,71639
-  : K_type IDENTItype_declaration2754,72232
-  : '(' enumerattype_definition2791,73286
-  : K_use suse_clause2803,73498
-  : K_use selecuse_clause_lib2810,73646
-  : use_clauses_use_clauses_lib2816,73784
-  : use_clauses_use_clauses_opt2821,73859
-  : variable_assignmentvariable_assignment_statement2826,73904
-  : name VASSIGN expvariable_assignment2833,74066
-  : K_shared_opt K_vavariable_declaration2853,74526
-  : VASSIGN expression { $$ = $2variable_declaration_assign_opt2871,75113
-  : K_wait K_fowait_statement2876,75222
-  : wavefwaveform2899,75776
-  : waveform_elemewaveform_elements2906,75866
-  : expressionwaveform_element2919,76139
-K_architecture_opt 2932,76471
-K_configuration_opt:K_configuration_opt2933,76511
-K_entity_opt 2934,76551
-K_is_opt 2935,76591
-K_package_opt 2936,76631
-K_postponed_opt 2937,76671
-K_shared_opt 2938,76711
-static void yyerror(2941,76755
-void errormsg(2947,76934
-void sorrymsg(2958,77180
-int parse_source_file(2977,77665
+inline void FILE_NAME(53,1690
+# define YYLLOC_DEFAULT(64,2098
+int parse_errors 70,2380
+int parse_sorrys 71,2402
+static ActiveScope*active_scope active_scope85,2775
+static stack<ActiveScope*> scope_stack;86,2826
+static SubprogramHeader*active_sub active_sub87,2866
+static ActiveScope*arc_scope arc_scope88,2909
+static void push_scope(97,3272
+static void pop_scope(104,3425
+static bool is_subprogram_param(112,3587
+void preload_global_types(120,3736
+static void delete_global_scope(128,3937
+static void delete_design_entities(135,4116
+void parser_cleanup(143,4348
+const VType*parse_type_by_name(parse_type_by_name151,4487
+static Expression*aggregate_or_primary(aggregate_or_primary166,5055
+static list<VTypeRecord::element_t*>* record_elements(184,5508
+static void touchup_interface_for_functions(197,5884
+      port_mode_t port_mode;211,6179
+      char*text;text213,6209
+      std::list<perm_string>* name_list;215,6227
+      bool flag;217,6269
+      int64_t uni_integer;218,6286
+      double  uni_real;219,6313
+      Expression*expr;expr221,6338
+      std::list<Expression*>* expr_list;222,6361
+      SequentialStmt* sequ;224,6403
+      std::list<SequentialStmt*>*sequ_list;sequ_list225,6431
+      IfSequential::Elsif*elsif;elsif227,6476
+      std::list<IfSequential::Elsif*>*elsif_list;elsif_list228,6509
+      ExpConditional::case_t*exp_options;exp_options230,6560
+      std::list<ExpConditional::case_t*>*exp_options_list;exp_options_list231,6602
+      CaseSeqStmt::CaseStmtAlternative* case_alt;233,6662
+      std::list<CaseSeqStmt::CaseStmtAlternative*>* case_alt_list;234,6712
+      named_expr_t*named_expr;named_expr236,6780
+      std::list<named_expr_t*>*named_expr_list;named_expr_list237,6811
+      entity_aspect_t* entity_aspect;238,6859
+      instant_list_t* instantiation_list;239,6897
+      std::pair<instant_list_t*instant_list_t240,6939
+      std::pair<instant_list_t*, ExpName*>* component_specification;240,6939
+      const VType* vtype;242,7009
+      ExpRange*range;range244,7036
+      std::list<ExpRange*>*range_list;range_list245,7058
+      ExpRange::range_dir_t range_dir;246,7097
+      ExpArithmetic::fun_t arithmetic_op;248,7137
+      std::list<struct adding_term>*adding_terms;adding_terms249,7179
+      ExpAggregate::choice_t*choice;choice251,7230
+      std::list<ExpAggregate::choice_t*>*choice_list;choice_list252,7267
+      ExpAggregate::element_t*element;element253,7321
+      std::list<ExpAggregate::element_t*>*element_list;element_list254,7360
+      std::list<VTypeRecord::element_t*>*record_elements;record_elements256,7417
+      std::list<InterfacePort*>* interface_list;258,7476
+      Architecture::Statement* arch_statement;260,7526
+      std::list<Architecture::Statement*>* arch_statement_list;261,7573
+      ReportStmt::severity_t severity;263,7638
+      SubprogramHeader*subprogram;subprogram265,7678
+      file_open_info_t*file_info;file_info267,7714
+design_file 391,13145
+  : '+' { $$ = Eadding_operator393,13204
+  : architecture_barchitecture_body402,13518
+  : K_architecture IDENTarchitecture_body_start425,14165
+  : architecture_statement_parchitecture_statement_part437,14392
+argument_list 456,14853
+  : argument_list argument_list_opt458,14908
+  : K_assert expressassertion_statement463,14978
+  : IDENTIFIER ARROWassociation_element479,15401
+  : association_lassociation_list497,15813
+  : K_use entity_asbinding_indication510,16096
+  : binding_indication ';' { $$ =binding_indication_semicolon_opt520,16413
+  : K_for IDENTIFIERblock_configuration525,16507
+  : block_configurationblock_configuration_opt533,16641
+  : K_signal identifierblock_declarative_item538,16698
+  : block_declarative_itblock_declarative_items579,17728
+  : block_declarative_itemsblock_declarative_items_opt584,17835
+  : K_case exprcase_statement589,17900
+  : case_statement_alternative_lcase_statement_alternative_list600,18110
+  : K_when choices ARROW secase_statement_alternative620,18761
+  : simchoice658,20107
+  : choichoices667,20328
+  : K_for component_speccomponent_configuration680,20597
+  : K_component IDENTIcomponent_declaration697,21016
+  : IDENTIFIERinstantiated_unit725,21732
+  : IDENTIFIER ':' instantiated_uncomponent_instantiation_statement730,21810
+  : instantiation_list 'component_specification750,22348
+  : K_array index_constraicomposite_type_definition759,22587
+  : assertion_statementconcurrent_assertion_statement782,23212
+  : name LEQ waveform K_when expression econcurrent_conditional_signal_assignment802,23971
+  : name LEQ waveform ';'concurrent_simple_signal_assignment834,24961
+  : else_when_wavefoelse_when_waveforms845,25201
+  : else_when_waveforms else_when_waveforms_opt858,25500
+  : K_else waveformelse_when_waveform864,25583
+  : concurrent_simple_signal_assignmentconcurrent_signal_assignment_statement877,25891
+  : component_instantconcurrent_statement910,26608
+  : K_configuration IDENTIconfiguration_declaration918,26795
+  : use_clauseconfiguration_declarative_item936,27523
+  : configuration_declarative_itconfiguration_declarative_items940,27574
+  : configuration_declarative_iconfiguration_declarative_part945,27713
+  : block_configuraconfiguration_item950,27789
+  : configuration_itconfiguration_items955,27865
+  : configuration_itemsconfiguration_items_opt960,27956
+  : K_constant identiconstant_declaration965,28013
+context_clause 1003,29163
+  : library_ccontext_item1005,29199
+  : context_itcontext_items1010,29255
+  : context_design_unit1016,29323
+  : design_undesign_units1021,29425
+  : K_to {direction1026,29488
+  : choices ARROW exelement_association1031,29575
+  : element_association_lelement_association_list1043,29843
+  : identifier_list element_declaration1056,30175
+  : element_declaration_lelement_declaration_list1063,30312
+  : K_entity nentity_aspect1074,30572
+  : entity_aspect entity_aspect_opt1094,31070
+  : K_entity IDENTIentity_declaration1099,31140
+  : IDENTIFIERenumeration_literal1124,31853
+  : enumeration_literal_lenumeration_literal_list1133,32019
+  : expression_lexpression_list1149,32341
+  : expressexpression1162,32583
+  : relation { $$ =expression_logical1192,33459
+  : relationexpression_logical_and1226,34371
+  : relationexpression_logical_or1236,34579
+  : relationexpression_logical_xnor1246,34783
+  : relationexpression_logical_xor1256,34995
+  : prifactor1266,35203
+  : K_file identifile_declaration1286,35579
+  : K_open IDENTIFIER file_open_information1330,37065
+  : file_open_information file_open_information_opt1343,37403
+  : IDENTIFIER ':' K_fofor_generate_statement1348,37489
+  : K_function IDENTIFIfunction_specification1369,38018
+  : if_generate_stagenerate_statement1383,38463
+  : architecture_statemegenerate_statement_body1388,38567
+  : generic_clausegeneric_clause_opt1392,38641
+  : K_generic pgeneric_clause1399,38724
+  : generic_map_aspect generic_map_aspect_opt1409,38919
+  : K_generic K_mapgeneric_map_aspect1414,39018
+  : identifier_lidentifier_list1424,39237
+identifier_opt 1439,39557
+identifier_colon_opt 1441,39615
+  : IDENTIFIER ':' K_iif_generate_statement1447,39892
+  : K_if exprif_statement1466,40368
+  : if_statement_elsif_list if_statement_elsif_list_opt1500,41137
+  : if_statement_elsif_lif_statement_elsif_list1505,41252
+  : K_elsif expressif_statement_elsif1518,41549
+  : K_else sequencif_statement_else1532,41876
+  : '(' range_lisindex_constraint1544,42085
+  : IDENTIFIER K_range BOindex_subtype_definition1555,42316
+  : index_subtype_definition_lindex_subtype_definition_list1559,42403
+  : identifier_listinstantiation_list1564,42530
+  : identifier_lisinterface_element1583,42943
+  : VASSIGN expression { $$ =interface_element_expression1601,43448
+  : interface_linterface_list1606,43553
+  : K_library llibrary_clause1619,43805
+  : primary_ulibrary_unit1630,44115
+logical_name 1635,44169
+  : logical_name_llogical_name_list1637,44211
+  : identifier_loop_statement1652,44538
+  : Kmode1707,46379
+mode_opt 1713,46479
+  : Iname1715,46529
+  : IDENTIFIEindexed_name1748,47492
+  : name_lname_list1773,48367
+  : package_declaratpackage_declaration1786,48600
+  : K_package IDENTIFIERpackage_declaration_start1812,49426
+  : use_clausepackage_body_declarative_item1821,49608
+  : package_body_declarative_itpackage_body_declarative_items1826,49703
+  : package_body_declarative_itemspackage_body_declarative_part_opt1830,49837
+  : component_declarationpackage_declarative_item1835,49915
+  : package_declarative_itpackage_declarative_items1848,50184
+  : package_declarative_itemspackage_declarative_part_opt1853,50299
+  : package_bpackage_body1858,50367
+  : K_package K_bodpackage_body_start1881,51021
+  : '(' interfaparameter_list1895,51374
+  : parameter_list parameter_list_opt1899,51434
+  : K_port pport_clause1904,51523
+port_clause_opt 1914,51699
+  : K_port K_mapport_map_aspect1916,51755
+  : port_map_aspect port_map_aspect_opt1925,51946
+  : namprefix1931,52039
+  : nameprimary1936,52105
+  : entity_deprimary_unit2032,54480
+  : IDENTIFIER procedure_call2038,54575
+  : IDENTIFIER ':' procedprocedure_call_statement2069,55292
+  : K_procedure IDENTIFIprocedure_specification2077,55427
+  : variable_declarationprocess_declarative_item2088,55732
+  : process_declarative_pprocess_declarative_part2093,55808
+  : process_declarative_partprocess_declarative_part_opt2098,55921
+  : identifierprocess_start2103,55988
+  : process_start process_statement2110,56108
+  : '(' process_sensitivity_lprocess_sensitivity_list_opt2151,57294
+  : K_allprocess_sensitivity_list2163,57512
+  : sirange2175,57743
+  : rangerange_list2207,58603
+  : K_record element_derecord_type_definition2220,58819
+  : shiftrelation2227,58966
+  : K_report exprreport_statement2262,59962
+  : K_return exprreturn_statement2269,60109
+  : architectursecondary_unit2289,60523
+  : prefix '.'selected_name2294,60582
+  : selected_naselected_names2313,61044
+  : IDENTIFIER '.'selected_name_lib2329,61507
+  : selected_names_selected_names_lib2347,61892
+  : K_with expression K_selselected_signal_assignment2352,61983
+  : waveform K_wheselected_waveform2368,62346
+  : selected_waveform_lselected_waveform_list2381,62655
+  : list_of_statemelist_of_statements2394,62961
+  : list_of_statements sequence_of_statements2409,63288
+  : if_statement     sequential_statement2414,63371
+  : K_sevseverity2433,63910
+  : severity severity_opt2450,64403
+  : simple_expresshift_expression2454,64481
+  : 'sign2490,65583
+  : VASSIGN expression { $$ = signal_declaration_assign_opt2495,65609
+  : sign simple_exsimple_expression2519,66610
+  : termsimple_expression_22528,66785
+  : adding_operator termsimple_expression_terms2548,67247
+  : name LEQ wavefsignal_assignment2567,67641
+  : signal_assignmentsignal_assignment_statement2582,68041
+  : subprogram_specifisubprogram_body_start2589,68168
+  : subprogram_bsubprogram_body2599,68437
+  : subprogram_specificsubprogram_declaration2631,69280
+  : variable_declarationsubprogram_declarative_item2636,69406
+  : subprogram_declarative_item_lsubprogram_declarative_item_list2641,69511
+  : subprogram_declarative_isubprogram_declarative_part2646,69646
+  : K_functionsubprogram_kind2651,69746
+subprogram_kind_opt 2656,69824
+  : function_specificatiosubprogram_specification2658,69867
+  : sequence_of_statementssubprogram_statement_part2667,70168
+  : K_subtype IDENTIsubtype_declaration2671,70239
+  : IDENTIFIERsubtype_indication2692,70869
+  : IDEsuffix2721,71641
+  : fterm2732,71830
+  : K_type IDENTItype_declaration2757,72423
+  : '(' enumerattype_definition2794,73477
+  : K_use suse_clause2806,73689
+  : K_use selecuse_clause_lib2813,73837
+  : use_clauses_use_clauses_lib2819,73975
+  : use_clauses_use_clauses_opt2824,74050
+  : variable_assignmentvariable_assignment_statement2829,74095
+  : name VASSIGN expvariable_assignment2836,74257
+  : K_shared_opt K_vavariable_declaration2856,74717
+  : VASSIGN expression { $$ = $2variable_declaration_assign_opt2874,75304
+  : K_wait K_fowait_statement2879,75413
+  : wavefwaveform2902,75967
+  : waveform_elemewaveform_elements2909,76057
+  : expressionwaveform_element2922,76330
+K_architecture_opt 2935,76662
+K_configuration_opt:K_configuration_opt2936,76702
+K_entity_opt 2937,76742
+K_is_opt 2938,76782
+K_package_opt 2939,76822
+K_postponed_opt 2940,76862
+K_shared_opt 2941,76902
+static void yyerror(2944,76946
+void errormsg(2950,77125
+void sorrymsg(2961,77371
+int parse_source_file(2980,77856
+
+vtype_stream.o,0
+
+vtype_match.o,0
+
+vsignal.o,0
+
+vhdlreal.o,0
+
+vhdlint.o,0
+
+subprogram_emit.o,0
+
+StringHeap.o,0
 
 std_types.h,0
+
+std_funcs.o,0
+
+sequential.o,0
+
+sequential_elaborate.o,0
+
+sequential_debug.o,0
+
+package.o,0
+
+lexor.o,0
+
+lexor_keyword.o,0
+
+lexor_keyword.cc,0
+
+generate_dot_ast.h,0
+
+expression_elaborate.o,0
+
+expression_debug.o,0
+
+entity_stream.o,0
+
+entity_emit.o,0
+
+entity_elaborate.o,0
+
+architec.o,0
+
+architec_emit.o,0

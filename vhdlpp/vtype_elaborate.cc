@@ -21,37 +21,45 @@
 # include  "vtype.h"
 # include  "expression.h"
 
-int VType::elaborate(Entity*, ScopeBase*) const
+int VType::elaborate(Entity *, ScopeBase *) const
 {
-      return 0;
+    return 0;
 }
 
-int VTypeArray::elaborate(Entity*ent, ScopeBase*scope) const
+
+int VTypeArray::elaborate(Entity *ent, ScopeBase *scope) const
 {
-      int errors = 0;
+    int errors = 0;
 
-      errors += etype_->elaborate(ent, scope);
+    errors += etype_->elaborate(ent, scope);
 
-      for (vector<range_t>::const_iterator cur = ranges_.begin()
-		 ; cur != ranges_.end() ; ++ cur) {
+    for (vector < range_t > ::const_iterator cur = ranges_.begin()
+         ; cur != ranges_.end(); ++cur)
+    {
+        Expression *tmp = cur->msb();
+        if (tmp)
+        {
+            errors += tmp->elaborate_expr(ent, scope, 0);
+        }
 
-	    Expression*tmp = cur->msb();
-	    if (tmp) errors += tmp->elaborate_expr(ent, scope, 0);
+        tmp = cur->lsb();
+        if (tmp)
+        {
+            errors += tmp->elaborate_expr(ent, scope, 0);
+        }
+    }
 
-	    tmp = cur->lsb();
-	    if (tmp) errors += tmp->elaborate_expr(ent, scope, 0);
-      }
-
-      return errors;
+    return errors;
 }
 
-int VTypeRangeExpr::elaborate(Entity*ent, ScopeBase*scope) const
+
+int VTypeRangeExpr::elaborate(Entity *ent, ScopeBase *scope) const
 {
-      int errors = 0;
+    int errors = 0;
 
-      errors += base_->elaborate(ent, scope);
-      errors += start_->elaborate_expr(ent, scope, 0);
-      errors += end_->elaborate_expr(ent, scope, 0);
+    errors += base_->elaborate(ent, scope);
+    errors += start_->elaborate_expr(ent, scope, 0);
+    errors += end_->elaborate_expr(ent, scope, 0);
 
-      return errors;
+    return errors;
 }

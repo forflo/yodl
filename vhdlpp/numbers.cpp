@@ -176,35 +176,3 @@ int fib2(int n)
     }
     EndMatch
 }
-
-int main()
-{
-    std::cout << fac(-1) << '\n';
-    std::cout << fac(0) << '\n'
-        << fac(1) << '\n' 
-        << fac(2) << '\n'
-        << fac(3) << '\n' 
-        << fac(4) << std::endl;
-
-	double x = 2.0;
-
-	for (int i = 0; i < 10; ++i)
-		std::cout << x << '^' 
-            << i << '=' << power2(x,i) 
-            << (power_opt(x,i) == power2(x,i) ? "" : "WRONG") 
-            << std::endl;
-
-	for (int i = 1; i < 10; ++i)
-		std::cout << "fib(" 
-            << i << ")=" << fib2(i) 
-            << (fib_opt(i) == fib2(i) ? "" : "WRONG") 
-            << std::endl;
-
-	for (int i = 1; i < 10; ++i)
-		std::cout << "factorial(" 
-            << i << ")=" 
-            << factorial(i) 
-            << std::endl;
-
-
-}

@@ -1,5 +1,6 @@
 #ifndef IVL_parse_misc_H
 #define IVL_parse_misc_H
+
 /*
  * Copyright (c) 2011,2014 Stephen Williams (steve@icarus.com)
  * Copyright CERN 2013 / Stephen Williams (steve@icarus.com)
@@ -31,23 +32,23 @@ class ExpString;
 class ScopeBase;
 class VType;
 
-extern void bind_entity_to_active_scope(const char*ename, ActiveScope*scope);
-extern void bind_architecture_to_entity(const char*ename, Architecture*arch);
+extern void bind_entity_to_active_scope(const char *ename, ActiveScope *scope);
+extern void bind_architecture_to_entity(const char *ename, Architecture *arch);
 
-extern const VType* calculate_subtype_array(const YYLTYPE&loc, const char*base_name,
-					    ScopeBase*scope,
-					    std::list<ExpRange*>*ranges);
-extern const VType* calculate_subtype_range(const YYLTYPE&loc, const char*base_name,
-					    ScopeBase*scope,
-					    Expression*range_left,
-					    int direction,
-					    Expression*range_right);
+extern const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base_name,
+                                            ScopeBase *scope,
+                                            std::list < ExpRange * > *ranges);
+extern const VType *calculate_subtype_range(const YYLTYPE& loc, const char *base_name,
+                                            ScopeBase *scope,
+                                            Expression *range_left,
+                                            int direction,
+                                            Expression *range_right);
 
 /*
  * This function searches the currently active scope, or the global
  * scope, for the named type.
  */
-extern const VType* parse_type_by_name(perm_string name);
+extern const VType *parse_type_by_name(perm_string name);
 
 /*
  * The parser calls the library_save_package function when it parses a
@@ -56,19 +57,19 @@ extern const VType* parse_type_by_name(perm_string name);
  * load a package from a library) or a nil name to indicate that this
  * is from the live parser.
  */
-extern void library_save_package(perm_string library_parse_name, Package*pack);
+extern void library_save_package(perm_string library_parse_name, Package *pack);
 
-extern Package*library_recall_package(perm_string library_parse_name, perm_string name);
+extern Package *library_recall_package(perm_string library_parse_name, perm_string name);
 
-extern void library_import(const YYLTYPE&loc, const std::list<perm_string>*names);
+extern void library_import(const YYLTYPE& loc, const std::list < perm_string > *names);
 
-extern void library_use(const YYLTYPE&loc, ActiveScope*res, const char*libname, const char*pack, const char*ident);
+extern void library_use(const YYLTYPE& loc, ActiveScope *res, const char *libname, const char *pack, const char *ident);
 
 /*
  * Converts CHARACTER enums to an ExpString* if applicable.
  * See the standard VHDL library (package STANDARD) or VHDL-2008/16.3
  * for more details).
  */
-extern ExpString*parse_char_enums(const char*str);
+extern ExpString *parse_char_enums(const char *str);
 
 #endif /* IVL_parse_misc_H */

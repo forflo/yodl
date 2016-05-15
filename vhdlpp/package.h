@@ -1,5 +1,6 @@
 #ifndef IVL_package_H
 #define IVL_package_H
+
 /*
  * Copyright (c) 2011-2014 Stephen Williams (steve@icarus.com)
  * Copyright CERN 2013 / Stephen Williams (steve@icarus.com)
@@ -24,27 +25,30 @@
 # include  "LineInfo.h"
 # include  <iostream>
 
-class Package : public Scope, public LineInfo {
+class Package: public Scope, public LineInfo {
+public:
+    Package(perm_string name, const ActiveScope &ref);
+    ~Package();
 
-    public:
-      Package(perm_string name, const ActiveScope&ref);
-      ~Package();
+    // The the library from which this package came. Having a
+    // source library influences the emit_package() method.
+    void set_library(perm_string);
 
-	// The the library from which this package came. Having a
-	// source library influences the emit_package() method.
-      void set_library(perm_string);
+    perm_string name() const
+    {
+        return name_;
+    }
 
-      perm_string name() const { return name_; }
 
-	// This method writes a package header to a library file.
-      void write_to_stream(std::ostream&fd) const;
+    // This method writes a package header to a library file.
+    void write_to_stream(std::ostream& fd) const;
 
-      int emit_package(std::ostream&fd) const;
-      int elaborate();
+    int emit_package(std::ostream& fd) const;
+    int elaborate();
 
-    private:
-      perm_string from_library_;
-      perm_string name_;
+private:
+    perm_string from_library_;
+    perm_string name_;
 };
 
 #endif /* IVL_package_H */

@@ -1,5 +1,6 @@
 #ifndef IVL_library_H
 #define IVL_library_H
+
 /*
  * Copyright (c) 2011-2014 Stephen Williams (steve@icarus.com)
  *
@@ -24,13 +25,12 @@
 class SubprogramHeader;
 class VType;
 
-void library_set_work_path(const char*work_path);
-void library_add_directory(const char*directory);
+void library_set_work_path(const char *work_path);
+void library_add_directory(const char *directory);
 
 int elaborate_libraries(void);
 int emit_packages(void);
 
-SubprogramHeader*library_match_subprogram(perm_string name, const list<const VType*>*params);
+SubprogramHeader *library_match_subprogram(perm_string name, const list < const VType * > *params);
 
 #endif /* IVL_library_H */
-

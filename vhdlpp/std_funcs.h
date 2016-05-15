@@ -1,5 +1,6 @@
 #ifndef IVL_std_funcs_H
 #define IVL_std_funcs_H
+
 /*
  * Copyright CERN 2016
  * @author Maciej Suminski (maciej.suminski@cern.ch)

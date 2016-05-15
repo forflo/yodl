@@ -26,122 +26,142 @@
 
 using namespace std;
 
-void Architecture::dump(ostream&out, perm_string of_entity, int indent) const
+void Architecture::dump(ostream& out, perm_string of_entity, int indent) const
 {
-      out << setw(indent) << "" << "architecture " << name_
-	  << " of entity " << of_entity
-	  << " file=" << get_fileline() << endl;
+    out << setw(indent) << "" << "architecture " << name_
+        << " of entity " << of_entity
+        << " file=" << get_fileline() << endl;
 
-      dump_scope(out);
+    dump_scope(out);
 
-      for (list<Architecture::Statement*>::const_iterator cur = statements_.begin()
-		 ; cur != statements_.end() ; ++cur) {
-	    (*cur)->dump(out, indent+3);
-      }
+    for (list < Architecture::Statement * > ::const_iterator cur = statements_.begin()
+         ; cur != statements_.end(); ++cur)
+    {
+        (*cur)->dump(out, indent + 3);
+    }
 }
 
-void Architecture::Statement::dump(ostream&out, int indent) const
+
+void Architecture::Statement::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "Architecture::Statement at file=" << get_fileline() << endl;
+    out << setw(indent) << "" << "Architecture::Statement at file=" << get_fileline() << endl;
 }
 
-void ComponentInstantiation::dump(ostream&out, int indent) const
+
+void ComponentInstantiation::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "Component Instantiation "
-	  << "instance=" << iname_
-	  << " of component=" << cname_
-	  << ", file=" << get_fileline() << endl;
+    out << setw(indent) << "" << "Component Instantiation "
+        << "instance=" << iname_
+        << " of component=" << cname_
+        << ", file=" << get_fileline() << endl;
 
-      for (map<perm_string,Expression*>::const_iterator cur = port_map_.begin()
-		 ; cur != port_map_.end() ; ++cur) {
-	    out << setw(indent+2) <<""<< cur->first << " => ..." << endl;
-	    if (cur->second)
-		  cur->second->dump(out, indent+6);
-	    else
-		  out << setw(indent+6) <<""<< "OPEN" << endl;
-      }
-
+    for (map < perm_string, Expression * > ::const_iterator cur = port_map_.begin()
+         ; cur != port_map_.end(); ++cur)
+    {
+        out << setw(indent + 2) << "" << cur->first << " => ..." << endl;
+        if (cur->second)
+        {
+            cur->second->dump(out, indent + 6);
+        }
+        else
+        {
+            out << setw(indent + 6) << "" << "OPEN" << endl;
+        }
+    }
 }
 
-void GenerateStatement::dump_statements(ostream&out, int indent) const
+
+void GenerateStatement::dump_statements(ostream& out, int indent) const
 {
-      for (list<Architecture::Statement*>::const_iterator cur = statements_.begin()
-		 ; cur != statements_.end() ; ++cur) {
-	    Statement*curp = *cur;
-	    curp->dump(out, indent);
-      }
+    for (list < Architecture::Statement * > ::const_iterator cur = statements_.begin()
+         ; cur != statements_.end(); ++cur)
+    {
+        Statement *curp = *cur;
+        curp->dump(out, indent);
+    }
 }
 
-void ForGenerate::dump(ostream&out, int indent) const
+
+void ForGenerate::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "for " << genvar_
-	  << " in" << endl;
-      msb_->dump(out, indent+4);
-      lsb_->dump(out, indent+4);
-      out << setw(indent) << "" << "generate" << endl;
-      dump_statements(out, indent+4);
-      out << setw(indent) << "" << "end generate" << endl;
+    out << setw(indent) << "" << "for " << genvar_
+        << " in" << endl;
+    msb_->dump(out, indent + 4);
+    lsb_->dump(out, indent + 4);
+    out << setw(indent) << "" << "generate" << endl;
+    dump_statements(out, indent + 4);
+    out << setw(indent) << "" << "end generate" << endl;
 }
 
-void SignalAssignment::dump(ostream&out, int indent) const
-{
-      out << setw(indent) << "" << "SignalAssignment file=" << get_fileline() << endl;
-      lval_->dump(out, indent+1);
-      out << setw(indent+2) << "" << "<= <expr>..." << endl;
 
-      for (list<Expression*>::const_iterator cur = rval_.begin()
-		 ; cur != rval_.end() ; ++cur) {
-	    (*cur)->dump(out, indent+2);
-      }
+void SignalAssignment::dump(ostream& out, int indent) const
+{
+    out << setw(indent) << "" << "SignalAssignment file=" << get_fileline() << endl;
+    lval_->dump(out, indent + 1);
+    out << setw(indent + 2) << "" << "<= <expr>..." << endl;
+
+    for (list < Expression * > ::const_iterator cur = rval_.begin()
+         ; cur != rval_.end(); ++cur)
+    {
+        (*cur)->dump(out, indent + 2);
+    }
 }
 
-void CondSignalAssignment::dump(ostream&out, int indent) const
-{
-      out << setw(indent) << "" << "CondSignalAssignment file=" << get_fileline() << endl;
-      lval_->dump(out, indent+1);
-      out << setw(indent+2) << "" << "<= <expr>..." << endl;
 
-      for(list<ExpConditional::case_t*>::const_iterator it = options_.begin();
-              it != options_.end(); ++it) {
-          (*it)->dump(out, indent+2);
-      }
+void CondSignalAssignment::dump(ostream& out, int indent) const
+{
+    out << setw(indent) << "" << "CondSignalAssignment file=" << get_fileline() << endl;
+    lval_->dump(out, indent + 1);
+    out << setw(indent + 2) << "" << "<= <expr>..." << endl;
+
+    for (list < ExpConditional::case_t * > ::const_iterator it = options_.begin();
+         it != options_.end(); ++it)
+    {
+        (*it)->dump(out, indent + 2);
+    }
 }
 
-void StatementList::dump(ostream&out, int indent) const
-{
-      out << setw(indent+3) << "" << "sequence of statements:" << endl;
 
-      for (list<SequentialStmt*>::const_iterator cur = statements_.begin()
-		 ; cur != statements_.end() ; ++cur) {
-	    (*cur)->dump(out, indent+4);
-      }
+void StatementList::dump(ostream& out, int indent) const
+{
+    out << setw(indent + 3) << "" << "sequence of statements:" << endl;
+
+    for (list < SequentialStmt * > ::const_iterator cur = statements_.begin()
+         ; cur != statements_.end(); ++cur)
+    {
+        (*cur)->dump(out, indent + 4);
+    }
 }
 
-void InitialStatement::dump(ostream&out, int indent) const
-{
-      out << setw(indent) << "" << "InitialStatement file=" << get_fileline() << endl;
 
-      StatementList::dump(out, indent);
+void InitialStatement::dump(ostream& out, int indent) const
+{
+    out << setw(indent) << "" << "InitialStatement file=" << get_fileline() << endl;
+
+    StatementList::dump(out, indent);
 }
 
-void FinalStatement::dump(ostream&out, int indent) const
-{
-      out << setw(indent) << "" << "FinalStatement file=" << get_fileline() << endl;
 
-      StatementList::dump(out, indent);
+void FinalStatement::dump(ostream& out, int indent) const
+{
+    out << setw(indent) << "" << "FinalStatement file=" << get_fileline() << endl;
+
+    StatementList::dump(out, indent);
 }
 
-void ProcessStatement::dump(ostream&out, int indent) const
+
+void ProcessStatement::dump(ostream& out, int indent) const
 {
-      out << setw(indent) << "" << "ProcessStatement name_=" << iname_
-	  << " file=" << get_fileline() << endl;
+    out << setw(indent) << "" << "ProcessStatement name_=" << iname_
+        << " file=" << get_fileline() << endl;
 
-      out << setw(indent+3) << "" << "Sensitivity_list:" << endl;
+    out << setw(indent + 3) << "" << "Sensitivity_list:" << endl;
 
-      for (list<Expression*>::const_iterator cur = sensitivity_list_.begin()
-		 ; cur != sensitivity_list_.end() ; ++cur) {
-	    (*cur)->dump(out, indent+4);
-      }
+    for (list < Expression * > ::const_iterator cur = sensitivity_list_.begin()
+         ; cur != sensitivity_list_.end(); ++cur)
+    {
+        (*cur)->dump(out, indent + 4);
+    }
 
-      StatementList::dump(out, indent);
+    StatementList::dump(out, indent);
 }
