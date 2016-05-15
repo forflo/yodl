@@ -20,11 +20,11 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "StringHeap.h"
-# include  "LineInfo.h"
-# include  "scope.h"
-# include  <list>
-# include  <map>
+# include "StringHeap.h"
+# include "LineInfo.h"
+# include "scope.h"
+# include <list>
+# include <map>
 
 class ComponentInstantiation;
 class Entity;
@@ -47,7 +47,7 @@ public:
     // Architectures contain concurrent statements, that are
     // derived from this nested class.
     class Statement : public LineInfo {
-public:
+    public:
         Statement();
         virtual ~Statement() = 0;
 
@@ -59,8 +59,10 @@ public:
 public:
     // Create an architecture from its name and its statements.
     // NOTE: The statement list passed in is emptied.
-    Architecture(perm_string name, const ActiveScope& ref,
-                 std::list<Architecture::Statement *>& s);
+    Architecture(perm_string name, 
+            const ActiveScope& ref,
+            std::list<Architecture::Statement *>& s);
+
     ~Architecture();
 
     perm_string get_name() const {
@@ -113,18 +115,18 @@ private:
     // Concurrent statements local to this architecture
     std::list<Architecture::Statement *> statements_;
 
-    struct genvar_type_t
-    {
+    struct genvar_type_t {
         perm_string name;
         const VType *vtype;
     };
+
     std::list<genvar_type_t> genvar_type_stack_;
 
-    struct genvar_emit_t
-    {
+    struct genvar_emit_t {
         perm_string             name;
         const GenerateStatement *gen;
     };
+
     std::list<genvar_emit_t> genvar_emit_stack_;
 
     // Currently processed component (or NULL if none).
@@ -140,7 +142,8 @@ private:
  */
 class GenerateStatement : public Architecture::Statement {
 public:
-    GenerateStatement(perm_string gname, std::list<Architecture::Statement *>& s);
+    GenerateStatement(perm_string gname, 
+            std::list<Architecture::Statement *>& s);
     ~GenerateStatement();
 
     inline perm_string get_name() const {
@@ -159,8 +162,10 @@ private:
 
 class ForGenerate : public GenerateStatement {
 public:
-    ForGenerate(perm_string gname, perm_string genvar,
-                ExpRange *rang, std::list<Architecture::Statement *>& s);
+    ForGenerate(perm_string gname, 
+            perm_string genvar,
+            ExpRange *rang, 
+            std::list<Architecture::Statement *>& s);
     ~ForGenerate();
 
     int elaborate(Entity *ent, Architecture *arc);
@@ -175,8 +180,9 @@ private:
 
 class IfGenerate : public GenerateStatement {
 public:
-    IfGenerate(perm_string gname, Expression *cond,
-               std::list<Architecture::Statement *>& s);
+    IfGenerate(perm_string gname, 
+            Expression *cond,
+            std::list<Architecture::Statement *>& s);
     ~IfGenerate();
 
     int elaborate(Entity *ent, Architecture *arc);
@@ -207,7 +213,8 @@ private:
 
 class CondSignalAssignment : public Architecture::Statement {
 public:
-    CondSignalAssignment(ExpName *target, std::list<ExpConditional::case_t *>& options);
+    CondSignalAssignment(ExpName *target, 
+            std::list<ExpConditional::case_t *>& options);
     ~CondSignalAssignment();
 
     int elaborate(Entity *ent, Architecture *arc);
@@ -283,8 +290,7 @@ private:
 class InitialStatement : public StatementList {
 public:
     InitialStatement(std::list<SequentialStmt *> *statement_list)
-        : StatementList(statement_list)
-    {}
+        : StatementList(statement_list) {}
 
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void dump(ostream& out, int indent = 0) const;
@@ -295,8 +301,7 @@ public:
 class FinalStatement : public StatementList {
 public:
     FinalStatement(std::list<SequentialStmt *> *statement_list)
-        : StatementList(statement_list)
-    {}
+        : StatementList(statement_list) {}
 
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void dump(ostream& out, int indent = 0) const;

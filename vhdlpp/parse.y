@@ -63,93 +63,78 @@ inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where)
    text field, that otherwise won't be copied. */
 # define YYLLOC_DEFAULT(Current, Rhs, N)  do {       \
   (Current).first_line   = (Rhs)[1].first_line;      \
-  (Current).text         = file_path; /*(Rhs)[1].text;*/   } while (0)
+  (Current).text         = file_path; /* (Rhs)[1].text; */ } while (0)
 
 static void yyerror(YYLTYPE*yyllocp,yyscan_t yyscanner,const char*file_path,bool, const char*msg);
 
 int parse_errors = 0;
 int parse_sorrys = 0;
 
-/*
- * The parser calls yylex to get the next lexical token. It is only
- * called by the bison-generated parser.
- */
+/* The parser calls yylex to get the next lexical token. It is only
+ * called by the bison-generated parser.  */
 extern int yylex(union YYSTYPE*yylvalp,YYLTYPE*yyllocp,yyscan_t yyscanner);
 
-
-/*
- * Create an initial scope that collects all the global
+/* Create an initial scope that collects all the global
  * declarations. Also save a stack of previous scopes, as a way to
- * manage lexical scopes.
- */
+ * manage lexical scopes.  */
 static ActiveScope*active_scope = new ActiveScope;
 static stack<ActiveScope*> scope_stack;
 static SubprogramHeader*active_sub = NULL;
 static ActiveScope*arc_scope = NULL;
 
-/*
- * When a scope boundary starts, call the push_scope function to push
+/* When a scope boundary starts, call the push_scope function to push
  * a scope context. Preload this scope context with the contents of
  * the parent scope, then make this the current scope. When the scope
  * is done, the pop_scope function pops the scope off the stack and
- * resumes the scope that was the parent.
- */
-static void push_scope(void)
-{
-      assert(active_scope);
-      scope_stack.push(active_scope);
-      active_scope = new ActiveScope (active_scope);
+ * resumes the scope that was the parent. */
+static void push_scope(void) {
+    assert(active_scope);
+    scope_stack.push(active_scope);
+    active_scope = new ActiveScope (active_scope);
 }
 
-static void pop_scope(void)
-{
-      delete active_scope;
-      assert(! scope_stack.empty());
-      active_scope = scope_stack.top();
-      scope_stack.pop();
+static void pop_scope(void) {
+    delete active_scope;
+    assert(! scope_stack.empty());
+    active_scope = scope_stack.top();
+    scope_stack.pop();
 }
 
-static bool is_subprogram_param(perm_string name)
-{
+static bool is_subprogram_param(perm_string name) {
     if(!active_sub)
         return false;
 
     return (active_sub->find_param(name) != NULL);
 }
 
-void preload_global_types(void)
-{
+void preload_global_types(void) {
       generate_global_types(active_scope);
 }
 
 //Remove the scope created at the beginning of parser's work.
 //After the parsing active_scope should keep it's address
 
-static void delete_global_scope(void)
-{
+static void delete_global_scope(void) {
     active_scope->destroy_global_scope();
     delete active_scope;
 }
 
 //delete global entities that were gathered over the parsing process
-static void delete_design_entities(void)
-{
-      for(map<perm_string,Entity*>::iterator cur = design_entities.begin()
-      ; cur != design_entities.end(); ++cur)
-        delete cur->second;
+static void delete_design_entities(void) {
+    for(map<perm_string,Entity*>::iterator cur = design_entities.begin()
+    ; cur != design_entities.end(); ++cur)
+      delete cur->second;
 }
 
 //clean the mess caused by the parser
-void parser_cleanup(void)
-{
+void parser_cleanup(void) {
     delete_design_entities();
     delete_global_scope();
     delete_std_funcs();
     lex_strings.cleanup();
 }
 
-const VType*parse_type_by_name(perm_string name)
-{
+const VType*parse_type_by_name(perm_string name) {
       return active_scope->find_type(name);
 }
 
@@ -163,8 +148,7 @@ const VType*parse_type_by_name(perm_string name)
 // so try to assume that a single expression in parentheses is a
 // primary and fix the parse by returning an Expression instead of an
 // ExpAggregate.
-static Expression*aggregate_or_primary(const YYLTYPE&loc, std::list<ExpAggregate::element_t*>*el)
-{
+static Expression*aggregate_or_primary(const YYLTYPE&loc, std::list<ExpAggregate::element_t*>*el) {
       if (el->size() != 1) {
 	    ExpAggregate*tmp = new ExpAggregate(el);
 	    FILE_NAME(tmp,loc);
@@ -181,9 +165,8 @@ static Expression*aggregate_or_primary(const YYLTYPE&loc, std::list<ExpAggregate
       return el1->extract_expression();
 }
 
-static list<VTypeRecord::element_t*>* record_elements(list<perm_string>*names,
-						      const VType*type)
-{
+static list<VTypeRecord::element_t*>* 
+        record_elements(list<perm_string>*names, const VType*type) {
       list<VTypeRecord::element_t*>*res = new list<VTypeRecord::element_t*>;
 
       for (list<perm_string>::iterator cur = names->begin()

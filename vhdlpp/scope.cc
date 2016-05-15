@@ -18,50 +18,53 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "scope.h"
-# include  "package.h"
-# include  "subprogram.h"
-# include  "entity.h"
-# include  "std_funcs.h"
-# include  "std_types.h"
-# include  "compiler.h"
-# include  <algorithm>
-# include  <iostream>
-# include  <iterator>
-# include  <cstdio>
-# include  <cstring>
-# include  <cassert>
-# include  <StringHeap.h>
+#include "scope.h"
+#include "package.h"
+#include "subprogram.h"
+#include "entity.h"
+#include "std_funcs.h"
+#include "std_types.h"
+#include "compiler.h"
+#include <algorithm>
+#include <iostream>
+#include <iterator>
+#include <cstdio>
+#include <cstring>
+#include <cassert>
+#include <StringHeap.h>
 
 using namespace std;
 
 static int scope_counter = 0;
 
 ScopeBase::ScopeBase(const ActiveScope& ref)
-    : old_signals_(ref.old_signals_), new_signals_(ref.new_signals_),
-    old_variables_(ref.old_variables_), new_variables_(ref.new_variables_),
-    old_components_(ref.old_components_), new_components_(ref.new_components_),
-    use_types_(ref.use_types_), cur_types_(ref.cur_types_),
-    use_constants_(ref.use_constants_), cur_constants_(ref.cur_constants_),
-    use_subprograms_(ref.use_subprograms_), cur_subprograms_(ref.cur_subprograms_),
-    scopes_(ref.scopes_), use_enums_(ref.use_enums_),
-    initializers_(ref.initializers_), finalizers_(ref.finalizers_),
-    package_header_(ref.package_header_), name_(ref.name_)
-{}
+    : old_signals_(ref.old_signals_)
+    , new_signals_(ref.new_signals_)
+    , old_variables_(ref.old_variables_)
+    , new_variables_(ref.new_variables_)
+    , old_components_(ref.old_components_)
+    , new_components_(ref.new_components_)
+    , use_types_(ref.use_types_)
+    , cur_types_(ref.cur_types_)
+    , use_constants_(ref.use_constants_)
+    , cur_constants_(ref.cur_constants_)
+    , use_subprograms_(ref.use_subprograms_)
+    , cur_subprograms_(ref.cur_subprograms_)
+    , scopes_(ref.scopes_)
+    , use_enums_(ref.use_enums_)
+    , initializers_(ref.initializers_)
+    , finalizers_(ref.finalizers_)
+    , package_header_(ref.package_header_)
+    , name_(ref.name_) { }
 
+//freeing of member objects is performed by child classes
+ScopeBase::~ScopeBase() { }
 
-ScopeBase::~ScopeBase() {
-    //freeing of member objects is performed by child classes
-}
-
-
+/* A parent scope is destroyed only if all child scopes
+ * were previously destroyed. Therefor we can delete all
+ * objects that were defined in this scope, leaving
+ * objects from the other scopes untouched.  */
 void ScopeBase::cleanup() {
-    /*
-     * A parent scope is destroyed only if all child scopes
-     * were previously destroyed. There for we can delete all
-     * objects that were defined in this scope, leaving
-     * objects from the other scopes untouched.
-     */
     delete_all(new_signals_);
     delete_all(new_variables_);
     delete_all(new_components_);
@@ -72,7 +75,6 @@ void ScopeBase::cleanup() {
         delete_all(cur->second);
     }
 }
-
 
 ScopeBase *ScopeBase::find_scope(perm_string name) const {
     map<perm_string, ScopeBase *>::const_iterator it = scopes_.find(name);

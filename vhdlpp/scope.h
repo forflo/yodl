@@ -145,24 +145,26 @@ protected:
     std::map<perm_string, const VType *> use_types_;           //imported types
     std::map<perm_string, const VType *> cur_types_;           //current types
     // Constant declarations...
-    struct const_t
-    {
+    struct const_t {
         ~const_t() {
             delete val;
         }
 
-        const_t(const VType *t, Expression *v) : typ(t), val(v)
-        {}
+        const_t(const VType *t, Expression *v) 
+            : typ(t)
+            , val(v) {}
 
         const VType *typ;
         Expression  *val;
     };
+
     std::map<perm_string, struct const_t *> use_constants_;    //imported constants
     std::map<perm_string, struct const_t *> cur_constants_;    //current constants
 
     std::map<perm_string, SubHeaderList> use_subprograms_;     //imported
     std::map<perm_string, SubHeaderList> cur_subprograms_;     //current
 
+    // for what?
     std::map<perm_string, ScopeBase *> scopes_;
 
     std::list<const VTypeEnum *> use_enums_;
