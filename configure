@@ -5151,7 +5151,7 @@ $as_echo "$as_me: Compiling for 32-bit environment - needs gcc on x86_64" >&6;}
 fi
 
 CFLAGS="$CTARGETFLAGS $CFLAGS"
-CXXFLAGS="$CTARGETFLAGS $CXXFLAGS"
+CXXFLAGS="$CTARGETFLAGS $CXXFLAGS --std=c++11"
 LDFLAGS="$CTARGETFLAGS $LDFLAGS"
 
 # Check that we are using either the GNU compilers or the Sun compilers

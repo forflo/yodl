@@ -1,5 +1,6 @@
 #ifndef IVL_StringHeap_H
 #define IVL_StringHeap_H
+
 /*
  * Copyright (c) 2002-2014 Stephen Williams (steve@icarus.com)
  *
@@ -19,49 +20,72 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  <string>
+# include <string>
 
 using namespace std;
 
 class perm_string {
+public:
+    perm_string() : text_(0)
+    {
+    }
+    perm_string(const perm_string &that) : text_(that.text_)
+    {
+    }
+    ~perm_string()
+    {
+    }
 
-    public:
-      perm_string() : text_(0) { }
-      perm_string(const perm_string&that) : text_(that.text_) { }
-      ~perm_string() { }
+    inline bool nil() const
+    {
+        return text_ == 0;
+    }
 
-      inline bool nil() const { return text_ == 0; }
 
-      perm_string& operator = (const perm_string&that)
-      { text_ = that.text_; return *this; }
+    perm_string& operator = (const perm_string &that)
+    { text_ = that.text_;
+      return *this;
+    }
 
-      const char*str() const { return text_; }
-      operator const char* () const { return str(); }
+    const char *str() const
+    {
+        return text_;
+    }
 
-	// This is an escape for making perm_string objects out of
-	// literals. For example, perm_string::literal("Label"); Please
-	// do *not* cheat and pass arbitrary const char* items here.
-      static perm_string literal(const char*t) { return perm_string(t); }
 
-    private:
-      friend class StringHeap;
-      friend class StringHeapLex;
-      explicit perm_string(const char*t) : text_(t) { };
+    operator const char * () const { return str();
+    }
 
-    private:
-      const char*text_;
+    // This is an escape for making perm_string objects out of
+    // literals. For example, perm_string::literal("Label"); Please
+    // do *not* cheat and pass arbitrary const char* items here.
+    static perm_string literal(const char *t)
+    {
+        return perm_string(t);
+    }
+
+
+private:
+    friend class StringHeap;
+    friend class StringHeapLex;
+    explicit perm_string(const char *t) : text_(t)
+    {
+    };
+
+private:
+    const char *text_;
 };
 
 extern const perm_string empty_perm_string;
-extern bool operator == (perm_string a, perm_string b);
-extern bool operator == (perm_string a, const char* b);
-extern bool operator != (perm_string a, perm_string b);
-extern bool operator != (perm_string a, const char* b);
-extern bool operator >  (perm_string a, perm_string b);
-extern bool operator <  (perm_string a, perm_string b);
-extern bool operator >= (perm_string a, perm_string b);
-extern bool operator <= (perm_string a, perm_string b);
-extern ostream& operator << (ostream&out, perm_string that);
+extern bool              operator == (perm_string a, perm_string b);
+extern bool              operator == (perm_string a, const char *b);
+extern bool              operator != (perm_string a, perm_string b);
+extern bool              operator != (perm_string a, const char *b);
+extern bool              operator > (perm_string a, perm_string b);
+extern bool              operator < (perm_string a, perm_string b);
+extern bool              operator >= (perm_string a, perm_string b);
+extern bool              operator <= (perm_string a, perm_string b);
+extern ostream&          operator << (ostream & out, perm_string that);
 
 /*
  * The string heap is a way to permanently allocate strings
@@ -69,24 +93,23 @@ extern ostream& operator << (ostream&out, perm_string that);
  * and the terminating nul, there is no malloc overhead.
  */
 class StringHeap {
+public:
+    StringHeap();
+    ~StringHeap();
 
-    public:
-      StringHeap();
-      ~StringHeap();
+    const char *add(const char *);
+    perm_string make(const char *);
 
-      const char*add(const char*);
-      perm_string make(const char*);
+private:
+    enum { HEAPCELL = 0x10000 };
 
-    private:
-      enum { HEAPCELL = 0x10000 };
+    char     *cell_base_;
+    unsigned cell_ptr_;
+    unsigned cell_count_;
 
-      char*cell_base_;
-      unsigned cell_ptr_;
-      unsigned cell_count_;
-
-    private: // not implemented
-      StringHeap(const StringHeap&);
-      StringHeap& operator= (const StringHeap&);
+private:     // not implemented
+    StringHeap(const StringHeap &);
+    StringHeap& operator = (const StringHeap &);
 };
 
 /*
@@ -95,30 +118,29 @@ class StringHeap {
  * space by not allocating duplicate strings, so in a system with lots
  * of identifiers, this can theoretically save more space.
  */
-class StringHeapLex  : private StringHeap {
+class StringHeapLex: private StringHeap {
+public:
+    StringHeapLex();
+    ~StringHeapLex();
 
-    public:
-      StringHeapLex();
-      ~StringHeapLex();
+    const char *add(const char *);
+    perm_string make(const char *);
+    perm_string make(const string&);
 
-      const char*add(const char*);
-      perm_string make(const char*);
-      perm_string make(const string&);
+    unsigned add_count() const;
+    unsigned add_hit_count() const;
+    void cleanup();
 
-      unsigned add_count() const;
-      unsigned add_hit_count() const;
-      void cleanup();
+private:
+    enum { HASH_SIZE = 4096 };
+    const char *hash_table_[HASH_SIZE];
 
-    private:
-      enum { HASH_SIZE = 4096 };
-      const char*hash_table_[HASH_SIZE];
+    unsigned add_count_;
+    unsigned hit_count_;
 
-      unsigned add_count_;
-      unsigned hit_count_;
-
-    private: // not implemented
-      StringHeapLex(const StringHeapLex&);
-      StringHeapLex& operator= (const StringHeapLex&);
+private:     // not implemented
+    StringHeapLex(const StringHeapLex &);
+    StringHeapLex& operator = (const StringHeapLex &);
 };
 
 #endif /* IVL_StringHeap_H */

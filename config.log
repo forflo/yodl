@@ -342,7 +342,7 @@ configure:5109: gcc -c -Wextra -g -O2  conftest.c >&5
 configure:5109: $? = 0
 configure:5110: result: yes
 configure:5160: checking whether __SUNPRO_CC is declared
-configure:5160: g++ -c  -g -O2  conftest.cpp >&5
+configure:5160: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 conftest.cpp: In function 'int main()':
 conftest.cpp:57:10: error: '__SUNPRO_CC' was not declared in this scope
    (void) __SUNPRO_CC;
@@ -470,7 +470,7 @@ configure: failed program was:
 | /* end confdefs.h.  */
 | #include <ac_nonexistent.h>
 configure:5324: checking getopt.h usability
-configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2  conftest.cpp >&5
+configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2 --std=c++11  conftest.cpp >&5
 configure:5324: $? = 0
 configure:5324: result: yes
 configure:5324: checking getopt.h presence
@@ -482,7 +482,7 @@ configure:5324: result: yes
 configure:5324: checking for inttypes.h
 configure:5324: result: yes
 configure:5324: checking libiberty.h usability
-configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2  conftest.cpp >&5
+configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2 --std=c++11  conftest.cpp >&5
 conftest.cpp:54:23: fatal error: libiberty.h: No such file or directory
 compilation terminated.
 configure:5324: $? = 1
@@ -573,7 +573,7 @@ configure:5324: result: no
 configure:5324: checking for libiberty.h
 configure:5324: result: no
 configure:5324: checking iosfwd usability
-configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2  conftest.cpp >&5
+configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2 --std=c++11  conftest.cpp >&5
 configure:5324: $? = 0
 configure:5324: result: yes
 configure:5324: checking iosfwd presence
@@ -583,7 +583,7 @@ configure:5324: result: yes
 configure:5324: checking for iosfwd
 configure:5324: result: yes
 configure:5324: checking sys/wait.h usability
-configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2  conftest.cpp >&5
+configure:5324: g++ -c -DHAVE_DECL_BASENAME  -g -O2 --std=c++11  conftest.cpp >&5
 configure:5324: $? = 0
 configure:5324: result: yes
 configure:5324: checking sys/wait.h presence
@@ -593,25 +593,25 @@ configure:5324: result: yes
 configure:5324: checking for sys/wait.h
 configure:5324: result: yes
 configure:5340: checking size of unsigned long long
-configure:5345: g++ -o conftest  -g -O2    conftest.cpp  >&5
+configure:5345: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp  >&5
 configure:5345: $? = 0
 configure:5345: ./conftest
 configure:5345: $? = 0
 configure:5359: result: 8
 configure:5373: checking size of unsigned long
-configure:5378: g++ -o conftest  -g -O2    conftest.cpp  >&5
+configure:5378: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp  >&5
 configure:5378: $? = 0
 configure:5378: ./conftest
 configure:5378: $? = 0
 configure:5392: result: 8
 configure:5406: checking size of unsigned
-configure:5411: g++ -o conftest  -g -O2    conftest.cpp  >&5
+configure:5411: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp  >&5
 configure:5411: $? = 0
 configure:5411: ./conftest
 configure:5411: $? = 0
 configure:5425: result: 4
 configure:5437: checking for tputs in -ltermcap
-configure:5462: g++ -o conftest  -g -O2    conftest.cpp -ltermcap   >&5
+configure:5462: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -ltermcap   >&5
 /usr/sbin/ld: cannot find -ltermcap
 collect2: error: ld returned 1 exit status
 configure:5462: $? = 1
@@ -658,15 +658,15 @@ configure: failed program was:
 | }
 configure:5471: result: no
 configure:5482: checking for readline in -lreadline
-configure:5507: g++ -o conftest  -g -O2    conftest.cpp -lreadline   >&5
+configure:5507: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lreadline   >&5
 configure:5507: $? = 0
 configure:5516: result: yes
 configure:5527: checking for add_history in -lhistory
-configure:5552: g++ -o conftest  -g -O2    conftest.cpp -lhistory  -lreadline  >&5
+configure:5552: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lhistory  -lreadline  >&5
 configure:5552: $? = 0
 configure:5561: result: yes
 configure:5575: checking readline/readline.h usability
-configure:5575: g++ -c  -g -O2  conftest.cpp >&5
+configure:5575: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 configure:5575: $? = 0
 configure:5575: result: yes
 configure:5575: checking readline/readline.h presence
@@ -676,7 +676,7 @@ configure:5575: result: yes
 configure:5575: checking for readline/readline.h
 configure:5575: result: yes
 configure:5575: checking readline/history.h usability
-configure:5575: g++ -c  -g -O2  conftest.cpp >&5
+configure:5575: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 configure:5575: $? = 0
 configure:5575: result: yes
 configure:5575: checking readline/history.h presence
@@ -686,7 +686,7 @@ configure:5575: result: yes
 configure:5575: checking for readline/history.h
 configure:5575: result: yes
 configure:5575: checking sys/resource.h usability
-configure:5575: g++ -c  -g -O2  conftest.cpp >&5
+configure:5575: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 configure:5575: $? = 0
 configure:5575: result: yes
 configure:5575: checking sys/resource.h presence
@@ -696,25 +696,25 @@ configure:5575: result: yes
 configure:5575: checking for sys/resource.h
 configure:5575: result: yes
 configure:5590: checking for pthread_create in -lpthread
-configure:5615: g++ -o conftest  -g -O2    conftest.cpp -lpthread  -lhistory -lreadline  >&5
+configure:5615: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lpthread  -lhistory -lreadline  >&5
 configure:5615: $? = 0
 configure:5624: result: yes
 configure:5635: checking for gzwrite in -lz
-configure:5660: g++ -o conftest  -g -O2    conftest.cpp -lz  -lpthread -lhistory -lreadline  >&5
+configure:5660: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lz  -lpthread -lhistory -lreadline  >&5
 configure:5660: $? = 0
 configure:5669: result: yes
 configure:5680: checking for gzwrite in -lz
 configure:5714: result: yes
 configure:5800: checking for BZ2_bzdopen in -lbz2
-configure:5825: g++ -o conftest  -g -O2    conftest.cpp -lbz2  -lz -lpthread -lhistory -lreadline  >&5
+configure:5825: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lbz2  -lz -lpthread -lhistory -lreadline  >&5
 configure:5825: $? = 0
 configure:5834: result: yes
 configure:5845: checking for BZ2_bzdopen in -lbz2
 configure:5879: result: yes
 configure:5892: checking for size_t
-configure:5892: g++ -c  -g -O2  conftest.cpp >&5
+configure:5892: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 configure:5892: $? = 0
-configure:5892: g++ -c  -g -O2  conftest.cpp >&5
+configure:5892: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 conftest.cpp: In function 'int main()':
 conftest.cpp:71:20: error: expected primary-expression before ')' token
  if (sizeof ((size_t)))
@@ -798,24 +798,24 @@ configure: failed program was:
 | }
 configure:5892: result: yes
 configure:5905: checking for working alloca.h
-configure:5922: g++ -o conftest  -g -O2    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
+configure:5922: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
 configure:5922: $? = 0
 configure:5930: result: yes
 configure:5938: checking for alloca
-configure:5975: g++ -o conftest  -g -O2    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
+configure:5975: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
 configure:5975: $? = 0
 configure:5983: result: yes
 configure:6089: checking for _LARGEFILE_SOURCE value needed for large files
-configure:6108: g++ -o conftest  -g -O2    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
+configure:6108: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
 configure:6108: $? = 0
 configure:6136: result: no
 configure:6169: Not using valgrind hooks
 configure:6184: checking for sys/times
-configure:6199: g++ -o conftest  -g -O2    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
+configure:6199: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -lbz2 -lz -lpthread -lhistory -lreadline  >&5
 configure:6199: $? = 0
 configure:6210: result: yes
 configure:6220: checking dlfcn.h usability
-configure:6220: g++ -c  -g -O2  conftest.cpp >&5
+configure:6220: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 configure:6220: $? = 0
 configure:6220: result: yes
 configure:6220: checking dlfcn.h presence
@@ -825,7 +825,7 @@ configure:6220: result: yes
 configure:6220: checking for dlfcn.h
 configure:6220: result: yes
 configure:6220: checking dl.h usability
-configure:6220: g++ -c  -g -O2  conftest.cpp >&5
+configure:6220: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 conftest.cpp:73:16: fatal error: dl.h: No such file or directory
 compilation terminated.
 configure:6220: $? = 1
@@ -954,7 +954,7 @@ configure:6220: result: no
 configure:6220: checking for dl.h
 configure:6220: result: no
 configure:6220: checking break usability
-configure:6220: g++ -c  -g -O2  conftest.cpp >&5
+configure:6220: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 conftest.cpp:73:17: fatal error: break: No such file or directory
 compilation terminated.
 configure:6220: $? = 1
@@ -1083,7 +1083,7 @@ configure:6220: result: no
 configure:6220: checking for break
 configure:6220: result: no
 configure:6232: checking for dlopen in -ldl
-configure:6257: g++ -o conftest  -g -O2    conftest.cpp -ldl  -lbz2 -lz -lpthread -lhistory -lreadline  >&5
+configure:6257: g++ -o conftest  -g -O2 --std=c++11    conftest.cpp -ldl  -lbz2 -lz -lpthread -lhistory -lreadline  >&5
 configure:6257: $? = 0
 configure:6266: result: yes
 configure:6335: checking for a BSD-compatible install
@@ -1221,7 +1221,7 @@ configure:6735: gcc -o conftest  -g -O2    conftest.c -lbz2 -lz -lpthread -lhist
 conftest.c:50:6: warning: conflicting types for built-in function 'lround'
  char lround ();
       ^
-/tmp/ccLd73Bv.o: In function `main':
+/tmp/ccn3cwTk.o: In function `main':
 /home/florian/ownCloud/documents/Stud_MasterInf/4-SS2016/MA/vhdlpp_parser/conftest.c:54: undefined reference to `lround'
 collect2: error: ld returned 1 exit status
 configure:6735: $? = 1
@@ -1318,7 +1318,7 @@ conftest.c:54:6: warning: conflicting types for built-in function 'fmax'
 configure:6963: $? = 0
 configure:6980: result: none required
 configure:7003: checking if uint64_t and unsigned long are identical
-configure:7030: g++ -c  -g -O2  conftest.cpp >&5
+configure:7030: g++ -c  -g -O2 --std=c++11  conftest.cpp >&5
 conftest.cpp: In function 'bool check(uint64_t)':
 conftest.cpp:53:25: error: redefinition of 'bool check(uint64_t)'
              static bool check(uint64_t val) {
@@ -1425,7 +1425,6 @@ config.status:866: creating vhdlpp/Makefile
 config.status:866: creating config.h
 config.status:1041: config.h is unchanged
 config.status:866: creating vhdlpp/vhdlpp_config.h
-config.status:1041: vhdlpp/vhdlpp_config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##
@@ -1541,7 +1540,7 @@ CPPFLAGS=''
 CTARGETFLAGS=''
 CXX='g++'
 CXXCPP='g++ -E'
-CXXFLAGS=' -g -O2'
+CXXFLAGS=' -g -O2 --std=c++11'
 DEFS='-DHAVE_CONFIG_H'
 DEPENDENCY_FLAG='-MD'
 DLLIB='-ldl'

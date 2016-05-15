@@ -646,7 +646,6 @@ PS2PDF
 MAN
 XGPERF
 STRIP
-DLLTOOL
 AR
 LD
 RANLIB
@@ -4296,98 +4295,6 @@ else
 fi
 
 if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}dlltool", so it can be a program name with args.
-set dummy ${ac_tool_prefix}dlltool; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_DLLTOOL+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$DLLTOOL"; then
-  ac_cv_prog_DLLTOOL="$DLLTOOL" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_DLLTOOL="${ac_tool_prefix}dlltool"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-DLLTOOL=$ac_cv_prog_DLLTOOL
-if test -n "$DLLTOOL"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $DLLTOOL" >&5
-$as_echo "$DLLTOOL" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_prog_DLLTOOL"; then
-  ac_ct_DLLTOOL=$DLLTOOL
-  # Extract the first word of "dlltool", so it can be a program name with args.
-set dummy dlltool; ac_word=$2
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if ${ac_cv_prog_ac_ct_DLLTOOL+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if test -n "$ac_ct_DLLTOOL"; then
-  ac_cv_prog_ac_ct_DLLTOOL="$ac_ct_DLLTOOL" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_ac_ct_DLLTOOL="dlltool"
-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi
-fi
-ac_ct_DLLTOOL=$ac_cv_prog_ac_ct_DLLTOOL
-if test -n "$ac_ct_DLLTOOL"; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ct_DLLTOOL" >&5
-$as_echo "$ac_ct_DLLTOOL" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-
-  if test "x$ac_ct_DLLTOOL" = x; then
-    DLLTOOL="false"
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    DLLTOOL=$ac_ct_DLLTOOL
-  fi
-else
-  DLLTOOL="$ac_cv_prog_DLLTOOL"
-fi
-
-if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}strip", so it can be a program name with args.
 set dummy ${ac_tool_prefix}strip; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -4654,7 +4561,7 @@ test -n "$GIT" || GIT="none"
 if test "$XGPERF" = "none"
 then
 	echo ""
-        echo "*** Warning: No suitable gperf found. ***"
+    echo "*** Warning: No suitable gperf found. ***"
 	echo "    The gperf package is essential for building ivl from"
 	echo "    git sources, or modifying the parse engine of ivl itself."
 	echo "    You can get away without it when simply building from"
@@ -4764,9 +4671,6 @@ fi
 
 
 
-
-# Combined check for Microsoft-related bogosities; sets WIN32 if found
-AX_WIN32
 
 # Check to see if we are using the Sun compiler. If so then configure
 # some of the flags to match the Sun compiler syntax. This is also used
@@ -6310,7 +6214,7 @@ $as_echo "$do_times" >&6; }
 # Look for a dl library to use. First look for the standard dlopen
 # functions, and failing that look for the HP specific shl_load function.
 
-for ac_header in dlfcn.h dl.h
+for ac_header in dlfcn.h dl.h break
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -6318,7 +6222,7 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
 @%:@define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
- break
+ 
 fi
 
 done
@@ -6739,19 +6643,6 @@ $as_echo "@%:@define AC_APPLE_UNIVERSAL_BUILD 1" >>confdefs.h
  esac
 
 
-# $host
-
-AX_ENABLE_SUFFIX
-
-AX_LD_EXTRALIBS
-
-# Compiler option for position independent code, needed when making shared objects.
-# CFLAGS inherited by cadpli/Makefile?
-AX_C_PICFLAG
-
-# may modify LDFLAGS
-AX_C99_STRTOD
-
 # Processor specific compile flags
 case "${host}" in
     alpha*-*-linux*)
@@ -6777,6 +6668,7 @@ $as_echo "@%:@define _LARGEFILE_SOURCE 1" >>confdefs.h
 	file64_support='-D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64'
 	;;
 esac
+
 
 
 # fstapi.c (from GTKWave) needs this define.
@@ -6977,7 +6869,7 @@ ac_res=$ac_cv_search_nan
 if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
   $as_echo "@%:@define HAVE_NAN 1" >>confdefs.h
-, 
+
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing fmin" >&5
@@ -7112,54 +7004,39 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 $as_echo_n "checking if uint64_t and unsigned long are identical... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include "inttypes.h"
-static bool check(unsigned long val)
-{
-  return val != 0;
-}
-static bool check(uint64_t val)
-{
-  return val != 0;
-}
+ 
+            #include "inttypes.h"
+            static bool check(unsigned long val) {
+              return val != 0;
+            }
+            static bool check(uint64_t val) {
+              return val != 0;
+            }
+        
 int
 main ()
 {
-unsigned long ulval = 1;
-bool result = check(ulval);
-uint64_t uival = 1;
-result &= check(uival);
-return !result;
+
+            unsigned long ulval = 1;
+            bool result = check(ulval);
+            uint64_t uival = 1;
+            result &= check(uival);
+            return !result; 
   ;
   return 0;
 }
+    
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 else
   $as_echo "@%:@define UINT64_T_AND_ULONG_SAME 1" >>confdefs.h
- { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-# Linker option used when compiling the target
-AX_LD_RDYNAMIC
-
-# linker options when building a shared library
-AX_LD_SHAREDLIB_OPTS
-
-#######################
-## test for underscores. The vpi module loader needs to know this
-## in order to know the name of the start symbol for the .vpi module.
-#######################
-
-AX_C_UNDERSCORES_LEADING
-AX_C_UNDERSCORES_TRAILING
-
-#######################
-## end of test for underscores
-#######################
 
 #######################
 # Sanity check the configured results
