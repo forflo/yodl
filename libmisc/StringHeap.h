@@ -27,15 +27,12 @@ using namespace std;
 class perm_string {
 public:
     perm_string() 
-        : text_(0)
-    { }
+        : text_(0) { }
 
     perm_string(const perm_string &that) 
-        : text_(that.text_)
-    { }
+        : text_(that.text_) { }
 
-    ~perm_string()
-    { }
+    ~perm_string() { }
 
     inline bool nil() const {
         return text_ == 0;
@@ -66,8 +63,7 @@ private:
     friend class StringHeap;
     friend class StringHeapLex;
     explicit perm_string(const char *t) 
-      : text_(t)
-    { };
+      : text_(t) { };
 
 private:
     const char *text_;

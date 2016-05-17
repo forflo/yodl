@@ -348,16 +348,13 @@ ExpArithmetic::ExpArithmetic(ExpArithmetic::fun_t op, Expression *op1, Expressio
 ExpArithmetic::~ExpArithmetic() {}
 
 
-/*
- *  Store bitstrings in little-endian order.
- */
+// Store bitstrings in little-endian order.
 ExpBitstring::ExpBitstring(const char *val)
     : value_(strlen(val)) {
     for (size_t idx = value_.size(); idx > 0; idx -= 1) {
         value_[idx - 1] = *val++;
     }
 }
-
 
 ExpBitstring::~ExpBitstring() {}
 
