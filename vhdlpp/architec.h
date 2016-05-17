@@ -20,11 +20,12 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+# include <list>
+# include <map>
+
 # include "StringHeap.h"
 # include "LineInfo.h"
 # include "scope.h"
-# include <list>
-# include <map>
 
 class ComponentInstantiation;
 class Entity;
@@ -37,11 +38,9 @@ class Signal;
 class named_expr_t;
 class ExpRange;
 
-/*
- * The Architecture class carries the contents (name, statements,
+/* The Architecture class carries the contents (name, statements,
  * etc.) of a parsed VHDL architecture. These objects are ultimately
- * put into entities.
- */
+ * put into entities. */
 class Architecture : public Scope, public LineInfo {
 public:
     // Architectures contain concurrent statements, that are
@@ -57,8 +56,8 @@ public:
     };
 
 public:
-    // Create an architecture from its name and its statements.
-    // NOTE: The statement list passed in is emptied.
+    /* Create an architecture from its name and its statements.
+     * NOTE: The statement list passed in is emptied. */
     Architecture(perm_string name, 
             const ActiveScope& ref,
             std::list<Architecture::Statement *>& s);
@@ -313,6 +312,7 @@ public:
                      const ActiveScope&          ref,
                      std::list<Expression *>     *sensitivity_list,
                      std::list<SequentialStmt *> *statement_list);
+
     ~ProcessStatement();
 
     int elaborate(Entity *ent, Architecture *arc);

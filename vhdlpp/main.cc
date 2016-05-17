@@ -18,8 +18,9 @@ const char COPYRIGHT[] =
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-#include  "vhdlpp_config.h"
-#include  "version_base.h"
+#include "vhdlpp_config.h"
+#include "version_base.h"
+#include "simple_tree/simple_tree.h"
 
 /*
  * Usage:  vhdlpp [flags] sourcefile...
@@ -73,22 +74,23 @@ const char NOTICE[] =
     "  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n"
 ;
 
-# include  "compiler.h"
-# include  "library.h"
-# include  "std_funcs.h"
-# include  "std_types.h"
-# include  "parse_api.h"
-# include  "vtype.h"
-# include  <fstream>
-# include  <cstdio>
-# include  <cstdlib>
-# include  <cstring>
-# include  <cerrno>
-# include  <limits>
+#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <sys/stat.h>
+#include <cerrno>
+#include <limits>
+
+#include "compiler.h"
+#include "library.h"
+#include "std_funcs.h"
+#include "std_types.h"
+#include "parse_api.h"
+#include "vtype.h"
 #if defined(HAVE_GETOPT_H)
-# include  <getopt.h>
+# include <getopt.h>
 #endif
-# include  <sys/stat.h>
 // MinGW only supports mkdir() with a path. If this stops working because
 // we need to use _mkdir() for mingw-w32 and mkdir() for mingw-w64 look
 // at using the autoconf AX_FUNC_MKDIR macro to figure this all out.
@@ -96,7 +98,6 @@ const char NOTICE[] =
 # include <io.h>
 # define mkdir(path, mode)    mkdir(path)
 #endif
-
 
 bool verbose_flag = false;
 // Where to dump design entities
@@ -113,15 +114,15 @@ extern void parser_cleanup();
 static void process_debug_token(const char *word) {
     if (strcmp(word, "yydebug") == 0) {
         yydebug = 1;
-    }else if (strcmp(word, "no-yydebug") == 0)  {
+    } else if (strcmp(word, "no-yydebug") == 0) {
         yydebug = 0;
-    }else if (strncmp(word, "entities=", 9) == 0)  {
+    } else if (strncmp(word, "entities=", 9) == 0) {
         dump_design_entities_path = strdup(word + 9);
-    }else if (strncmp(word, "libraries=", 10) == 0)  {
+    } else if (strncmp(word, "libraries=", 10) == 0) {
         dump_libraries_path = strdup(word + 10);
-    }else if (strncmp(word, "log=", 4) == 0)  {
+    } else if (strncmp(word, "log=", 4) == 0) {
         debug_log_path = strdup(word + 4);
-    }else if (strcmp(word, "elaboration") == 0)  {
+    } else if (strcmp(word, "elaboration") == 0) {
         debug_elaboration = true;
     }
 }
@@ -134,6 +135,45 @@ int main(int argc, char *argv[]) {
     int        opt;
     int        rc;
     const char *work_path = "ivl_vhdl_work";
+
+    /* fnord */
+    simple_tree<string> own("foo");
+    own.forest = {
+        new simple_tree<string>("bar1"), 
+        new simple_tree<string>("bar2")
+    };
+
+    simple_tree<int> nown(42, {
+        new simple_tree<int>(4, {
+                new simple_tree<int>(10),
+                new simple_tree<int>(12)
+            }), 
+        new simple_tree<int>(2, {
+                new simple_tree<int>(20),
+                new simple_tree<int>(21)
+            })});
+
+    cout << own.root << '\n';
+    for(vector<simple_tree<string>*>::iterator iter = own.forest.begin();
+            iter != own.forest.end();
+            ++iter){
+        cout << (*iter)->root << '\n';
+    }
+
+    cout << '\n';
+
+    cout << nown.root << '\n';
+    for(vector<simple_tree<int>*>::iterator iter = nown.forest.begin();
+            iter != nown.forest.end();
+            ++iter){
+        cout << (*iter)->root << '\n';
+        for(vector<simple_tree<int>*>::iterator it = (*iter)->forest.begin();
+                it != (*iter)->forest.end();
+                ++it){
+            cout << (*it)->root << '\n';
+        }
+    }
+    /* end fnord */
 
     while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF) {
         switch (opt) {

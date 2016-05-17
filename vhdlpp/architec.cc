@@ -30,7 +30,10 @@ using namespace std;
 Architecture::Architecture(perm_string name, 
         const ActiveScope& ref,
         list<Architecture::Statement *>& s)
-    : Scope(ref), name_(name), cur_component_(NULL), cur_process_(NULL) {
+        : Scope(ref)
+        , name_(name)
+        , cur_component_(NULL)
+        , cur_process_(NULL) {
     statements_.splice(statements_.end(), s);
 }
 

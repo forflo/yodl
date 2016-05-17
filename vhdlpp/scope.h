@@ -164,7 +164,7 @@ protected:
     std::map<perm_string, SubHeaderList> use_subprograms_;     //imported
     std::map<perm_string, SubHeaderList> cur_subprograms_;     //current
 
-    // for what?
+    // for what? Maybe list of scopes less nested than this one
     std::map<perm_string, ScopeBase *> scopes_;
 
     std::list<const VTypeEnum *> use_enums_;
@@ -192,11 +192,10 @@ private:
 
 class Scope : public ScopeBase {
 public:
-    explicit Scope(const ActiveScope& ref) : ScopeBase(ref)
-    {}
+    explicit Scope(const ActiveScope& ref) 
+        : ScopeBase(ref) {}
 
-    virtual ~Scope()
-    {}
+    virtual ~Scope() {}
 
     ComponentBase *find_component(perm_string by_name);
 
@@ -207,35 +206,34 @@ protected:
 };
 
 
-/*
- * The active_scope object accumulates declarations for the scope that
+/* The active_scope object accumulates declarations for the scope that
  * is in the process of being parsed. When the declarations are over,
  * they are transferred over to the specific scope. The ActiveScope is
- * used by the parser to build up scopes.
- */
+ * used by the parser to build up scopes. */
 class ActiveScope : public ScopeBase {
 public:
-    ActiveScope() : context_entity_(0) {}
+    ActiveScope() 
+        : context_entity_(0) {}
 
     explicit ActiveScope(const ActiveScope *par);
 
     ~ActiveScope() {}
 
-    // Pull items from "that" scope into "this" scope as is
-    // defined by a "use" directive. The parser uses this method
-    // to implement the "use <pkg>::*" directive.
+    /* Pull items from "that" scope into "this" scope as is
+     * defined by a "use" directive. The parser uses this method
+     * to implement the "use <pkg>::*" directive. */
     void use_from(const Scope *that) {
         do_use_from(that);
     }
 
-    // This function returns true if the name is a vectorable
-    // name. The parser uses this to distinguish between function
-    // calls and array index operations.
+    /* This function returns true if the name is a vectorable
+     * name. The parser uses this to distinguish between function
+     * calls and array index operations. */
     bool is_vector_name(perm_string name) const;
 
-    // Locate the subprogram by name. The subprogram body uses
-    // this to locate the subprogram declaration. Note that the
-    // subprogram may be in a package header.
+    /* Locate the subprogram by name. The subprogram body uses
+     * this to locate the subprogram declaration. Note that the
+     * subprogram may be in a package header. */
     SubprogramHeader *recall_subprogram(const SubprogramHeader *subp) const;
 
     /* All bind_name function check if the given name was present

@@ -1,6 +1,6 @@
 %pure-parser
-%lex-param { yyscan_t yyscanner }
-%parse-param {yyscan_t yyscanner  }
+%lex-param {yyscan_t yyscanner}
+%parse-param {yyscan_t yyscanner}
 %parse-param {const char*file_path}
 %parse-param {perm_string parse_library_name}
 %{
@@ -374,8 +374,8 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 
 %%
 
- /* The design_file is the root for the VHDL parse. This rule is also
-    where I put some run-time initializations. */
+/* The design_file is the root for the VHDL parse. This rule is also
+   where I put some run-time initializations. */
 design_file : { yylloc.text = file_path; } design_units ;
 
 adding_operator
@@ -384,7 +384,7 @@ adding_operator
   | '&' { $$ = ExpArithmetic::xCONCAT; }
   ;
 
-/* (FLO:) Because this is some kind of semantic parser, some rules
+/* Because this is some kind of semantic parser, some rules
    (like this) have to use mid-rule actions in order to do certain
    things at the right point of time. */
 architecture_body
@@ -394,7 +394,7 @@ architecture_body
     K_is   block_declarative_items_opt
     K_begin   architecture_statement_part
     K_end  K_architecture_opt  identifier_opt ';'
-      { Architecture*tmp = new Architecture(lex_strings.make($1),
+      { Architecture *tmp = new Architecture(lex_strings.make($1),
 					    *active_scope, *$8);
 	FILE_NAME(tmp, @1);
 	bind_architecture_to_entity($3, tmp);
@@ -558,11 +558,9 @@ block_declarative_item
 
   ;
 
-/*
- * The block_declarative_items rule matches "{ block_declarative_item }"
+/* The block_declarative_items rule matches "{ block_declarative_item }"
  * which is a synonym for "architecture_declarative_part" and
- * "block_declarative_part".
- */
+ * "block_declarative_part". */
 block_declarative_items
   : block_declarative_items block_declarative_item
   | block_declarative_item
@@ -2099,7 +2097,7 @@ process_statement
     process_declarative_part_opt
     K_begin sequence_of_statements
     K_end K_postponed_opt K_process identifier_opt ';'
-      { perm_string iname = $1? lex_strings.make($1) : empty_perm_string;
+      { perm_string iname = $1 ? lex_strings.make($1) : empty_perm_string;
 	if ($1) delete[]$1;
 	if ($10) {
 	      if (iname.nil()) {
@@ -2130,11 +2128,9 @@ process_statement
       }
   ;
 
-/*
- * A process_sensitivity_list is:
+/* A process_sensitivity_list is:
  *     <nil>  if the list is not present, or
- *     or a non-empty list of actual expressions.
- */
+ *     or a non-empty list of actual expressions. */
 process_sensitivity_list_opt
   : '(' process_sensitivity_list ')'
       { $$ = $2; }

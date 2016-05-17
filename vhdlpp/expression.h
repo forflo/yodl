@@ -23,15 +23,18 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "StringHeap.h"
-# include  "LineInfo.h"
-# include  "entity.h"
-# include  <inttypes.h>
-# include  <list>
-# include  <memory>
-# include  <vector>
-# include  <cassert>
-# include  <string>
+# include <list>
+# include <memory>
+# include <vector>
+# include <cassert>
+# include <string>
+# include <map>
+# include <inttypes.h>
+
+# include "StringHeap.h"
+# include "LineInfo.h"
+# include "entity.h"
+# include "simple_tree/simple_tree.h"
 
 class ExpRange;
 class ScopeBase;
@@ -41,25 +44,20 @@ class VTypeArray;
 class VTypePrimitive;
 class ExpName;
 
-/*
- * Helper class to recursively traverse an expression tree
- * (i.e. complex expressions).
- */
+/* Helper class to recursively traverse an expression tree
+ * (i.e. complex expressions).  */
 struct ExprVisitor
 {
-    ExprVisitor() : level_(0)
-    {}
+    ExprVisitor() 
+        : level_(0) {}
 
-    virtual ~ExprVisitor()
-    {}
+    virtual ~ExprVisitor() {}
 
     virtual void operator()(Expression *s) = 0;
 
     // Methods to manage recursion depth. Every Expression::visit() method
     // should call down() in the beginning and up() in the end.
-    inline void down() {
-        ++level_;
-    }
+    inline void down() { ++level_; }
 
     inline void up() {
         --level_;
@@ -67,19 +65,15 @@ struct ExprVisitor
     }
 
 protected:
-    int level() const {
-        return level_;
-    }
+    int level() const { return level_; }
 
 private:
     int         level_;
 };
 
-/*
- * The Expression class represents parsed expressions from the parsed
+/* The Expression class represents parsed expressions from the parsed
  * VHDL input. The Expression class is a virtual class that holds more
- * specific derived expression types.
- */
+ * specific derived expression types. */
 class Expression : public LineInfo {
 public:
     Expression();
@@ -87,9 +81,6 @@ public:
 
     // Returns a deep copy of the expression.
     virtual Expression *clone() const = 0;
-
-    int count;
-    //virtual std::string toString(void) =0;
 
     // This virtual method handles the special case of elaborating
     // an expression that is the l-value of a sequential variable
@@ -162,6 +153,9 @@ public:
     // not certain. The default implementation does return false.
     virtual bool is_primary(void) const;
 
+    // FM. MA
+    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const = 0;
+
     // Debug dump of the expression.
     virtual void dump(ostream& out, int indent = 0) const = 0;
     virtual ostream& dump_inline(ostream& out) const;
@@ -187,9 +181,7 @@ private:     // Not implemented
     Expression& operator =(const Expression&);
 };
 
-/*
- * Checks before cloning if the other expression actually exists (!=NULL).
- */
+// Checks before cloning if the other expression actually exists (!=NULL)
 static inline Expression *safe_clone(const Expression *other) {
     return(other ? other->clone() : NULL);
 }
@@ -232,10 +224,9 @@ private:
     Expression *operand1_;
 };
 
-/*
- * This is an abstract class that collects some of the common features
- * of binary operators.
- */
+
+/* This is an abstract class that collects some of the common features
+ * of binary operators. */
 class ExpBinary : public Expression {
 public:
     ExpBinary(Expression *op1, Expression *op2);
@@ -253,7 +244,6 @@ public:
     void visit(ExprVisitor& func);
 
 protected:
-
     int elaborate_exprs(Entity *, ScopeBase *, const VType *);
     int emit_operand1(ostream& out, Entity *ent, ScopeBase *scope) const;
     int emit_operand2(ostream& out, Entity *ent, ScopeBase *scope) const;
@@ -279,6 +269,7 @@ private:
     Expression *operand2_;
 };
 
+
 class ExpAggregate : public Expression {
 public:
     // A "choice" is only part of an element. It is the thing that
@@ -286,7 +277,7 @@ public:
     // represent the index (or range) of an array, or the name of
     // a record member.
     class choice_t {
-public:
+    public:
         // Create an "others" choice
         choice_t();
         // Create a simple_expression choice
@@ -314,17 +305,16 @@ public:
         void write_to_stream(std::ostream& fd);
         void dump(ostream& out, int indent) const;
 
-private:
+    private:
         std::auto_ptr<Expression> expr_;
         std::auto_ptr<ExpRange>   range_;
-private:           // not implemented
+    private:           // not implemented
         choice_t& operator =(const choice_t&);
     };
 
-    struct choice_element
-    {
-        choice_element() : choice(), expr()
-        {}
+    struct choice_element {
+        choice_element() 
+            : choice(), expr() {}
 
         choice_element(const choice_element& other) {
             choice = other.choice ? new choice_t(*other.choice) : NULL;
@@ -341,7 +331,7 @@ private:           // not implemented
     // expression. Each element expressions a bunch of fields
     // (choices) and binds them to a single expression
     class element_t {
-public:
+    public:
         explicit element_t(std::list<choice_t *> *fields, Expression *val);
 
         element_t(const element_t& other);
@@ -361,10 +351,10 @@ public:
 
         void dump(ostream& out, int indent) const;
 
-private:
+    private:
         std::vector<choice_t *> fields_;
         Expression              *val_;
-private:           // not implemented
+    private:           // not implemented
         element_t& operator =(const element_t&);
     };
 
@@ -399,7 +389,12 @@ private:
 
 class ExpArithmetic : public ExpBinary {
 public:
-    enum fun_t { PLUS, MINUS, MULT, DIV, MOD, REM, POW, xCONCAT };
+    enum fun_t { 
+        PLUS, MINUS, 
+        MULT, DIV, 
+        MOD, REM, 
+        POW, xCONCAT 
+    };
 
 public:
     ExpArithmetic(ExpArithmetic::fun_t op, Expression *op1, Expression *op2);
@@ -421,6 +416,7 @@ private:
 private:
     fun_t fun_;
 };
+
 
 class ExpAttribute : public Expression {
 public:
@@ -447,6 +443,7 @@ protected:
     std::list<Expression *> *args_;
 };
 
+
 class ExpObjAttribute : public ExpAttribute {
 public:
     ExpObjAttribute(ExpName *base, perm_string name, std::list<Expression *> *args);
@@ -471,6 +468,7 @@ public:
 private:
     ExpName *base_;
 };
+
 
 class ExpTypeAttribute : public ExpAttribute {
 public:
@@ -497,6 +495,7 @@ public:
 private:
     const VType *base_;
 };
+
 
 class ExpBitstring : public Expression {
 public:
@@ -556,6 +555,7 @@ private:
     char value_;
 };
 
+
 class ExpConcat : public Expression {
 public:
     ExpConcat(Expression *op1, Expression *op2);
@@ -582,15 +582,13 @@ private:
     Expression *operand2_;
 };
 
-/*
- * The conditional expression represents the VHDL when-else
+/* The conditional expression represents the VHDL when-else
  * expressions. Note that by the VHDL syntax rules, these cannot show
- * up other than at the root of an expression.
- */
+ * up other than at the root of an expression. */
 class ExpConditional : public Expression {
 public:
     class case_t : public LineInfo {
-public:
+    public:
         case_t(Expression *cond, std::list<Expression *> *tru);
         case_t(const case_t& other);
         ~case_t();
@@ -618,7 +616,7 @@ public:
 
         void visit(ExprVisitor& func);
 
-private:
+    private:
         Expression              *cond_;
         std::list<Expression *> true_clause_;
     };
@@ -641,9 +639,8 @@ protected:
     std::list<case_t *> options_;
 };
 
-/*
- * Expression to handle selected assignments (with .. select target <= value when ..)
- */
+/* Expression to handle selected assignments 
+ * (with .. select target <= value when ..) */
 class ExpSelected : public ExpConditional {
 public:
     ExpSelected(Expression *selector, std::list<case_t *> *options);
@@ -655,13 +652,13 @@ private:
     Expression *selector_;
 };
 
-/*
- * This is a special expression type that represents posedge/negedge
- * expressions in sensitivity lists.
- */
+/* This is a special expression type that represents posedge/negedge
+ * expressions in sensitivity lists. */
 class ExpEdge : public ExpUnary {
 public:
-    enum fun_t { NEGEDGE, ANYEDGE, POSEDGE };
+    enum fun_t { 
+        NEGEDGE, ANYEDGE, POSEDGE 
+    };
 
 public:
     explicit ExpEdge(ExpEdge::fun_t ty, Expression *op);
@@ -727,8 +724,9 @@ class ExpInteger : public Expression {
 public:
     explicit ExpInteger(int64_t val);
 
-    ExpInteger(const ExpInteger& other) : Expression(), value_(other.value_)
-    {}
+    ExpInteger(const ExpInteger& other) 
+        : Expression()
+        , value_(other.value_) {}
 
     ~ExpInteger();
 
@@ -742,6 +740,9 @@ public:
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     int emit_package(std::ostream& out) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
     bool is_primary(void) const {
         return true;
     }
@@ -754,12 +755,14 @@ private:
     int64_t value_;
 };
 
+
 class ExpReal : public Expression {
 public:
     explicit ExpReal(double val);
 
-    ExpReal(const ExpReal& other) : Expression(), value_(other.value_)
-    {}
+    ExpReal(const ExpReal& other) 
+        : Expression()
+        , value_(other.value_) {}
 
     ~ExpReal();
 
@@ -776,13 +779,20 @@ public:
     void dump(ostream& out, int indent = 0) const;
     virtual ostream& dump_inline(ostream& out) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     double value_;
 };
 
 class ExpLogical : public ExpBinary {
 public:
-    enum fun_t { AND, OR, NAND, NOR, XOR, XNOR };
+    enum fun_t { 
+        AND, OR, 
+        NAND, NOR, 
+        XOR, XNOR 
+    };
 
 public:
     ExpLogical(ExpLogical::fun_t ty, Expression *op1, Expression *op2);
@@ -801,15 +811,16 @@ public:
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     fun_t fun_;
 };
 
-/*
- * The ExpName class represents an expression that is an identifier or
+/* The ExpName class represents an expression that is an identifier or
  * other sort of name. The ExpNameALL is a special case of ExpName
- * that represents the "all" keyword is contexts that can handle it.
- */
+ * that represents the "all" keyword is contexts that can handle it. */
 class ExpName : public Expression {
 public:
     explicit ExpName(perm_string nn);
@@ -846,10 +857,11 @@ public:     // Base methods
 
 private:
     class index_t {
-public:
-        index_t(Expression *idx, Expression *size, Expression *offset = NULL) :
-            idx_(idx), size_(size), offset_(offset)
-        {}
+    public:
+        index_t(Expression *idx, Expression *size, Expression *offset = NULL) 
+            : idx_(idx)
+            , size_(size)
+            , offset_(offset) {}
 
         ~index_t() {
             delete idx_;
@@ -859,13 +871,15 @@ public:
 
         int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
 
-private:
+    private:
         Expression *idx_;
         Expression *size_;
         Expression *offset_;
     };
 
-    const VType *elaborate_adjust_type_with_range_(Entity *ent, ScopeBase *scope, const VType *type);
+    const VType *elaborate_adjust_type_with_range_(Entity *ent, 
+            ScopeBase *scope, 
+            const VType *type);
 
     int elaborate_lval_(Entity *ent, ScopeBase *scope, bool, ExpName *suffix);
     const VType *probe_prefix_type_(Entity *ent, ScopeBase *scope) const;
@@ -899,8 +913,8 @@ private:
 
 class ExpNameALL : public ExpName {
 public:
-    ExpNameALL() : ExpName(empty_perm_string)
-    {}
+    ExpNameALL() 
+        : ExpName(empty_perm_string) {}
 
 public:
     const VType *probe_type(Entity *ent, ScopeBase *scope) const;
@@ -909,7 +923,11 @@ public:
 
 class ExpRelation : public ExpBinary {
 public:
-    enum fun_t { EQ, LT, GT, NEQ, LE, GE };
+    enum fun_t { 
+        EQ, LT, 
+        GT, NEQ, 
+        LE, GE 
+    };
 
     inline fun_t relation_fun(void) const {
         return fun_;
@@ -929,14 +947,13 @@ public:
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
 
+
 private:
     fun_t fun_;
 };
 
-/*
- * Helper class to handle name expressions coming from another scope. As such,
- * we get more information regarding their type, etc. from the associated scope.
- */
+/* Helper class to handle name expressions coming from another scope. As such,
+ * we get more information regarding their type, etc. from the associated scope. */
 class ExpScopedName : public Expression {
 public:
     ExpScopedName(perm_string scope, ExpName *exp);
@@ -1003,7 +1020,11 @@ private:
 
 class ExpShift : public ExpBinary {
 public:
-    enum shift_t { SRL, SLL, SRA, SLA, ROL, ROR };
+    enum shift_t { 
+        SRL, SLL, 
+        SRA, SLA, 
+        ROL, ROR 
+    };
 
 public:
     ExpShift(ExpShift::shift_t op, Expression *op1, Expression *op2);
@@ -1026,8 +1047,9 @@ class ExpString : public Expression {
 public:
     explicit ExpString(const char *);
 
-    ExpString(const ExpString& other) : Expression(), value_(other.value_)
-    {}
+    ExpString(const ExpString& other) 
+        : Expression()
+        , value_(other.value_) {}
 
     ~ExpString();
 
@@ -1051,7 +1073,10 @@ public:
     static std::string escape_quot(const std::string& str);
 
 private:
-    int emit_as_array_(ostream& out, Entity *ent, ScopeBase *scope, const VTypeArray *arr) const;
+    int emit_as_array_(ostream& out, 
+            Entity *ent, 
+            ScopeBase *scope, 
+            const VTypeArray *arr) const;
 
 private:
     std::string value_;
@@ -1087,9 +1112,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 };
 
-/*
- * Class that wraps other expressions to cast them to other types.
- */
+// Class that wraps other expressions to cast them to other types. 
 class ExpCast : public Expression {
 public:
     ExpCast(Expression *base, const VType *type);
@@ -1113,10 +1136,8 @@ private:
     const VType *type_;
 };
 
-/*
- * Class that handles 'new' statement. VHDL is not capable of dynamic memory
- * allocation, but it is useful for emitting some cases.
- */
+/* Class that handles 'new' statement. VHDL is not capable of dynamic memory
+ * allocation, but it is useful for emitting some cases. */
 class ExpNew : public Expression {
 public:
     explicit ExpNew(Expression *size);
@@ -1141,7 +1162,11 @@ private:
 
 class ExpTime : public Expression {
 public:
-    typedef enum { FS, PS, NS, US, MS, S }   timeunit_t;
+    typedef enum { 
+        FS, PS, 
+        NS, US, 
+        MS, S 
+    } timeunit_t;
 
     ExpTime(uint64_t amount, timeunit_t unit);
 
@@ -1166,10 +1191,15 @@ private:
 
 class ExpRange : public Expression {
 public:
-    typedef enum { DOWNTO, TO, AUTO }   range_dir_t;
+    typedef enum { 
+        DOWNTO, TO, 
+        AUTO 
+    } range_dir_t;
 
     // Regular range
-    ExpRange(Expression *left_idx, Expression *right_idx, range_dir_t dir);
+    ExpRange(Expression *left_idx, 
+            Expression *right_idx, 
+            range_dir_t dir);
     // 'range/'reverse range attribute
     ExpRange(ExpName *base, bool reverse_range);
     ~ExpRange();
@@ -1194,6 +1224,10 @@ public:
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
 
+    
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     // Regular range related fields
     Expression  *left_, *right_;
@@ -1207,6 +1241,7 @@ private:
     // Flag to distinguish between 'range & 'reverse_range
     bool range_reverse_;
 };
+
 
 // Helper class that wraps other expression to specify delay.
 class ExpDelay : public Expression {
@@ -1223,6 +1258,11 @@ public:
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);
+
+    // FM. TODO
+    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const {
+        return NULL;
+    }
 
     const Expression *peek_expr() const {
         return expr_;

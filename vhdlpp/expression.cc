@@ -20,25 +20,23 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "expression.h"
-# include  "subprogram.h"
-# include  "parse_types.h"
-# include  "scope.h"
-# include  <iostream>
-# include  <typeinfo>
-# include  <cstring>
-# include  <ivl_assert.h>
-# include  <cassert>
+# include "expression.h"
+# include "subprogram.h"
+# include "parse_types.h"
+# include "scope.h"
+# include <iostream>
+# include <typeinfo>
+# include <cstring>
+# include <ivl_assert.h>
+# include <cassert>
 
 using namespace std;
 
 Expression::Expression()
-    : type_(0)
-{}
+    : type_(0) {}
 
 
-Expression::~Expression()
-{}
+Expression::~Expression() {}
 
 
 void Expression::set_type(const VType *typ) {
@@ -56,8 +54,8 @@ bool Expression::symbolic_compare(const Expression *) const {
 
 
 ExpAttribute::ExpAttribute(perm_string nam, list<Expression *> *args)
-    : name_(nam), args_(args)
-{}
+    : name_(nam)
+    , args_(args) {}
 
 
 ExpAttribute::~ExpAttribute() {
@@ -101,9 +99,11 @@ void ExpAttribute::visit_args(ExprVisitor& func) {
 }
 
 
-ExpObjAttribute::ExpObjAttribute(ExpName *base, perm_string name, list<Expression *> *args)
-    : ExpAttribute(name, args), base_(base)
-{}
+ExpObjAttribute::ExpObjAttribute(ExpName *base
+        , perm_string name
+        , list<Expression *> *args)
+    : ExpAttribute(name, args)
+    , base_(base) {}
 
 
 ExpObjAttribute::~ExpObjAttribute() {
@@ -126,9 +126,11 @@ void ExpObjAttribute::visit(ExprVisitor& func) {
 }
 
 
-ExpTypeAttribute::ExpTypeAttribute(const VType *base, perm_string name, list<Expression *> *args)
-    : ExpAttribute(name, args), base_(base)
-{}
+ExpTypeAttribute::ExpTypeAttribute(const VType *base, 
+        perm_string name, 
+        list<Expression *> *args)
+    : ExpAttribute(name, args)
+    , base_(base) {}
 
 
 Expression *ExpTypeAttribute::clone() const {
@@ -148,15 +150,13 @@ const perm_string ExpAttribute::LEFT  = perm_string::literal("left");
 const perm_string ExpAttribute::RIGHT = perm_string::literal("right");
 
 ExpBinary::ExpBinary(Expression *op1, Expression *op2)
-    : operand1_(op1), operand2_(op2)
-{}
-
+    : operand1_(op1)
+    , operand2_(op2) {}
 
 ExpBinary::~ExpBinary() {
     delete operand1_;
     delete operand2_;
 }
-
 
 bool ExpBinary::eval_operand1(Entity *ent, ScopeBase *scope, int64_t& val) const {
     return operand1_->evaluate(ent, scope, val);
@@ -178,8 +178,7 @@ void ExpBinary::visit(ExprVisitor& func) {
 
 
 ExpUnary::ExpUnary(Expression *op1)
-    : operand1_(op1)
-{}
+    : operand1_(op1) {}
 
 
 ExpUnary::~ExpUnary() {
@@ -264,17 +263,14 @@ void ExpAggregate::visit(ExprVisitor& func) {
 
 
 ExpAggregate::choice_t::choice_t(Expression *exp)
-    : expr_(exp)
-{}
+    : expr_(exp) {}
 
 
-ExpAggregate::choice_t::choice_t()
-{}
+ExpAggregate::choice_t::choice_t() {}
 
 
 ExpAggregate::choice_t::choice_t(ExpRange *rang)
-    : range_(rang)
-{}
+    : range_(rang) {}
 
 
 ExpAggregate::choice_t::choice_t(const choice_t& other) {
@@ -288,8 +284,7 @@ ExpAggregate::choice_t::choice_t(const choice_t& other) {
 }
 
 
-ExpAggregate::choice_t::~choice_t()
-{}
+ExpAggregate::choice_t::~choice_t() {}
 
 
 bool ExpAggregate::choice_t::others() const {
@@ -350,8 +345,7 @@ ExpArithmetic::ExpArithmetic(ExpArithmetic::fun_t op, Expression *op1, Expressio
 }
 
 
-ExpArithmetic::~ExpArithmetic()
-{}
+ExpArithmetic::~ExpArithmetic() {}
 
 
 /*
@@ -365,22 +359,19 @@ ExpBitstring::ExpBitstring(const char *val)
 }
 
 
-ExpBitstring::~ExpBitstring()
-{}
+ExpBitstring::~ExpBitstring() {}
 
 
 ExpCharacter::ExpCharacter(char val)
-    : value_(val)
-{}
+    : value_(val) {}
 
 
-ExpCharacter::~ExpCharacter()
-{}
+ExpCharacter::~ExpCharacter() {}
 
 
 ExpConcat::ExpConcat(Expression *op1, Expression *op2)
-    : operand1_(op1), operand2_(op2)
-{}
+    : operand1_(op1)
+    , operand2_(op2) {}
 
 
 ExpConcat::~ExpConcat() {
@@ -398,8 +389,9 @@ void ExpConcat::visit(ExprVisitor& func) {
 }
 
 
-ExpConditional::ExpConditional(Expression *co, list<Expression *> *tru,
-                               list<ExpConditional::case_t *> *options) {
+ExpConditional::ExpConditional(Expression *co, 
+        list<Expression *> *tru, 
+        list<ExpConditional::case_t *> *options) {
     if (co && tru) {
         options_.push_back(new case_t(co, tru));
     }
@@ -447,7 +439,8 @@ void ExpConditional::visit(ExprVisitor& func) {
 }
 
 
-ExpConditional::case_t::case_t(Expression *cond, std::list<Expression *> *tru)
+ExpConditional::case_t::case_t(Expression *cond
+        , std::list<Expression *> *tru)
     : cond_(cond) {
     if (tru) {
         true_clause_.splice(true_clause_.end(), *tru);
@@ -477,7 +470,8 @@ ExpConditional::case_t::~case_t() {
 
 
 ExpSelected::ExpSelected(Expression *selector, std::list<case_t *> *options)
-    : ExpConditional(NULL, NULL, options), selector_(selector) {
+    : ExpConditional(NULL, NULL, options)
+    , selector_(selector) {
     // Currently condition field contains only value,
     // so substitute it with a comparison to create a valid condition
     for (std::list<case_t *>::iterator it = options_.begin();
@@ -491,8 +485,7 @@ ExpSelected::ExpSelected(Expression *selector, std::list<case_t *> *options)
 }
 
 
-ExpSelected::~ExpSelected()
-{}
+ExpSelected::~ExpSelected() {}
 
 
 Expression *ExpSelected::clone() const {
@@ -526,17 +519,16 @@ void ExpConditional::case_t::visit(ExprVisitor& func) {
 
 
 ExpEdge::ExpEdge(ExpEdge::fun_t typ, Expression *op)
-    : ExpUnary(op), fun_(typ)
-{}
+    : ExpUnary(op)
+    , fun_(typ) {}
 
 
-ExpEdge::~ExpEdge()
-{}
+ExpEdge::~ExpEdge() {}
 
 
 ExpFunc::ExpFunc(perm_string nn)
-    : name_(nn), def_(0)
-{}
+    : name_(nn)
+    , def_(0) {}
 
 
 ExpFunc::ExpFunc(perm_string nn, list<Expression *> *args)
@@ -597,12 +589,10 @@ const VType *ExpFunc::func_ret_type() const {
 
 
 ExpInteger::ExpInteger(int64_t val)
-    : value_(val)
-{}
+    : value_(val) {}
 
 
-ExpInteger::~ExpInteger()
-{}
+ExpInteger::~ExpInteger() {}
 
 
 bool ExpInteger::evaluate(Entity *, ScopeBase *, int64_t& val) const {
@@ -612,36 +602,38 @@ bool ExpInteger::evaluate(Entity *, ScopeBase *, int64_t& val) const {
 
 
 ExpReal::ExpReal(double val)
-    : value_(val)
-{}
+    : value_(val) {}
 
 
-ExpReal::~ExpReal()
-{}
+ExpReal::~ExpReal() {}
 
 
-ExpLogical::ExpLogical(ExpLogical::fun_t ty, Expression *op1, Expression *op2)
-    : ExpBinary(op1, op2), fun_(ty)
-{}
+ExpLogical::ExpLogical(ExpLogical::fun_t ty
+        , Expression *op1
+        , Expression *op2)
+    : ExpBinary(op1, op2)
+    , fun_(ty) {}
 
 
-ExpLogical::~ExpLogical()
-{}
+ExpLogical::~ExpLogical() {}
 
 
 ExpName::ExpName(perm_string nn)
-    : name_(nn), indices_(NULL)
-{}
+    : name_(nn)
+    , indices_(NULL) {}
 
 
 ExpName::ExpName(perm_string nn, list<Expression *> *indices)
-    : name_(nn), indices_(indices)
-{}
+    : name_(nn)
+    , indices_(indices) {}
 
 
-ExpName::ExpName(ExpName *prefix, perm_string nn, std::list<Expression *> *indices)
-    : prefix_(prefix), name_(nn), indices_(indices)
-{}
+ExpName::ExpName(ExpName *prefix, 
+        perm_string nn, 
+        std::list<Expression *> *indices)
+    : prefix_(prefix)
+    , name_(nn)
+    , indices_(indices) {}
 
 
 ExpName::~ExpName() {
@@ -788,17 +780,17 @@ int ExpName::index_t::emit(ostream& out, Entity *ent, ScopeBase *scope) const {
 
 
 ExpRelation::ExpRelation(ExpRelation::fun_t ty, Expression *op1, Expression *op2)
-    : ExpBinary(op1, op2), fun_(ty)
-{}
+    : ExpBinary(op1, op2)
+    , fun_(ty) {}
 
 
-ExpRelation::~ExpRelation()
-{}
+ExpRelation::~ExpRelation() {}
 
 
 ExpScopedName::ExpScopedName(perm_string scope, ExpName *exp)
-    : scope_name_(scope), scope_(NULL), name_(exp)
-{}
+    : scope_name_(scope)
+    , scope_(NULL)
+    , name_(exp) {}
 
 
 ExpScopedName::~ExpScopedName() {
@@ -829,44 +821,37 @@ ScopeBase *ExpScopedName::get_scope(const ScopeBase *scope) const {
 
 
 ExpShift::ExpShift(ExpShift::shift_t op, Expression *op1, Expression *op2)
-    : ExpBinary(op1, op2), shift_(op)
-{}
+    : ExpBinary(op1, op2)
+    , shift_(op) {}
 
 
 ExpString::ExpString(const char *value)
-    : value_(value)
-{}
+    : value_(value) {}
 
 
-ExpString::~ExpString()
-{}
+ExpString::~ExpString() {}
 
 
 ExpUAbs::ExpUAbs(Expression *op1)
-    : ExpUnary(op1)
-{}
+    : ExpUnary(op1) {}
 
 
-ExpUAbs::~ExpUAbs()
-{}
+ExpUAbs::~ExpUAbs() {}
 
 
 ExpUNot::ExpUNot(Expression *op1)
-    : ExpUnary(op1)
-{}
+    : ExpUnary(op1) {}
 
 
-ExpUNot::~ExpUNot()
-{}
+ExpUNot::~ExpUNot() {}
 
 
-ExpCast::ExpCast(Expression *base, const VType *type) :
-    base_(base), type_(type)
-{}
+ExpCast::ExpCast(Expression *base, const VType *type) 
+    : base_(base)
+    , type_(type) {}
 
 
-ExpCast::~ExpCast()
-{}
+ExpCast::~ExpCast() {}
 
 
 void ExpCast::visit(ExprVisitor& func) {
@@ -878,8 +863,7 @@ void ExpCast::visit(ExprVisitor& func) {
 
 
 ExpNew::ExpNew(Expression *size) :
-    size_(size)
-{}
+    size_(size) {}
 
 
 ExpNew::~ExpNew() {
@@ -896,8 +880,8 @@ void ExpNew::visit(ExprVisitor& func) {
 
 
 ExpTime::ExpTime(uint64_t amount, timeunit_t unit)
-    : amount_(amount), unit_(unit)
-{}
+    : amount_(amount)
+    , unit_(unit) {}
 
 
 double ExpTime::to_fs() const {
@@ -936,16 +920,23 @@ double ExpTime::to_fs() const {
 }
 
 
-ExpRange::ExpRange(Expression *left_idx, Expression *right_idx, range_dir_t dir)
-    : left_(left_idx), right_(right_idx), direction_(dir), range_expr_(false),
-    range_base_(NULL)
-{}
+ExpRange::ExpRange(Expression *left_idx
+        , Expression *right_idx
+        , range_dir_t dir)
+    : left_(left_idx)
+    , right_(right_idx)
+    , direction_(dir)
+    , range_expr_(false)
+    , range_base_(NULL) {}
 
 
 ExpRange::ExpRange(ExpName *base, bool reverse_range)
-    : left_(NULL), right_(NULL), direction_(AUTO), range_expr_(true),
-    range_base_(base), range_reverse_(reverse_range)
-{}
+    : left_(NULL)
+    , right_(NULL)
+    , direction_(AUTO)
+    , range_expr_(true)
+    , range_base_(base)
+    , range_reverse_(reverse_range) {}
 
 
 ExpRange::~ExpRange() {
@@ -1022,8 +1013,8 @@ Expression *ExpRange::right() {
 
 
 ExpDelay::ExpDelay(Expression *expr, Expression *delay)
-    : expr_(expr), delay_(delay)
-{}
+    : expr_(expr)
+    , delay_(delay) {}
 
 
 ExpDelay::~ExpDelay() {
