@@ -1,0 +1,1538 @@
+mkdir dep
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c main.cc -o main.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c architec.cc -o architec.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c compiler.cc -o compiler.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c entity.cc -o entity.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c std_funcs.cc -o std_funcs.o
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from entity.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from entity.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from entity.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec.cc:20:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec.cc:20:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec.cc:20:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from main.cc:90:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from main.cc:90:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from main.cc:90:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from main.cc:90:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from main.cc:90:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from main.cc:90:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from std_funcs.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from std_funcs.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from std_funcs.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from std_funcs.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from std_funcs.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from std_funcs.h:24,
+                 from std_funcs.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c std_types.cc -o std_types.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c expression.cc -o expression.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c package.cc -o package.o
+In file included from scope.h:29:0,
+                 from std_types.cc:22:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from std_types.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from std_types.cc:22:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from std_types.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from std_types.cc:22:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from std_types.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression.cc:23:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression.cc:23:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression.cc:23:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from package.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from package.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from package.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from package.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from package.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from package.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c scope.cc -o scope.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c sequential.cc -o sequential.o
+In file included from scope.h:29:0,
+                 from scope.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from scope.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from scope.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from scope.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from scope.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from scope.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c subprogram.cc -o subprogram.o
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential.cc:20:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential.cc:20:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential.cc:20:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from subprogram.cc:23:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from subprogram.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from subprogram.cc:23:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from subprogram.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from subprogram.cc:23:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from subprogram.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vsignal.cc -o vsignal.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vtype.cc -o vtype.o
+In file included from vsignal.cc:23:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vsignal.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vsignal.cc:23:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vsignal.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vsignal.cc:23:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vsignal.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c expression_gendot.cc -o expression_gendot.o
+In file included from parse_types.h:25:0,
+                 from vtype.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from vtype.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from vtype.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from vtype.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from vtype.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from vtype.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vtype_match.cc -o vtype_match.o
+In file included from mach7/patterns/n+k.hpp:48:0,
+                 from expression_gendot.cc:8:
+mach7/patterns/exprtmpl.hpp: In member function ‘bool mch::solver<mch::bool_complement>::operator()(A&, decltype (! a)&)’:
+mach7/patterns/exprtmpl.hpp:147:19: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
+         return !a == r;
+                   ^~
+mach7/patterns/exprtmpl.hpp: In function ‘bool mch::do_solve(mch::bool_complement, A&, decltype (! a)&)’:
+mach7/patterns/exprtmpl.hpp:289:15: warning: logical not is only applied to the left hand side of comparison [-Wlogical-not-parentheses]
+     return !a == r;
+               ^~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c architec_elaborate.cc -o architec_elaborate.o
+In file included from expression_gendot.cc:10:0:
+expression.h: At global scope:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from mach7/ptrtools.hpp:50,
+                 from mach7/vtblmap3st.hpp:82,
+                 from mach7/vtblmap.hpp:50,
+                 from mach7/unisyn.hpp:50,
+                 from mach7/match.hpp:111,
+                 from expression_gendot.cc:6:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_gendot.cc:10:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from mach7/ptrtools.hpp:50,
+                 from mach7/vtblmap3st.hpp:82,
+                 from mach7/vtblmap.hpp:50,
+                 from mach7/unisyn.hpp:50,
+                 from mach7/match.hpp:111,
+                 from expression_gendot.cc:6:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_gendot.cc:10:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from mach7/ptrtools.hpp:50,
+                 from mach7/vtblmap3st.hpp:82,
+                 from mach7/vtblmap.hpp:50,
+                 from mach7/unisyn.hpp:50,
+                 from mach7/match.hpp:111,
+                 from expression_gendot.cc:6:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c entity_elaborate.cc -o entity_elaborate.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c expression_elaborate.cc -o expression_elaborate.o
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_elaborate.cc:20:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_elaborate.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_elaborate.cc:20:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_elaborate.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_elaborate.cc:20:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_elaborate.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_elaborate.cc:24:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_elaborate.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_elaborate.cc:24:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_elaborate.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_elaborate.cc:24:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_elaborate.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity_elaborate.cc:30:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/bits/locale_conv.h:41:0,
+                 from /usr/include/c++/6.1.1/locale:43,
+                 from /usr/include/c++/6.1.1/iomanip:43,
+                 from entity_elaborate.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity_elaborate.cc:30:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/bits/locale_conv.h:41:0,
+                 from /usr/include/c++/6.1.1/locale:43,
+                 from /usr/include/c++/6.1.1/iomanip:43,
+                 from entity_elaborate.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity_elaborate.cc:30:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/bits/locale_conv.h:41:0,
+                 from /usr/include/c++/6.1.1/locale:43,
+                 from /usr/include/c++/6.1.1/iomanip:43,
+                 from entity_elaborate.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c expression_evaluate.cc -o expression_evaluate.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c sequential_elaborate.cc -o sequential_elaborate.o
+In file included from expression_evaluate.cc:22:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_evaluate.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_evaluate.cc:22:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_evaluate.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_evaluate.cc:22:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_evaluate.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_elaborate.cc:20:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_elaborate.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_elaborate.cc:20:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_elaborate.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_elaborate.cc:20:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_elaborate.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vtype_elaborate.cc -o vtype_elaborate.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c entity_stream.cc -o entity_stream.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c expression_stream.cc -o expression_stream.o
+In file included from vtype_elaborate.cc:22:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_elaborate.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vtype_elaborate.cc:22:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_elaborate.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vtype_elaborate.cc:22:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_elaborate.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vtype_stream.cc -o vtype_stream.o
+In file included from entity_stream.cc:21:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from entity_stream.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from entity_stream.cc:21:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from entity_stream.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+flex -s -olexor.cc ./lexor.lex
+bison --verbose -t -d -o parse.cc parse.y
+In file included from entity_stream.cc:21:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from entity_stream.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_stream.cc:20:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_stream.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_stream.cc:20:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_stream.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_stream.cc:20:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_stream.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+gperf -o -i 7 --ignore-case -C -k 1-4,6,9,$ -H keyword_hash -N check_identifier -t ./lexor_keyword.gperf > lexor_keyword.cc || (rm -f lexor_keyword.cc ; false)
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c parse_misc.cc -o parse_misc.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c library.cc -o library.o
+In file included from vtype_stream.cc:22:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_stream.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vtype_stream.cc:22:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_stream.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vtype_stream.cc:22:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_stream.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vhdlreal.cc -o vhdlreal.o
+In file included from parse_types.h:25:0,
+                 from parse_misc.cc:23:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from parse_misc.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from parse_misc.cc:23:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from parse_misc.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vhdlint.cc -o vhdlint.o
+In file included from parse_types.h:25:0,
+                 from parse_misc.cc:23:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from parse_misc.cc:23:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from library.cc:26:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from library.cc:26:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from library.cc:26:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from library.cc:26:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from library.cc:26:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from library.cc:26:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c architec_emit.cc -o architec_emit.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c entity_emit.cc -o entity_emit.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c expression_emit.cc -o expression_emit.o
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_emit.cc:20:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_emit.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_emit.cc:20:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_emit.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_emit.cc:20:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_emit.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity_emit.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from entity_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity_emit.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from entity_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from entity_emit.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from entity_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_emit.cc:22:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_emit.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_emit.cc:22:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_emit.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from expression_emit.cc:22:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from expression_emit.cc:22:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c package_emit.cc -o package_emit.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c sequential_emit.cc -o sequential_emit.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c subprogram_emit.cc -o subprogram_emit.o
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from package_emit.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from package_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from package_emit.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from package_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_emit.cc:29:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_emit.cc:29:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_emit.cc:29:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_emit.cc:29:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from package.h:24,
+                 from package_emit.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from package.h:24,
+                 from package_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_emit.cc:29:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_emit.cc:29:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from subprogram_emit.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from subprogram_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from subprogram_emit.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from subprogram_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from subprogram.h:28,
+                 from subprogram_emit.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from subprogram.h:28,
+                 from subprogram_emit.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c vtype_emit.cc -o vtype_emit.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c debug.cc -o debug.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c architec_debug.cc -o architec_debug.o
+In file included from vtype_emit.cc:24:0:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_emit.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vtype_emit.cc:24:0:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_emit.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from vtype_emit.cc:24:0:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from vtype_emit.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c expression_debug.cc -o expression_debug.o
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from debug.cc:24:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from debug.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from debug.cc:24:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from debug.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from debug.cc:24:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from debug.cc:24:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_debug.cc:20:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_debug.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_debug.cc:20:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_debug.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from architec_debug.cc:20:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from architec_debug.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c sequential_debug.cc -o sequential_debug.o
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from expression_debug.cc:21:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from expression_debug.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from expression_debug.cc:21:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from expression_debug.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from expression_debug.cc:21:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from expression_debug.cc:21:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_debug.cc:20:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_debug.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_debug.cc:20:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_debug.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from parse_types.h:25:0,
+                 from sequential.h:25,
+                 from sequential_debug.cc:20:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from parse_types.h:25,
+                 from sequential.h:25,
+                 from sequential_debug.cc:20:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c ../libmisc/StringHeap.cc -o StringHeap.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c ../libmisc/LineInfo.cc -o LineInfo.o
+mv parse.cc.h parse.h 2>/dev/null || mv parse.hh parse.h
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c parse.cc -o parse.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c lexor.cc -o lexor.o
+g++ -I. -I.. -I../libmisc  -DHAVE_CONFIG_H -Wall -Wextra -Wshadow   -g -O2 --std=c++11 -c lexor_keyword.cc -o lexor_keyword.o
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor.lex:30:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor.lex:30:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor.lex:30:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor.lex:30:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor_keyword.gperf:15:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor_keyword.gperf:15:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor_keyword.gperf:15:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor_keyword.gperf:15:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor.lex:30:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor.lex:30:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor_keyword.gperf:15:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse_wrap.h:33,
+                 from ./lexor_keyword.gperf:15:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse.y:43:
+expression.h:309:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<Expression> expr_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse.y:43:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse.y:43:
+expression.h:310:14: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+         std::auto_ptr<ExpRange>   range_;
+              ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse.y:43:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+In file included from scope.h:29:0,
+                 from architec.h:28,
+                 from parse.y:43:
+expression.h:959:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
+     std::auto_ptr<ExpName>  prefix_;
+          ^~~~~~~~
+In file included from /usr/include/c++/6.1.1/memory:81:0,
+                 from expression.h:27,
+                 from scope.h:29,
+                 from architec.h:28,
+                 from parse.y:43:
+/usr/include/c++/6.1.1/bits/unique_ptr.h:49:28: note: declared here
+   template<typename> class auto_ptr;
+                            ^~~~~~~~
+lexor.cc: In function ‘int yy_get_next_buffer(yyscan_t)’:
+lexor.cc:1395:23: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   if ( number_to_move == YY_MORE_ADJ )
+                        
+g++ -o vhdlpp  main.o architec.o compiler.o entity.o std_funcs.o std_types.o expression.o package.o scope.o sequential.o subprogram.o vsignal.o vtype.o expression_gendot.o vtype_match.o architec_elaborate.o entity_elaborate.o expression_elaborate.o expression_evaluate.o sequential_elaborate.o vtype_elaborate.o entity_stream.o expression_stream.o vtype_stream.o lexor.o lexor_keyword.o parse.o parse_misc.o library.o vhdlreal.o vhdlint.o architec_emit.o entity_emit.o expression_emit.o package_emit.o sequential_emit.o subprogram_emit.o vtype_emit.o debug.o architec_debug.o expression_debug.o sequential_debug.o StringHeap.o LineInfo.o -lm -lbz2 -lz -lpthread -lhistory -lreadline  

@@ -1,3 +1,6 @@
 *.o
 *.so
 vhdlpp/vhdlpp
+parse.cc
+parse.h
+parse.output

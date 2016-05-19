@@ -1,0 +1,92 @@
+
+.L architec.cc
+.L compiler.cc
+.L entity.cc
+.L expression.cc
+.L package.cc
+.L scope.cc
+.L sequential.cc
+.L subprogram.cc
+.L vsignal.cc
+.L vtype.cc
+.L expression_gendot.cc
+.L vtype_match.cc
+.L architec_elaborate.cc
+.L entity_elaborate.cc
+.L expression_elaborate.cc
+.L expression_evaluate.cc
+.L sequential_elaborate.cc
+.L vtype_elaborate.cc
+.L entity_stream.cc
+.L expression_stream.cc
+.L vtype_stream.cc
+
+.L parse_misc.cc
+.L library.cc
+.L vhdlreal.cc
+.L vhdlint.cc
+.L architec_emit.cc
+.L entity_emit.cc
+.L expression_emit.cc
+.L package_emit.cc
+.L sequential_emit.cc
+.L subprogram_emit.cc
+.L vtype_emit.cc
+.L debug.cc
+.L architec_debug.cc
+.L expression_debug.cc
+.L sequential_debug.cc
+.L StringHeap.cc
+.L LineInfo.cc
+
+.L parse.cc
+.L lexor.cc
+.L lexor_keyword.cc
+
+.L std_types.cc
+.L std_funcs.cc
+
+
+bool verbose_flag = true;
+// Where to dump design entities
+const char *dump_design_entities_path = 0;
+const char *dump_libraries_path       = 0;
+const char *debug_log_path            = 0;
+
+bool     debug_elaboration = false;
+ofstream debug_log_file;
+
+extern void dump_libraries(ostream& file);
+extern void parser_cleanup();
+
+
+int        opt;
+int        rc;
+const char *work_path = "ivl_vhdl_work";
+
+if (debug_log_path) {
+    debug_log_file.open(debug_log_path);
+}
+
+if ((rc = mkdir(work_path, 0777)) < 0) {
+    if (errno != EEXIST) {
+        fprintf(stderr, "Icarus Verilog VHDL unable to create work directory %s, errno=%d\n", work_path, errno);
+        return -1;
+    }
+    struct stat stat_buf;
+    rc = stat(work_path, &stat_buf);
+
+    if (!S_ISDIR(stat_buf.st_mode)) {
+        fprintf(stderr, "Icarus Verilog VHDL work path `%s' is not a directory.\n", work_path);
+        return -1;
+    }
+}
+
+
+std::cout.precision(std::numeric_limits<double>::digits10);
+library_set_work_path(work_path);
+
+preload_global_types();
+
+preload_std_funcs();
+
