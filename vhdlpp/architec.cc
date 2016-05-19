@@ -37,7 +37,6 @@ Architecture::Architecture(perm_string name,
     statements_.splice(statements_.end(), s);
 }
 
-
 Architecture::~Architecture() {
     delete_all(statements_);
     ScopeBase::cleanup();
@@ -139,12 +138,10 @@ const GenerateStatement *Architecture::probe_genvar_emit(perm_string gname) {
 }
 
 
-Architecture::Statement::Statement()
-{}
+Architecture::Statement::Statement() {}
 
 
-Architecture::Statement::~Statement()
-{}
+Architecture::Statement::~Statement() {}
 
 
 GenerateStatement::GenerateStatement(perm_string                           gname,
@@ -155,29 +152,32 @@ GenerateStatement::GenerateStatement(perm_string                           gname
 
 
 GenerateStatement::~GenerateStatement() {
-    for_each(statements_.begin(), statements_.end(), ::delete_object<Architecture::Statement> ());
+    for_each(statements_.begin(), statements_.end(), 
+        ::delete_object<Architecture::Statement> ());
 }
 
 
-ForGenerate::ForGenerate(perm_string gname, perm_string genvar,
-                         ExpRange *rang, std::list<Architecture::Statement *>& s)
-    : GenerateStatement(gname, s), genvar_(genvar),
-    lsb_(rang->lsb()), msb_(rang->msb())
-{}
+ForGenerate::ForGenerate(perm_string gname, 
+        perm_string genvar,
+        ExpRange *rang, 
+        std::list<Architecture::Statement *>& s)
+    : GenerateStatement(gname, s)
+    , genvar_(genvar)
+    , lsb_(rang->lsb()), 
+    msb_(rang->msb()) {}
 
 
-ForGenerate::~ForGenerate()
-{}
+ForGenerate::~ForGenerate() {}
 
 
-IfGenerate::IfGenerate(perm_string gname, Expression *cond,
-                       std::list<Architecture::Statement *>& s)
-    : GenerateStatement(gname, s), cond_(cond)
-{}
+IfGenerate::IfGenerate(perm_string gname, 
+        Expression *cond, 
+        std::list<Architecture::Statement *>& s)
+    : GenerateStatement(gname, s)
+    , cond_(cond) {}
 
 
-IfGenerate::~IfGenerate()
-{}
+IfGenerate::~IfGenerate() {}
 
 
 SignalAssignment::SignalAssignment(ExpName *name, list<Expression *>& rv)
@@ -201,7 +201,8 @@ SignalAssignment::~SignalAssignment() {
 }
 
 
-CondSignalAssignment::CondSignalAssignment(ExpName *target, std::list<ExpConditional::case_t *>& options)
+CondSignalAssignment::CondSignalAssignment(ExpName *target, 
+        std::list<ExpConditional::case_t *>& options)
     : lval_(target) {
     options_.splice(options_.end(), options);
 }
@@ -217,10 +218,12 @@ CondSignalAssignment::~CondSignalAssignment() {
 }
 
 
-ComponentInstantiation::ComponentInstantiation(perm_string i, perm_string c,
-                                               list<named_expr_t *> *parms,
-                                               list<named_expr_t *> *ports)
-    : iname_(i), cname_(c) {
+ComponentInstantiation::ComponentInstantiation(perm_string i, 
+        perm_string c, 
+        list<named_expr_t *> *parms, 
+        list<named_expr_t *> *ports)
+    : iname_(i)
+    , cname_(c) {
     typedef pair<map<perm_string, Expression *>::iterator, bool>   insert_rc;
 
     while (parms && !parms->empty()) {

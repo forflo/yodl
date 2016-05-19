@@ -643,6 +643,8 @@ public:
         }
 
         void visit(ExprVisitor& func);
+        // FM. MA
+        simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
     private:
         Expression              *cond_;

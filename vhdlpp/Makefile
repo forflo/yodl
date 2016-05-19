@@ -28,7 +28,7 @@ vpath %.cc $(srcdir)/../libmisc
 vpath %.cc $(srcdir)
 
 CC = gcc
-CXX = g++
+CXX = clang++
 LEX = flex
 YACC = bison
 
@@ -43,8 +43,7 @@ M = StringHeap.o LineInfo.o
 
 O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
     expression.o package.o scope.o sequential.o subprogram.o vsignal.o vtype.o \
-    expression_gendot.o \
-	enum_overloads.o \
+    expression_gendot.o architec_gendot.o sequential_gendot.o \
     vtype_match.o \
     architec_elaborate.o entity_elaborate.o expression_elaborate.o \
     expression_evaluate.o \

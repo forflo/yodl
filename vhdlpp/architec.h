@@ -26,6 +26,7 @@
 # include "StringHeap.h"
 # include "LineInfo.h"
 # include "scope.h"
+# include "simple_tree/simple_tree.h"
 
 class ComponentInstantiation;
 class Entity;
@@ -38,13 +39,15 @@ class Signal;
 class named_expr_t;
 class ExpRange;
 
+// --OK DOT (FM.)
 /* The Architecture class carries the contents (name, statements,
  * etc.) of a parsed VHDL architecture. These objects are ultimately
  * put into entities. */
 class Architecture : public Scope, public LineInfo {
 public:
-    // Architectures contain concurrent statements, that are
-    // derived from this nested class.
+    // --OK DOT (FM.)
+    /* Architectures contain concurrent statements, that are
+     * derived from this nested class. */
     class Statement : public LineInfo {
     public:
         Statement();
@@ -53,6 +56,9 @@ public:
         virtual int elaborate(Entity *ent, Architecture *arc);
         virtual int emit(ostream& out, Entity *ent, Architecture *arc);
         virtual void dump(ostream& out, int indent = 0) const;
+
+        // FM. MA
+        virtual simple_tree<map<string, string>> *emit_strinfo_tree() const = 0;
     };
 
 public:
@@ -108,7 +114,8 @@ public:
     // output.
     int emit(ostream& out, Entity *entity);
 
-    int emit_dot(ostream& out, Entity *entiy);
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
 
     // The dump method writes a debug display to the given output.
     void dump(ostream& out, perm_string of_entity, int indent = 0) const;
@@ -123,6 +130,7 @@ public:
         const VType *vtype;
     };
 
+    // FM. TODO?
     std::list<genvar_type_t> genvar_type_stack_;
 
     struct genvar_emit_t {
@@ -130,6 +138,7 @@ public:
         const GenerateStatement *gen;
     };
 
+    // FM. TODO?
     std::list<genvar_emit_t> genvar_emit_stack_;
 
     // Currently processed component (or NULL if none).
@@ -138,11 +147,9 @@ public:
     // Currently elaborated process (or NULL if none).
     ProcessStatement *cur_process_;
 };
-
-/*
- * This is a base class for various generate statement types. It holds
- * the generate statement name, and a list of substatements.
- */
+ 
+/* This is a base class for various generate statement types. It holds
+ * the generate statement name, and a list of substatements. */
 class GenerateStatement : public Architecture::Statement {
 public:
     GenerateStatement(perm_string gname, 
@@ -153,16 +160,16 @@ public:
         return name_;
     }
 
-protected:
     int elaborate_statements(Entity *ent, Architecture *arc);
     int emit_statements(ostream& out, Entity *ent, Architecture *arc);
     void dump_statements(ostream& out, int indent) const;
 
-private:
+protected:
     perm_string name_;
     std::list<Architecture::Statement *> statements_;
 };
 
+// OK DOT
 class ForGenerate : public GenerateStatement {
 public:
     ForGenerate(perm_string gname, 
@@ -175,12 +182,16 @@ public:
     int emit(ostream& out, Entity *entity, Architecture *arc);
     void dump(ostream& out, int ident = 0) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     perm_string genvar_;
     Expression  *lsb_;
     Expression  *msb_;
 };
 
+// OK DOT
 class IfGenerate : public GenerateStatement {
 public:
     IfGenerate(perm_string gname, 
@@ -191,14 +202,16 @@ public:
     int elaborate(Entity *ent, Architecture *arc);
     int emit(ostream& out, Entity *entity, Architecture *arc);
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     Expression *cond_;
 };
 
-/*
- * The SignalAssignment class represents the
- * concurrent_signal_assignment that is placed in an architecture.
- */
+// OK DOT
+/* The SignalAssignment class represents the
+ * concurrent_signal_assignment that is placed in an architecture.  */
 class SignalAssignment : public Architecture::Statement {
 public:
     SignalAssignment(ExpName *target, std::list<Expression *>& rval);
@@ -209,11 +222,15 @@ public:
     virtual int emit(ostream& out, Entity *entity, Architecture *arc);
     virtual void dump(ostream& out, int ident = 0) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     ExpName                 *lval_;
     std::list<Expression *> rval_;
 };
 
+// OK DOT
 class CondSignalAssignment : public Architecture::Statement {
 public:
     CondSignalAssignment(ExpName *target, 
@@ -224,15 +241,19 @@ public:
     int emit(ostream& out, Entity *entity, Architecture *arc);
     void dump(ostream& out, int ident = 0) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     ExpName *lval_;
     std::list<ExpConditional::case_t *> options_;
 
-    // List of signals that should be emitted in the related process
-    // sensitivity list. It is filled during the elaboration step.
+    /* List of signals that should be emitted in the related process
+     * sensitivity list. It is filled during the elaboration step. */
     std::list<const ExpName *> sens_list_;
 };
 
+// OK DOT
 class ComponentInstantiation : public Architecture::Statement {
 public:
     ComponentInstantiation(perm_string iname, perm_string cname,
@@ -255,14 +276,19 @@ public:
         return cname_;
     }
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     perm_string iname_;
     perm_string cname_;
 
+    // FM TODO (include in simple tree output)
     std::map<perm_string, Expression *> generic_map_;
     std::map<perm_string, Expression *> port_map_;
 };
 
+// OK DOT
 class StatementList : public Architecture::Statement {
 public:
     StatementList(std::list<SequentialStmt *> *statement_list);
@@ -280,6 +306,9 @@ public:
     virtual int emit(ostream& out, Entity *entity, ScopeBase *scope);
     virtual void dump(ostream& out, int indent = 0) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
     std::list<SequentialStmt *>& stmt_list() {
         return statements_;
     }
@@ -288,8 +317,9 @@ public:
     std::list<SequentialStmt *> statements_;
 };
 
-// There is no direct VHDL countepart to SV 'initial' statement,
-// but we can still use it during the translation process.
+// OK DOT
+/* There is no direct VHDL countepart to SV 'initial' statement,
+ * but we can still use it during the translation process. */
 class InitialStatement : public StatementList {
 public:
     InitialStatement(std::list<SequentialStmt *> *statement_list)
@@ -297,10 +327,14 @@ public:
 
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void dump(ostream& out, int indent = 0) const;
+
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
 };
 
-// There is no direct VHDL countepart to SV 'final' statement,
-// but we can still use it during the translation process.
+// OK DOT
+/* There is no direct VHDL countepart to SV 'initial' statement,
+ * but we can still use it during the translation process. */
 class FinalStatement : public StatementList {
 public:
     FinalStatement(std::list<SequentialStmt *> *statement_list)
@@ -308,8 +342,12 @@ public:
 
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void dump(ostream& out, int indent = 0) const;
+
+    // FM. MA (not implemented)
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
 };
 
+// OK DOT
 class ProcessStatement : public StatementList, public Scope {
 public:
     ProcessStatement(perm_string                 iname,
@@ -322,6 +360,9 @@ public:
     int elaborate(Entity *ent, Architecture *arc);
     int emit(ostream& out, Entity *entity, Architecture *arc);
     void dump(ostream& out, int indent = 0) const;
+
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
     perm_string             iname_;
