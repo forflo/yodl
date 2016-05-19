@@ -2,5 +2,7 @@
 *.so
 vhdlpp/vhdlpp
 parse.cc
+lexor.cc
+lexor_keyword.cc
 parse.h
 parse.output
