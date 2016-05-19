@@ -17,11 +17,12 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "sequential.h"
-# include  "expression.h"
-# include  <fstream>
-# include  <iomanip>
-# include  <typeinfo>
+#include <fstream>
+#include <iomanip>
+#include <typeinfo>
+
+#include "sequential.h"
+#include "expression.h"
 
 using namespace std;
 

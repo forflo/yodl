@@ -220,7 +220,7 @@ protected:
     int emit_operand1(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump_operand1(ostream& out, int indent = 0) const;
 
-private:
+protected:
     Expression *operand1_;
 };
 
@@ -264,7 +264,7 @@ protected:
 private:
     virtual const VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
 
-private:
+protected:
     Expression *operand1_;
     Expression *operand2_;
 };
@@ -477,7 +477,7 @@ public:
     void visit(ExprVisitor& func);
 
     // FM. MA TODO
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
 private:
     ExpName *base_;
@@ -664,7 +664,7 @@ public:
     void visit(ExprVisitor& func);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
 protected:
     std::list<case_t *> options_;
@@ -681,7 +681,7 @@ public:
     Expression *clone() const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
 private:
     Expression *selector_;

@@ -23,7 +23,9 @@
 
 # include <algorithm>
 # include <list>
+# include <vector>
 # include <map>
+
 # include "StringHeap.h"
 # include "entity.h"
 # include "expression.h"

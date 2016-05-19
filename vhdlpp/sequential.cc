@@ -29,24 +29,24 @@ inline static void visit_stmt_list(std::list<T *>& stmts, SeqStmtVisitor& func) 
 }
 
 
-SequentialStmt::SequentialStmt()
-{}
+SequentialStmt::SequentialStmt() {}
 
 
-SequentialStmt::~SequentialStmt()
-{}
+SequentialStmt::~SequentialStmt() {}
 
 
 IfSequential::IfSequential(Expression *cond, std::list<SequentialStmt *> *tr,
-                           std::list<IfSequential::Elsif *> *el,
-                           std::list<SequentialStmt *> *fa) {
+        std::list<IfSequential::Elsif *> *el,
+        std::list<SequentialStmt *> *fa) {
     cond_ = cond;
     if (tr) {
         if_.splice(if_.end(), *tr);
     }
+
     if (el) {
         elsif_.splice(elsif_.end(), *el);
     }
+
     if (fa) {
         else_.splice(else_.end(), *fa);
     }
@@ -98,7 +98,8 @@ void IfSequential::visit(SeqStmtVisitor& func) {
 }
 
 
-IfSequential::Elsif::Elsif(Expression *cond, std::list<SequentialStmt *> *tr)
+IfSequential::Elsif::Elsif(Expression *cond, 
+        std::list<SequentialStmt *> *tr)
     : cond_(cond) {
     if (tr) {
         if_.splice(if_.end(), *tr);
@@ -122,7 +123,8 @@ void IfSequential::Elsif::visit(SeqStmtVisitor& func) {
 }
 
 
-SignalSeqAssignment::SignalSeqAssignment(Expression *sig, std::list<Expression *> *wav) {
+SignalSeqAssignment::SignalSeqAssignment(Expression *sig, 
+        std::list<Expression *> *wav) {
     lval_ = sig;
     if (wav) {
         waveform_.splice(waveform_.end(), *wav);
@@ -135,7 +137,8 @@ SignalSeqAssignment::~SignalSeqAssignment() {
 }
 
 
-CaseSeqStmt::CaseSeqStmt(Expression *cond, list<CaseSeqStmt::CaseStmtAlternative *> *ap)
+CaseSeqStmt::CaseSeqStmt(Expression *cond, 
+        list<CaseSeqStmt::CaseStmtAlternative *> *ap)
     : cond_(cond) {
     if (ap) {
         alt_.splice(alt_.end(), *ap);
@@ -161,7 +164,7 @@ void CaseSeqStmt::visit(SeqStmtVisitor& func) {
 
 
 CaseSeqStmt::CaseStmtAlternative::CaseStmtAlternative(std::list<Expression *> *exp,
-                                                      list<SequentialStmt *>  *stmts)
+        list<SequentialStmt *>  *stmts)
     : exp_(exp) {
     if (stmts) {
         stmts_.splice(stmts_.end(), *stmts);
@@ -186,20 +189,23 @@ void CaseSeqStmt::CaseStmtAlternative::visit(SeqStmtVisitor& func) {
 
 
 ProcedureCall::ProcedureCall(perm_string name)
-    : name_(name), param_list_(NULL), def_(NULL)
-{}
+    : name_(name)
+    , param_list_(NULL)
+    , def_(NULL) {}
 
 
-ProcedureCall::ProcedureCall(perm_string name, std::list<named_expr_t *> *param_list)
-    : name_(name), param_list_(param_list), def_(NULL)
-{}
+ProcedureCall::ProcedureCall(perm_string name,
+        std::list<named_expr_t *> *param_list)
+    : name_(name), param_list_(param_list), def_(NULL) {}
 
 
-ProcedureCall::ProcedureCall(perm_string name, std::list<Expression *> *param_list)
+ProcedureCall::ProcedureCall(perm_string name, 
+        std::list<Expression *> *param_list)
     : name_(name), def_(NULL) {
     param_list_ = new std::list<named_expr_t *>;
     for (std::list<Expression *>::const_iterator it = param_list->begin();
-         it != param_list->end(); ++it) {
+         it != param_list->end(); 
+         ++it) {
         param_list_->push_back(new named_expr_t(empty_perm_string, *it));
     }
 }
@@ -221,8 +227,7 @@ ProcedureCall::~ProcedureCall() {
 
 
 ReturnStmt::ReturnStmt(Expression *val)
-    : val_(val)
-{}
+    : val_(val) {}
 
 
 ReturnStmt::~ReturnStmt() {
@@ -259,19 +264,23 @@ void LoopStatement::visit(SeqStmtVisitor& func) {
 }
 
 
-ForLoopStatement::ForLoopStatement(perm_string scope_name, perm_string it, ExpRange *range, list<SequentialStmt *> *stmts)
-    : LoopStatement(scope_name, stmts), it_(it), range_(range)
-{}
-
+ForLoopStatement::ForLoopStatement(perm_string scope_name, 
+        perm_string it, 
+        ExpRange *range, 
+        list<SequentialStmt *> *stmts)
+    : LoopStatement(scope_name, stmts)
+    , it_(it)
+    , range_(range) {}
 
 ForLoopStatement::~ForLoopStatement() {
     delete range_;
 }
 
 
-VariableSeqAssignment::VariableSeqAssignment(Expression *lval, Expression *rval)
-    : lval_(lval), rval_(rval)
-{}
+VariableSeqAssignment::VariableSeqAssignment(Expression *lval, 
+        Expression *rval)
+    : lval_(lval)
+    , rval_(rval) {}
 
 
 VariableSeqAssignment::~VariableSeqAssignment() {
@@ -280,9 +289,11 @@ VariableSeqAssignment::~VariableSeqAssignment() {
 }
 
 
-WhileLoopStatement::WhileLoopStatement(perm_string lname, Expression *cond, list<SequentialStmt *> *stmts)
-    : LoopStatement(lname, stmts), cond_(cond)
-{}
+WhileLoopStatement::WhileLoopStatement(perm_string lname, 
+        Expression *cond, 
+        list<SequentialStmt *> *stmts)
+    : LoopStatement(lname, stmts)
+    , cond_(cond) {}
 
 
 WhileLoopStatement::~WhileLoopStatement() {
@@ -290,13 +301,12 @@ WhileLoopStatement::~WhileLoopStatement() {
 }
 
 
-BasicLoopStatement::BasicLoopStatement(perm_string lname, list<SequentialStmt *> *stmts)
-    : LoopStatement(lname, stmts)
-{}
+BasicLoopStatement::BasicLoopStatement(perm_string lname, 
+        list<SequentialStmt *> *stmts)
+    : LoopStatement(lname, stmts) {}
 
 
-BasicLoopStatement::~BasicLoopStatement()
-{}
+BasicLoopStatement::~BasicLoopStatement() {}
 
 
 ReportStmt::ReportStmt(Expression *msg, severity_t sev)
@@ -307,8 +317,11 @@ ReportStmt::ReportStmt(Expression *msg, severity_t sev)
 }
 
 
-AssertStmt::AssertStmt(Expression *condition, Expression *msg, ReportStmt::severity_t sev)
-    : ReportStmt(msg, sev), cond_(condition) {
+AssertStmt::AssertStmt(Expression *condition, 
+        Expression *msg, 
+        ReportStmt::severity_t sev)
+    : ReportStmt(msg, sev)
+    , cond_(condition) {
     if (msg == NULL) {
         msg_ = new ExpString(default_msg_);
     }
@@ -318,14 +331,12 @@ AssertStmt::AssertStmt(Expression *condition, Expression *msg, ReportStmt::sever
     }
 }
 
-
 const char *AssertStmt::default_msg_ = "Assertion violation.";
 
 WaitForStmt::WaitForStmt(Expression *delay)
-    : delay_(delay)
-{}
+    : delay_(delay) {}
 
 
 WaitStmt::WaitStmt(wait_type_t typ, Expression *expr)
-    : type_(typ), expr_(expr)
-{}
+    : type_(typ)
+    , expr_(expr) {}

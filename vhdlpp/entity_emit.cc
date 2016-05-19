@@ -17,12 +17,13 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "entity.h"
-# include  "architec.h"
-# include  <iostream>
-# include  <fstream>
-# include  <iomanip>
-# include  <ivl_assert.h>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <ivl_assert.h>
+
+#include "entity.h"
+#include "architec.h"
 
 int emit_entities(void) {
     int errors = 0;
@@ -44,8 +45,9 @@ int Entity::emit(ostream& out) {
     // If there are generics, emit them
     if (parms_.size() > 0) {
         out << "#(";
-        for (vector<InterfacePort *>::const_iterator cur = parms_.begin()
-             ; cur != parms_.end(); ++cur) {
+        for (vector<InterfacePort *>::const_iterator cur = parms_.begin(); 
+                cur != parms_.end(); 
+                ++cur) {
             const InterfacePort *curp = *cur;
             if (cur != parms_.begin()) {
                 out << ", ";

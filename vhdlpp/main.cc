@@ -18,9 +18,42 @@ const char COPYRIGHT[] =
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
+#include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <sys/stat.h>
+#include <cerrno>
+#include <limits>
+#include <vector>
+#include <map>
+#include <iostream>
+
 #include "vhdlpp_config.h"
 #include "version_base.h"
 #include "simple_tree/simple_tree.h"
+#include "simple_tree/simple_tree_travers.h"
+#include "../libmisc/StringHeap.h"
+#include "compiler.h"
+#include "sequential.h"
+#include "library.h"
+#include "std_funcs.h"
+#include "std_types.h"
+#include "architec.h"
+#include "parse_api.h"
+#include "vtype.h"
+#if defined(HAVE_GETOPT_H)
+# include <getopt.h>
+#endif
+// MinGW only supports mkdir() with a path. If this stops working because
+// we need to use _mkdir() for mingw-w32 and mkdir() for mingw-w64 look
+// at using the autoconf AX_FUNC_MKDIR macro to figure this all out.
+#if defined(__MINGW32__)
+# include <io.h>
+# define mkdir(path, mode)    mkdir(path)
+#endif
+
 
 /*
  * Usage:  vhdlpp [flags] sourcefile...
@@ -74,30 +107,10 @@ const char NOTICE[] =
     "  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n"
 ;
 
-#include <fstream>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <sys/stat.h>
-#include <cerrno>
-#include <limits>
 
-#include "compiler.h"
-#include "library.h"
-#include "std_funcs.h"
-#include "std_types.h"
-#include "parse_api.h"
-#include "vtype.h"
-#if defined(HAVE_GETOPT_H)
-# include <getopt.h>
-#endif
-// MinGW only supports mkdir() with a path. If this stops working because
-// we need to use _mkdir() for mingw-w32 and mkdir() for mingw-w64 look
-// at using the autoconf AX_FUNC_MKDIR macro to figure this all out.
-#if defined(__MINGW32__)
-# include <io.h>
-# define mkdir(path, mode)    mkdir(path)
-#endif
+using namespace std;
+
+extern map<perm_string, Entity *> design_entities;
 
 bool verbose_flag = false;
 // Where to dump design entities
@@ -136,44 +149,6 @@ int main(int argc, char *argv[]) {
     int        rc;
     const char *work_path = "ivl_vhdl_work";
 
-    /* fnord */
-    simple_tree<string> own("foo");
-    own.forest = {
-        new simple_tree<string>("bar1"), 
-        new simple_tree<string>("bar2")
-    };
-
-    simple_tree<int> nown(42, {
-        new simple_tree<int>(4, {
-                new simple_tree<int>(10),
-                new simple_tree<int>(12)
-            }), 
-        new simple_tree<int>(2, {
-                new simple_tree<int>(20),
-                new simple_tree<int>(21)
-            })});
-
-    cout << own.root << '\n';
-    for(vector<simple_tree<string>*>::iterator iter = own.forest.begin();
-            iter != own.forest.end();
-            ++iter){
-        cout << (*iter)->root << '\n';
-    }
-
-    cout << '\n';
-
-    cout << nown.root << '\n';
-    for(vector<simple_tree<int>*>::iterator iter = nown.forest.begin();
-            iter != nown.forest.end();
-            ++iter){
-        cout << (*iter)->root << '\n';
-        for(vector<simple_tree<int>*>::iterator it = (*iter)->forest.begin();
-                it != (*iter)->forest.end();
-                ++it){
-            cout << (*it)->root << '\n';
-        }
-    }
-    /* end fnord */
 
     while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF) {
         switch (opt) {
@@ -241,14 +216,18 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose_flag) {
-            fprintf(stderr, "parse_source_file() returns %d, parse_errors=%d, parse_sorrys=%d\n", rc, parse_errors, parse_sorrys);
+            fprintf(stderr, "parse_source_file() returns %d"
+                    ", parse_errors=%d, parse_sorrys=%d\n", 
+                    rc, parse_errors, parse_sorrys);
         }
 
         if (parse_errors > 0) {
-            fprintf(stderr, "Encountered %d errors parsing %s\n", parse_errors, argv[idx]);
+            fprintf(stderr, "Encountered %d errors parsing %s\n", 
+                    parse_errors, argv[idx]);
         }
         if (parse_sorrys > 0) {
-            fprintf(stderr, "Encountered %d unsupported constructs parsing %s\n", parse_sorrys, argv[idx]);
+            fprintf(stderr, "Encountered %d unsupported constructs parsing %s\n", 
+                    parse_sorrys, argv[idx]);
         }
 
         if (parse_errors || parse_sorrys) {
@@ -258,6 +237,31 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    /* Playground */
+    cout << "There are " <<  design_entities.size() << " entities\n";
+
+    Entity *ent = design_entities[perm_string::literal("driver")];
+    Architecture *arch = ent->arch_[perm_string::literal("behaviour")];
+    cout << "The name of the Architecture is" << arch->get_name() << '\n';
+    cout << "This Architecture has " << arch->get_statement_amount() << " statements\n";
+
+    Architecture::Statement *stat = arch->statements_.front();
+    ProcessStatement *proc = dynamic_cast<ProcessStatement *>(stat);
+
+    cout << "Der Prozess hat das label: " << proc->iname_<< " \n"; 
+    cout << "Der Prozess hat  " << proc->statements_.size()<< " statements\n"; 
+
+    SequentialStmt *ifstmt = proc->statements_.front();
+    IfSequential *ifs = dynamic_cast<IfSequential *>(ifstmt);
+
+    Expression *exp = ifs->cond_;
+    simple_tree<map<string, string>> *res = exp->emit_strinfo_tree();
+
+    traverse_st(res, 0);
+
+    cout << '\n';
+    
+    /* End Playground */
     if (dump_libraries_path) {
         ofstream file(dump_libraries_path);
 
@@ -304,6 +308,7 @@ int main(int argc, char *argv[]) {
         parser_cleanup();
         return 6;
     }
+
 
     parser_cleanup();
     return 0;

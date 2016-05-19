@@ -18,16 +18,17 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "entity.h"
-# include  "compiler.h"
-# include  "architec.h"
-# include  "vtype.h"
-# include  <iostream>
-# include <typeinfo>
-# include  <fstream>
-# include  <iomanip>
-# include  <cstring>
-# include  <cassert>
+#include <iostream>
+#include <typeinfo>
+#include <fstream>
+#include <iomanip>
+#include <cstring>
+#include <cassert>
+
+#include "entity.h"
+#include "compiler.h"
+#include "architec.h"
+#include "vtype.h"
 
 using namespace std;
 

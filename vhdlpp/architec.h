@@ -92,6 +92,10 @@ public:
     void push_genvar_type(perm_string gname, const VType *gtype);
     void pop_genvar_type(void);
 
+    int get_statement_amount() const {
+        return statements_.size();
+    }
+
     // These methods are used during EMIT to check for names that
     // are genvar names.
     const GenerateStatement *probe_genvar_emit(perm_string);
@@ -109,7 +113,7 @@ public:
     // The dump method writes a debug display to the given output.
     void dump(ostream& out, perm_string of_entity, int indent = 0) const;
 
-private:
+public:
     perm_string name_;
     // Concurrent statements local to this architecture
     std::list<Architecture::Statement *> statements_;
@@ -280,7 +284,7 @@ public:
         return statements_;
     }
 
-private:
+public:
     std::list<SequentialStmt *> statements_;
 };
 
@@ -319,7 +323,7 @@ public:
     int emit(ostream& out, Entity *entity, Architecture *arc);
     void dump(ostream& out, int indent = 0) const;
 
-private:
+public:
     perm_string             iname_;
     std::list<Expression *> sensitivity_list_;
 };

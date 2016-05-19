@@ -21,10 +21,19 @@
 #include "std_funcs.h"
 #include "std_types.h"
 #include "scope.h"
+#include "vtype.h"
+#include "subprogram.h"
+#include "../libmisc/StringHeap.h"
+#include "entity.h"
+#include "expression.h"
+
+#include <list>
+#include <map>
+#include <iostream>
 
 static std::map<perm_string, SubHeaderList> std_subprograms;
 
-static inline void register_std_subprogram(SubprogramHeader *header) {
+static void register_std_subprogram(SubprogramHeader *header) {
     std_subprograms[header->name()].push_back(header);
 }
 
@@ -102,7 +111,11 @@ public:
     }
 
     // Format types handled by $ivlh_read/write (see vpi/vhdl_textio.c)
-    enum format_t { FORMAT_STD, FORMAT_BOOL, FORMAT_TIME, FORMAT_HEX, FORMAT_STRING };
+    enum format_t { 
+        FORMAT_STD, FORMAT_BOOL, 
+        FORMAT_TIME, FORMAT_HEX, 
+        FORMAT_STRING 
+    };
 
     int emit_args(const std::vector<Expression *>& argv,
                   std::ostream& out, Entity *ent, ScopeBase *scope) const {
@@ -159,8 +172,7 @@ void preload_std_funcs(void) {
     register_std_subprogram(fn_now);
 
     /* numeric_std library
-     * function unsigned
-     */
+     * function unsigned */
     args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_INTEGER));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("unsigned"),
@@ -173,8 +185,7 @@ void preload_std_funcs(void) {
                                                   perm_string::literal("$unsigned"),
                                                   args, &primitive_UNSIGNED));
 
-    /* function integer
-     */
+    /* function integer */
     args = new list<InterfacePort *> ();
     args->push_back(new InterfacePort(&primitive_REAL));
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("integer"),
@@ -400,6 +411,8 @@ void preload_std_funcs(void) {
     register_std_subprogram(new SubprogramBuiltin(perm_string::literal("endfile"),
                                                   perm_string::literal("$feof"),
                                                   args, &type_BOOLEAN));
+
+    return;
 }
 
 

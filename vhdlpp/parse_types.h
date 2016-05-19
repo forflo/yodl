@@ -21,27 +21,25 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "StringHeap.h"
-# include  "expression.h"
+# include "StringHeap.h"
+# include "expression.h"
 
 class named_expr_t {
 public:
-    named_expr_t(perm_string n, Expression *e) : name_(n), expr_(e)
-    {}
+    named_expr_t(perm_string n, Expression *e) 
+        : name_(n)
+        , expr_(e) {}
 
-    ~named_expr_t() {
-        delete expr_;
-    }
+    ~named_expr_t() { delete expr_; }
 
-    perm_string name() const {
-        return name_;
-    }
+    perm_string name() const { return name_; }
 
-    Expression *expr() const {
-        return expr_;
-    }
+    Expression *expr() const { return expr_; }
 
     void dump(ostream& out, int indent) const;
+
+    // FM. not implemented!
+    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
 private:
     perm_string name_;
@@ -54,10 +52,15 @@ private:     // Not implemented
 
 class entity_aspect_t {
 public:
-    typedef enum { ENTITY = 0, CONFIGURATION, OPEN }   entity_aspect_type_t;
+    typedef enum { 
+        ENTITY = 0, 
+        CONFIGURATION, 
+        OPEN 
+    } entity_aspect_type_t;
 
-    entity_aspect_t(entity_aspect_type_t t, ExpName *n) : type_(t), name_(n)
-    {}
+    entity_aspect_t(entity_aspect_type_t t, ExpName *n) 
+        : type_(t)
+        , name_(n) {}
 
     ~entity_aspect_t() {
         delete name_;
@@ -77,10 +80,15 @@ public:
 
 class instant_list_t {
 public:
-    typedef enum { ALL = 0, OTHERS, NONE }   application_domain_t;
+    typedef enum { 
+        ALL = 0, 
+        OTHERS, 
+        NONE 
+    } application_domain_t;
 
-    instant_list_t(application_domain_t d, std::list<perm_string> *l) : domain_(d), labels_(l)
-    {}
+    instant_list_t(application_domain_t d, std::list<perm_string> *l) 
+        : domain_(d)
+        , labels_(l) { }
 
     ~instant_list_t() {
         delete labels_;
@@ -109,7 +117,8 @@ struct adding_term
 class file_open_info_t {
 public:
     file_open_info_t(ExpString *filename__, ExpName *kind__ = NULL)
-        : kind_(kind__), filename_(filename__) {
+        : kind_(kind__)
+        , filename_(filename__) {
         // By default files are opened in read-only mode
         if (!kind_) {
             kind_ = new ExpName(perm_string::literal("read_mode"));

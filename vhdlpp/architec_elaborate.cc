@@ -17,13 +17,13 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "architec.h"
-# include  "entity.h"
-# include  "expression.h"
-# include  "sequential.h"
-# include  "subprogram.h"
-# include  <typeinfo>
-# include  <cassert>
+#include "architec.h"
+#include "entity.h"
+#include "expression.h"
+#include "sequential.h"
+#include "subprogram.h"
+#include <typeinfo>
+#include <cassert>
 
 int Architecture::elaborate(Entity *entity) {
     int errors = 0;

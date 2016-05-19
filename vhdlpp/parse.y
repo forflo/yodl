@@ -1,5 +1,5 @@
 %pure-parser
-%lex-param {yyscan_t yyscanner}
+%lex-param   {yyscan_t yyscanner}
 %parse-param {yyscan_t yyscanner}
 %parse-param {const char*file_path}
 %parse-param {perm_string parse_library_name}
@@ -26,6 +26,7 @@
  */
 
 #include <cstdarg>
+#include <iostream>
 #include <cstring>
 #include <list>
 #include <stack>
@@ -2924,32 +2925,29 @@ K_postponed_opt    : K_postponed    | ;
 K_shared_opt       : K_shared       | ;
 %%
 
-static void yyerror(YYLTYPE*loc, yyscan_t, const char*, bool, const char*msg)
-{
-      fprintf(stderr, "%s:%u: %s\n", loc->text, loc->first_line, msg);
-      parse_errors += 1;
+static void yyerror(YYLTYPE*loc, yyscan_t, const char*, bool, const char*msg) {
+    fprintf(stderr, "%s:%u: %s\n", loc->text, loc->first_line, msg);
+    parse_errors += 1;
 }
 
-void errormsg(const YYLTYPE&loc, const char*fmt, ...)
-{
-      va_list ap;
-      va_start(ap, fmt);
+void errormsg(const YYLTYPE&loc, const char*fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
 
-      fprintf(stderr, "%s:%u: error: ", loc.text, loc.first_line);
-      vfprintf(stderr, fmt, ap);
-      va_end(ap);
-      parse_errors += 1;
+    fprintf(stderr, "%s:%u: error: ", loc.text, loc.first_line);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    parse_errors += 1;
 }
 
-void sorrymsg(const YYLTYPE&loc, const char*fmt, ...)
-{
-      va_list ap;
-      va_start(ap, fmt);
+void sorrymsg(const YYLTYPE&loc, const char*fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
 
-      fprintf(stderr, "%s:%u: sorry: ", loc.text, loc.first_line);
-      vfprintf(stderr, fmt, ap);
-      va_end(ap);
-      parse_sorrys += 1;
+    fprintf(stderr, "%s:%u: sorry: ", loc.text, loc.first_line);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    parse_sorrys += 1;
 }
 
 
@@ -2960,18 +2958,18 @@ void sorrymsg(const YYLTYPE&loc, const char*fmt, ...)
 extern yyscan_t prepare_lexor(FILE*fd);
 extern void destroy_lexor(yyscan_t scanner);
 
-int parse_source_file(const char*file_path, perm_string parse_library_name)
-{
-      FILE*fd = fopen(file_path, "r");
-      if (fd == 0) {
-	    perror(file_path);
-	    return -1;
-      }
+int parse_source_file(const char*file_path, perm_string parse_library_name) {
+    FILE *fd = fopen(file_path, "r");
+    if (fd == 0) {
+      perror(file_path);
+      return -1;
+    }
+  
+    yyscan_t scanner = prepare_lexor(fd);
 
-      yyscan_t scanner = prepare_lexor(fd);
-      int rc = yyparse(scanner, file_path, parse_library_name);
-      fclose(fd);
-      destroy_lexor(scanner);
+    int rc = yyparse(scanner, file_path, parse_library_name);
+    fclose(fd);
+    destroy_lexor(scanner);
 
-      return rc;
+    return rc;
 }

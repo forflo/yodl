@@ -21,9 +21,10 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+# include <set>
+
 # include "LineInfo.h"
 # include "parse_types.h"
-# include <set>
 
 class ScopeBase;
 class Entity;
@@ -36,6 +37,7 @@ struct SeqStmtVisitor {
     virtual void operator()(SequentialStmt *s) = 0;
 };
 
+// --OK DOT
 class SequentialStmt : public LineInfo {
 public:
     SequentialStmt();
@@ -47,16 +49,18 @@ public:
     virtual void dump(ostream& out, int indent) const;
     virtual void write_to_stream(std::ostream& fd);
 
+    // FM. MA
+    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const = 0;
+
     // Recursively visits a tree of sequential statements.
     virtual void visit(SeqStmtVisitor& func) {
         func(this);
     }
 };
 
-/*
- * The LoopStatement is an abstract base class for the various loop
- * statements.
- */
+// --OK DOT
+/* The LoopStatement is an abstract base class for the various loop
+ * statements. */
 class LoopStatement : public SequentialStmt {
 public:
     LoopStatement(perm_string block_name, list<SequentialStmt *> *);
@@ -79,10 +83,12 @@ private:
     std::list<SequentialStmt *> stmts_;
 };
 
+// --OK DOT
 class IfSequential : public SequentialStmt {
 public:
+    // --OK DOT
     class Elsif : public LineInfo {
-public:
+    public:
         Elsif(Expression *cond, std::list<SequentialStmt *> *tr);
         ~Elsif();
 
@@ -96,10 +102,11 @@ public:
         void dump(ostream& out, int indent) const;
         void visit(SeqStmtVisitor& func);
 
-private:
+        simple_tree<map<string, string>> *emit_strinfo_tree();
+    private:
         Expression *cond_;
         std::list<SequentialStmt *> if_;
-private:           // not implemented
+    private:           // not implemented
         Elsif(const Elsif&);
         Elsif& operator =(const Elsif&);
     };
@@ -118,6 +125,9 @@ public:
     void dump(ostream& out, int indent) const;
     void visit(SeqStmtVisitor& func);
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
     const Expression *peek_condition() const {
         return cond_;
     }
@@ -126,18 +136,19 @@ public:
         return else_.size();
     }
 
-    // These method extract (and remove) the sub-statements from
-    // the true or false clause.
+    /* These method extract (and remove) the sub-statements from
+     * the true or false clause. */
     void extract_true(std::list<SequentialStmt *>& that);
     void extract_false(std::list<SequentialStmt *>& that);
 
-private:
+public:
     Expression *cond_;
     std::list<SequentialStmt *>      if_;
     std::list<IfSequential::Elsif *> elsif_;
     std::list<SequentialStmt *>      else_;
 };
 
+// --OK DOT
 class ReturnStmt : public SequentialStmt {
 public:
     explicit ReturnStmt(Expression *val);
@@ -156,10 +167,14 @@ public:
 
     void cast_to(const VType *type);
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     Expression *val_;
 };
 
+// --OK DOT
 /* Grammar hint: signal_assignment ::= name LEQ waveform ';' */
 class SignalSeqAssignment : public SequentialStmt {
 public:
@@ -172,29 +187,39 @@ public:
     void write_to_stream(std::ostream& fd);
     void dump(ostream& out, int indent) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     Expression              *lval_;
     std::list<Expression *> waveform_;
 };
 
+// --OK DOT
 /* Grammar hint: case_statement ::= K_case expression K_is ... */
 class CaseSeqStmt : public SequentialStmt {
 public:
     class CaseStmtAlternative : public LineInfo {
-public:
-        CaseStmtAlternative(std::list<Expression *> *exp, std::list<SequentialStmt *> *stmts);
+    public:
+        CaseStmtAlternative(std::list<Expression *> *exp, 
+                std::list<SequentialStmt *> *stmts);
         ~CaseStmtAlternative();
         void dump(std::ostream& out, int indent) const;
-        int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+        int elaborate_expr(Entity *ent, 
+                ScopeBase *scope, 
+                const VType *ltype);
         int elaborate(Entity *ent, ScopeBase *scope);
         int emit(ostream& out, Entity *entity, ScopeBase *scope);
         void write_to_stream(std::ostream& fd);
         void visit(SeqStmtVisitor& func);
 
-private:
+        // FM. MA
+        simple_tree<map<string, string>> *emit_strinfo_tree();
+
+    private:
         std::list<Expression *>     *exp_;
         std::list<SequentialStmt *> stmts_;
-private:         // not implemented
+    private:         // not implemented
         CaseStmtAlternative(const CaseStmtAlternative&);
         CaseStmtAlternative& operator =(const CaseStmtAlternative&);
     };
@@ -210,14 +235,18 @@ public:
     void write_to_stream(std::ostream& fd);
     void visit(SeqStmtVisitor& func);
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     Expression *cond_;
     std::list<CaseStmtAlternative *> alt_;
 };
 
-/* Grammar rule: procedure_call ::= IDENTIFIER ';' 
- *                                  | IDENTIFIER '(' argument_list ')' ';' 
- *                                  */
+// --OK DOT
+/* Grammar rule: procedure_call ::= 
+ *      IDENTIFIER ';' 
+ *      | IDENTIFIER '(' argument_list ')' ';' */
 class ProcedureCall : public SequentialStmt {
 public:
     explicit ProcedureCall(perm_string name);
@@ -230,12 +259,16 @@ public:
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void dump(ostream& out, int indent) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     perm_string               name_;
     std::list<named_expr_t *> *param_list_;
     SubprogramHeader          *def_;
 };
 
+// --OK DOT
 /* Grammar rule: variable_assignment ::= name VASSIGN expression ';' */
 class VariableSeqAssignment : public SequentialStmt {
 public:
@@ -248,11 +281,15 @@ public:
     void write_to_stream(std::ostream& fd);
     void dump(ostream& out, int indent) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     Expression *lval_;
     Expression *rval_;
 };
 
+// --OK DOT
 /* Grammar rule: loop_statement ::= 
  *   identifier_colon_opt K_while expression ...*/
 class WhileLoopStatement : public LoopStatement {
@@ -266,17 +303,24 @@ public:
     void write_to_stream(std::ostream& fd);
     void dump(ostream& out, int indent) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     Expression *cond_;
 };
 
+
+// --OK DOT
 /* Grammar rule: loop_statement ::= 
  *   identifier_colon_opt K_for IDENTIFIER K_in range
  *   K_loop sequence_of_statements ...*/
 class ForLoopStatement : public LoopStatement {
 public:
     ForLoopStatement(perm_string loop_name,
-                     perm_string index, ExpRange *, list<SequentialStmt *> *);
+            perm_string index, 
+            ExpRange *, 
+            list<SequentialStmt *> *);
     ~ForLoopStatement();
 
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -284,15 +328,19 @@ public:
     void write_to_stream(std::ostream& fd);
     void dump(ostream& out, int indent) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     // Emits for-loop which direction is determined at run-time.
     // It is used for 'range & 'reverse_range attributes.
     int emit_runtime_(ostream& out, Entity *ent, ScopeBase *scope);
 
-    perm_string it_;
+    perm_string it_; // FM. for it_ in ....
     ExpRange    *range_;
 };
 
+// --OK DOT
 /* Grammar rule: loop_statement ::=
  *   identifier_colon_opt K_loop 
  *   sequence_of_statements K_end ... */
@@ -305,13 +353,21 @@ public:
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
     void write_to_stream(std::ostream& fd);
     void dump(ostream& out, int indent) const;
+
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
 };
 
+// --OK DOT
 /* Grammar rule: report_statement ::=
  *   K_report expression severity_opt ';' */
 class ReportStmt : public SequentialStmt {
 public:
-    typedef enum { UNSPECIFIED, NOTE, WARNING, ERROR, FAILURE } severity_t;
+    typedef enum { 
+        UNSPECIFIED, NOTE, 
+        WARNING, ERROR, 
+        FAILURE 
+    } severity_t;
 
     ReportStmt(Expression *message, severity_t severity);
     virtual ~ReportStmt() {}
@@ -329,6 +385,9 @@ public:
         return severity_;
     }
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 protected:
     void dump_sev_msg(ostream& out, int indent) const;
 
@@ -336,6 +395,7 @@ protected:
     severity_t severity_;
 };
 
+// --OK DOT
 /* Grammar rule: assertion_statement ::=
  *   K_assert expression report_statement */
 class AssertStmt : public ReportStmt {
@@ -348,6 +408,9 @@ public:
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void write_to_stream(std::ostream& fd);
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     Expression *cond_;
 
@@ -355,6 +418,7 @@ private:
     static const char *default_msg_;
 };
 
+// --OK DOT
 /* Grammar rule: wait_statement ::=
  *   K_wait K_for expression ';' */
 class WaitForStmt : public SequentialStmt {
@@ -366,13 +430,21 @@ public:
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void write_to_stream(std::ostream& fd);
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
+
 private:
     Expression *delay_;
 };
 
+// --OK DOT
 class WaitStmt : public SequentialStmt {
 public:
-    typedef enum { ON, UNTIL, FINAL }   wait_type_t;
+    typedef enum { 
+        ON, UNTIL, 
+        FINAL 
+    } wait_type_t;
+
     WaitStmt(wait_type_t typ, Expression *expression);
 
     void dump(ostream& out, int indent) const;
@@ -383,6 +455,9 @@ public:
     inline wait_type_t type() const {
         return type_;
     }
+
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree();
 
 private:
     wait_type_t type_;

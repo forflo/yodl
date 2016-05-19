@@ -9,7 +9,7 @@ use ieee.std_logic_1164.all;
 
 ----------------------------------------
 
-entity Driver is
+entity driver is
 port(	x: in std_logic;
 	F: out std_logic
 );
@@ -17,10 +17,10 @@ end Driver;
 
 ----------------------------------------
 
-architecture behv1 of Driver is
+architecture behaviour of driver is
 begin
 
-    process(x)
+    myproc: process(x)
     begin
         -- compare to truth table
         if (x='1') then
@@ -28,6 +28,6 @@ begin
         else
             F <= '0';
         end if;
-    end process;
+    end process myproc;
 
-end behv1;
+end behaviour;

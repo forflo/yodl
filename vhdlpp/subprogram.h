@@ -23,12 +23,13 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "StringHeap.h"
-# include  "LineInfo.h"
-# include  "scope.h"
-# include  <iostream>
-# include  <list>
-# include  <cassert>
+# include <iostream>
+# include <list>
+# include <cassert>
+
+# include "StringHeap.h"
+# include "LineInfo.h"
+# include "scope.h"
 
 class InterfacePort;
 class SequentialStmt;
@@ -70,8 +71,9 @@ private:
 
 class SubprogramHeader : public LineInfo {
 public:
-    SubprogramHeader(perm_string name, std::list<InterfacePort *> *ports,
-                     const VType *return_type);
+    SubprogramHeader(perm_string name, 
+            std::list<InterfacePort *> *ports,
+            const VType *return_type);
     virtual ~SubprogramHeader();
 
     // Return true if the specification (name, types, ports)
@@ -113,7 +115,7 @@ public:
 
     void set_body(SubprogramBody *bdy);
 
-    inline perm_string name() const {
+    perm_string name() const {
         return name_;
     }
 
@@ -172,13 +174,12 @@ protected:
 class SubprogramStdHeader : public SubprogramHeader
 {
 public:
-    SubprogramStdHeader(perm_string nam, std::list<InterfacePort *> *ports,
-                        const VType *return_type) :
-        SubprogramHeader(nam, ports, return_type)
-    {}
+    SubprogramStdHeader(perm_string nam, 
+            std::list<InterfacePort *> *ports,
+            const VType *return_type) 
+        : SubprogramHeader(nam, ports, return_type) {}
 
-    virtual ~SubprogramStdHeader()
-    {}
+    virtual ~SubprogramStdHeader() {}
 
     bool is_std() const {
         return true;
@@ -186,18 +187,21 @@ public:
 };
 
 // The simplest case, when only function name has to be changed.
-class SubprogramBuiltin : public SubprogramStdHeader
-{
+class SubprogramBuiltin : public SubprogramStdHeader {
 public:
-    SubprogramBuiltin(perm_string vhdl_name, perm_string sv_name,
-                      std::list<InterfacePort *> *ports, const VType *return_type) :
-        SubprogramStdHeader(vhdl_name, ports, return_type), sv_name_(sv_name)
-    {}
+    SubprogramBuiltin(perm_string vhdl_name, 
+            perm_string sv_name,
+            std::list<InterfacePort *> *ports, 
+            const VType *return_type) 
+        : SubprogramStdHeader(vhdl_name, ports, return_type)
+        , sv_name_(sv_name) { }
 
-    ~SubprogramBuiltin()
-    {}
+    ~SubprogramBuiltin() { }
 
-    int emit_name(const std::vector<Expression *>&, std::ostream& out, Entity *, ScopeBase *) const;
+    int emit_name(const std::vector<Expression *>&, 
+            std::ostream& out, 
+            Entity *, 
+            ScopeBase *) const;
 
 private:
     // SystemVerilog counterpart function name
@@ -205,7 +209,8 @@ private:
 };
 
 // Helper function to print out a human-readable function signature.
-void emit_subprogram_sig(std::ostream& out, perm_string name,
-                         const std::list<const VType *>& arg_types);
+void emit_subprogram_sig(std::ostream& out, 
+        perm_string name,
+        const std::list<const VType *>& arg_types);
 
 #endif /* IVL_subprogram_H */

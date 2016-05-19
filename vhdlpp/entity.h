@@ -20,38 +20,59 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  <map>
-# include  <list>
-# include  <vector>
-# include  <iostream>
-# include  "vtype.h"
-# include  "StringHeap.h"
-# include  "LineInfo.h"
+# include <map>
+# include <list>
+# include <vector>
+# include <iostream>
 
-typedef enum
-{
-    PORT_NONE = 0, PORT_IN, PORT_OUT, PORT_INOUT
+# include "vtype.h"
+# include "StringHeap.h"
+# include "LineInfo.h"
+
+typedef enum {
+    PORT_NONE = 0, PORT_IN, 
+    PORT_OUT, PORT_INOUT
 } port_mode_t;
 
 class Architecture;
 class Expression;
 
+/* As the parser parses entities, it puts them into this map. It uses
+ * a map because sometimes it needs to look back at an entity by name.  */
+extern std::map<perm_string, Entity *> design_entities;
+
+/*
+ * Elaborate the collected entities, and return the number of
+ * elaboration errors.
+ */
+extern int elaborate_entities(void);
+
+extern int emit_entities(void);
+
+/* Use this function to dump a description of the design entities to a
+ * file. This is for debug, not for any useful purpose.  */
+extern void dump_design_entities(ostream& file);
+
 class InterfacePort : public LineInfo {
 public:
     InterfacePort(port_mode_t mod = PORT_NONE,
-                  perm_string nam = empty_perm_string,
-                  const VType *typ = NULL,
-                  Expression  *exp = NULL)
-        : mode(mod), name(nam), type(typ), expr(exp)
-    {}
+            perm_string nam = empty_perm_string,
+            const VType *typ = NULL,
+            Expression  *exp = NULL)
+        : mode(mod)
+        , name(nam)
+        , type(typ)
+        , expr(exp) { }
 
     explicit InterfacePort(const VType *typ)
-        : mode(PORT_NONE), type(typ), expr(NULL)
-    {}
+        : mode(PORT_NONE)
+        , type(typ)
+        , expr(NULL) { }
 
     InterfacePort(const VType *typ, port_mode_t mod)
-        : mode(mod), type(typ), expr(NULL)
-    {}
+        : mode(mod)
+        , type(typ)
+        , expr(NULL) { }
 
     // Port direction from the source code.
     port_mode_t mode;
@@ -63,12 +84,10 @@ public:
     Expression *expr;
 };
 
-/*
- * The ComponentBase class represents the base entity
+/* The ComponentBase class represents the base entity
  * declaration. When used as is, then this represents a forward
  * declaration of an entity. Elaboration will match it to a proper
- * entity. Or this can be the base class for a full-out Entity.
- */
+ * entity. Or this can be the base class for a full-out Entity. */
 class ComponentBase : public LineInfo {
 public:
     explicit ComponentBase(perm_string name);
@@ -87,10 +106,10 @@ public:
         return parms_;
     }
 
-    // Declare the ports for the entity. The parser calls this
-    // method with a list of interface elements that were parsed
-    // for the entity. This method collects those entities, and
-    // empties the list in the process.
+    /* Declare the ports for the entity. The parser calls this
+     * method with a list of interface elements that were parsed
+     * for the entity. This method collects those entities, and
+     * empties the list in the process. */
     void set_interface(std::list<InterfacePort *> *parms,
                        std::list<InterfacePort *> *ports);
 
@@ -101,46 +120,44 @@ public:
     void dump_generics(std::ostream& out, int indent = 0) const;
     void dump_ports(std::ostream& out, int indent = 0) const;
 
-private:
+public:
     perm_string name_;
 protected:
     std::vector<InterfacePort *> parms_;
     std::vector<InterfacePort *> ports_;
 };
 
-/*
- * Entities are fully declared components.
- */
+// Entities are fully declared components. 
 class Entity : public ComponentBase {
 public:
     explicit Entity(perm_string name);
 
     ~Entity();
 
-    // bind an architecture to the entity, and return the
-    // Architecture that was bound. If there was a previous
-    // architecture with the same name bound, then do not replace
-    // the architecture and instead return the old
-    // value. The caller can tell that the bind worked if the
-    // returned pointer is the same as the passed pointer.
+    /* bind an architecture to the entity, and return the
+     * Architecture that was bound. If there was a previous
+     * architecture with the same name bound, then do not replace
+     * the architecture and instead return the old
+     * value. The caller can tell that the bind worked if the
+     * returned pointer is the same as the passed pointer. */
     Architecture *add_architecture(Architecture *);
 
-    // After the architecture is bound, elaboration calls this
-    // method to elaborate this entity. This method arranges for
-    // elaboration to happen all the way through the architecture
-    // that is bound to this entity.
+    /* After the architecture is bound, elaboration calls this
+     * method to elaborate this entity. This method arranges for
+     * elaboration to happen all the way through the architecture
+     * that is bound to this entity. */
     int elaborate();
 
-    // During elaboration, it may be discovered that a port is
-    // used as an l-value in an assignment. This method tweaks the
-    // declaration to allow for that case.
+    /* During elaboration, it may be discovered that a port is
+     * used as an l-value in an assignment. This method tweaks the
+     * declaration to allow for that case. */
     void set_declaration_l_value(perm_string by_name, bool flag);
 
     int emit(ostream& out);
 
     void dump(ostream& out, int indent = 0) const;
 
-private:
+public:
     std::map<perm_string, Architecture *> arch_;
     Architecture *bind_arch_;
 
@@ -149,25 +166,5 @@ private:
     int elaborate_generic_exprs_(void);
     int elaborate_ports_(void);
 };
-
-/*
- * As the parser parses entities, it puts them into this map. It uses
- * a map because sometimes it needs to look back at an entity by name.
- */
-extern std::map<perm_string, Entity *> design_entities;
-
-/*
- * Elaborate the collected entities, and return the number of
- * elaboration errors.
- */
-extern int elaborate_entities(void);
-
-extern int emit_entities(void);
-
-/*
- * Use this function to dump a description of the design entities to a
- * file. This is for debug, not for any useful purpose.
- */
-extern void dump_design_entities(ostream& file);
 
 #endif /* IVL_entity_H */

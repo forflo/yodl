@@ -64,9 +64,8 @@ static char* make_bitstring_literal(const char*text);
 static int64_t lpow(int64_t left, int64_t right);
 static unsigned short short_from_hex_char(char ch);
 
-static char* strdupnew(char const *str)
-{
-       return str ? strcpy(new char [strlen(str)+1], str) : 0;
+static char* strdupnew(char const *str) {
+    return str ? strcpy(new char [strlen(str)+1], str) : 0;
 }
 
 static int comment_enter;
@@ -117,22 +116,23 @@ time			    {integer}{W}*([fFpPnNuUmM]?[sS])
 }
 
 [a-zA-Z_][a-zA-Z0-9_]* {
-      for (char*cp = yytext ; *cp ; cp += 1)
+    for (char*cp = yytext ; *cp ; cp += 1)
 	    *cp = tolower(*cp);
-      int rc = lexor_keyword_code(yytext, yyleng);
-      switch (rc) {
-	  case IDENTIFIER:
-		if(!are_underscores_correct(yytext))
-			std::cerr << "An invalid underscore in the identifier:"
+
+    int rc = lexor_keyword_code(yytext, yyleng);
+    switch (rc) {
+	case IDENTIFIER:
+	    if(!are_underscores_correct(yytext))
+            std::cerr << "An invalid underscore in the identifier:"
                     << yytext << std::endl;
                 //yywarn(yylloc, "An invalid underscore in the identifier");
 	    yylval.text = strdupnew(yytext);
 	    break;
-	  default:
+	default:
 	    break;
-      }
-      return rc;
-  }
+    }
+    return rc;
+}
 
 \\([^\\]|\\\\)*\\ { /* extended identifiers */
     yylval.text = strdupnew(yytext);
@@ -140,25 +140,23 @@ time			    {integer}{W}*([fFpPnNuUmM]?[sS])
 }
 
 {decimal_literal} {
-      char*tmp = new char[strlen(yytext)+1];
-      char*dst, *src;
-      int rc = INT_LITERAL;
-      for (dst = tmp, src = yytext ; *src ; ++src) {
-	    if (*src == '_')
-		  continue;
-	    if (*src == '.')
-		  rc = REAL_LITERAL;
-	    *dst++ = *src;
-      }
-      *dst = 0;
+    char*tmp = new char[strlen(yytext)+1];
+    char*dst, *src;
+    int rc = INT_LITERAL;
+    for (dst = tmp, src = yytext ; *src ; ++src) {
+        if (*src == '_') continue;
+        if (*src == '.') rc = REAL_LITERAL;
+        *dst++ = *src;
+    }
+    *dst = 0;
 
-      if (rc == REAL_LITERAL) {
-	    yylval.uni_real = strtod(tmp, 0);
-      } else {
-	    yylval.uni_integer = strtoimax(tmp, 0, 10);
-      }
-      delete[]tmp;
-      return rc;
+    if (rc == REAL_LITERAL) {
+        yylval.uni_real = strtod(tmp, 0);
+    } else {
+        yylval.uni_integer = strtoimax(tmp, 0, 10);
+    }
+    delete[]tmp;
+    return rc;
 }
 
 {based_literal} {
@@ -166,14 +164,11 @@ time			    {integer}{W}*([fFpPnNuUmM]?[sS])
         std::cerr << "An invalid form of based literal:"
             << yytext << std::endl;
 
-    if(strchr(yytext, '.'))
-    {
+    if(strchr(yytext, '.')) {
         double val = make_double_from_based(yytext);
         yylval.uni_real = val;
         return REAL_LITERAL;
-    }
-    else
-    {
+    } else {
         int64_t val = make_long_from_based(yytext);
         yylval.uni_integer = val;
         return INT_LITERAL;
@@ -181,8 +176,8 @@ time			    {integer}{W}*([fFpPnNuUmM]?[sS])
 }
 
 {integer}?[sSuU]?[xXbBoOdD]\"[^\"]+\" {
-      yylval.text = make_bitstring_literal(yytext);
-      return BITSTRING_LITERAL;
+    yylval.text = make_bitstring_literal(yytext);
+    return BITSTRING_LITERAL;
 }
 
   /* Compound symbols */
@@ -216,31 +211,24 @@ extern void yyparse_set_filepath(const char*path);
 * \return true is returned if underscores are placed
 * correctly according to specification
 */
-static bool are_underscores_correct(char* text)
-{
+static bool are_underscores_correct(char* text) {
 	unsigned char underscore_allowed = 0;
 	const char* cp;
-	for( cp = text; *cp; ++cp)
-	{
-		if (*cp == '_')
-		{
+	for( cp = text; *cp; ++cp) {
+		if (*cp == '_') {
 			if (!underscore_allowed || *(cp+1) == '\0')
 				return 0;
 			underscore_allowed = 0;
-		}
-		else
-			underscore_allowed = 1;
+		} else underscore_allowed = 1;
 	}
 	return 1;
 }
 
-/**
-* This function checks if the format of a based number
-* is correct according to the VHDL standard
-*
-* \return true is returned if a based number
-* is formed well according to specification
-*/
+/** This function checks if the format of a based number
+ * is correct according to the VHDL standard
+ *
+ * \return true is returned if a based number
+ * is formed well according to specification */
 static bool is_based_correct(char* text)
 {
     char* ptr;
@@ -248,8 +236,7 @@ static bool is_based_correct(char* text)
     char clean_base[4];
     clean_base[3] = '\0';
     char* clean_base_ptr = clean_base;
-    for(ptr = text; ptr != strchr(text, '#'); ++ptr)
-    {
+    for(ptr = text; ptr != strchr(text, '#'); ++ptr) {
         if(*ptr == '_')
             ++ptr;
         if(!(*ptr >= '0' && *ptr <= '9')) //the base uses chars other than digits
@@ -263,15 +250,13 @@ static bool is_based_correct(char* text)
     unsigned base;
     if(length > 2 || length == 0)
         return 0; //the base is too big or too small
-    if(length == 2)
-    {
+    if(length == 2) {
         base = 10*(clean_base[0] - '0') + (clean_base[1] - '0');
         //the base exceeds 16 or equals 0
         if(base > 16 || base == 0)
             return 0;
-    }
-    else
-    { //the base consists of one char and is equal to zero
+    } else { 
+        //the base consists of one char and is equal to zero
         base = clean_base[0] - '0';
         if(base == 0)
             return 0;
@@ -283,24 +268,21 @@ static bool is_based_correct(char* text)
     if(base <= 10) {
         for(c = 0; c < base; ++c)
             allowed_chars.insert(c + '0');
-    }
-    else
-    {
+    } else {
         for(c = 0; c < 10; ++c)
             allowed_chars.insert(c + '0');
         for(c = 0; c < base - 10; ++c)
             allowed_chars.insert(c + 'a');
     }
     //MANTISSA examination
-    for(ptr = strchr(text, '#') + 1, length = 0; ptr != strrchr(text, '#'); ++ptr)
-    {
-        if(*ptr == '.')
-        {
+    for(ptr = strchr(text, '#') + 1, length = 0; 
+        ptr != strrchr(text, '#'); 
+        ++ptr) {
+        if(*ptr == '.') {
             //we found a dot and another one was already found
-            if(point)
+            if(point) {
                 return 0;
-            else
-            {
+            } else {
                 //notice the fact of finding a point and continue, without increasing the length
                 point = true;
                 continue;
@@ -319,8 +301,7 @@ static bool is_based_correct(char* text)
         if(*(strrchr(text, '#') + 2) == '-')
             return 0;
         length = 0;
-        for(ptr = strrchr(text, '#')+2; *ptr != '\0'; ++ptr)
-        {
+        for(ptr = strrchr(text, '#')+2; *ptr != '\0'; ++ptr) {
             //the exponent consists of other chars than {'0'.,'9','a'..'f'}
             if(!((*ptr >= '0' && *ptr <= '9') || (*ptr >= 'a' && *ptr <= 'f')))
                 return 0;
@@ -336,21 +317,18 @@ static bool is_based_correct(char* text)
 *
 * \return pointer to the new string is returned
 */
-static char* escape_quot_and_dup(char* text)
-{
+static char* escape_quot_and_dup(char* text) {
     char* newstr = new char[strlen(text)+1];
 
     unsigned old_idx, new_idx;
-    for(new_idx = 0, old_idx = 0; old_idx < strlen(text); )
-    {
-        if(text[old_idx] == '"' && old_idx == 0)
-        { //the beginning of the literal
+    for(new_idx = 0, old_idx = 0; old_idx < strlen(text); ) {
+        if(text[old_idx] == '"' && old_idx == 0) { 
+            //the beginning of the literal
             ++old_idx;
             continue;
         }
         else
-        if(text[old_idx] == '"' && text[old_idx+1] == '\0')
-        { //the end
+        if(text[old_idx] == '"' && text[old_idx+1] == '\0') { //the end
             newstr[new_idx] = '\0';
             return newstr;
         }
@@ -377,8 +355,7 @@ static char* escape_quot_and_dup(char* text)
 *
 * \return pointer to the new string is returned
 */
-static char* escape_apostrophe_and_dup(char* text)
-{
+static char* escape_apostrophe_and_dup(char* text) {
     char* newstr = new char[2];
     newstr[0] = text[1];
     newstr[1] = '\0';
@@ -386,150 +363,145 @@ static char* escape_apostrophe_and_dup(char* text)
 }
 
 static char*make_bitstring_bin(int width_prefix, bool sflag, bool,
-				  const char*src)
-{
-      int src_len = strlen(src);
-      if (width_prefix < 0)
-	    width_prefix = src_len;
+				  const char*src) {
+    int src_len = strlen(src);
+    if (width_prefix < 0)
+        width_prefix = src_len;
 
-      char*res = new char[width_prefix+1];
-      char*rp = res;
+    char*res = new char[width_prefix+1];
+    char*rp = res;
 
-      if (width_prefix > src_len) {
-	    size_t pad = width_prefix - src_len;
-	    for (size_t idx = 0 ; idx < pad ; idx += 1)
-		  *rp++ = sflag? src[0] : '0';
+    if (width_prefix > src_len) {
+        size_t pad = width_prefix - src_len;
+        for (size_t idx = 0 ; idx < pad ; idx += 1)
+    	  *rp++ = sflag? src[0] : '0';
 
-      } else if (src_len > width_prefix) {
-	    src += src_len - width_prefix;
-      }
+    } else if (src_len > width_prefix) {
+        src += src_len - width_prefix;
+    }
 
-      while (*src) {
-	    *rp++ = *src++;
-      }
-      *rp = 0;
+    while (*src) {
+        *rp++ = *src++;
+    }
+    *rp = 0;
 
-      return res;
+    return res;
 }
 
 static char*make_bitstring_oct(int width_prefix, bool sflag, bool,
-			       const char*src)
-{
-      int src_len = strlen(src);
-      if (width_prefix < 0)
-	    width_prefix = 3*src_len;
+			       const char*src) {
+    int src_len = strlen(src);
+    if (width_prefix < 0)
+        width_prefix = 3*src_len;
 
-      char*res = new char[width_prefix+1];
-      char*rp = res + width_prefix;
-      *rp = 0;
-      rp -= 1;
+    char*res = new char[width_prefix+1];
+    char*rp = res + width_prefix;
+    *rp = 0;
+    rp -= 1;
 
-      for (const char*sp = src + src_len - 1; sp >= src ; sp -= 1) {
-	    int val;
-	    switch (*sp) {
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		  val = *sp - '0';
-		  *rp-- = (val&1)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&2)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&4)? '1' : '0';
-		  break;
-		default:
-		  *rp-- = *sp;
-		  if (rp >= res) *rp-- = *sp;
-		  if (rp >= res) *rp-- = *sp;
-		  break;
-	    }
-	    if (rp < res)
-		  break;
-      }
+    for (const char*sp = src + src_len - 1; sp >= src ; sp -= 1) {
+        int val;
+        switch (*sp) {
+    	    case '0':
+    	    case '1':
+    	    case '2':
+    	    case '3':
+    	    case '4':
+    	    case '5':
+    	    case '6':
+    	    case '7':
+    	        val = *sp - '0';
+    	        *rp-- = (val&1)? '1' : '0';
+    	        if (rp >= res) *rp-- = (val&2)? '1' : '0';
+    	        if (rp >= res) *rp-- = (val&4)? '1' : '0';
+    	        break;
+    	    default:
+    	        *rp-- = *sp;
+    	        if (rp >= res) *rp-- = *sp;
+    	        if (rp >= res) *rp-- = *sp;
+    	        break;
+            }
+        if (rp < res)
+    	    break;
+    }
 
-      if (rp >= res) {
-	    char pad = sflag? src[0] : '0';
-	    while (rp >= res)
-		  *rp-- = pad;
-      }
+    if (rp >= res) {
+        char pad = sflag? src[0] : '0';
+        while (rp >= res)
+  	    *rp-- = pad;
+    }
 
-      return res;
+    return res;
 }
 
 static char*make_bitstring_hex(int width_prefix, bool sflag, bool,
-			       const char*src)
-{
-      int src_len = strlen(src);
-      if (width_prefix <= 0)
-	    width_prefix = 4*src_len;
+			       const char*src) {
+    int src_len = strlen(src);
+    if (width_prefix <= 0)
+        width_prefix = 4*src_len;
 
-      char*res = new char[width_prefix+1];
-      char*rp = res + width_prefix;
-      *rp = 0;
-      rp -= 1;
+    char*res = new char[width_prefix+1];
+    char*rp = res + width_prefix;
+    *rp = 0;
+    rp -= 1;
 
-      for (const char*sp = src + src_len - 1; sp >= src ; sp -= 1) {
-	    int val;
-	    switch (*sp) {
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		  val = *sp - '0';
-		  *rp-- = (val&1)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&2)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&4)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&8)? '1' : '0';
-		  break;
-		case 'a': case 'A':
-		case 'b': case 'B':
-		case 'c': case 'C':
-		case 'd': case 'D':
-		case 'e': case 'E':
-		case 'f': case 'F':
-		  val = 10 + toupper(*sp) - 'A';
-		  *rp-- = (val&1)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&2)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&4)? '1' : '0';
-		  if (rp >= res) *rp-- = (val&8)? '1' : '0';
-		  break;
-		default:
-		  *rp-- = *sp;
-		  if (rp >= res) *rp-- = *sp;
-		  if (rp >= res) *rp-- = *sp;
-		  if (rp >= res) *rp-- = *sp;
-		  break;
-	    }
-	    if (rp < res)
-		  break;
-      }
+    for (const char*sp = src + src_len - 1; sp >= src ; sp -= 1) {
+        int val;
+        switch (*sp) {
+        	case '0':
+        	case '1':
+        	case '2':
+        	case '3':
+        	case '4':
+        	case '5':
+        	case '6':
+        	case '7':
+        	case '8':
+        	case '9':
+          	  val = *sp - '0';
+          	  *rp-- = (val&1)? '1' : '0';
+          	  if (rp >= res) *rp-- = (val&2)? '1' : '0';
+          	  if (rp >= res) *rp-- = (val&4)? '1' : '0';
+          	  if (rp >= res) *rp-- = (val&8)? '1' : '0';
+          	  break;
+        	case 'a': case 'A':
+        	case 'b': case 'B':
+        	case 'c': case 'C':
+        	case 'd': case 'D':
+        	case 'e': case 'E':
+        	case 'f': case 'F':
+                val = 10 + toupper(*sp) - 'A';
+                *rp-- = (val&1)? '1' : '0';
+                if (rp >= res) *rp-- = (val&2)? '1' : '0';
+                if (rp >= res) *rp-- = (val&4)? '1' : '0';
+                if (rp >= res) *rp-- = (val&8)? '1' : '0';
+                break;
+        	default:
+        	    *rp-- = *sp;
+        	    if (rp >= res) *rp-- = *sp;
+        	    if (rp >= res) *rp-- = *sp;
+        	    if (rp >= res) *rp-- = *sp;
+        	    break;
+        }
+        if (rp < res)
+            break;
+    }
 
-      if (rp >= res) {
-	    char pad = sflag? src[0] : '0';
-	    while (rp >= res)
-		  *rp-- = pad;
-      }
+    if (rp >= res) {
+      char pad = sflag? src[0] : '0';
+      while (rp >= res)
+  	  *rp-- = pad;
+    }
 
-      return res;
+    return res;
 }
 
-static char*make_bitstring_dec(int, bool, bool, const char*)
-{
-      assert(0);
-      return 0;
+static char*make_bitstring_dec(int, bool, bool, const char*) {
+    assert(0);
+    return 0;
 }
 
-static char* make_bitstring_literal(const char*text)
-{
+static char* make_bitstring_literal(const char*text) {
     int width_prefix = -1;
     const char*cp = text;
     bool signed_flag = false;
@@ -682,8 +654,7 @@ static double make_double_from_based(char* text)
 * This function takes a hexadecimal digit in form of
 * a char and returns its litteral value as short
 */
-static unsigned short short_from_hex_char(char ch)
-{
+static unsigned short short_from_hex_char(char ch) {
     if(ch >= '0' && ch <= '9')
         return ch - '0';
     else
@@ -706,21 +677,17 @@ static int64_t make_long_from_based(char* text) {
 
     char *ptr = first_hash_ptr + 1;
     int64_t mantissa = 0;
-    for( ; ptr != second_hash_ptr ; ++ptr)
-    {
-        if(*ptr != '_')
-        {
+    for( ; ptr != second_hash_ptr ; ++ptr) {
+        if(*ptr != '_') {
             mantissa = mantissa * base + short_from_hex_char(*ptr);
         }
     }
     //if there is an exponent
-    if(end_ptr - second_hash_ptr > 1)
-    {
+    if(end_ptr - second_hash_ptr > 1) {
        int64_t exponent = 0L;
 
        ptr = *(second_hash_ptr + 2) == '+' ? second_hash_ptr + 3 : second_hash_ptr + 2;
-       for( ; *ptr != '\0'; ++ptr)
-       {
+       for( ; *ptr != '\0'; ++ptr) {
            if(*ptr != '_')
                exponent = base*exponent + short_from_hex_char(*ptr);
        }
@@ -730,25 +697,21 @@ static int64_t make_long_from_based(char* text) {
         return mantissa;
 }
 
-/**
-* Recursive power function for int64_t
-*/
+/** Recursive power function for int64_t */
 static int64_t lpow(int64_t left, int64_t right) {
     if(right == 0)
         return 1;
     else
-        return left*lpow(left, right - 1);
+        return left * lpow(left, right - 1);
 }
 
-yyscan_t prepare_lexor(FILE*fd)
-{
+yyscan_t prepare_lexor(FILE*fd) {
       yyscan_t scanner;
       yylex_init(&scanner);
-      yyrestart(fd, scanner);
+      yyset_in(fd, scanner);
       return scanner;
 }
 
-void destroy_lexor(yyscan_t scanner)
-{
+void destroy_lexor(yyscan_t scanner) {
       yylex_destroy(scanner);
 }
