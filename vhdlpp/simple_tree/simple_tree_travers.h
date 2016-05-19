@@ -9,14 +9,13 @@
 
 using namespace std;
 
-void traverse_st(simple_tree<map<string, string>> *tree, int depth){
-    cout << "traverse depth: " << depth << '\n';
+void traverse_st(simple_tree<map<string, string>> *tree, int depth = 0){
     cout << "root:\n";
 
     for (map<string, string>::iterator i = tree->root.begin();
             i!= tree->root.end();
             ++i){
-        cout << "first: " << i->first << " second: " << i->second << "\n";
+        cout << i->first << " = " << i->second << "\n";
     }
 
     cout << "forest: \n";

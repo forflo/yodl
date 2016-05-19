@@ -123,5 +123,8 @@ simple_tree<map<string, string>> *ProcessStatement::emit_strinfo_tree(void) cons
     for (auto &i : sensitivity_list_)
         result->forest.push_back(i->emit_strinfo_tree());
 
+    for (auto &i : statements_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
     return result;
 }

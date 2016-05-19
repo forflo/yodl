@@ -17,16 +17,16 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include  "architec.h"
-#include  "entity.h"
-#include  "expression.h"
-#include  "sequential.h"
-#include  "subprogram.h"
-#include  "vsignal.h"
-#include  "std_types.h"
-#include  <iostream>
-#include  <typeinfo>
-#include  <ivl_assert.h>
+#include "architec.h"
+#include "entity.h"
+#include "expression.h"
+#include "sequential.h"
+#include "subprogram.h"
+#include "vsignal.h"
+#include "std_types.h"
+#include <iostream>
+#include <typeinfo>
+#include <ivl_assert.h>
 
 int Scope::emit_signals(ostream& out, Entity *entity, ScopeBase *scope) {
     int errors = 0;

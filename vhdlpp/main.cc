@@ -31,6 +31,7 @@ const char COPYRIGHT[] =
 #include <iostream>
 
 #include "vhdlpp_config.h"
+#include "generate_graph.h"
 #include "version_base.h"
 #include "simple_tree/simple_tree.h"
 #include "simple_tree/simple_tree_travers.h"
@@ -170,14 +171,16 @@ int main(int argc, char *argv[]) {
 
     if ((rc = mkdir(work_path, 0777)) < 0) {
         if (errno != EEXIST) {
-            fprintf(stderr, "Icarus Verilog VHDL unable to create work directory %s, errno=%d\n", work_path, errno);
+            fprintf(stderr, "Icarus Verilog VHDL unable to create work "
+                    "directory %s, errno=%d\n", work_path, errno);
             return -1;
         }
         struct stat stat_buf;
         rc = stat(work_path, &stat_buf);
 
         if (!S_ISDIR(stat_buf.st_mode)) {
-            fprintf(stderr, "Icarus Verilog VHDL work path `%s' is not a directory.\n", work_path);
+            fprintf(stderr, "Icarus Verilog VHDL work path `%s' "
+                    "is not a directory.\n", work_path);
             return -1;
         }
     }
@@ -240,11 +243,19 @@ int main(int argc, char *argv[]) {
     Expression *exp = ifs->cond_;
     simple_tree<map<string, string>> *res = exp->emit_strinfo_tree();
 
+    cout << "Traverse of expression \"x=0\"\n";
     traverse_st(res, 0);
+    cout << '\n';
+
+    cout << "Traverse of complete Architecture \n";
+    traverse_st(arch->emit_strinfo_tree());
+
+    emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
 
     cout << '\n';
     
     /* End Playground */
+
     if (dump_libraries_path) {
         ofstream file(dump_libraries_path);
 
