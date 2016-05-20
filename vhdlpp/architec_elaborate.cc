@@ -258,11 +258,9 @@ int CondSignalAssignment::elaborate(Entity *ent, Architecture *arc) {
 
     // Visitor to extract signal names occuring in the conditional
     // statements to create the sensitivity list
-    struct name_extractor_t : public ExprVisitor
-    {
+    struct name_extractor_t : public ExprVisitor {
         name_extractor_t(list<const ExpName *>& name_list)
-            : name_list_(name_list)
-        {}
+            : name_list_(name_list) {}
 
         void operator()(Expression *s) {
             if (const ExpName *name = dynamic_cast<const ExpName *> (s)) {
@@ -270,7 +268,7 @@ int CondSignalAssignment::elaborate(Entity *ent, Architecture *arc) {
             }
         }
 
-private:
+    private:
         list<const ExpName *>& name_list_;
     }
     name_extractor(sens_list_);

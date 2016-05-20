@@ -12,6 +12,10 @@
 
 using namespace std;
 
+static const char * NODEID = "NODEID";
+static const char * NODE_ATTRIBS = "node [shape=record, color=indigo];\n";
+static const char * EDGE_ATTRIBS = "edge [arrowhead=vee, color=black];\n";
+
 static int path_to_num(vector<int> &path){
     int result = 0;
     int exp = path.size() - 1;
@@ -26,12 +30,11 @@ int emit_edges(ostream &out,
         simple_tree<map<string, string>> * ast){
     
     for (auto &i : ast->forest){
-        out << ast->root["NODEID"]
+        out << ast->root[NODEID]
             << ":s"
             << " -> "
-            << i->root["NODEID"]
-            << ":n"
-            << " [color=yellow];\n";
+            << i->root[NODEID]
+            << ":n;\n";
 
         emit_edges(out, i);
     }
@@ -46,11 +49,11 @@ int emit_vertices(ostream &out,
     int pcount = 0;
     map<string, string> root_copy(ast->root);
 
-    out << root_copy["NODEID"] << " [label=\"{";
+    out << root_copy[NODEID] << " [label=\"{";
     
     out << "{" << root_copy["node-type"] << "}";
     root_copy.erase("node-type");
-    root_copy.erase("NODEID");
+    root_copy.erase(NODEID);
 
     for (auto &i : root_copy)
         out << "|{" << i.first << "|" << i.second << "}";
@@ -76,7 +79,7 @@ int add_nodeids(simple_tree<map<string, string>> *ast,
         << "_"
         << depth;
 
-    ast->root["NODEID"] = buffer.str();
+    ast->root[NODEID] = buffer.str();
 
     for (auto &i : ast->forest){
         path.push_back(pcount++);
@@ -93,8 +96,7 @@ int emit_dotgraph(ostream &out,
     add_nodeids(ast, path);
 
     out << "digraph " << name << "{\n";
-    out << "node [shape=record];\n";
-    out << "node [color=grey];\n";
+    out << EDGE_ATTRIBS << NODE_ATTRIBS;
     
     emit_vertices(out, ast, path);
     out << '\n';
