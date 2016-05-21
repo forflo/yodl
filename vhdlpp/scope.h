@@ -78,7 +78,13 @@ public:
 
     // Moves signals, variables and components from another scope to
     // this one. After the transfer new_* maps are cleared in the source scope.
-    enum transfer_type_t { SIGNALS = 1, VARIABLES = 2, COMPONENTS = 4, ALL = 0xffff };
+    enum transfer_type_t { 
+        SIGNALS = 1, 
+        VARIABLES = 2, 
+        COMPONENTS = 4, 
+        ALL = 0xffff 
+    };
+
     void transfer_from(ScopeBase& ref, transfer_type_t what = ALL);
 
     inline void bind_subprogram(perm_string name, SubprogramHeader *obj) {

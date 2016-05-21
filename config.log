@@ -1241,7 +1241,7 @@ configure:6735: gcc -o conftest  -g -O2    conftest.c -lbz2 -lz -lpthread -lhist
 conftest.c:50:6: warning: conflicting types for built-in function 'lround'
  char lround ();
       ^~~~~~
-/tmp/cczWdiim.o: In function `main':
+/tmp/ccfRMBhW.o: In function `main':
 /home/florian/ownCloud/documents/Stud_MasterInf/4-SS2016/MA/vhdlpp_parser/conftest.c:54: undefined reference to `lround'
 collect2: error: ld returned 1 exit status
 configure:6735: $? = 1

@@ -420,8 +420,7 @@ architecture_body_start
       }
   ;
 
-/* The architecture_statement_part is a list of concurrent
- * statements. */
+/* The architecture_statement_part is a list of concurrent statements. */
 architecture_statement_part
   : architecture_statement_part concurrent_statement
       { std::list<Architecture::Statement*>*tmp = $1;
@@ -1337,7 +1336,7 @@ for_generate_statement
     K_end K_generate identifier_opt ';'
       { perm_string name = lex_strings.make($1);
 	perm_string gvar = lex_strings.make($4);
-	ForGenerate*tmp = new ForGenerate(name, gvar, $6, *$8);
+	ForGenerate *tmp = new ForGenerate(name, gvar, $6, *$8);
 	FILE_NAME(tmp, @1);
 
 	if ($11 && name != $11) {

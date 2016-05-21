@@ -135,14 +135,14 @@ public:
         // Pick the right format
         if (hex_format_) {
             out << FORMAT_HEX;
-        }else if (arg_type)  {
+        } else if (arg_type)  {
             if (arg_type->type_match(&primitive_TIME)) {
                 out << FORMAT_TIME;
-            }else if (arg_type->type_match(&type_BOOLEAN))  {
+            } else if (arg_type->type_match(&type_BOOLEAN))  {
                 out << FORMAT_BOOL;
-            }else if (arg_type->type_match(&primitive_CHARACTER))  {
+            } else if (arg_type->type_match(&primitive_CHARACTER))  {
                 out << FORMAT_STRING;
-            }else  {
+            } else  {
                 const VTypeArray *arr = dynamic_cast<const VTypeArray *> (arg_type);
 
                 if (arr && (arr->element_type() == &primitive_CHARACTER)) {
@@ -151,7 +151,7 @@ public:
                     out << FORMAT_STD;
                 }
             }
-        }else  {
+        } else  {
             out << FORMAT_STD;
         }
 
@@ -361,7 +361,8 @@ void preload_std_funcs(void) {
                                                   args, NULL));
 
     /* std.textio library
-     * procedure read (l: inout line; value: out bit/bit_vector/boolean/character/integer/real/string/time);
+     * procedure read (l: inout line; 
+     * value: out bit/bit_vector/boolean/character/integer/real/string/time);
      */
     register_std_subprogram(new SubprogramReadWrite(perm_string::literal("read"),
                                                     perm_string::literal("$ivlh_read")));

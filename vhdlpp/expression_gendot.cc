@@ -5,6 +5,7 @@
 #include "parse_types.h"
 #include "scope.h"
 #include "simple_tree/simple_tree.h"
+#include "enum_overloads.h"
 
 #include <sstream>
 #include <string>
@@ -24,7 +25,7 @@ simple_tree<map<string, string>> *ExpInteger::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpInteger"},
             {"value", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(value_))).str()}});
+                stringstream{} << value_)).str()}});
 }
 
 simple_tree<map<string, string>> *ExpReal::emit_strinfo_tree() const {
@@ -32,7 +33,7 @@ simple_tree<map<string, string>> *ExpReal::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpReal"},
             {"value", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(value_))).str()}}); 
+                stringstream{} << value_)).str()}}); 
 }
 
 simple_tree<map<string, string>> *ExpString::emit_strinfo_tree() const {
@@ -54,9 +55,9 @@ simple_tree<map<string, string>> *ExpTime::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpTime"},
             {"unit", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(unit_))).str()},
+                stringstream{} << unit_)).str()},
             {"time value", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(amount_))).str()}}); 
+                stringstream{} << amount_)).str()}}); 
 }
 
 simple_tree<map<string, string>> *ExpBitstring::emit_strinfo_tree() const {
@@ -101,7 +102,7 @@ simple_tree<map<string, string>> *ExpArithmetic::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpArithmetic"},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(fun_))).str()}});
+                stringstream{} << fun_)).str()}});
     
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -115,7 +116,7 @@ simple_tree<map<string, string>> *ExpLogical::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpLogical"},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(fun_))).str()}});
+                stringstream{} << fun_)).str()}});
 
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -129,7 +130,7 @@ simple_tree<map<string, string>> *ExpRelation::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpRelation"},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(fun_))).str()}});
+                stringstream{} << fun_)).str()}});
     
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -143,7 +144,7 @@ simple_tree<map<string, string>> *ExpShift::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpShift"},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(shift_))).str()}});
+                stringstream{} << shift_)).str()}});
     
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -158,7 +159,7 @@ simple_tree<map<string, string>> *ExpEdge::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpEdge"},
             {"edgespec", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(fun_))).str()}});
+                stringstream{} << fun_)).str()}});
     
     result->forest = { operand1_->emit_strinfo_tree() };
 
@@ -206,7 +207,7 @@ simple_tree<map<string, string>> *ExpRange::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpRange"},
             {"rangespec", (dynamic_cast<stringstream&>(
-                stringstream{}.operator<<(direction_))).str()}});
+                stringstream{} << direction_)).str()}});
     
     result->forest = {
         left_->emit_strinfo_tree(),

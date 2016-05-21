@@ -14,11 +14,22 @@ public:
     vector<simple_tree<T>*> forest;
 
     simple_tree(const T s)
-        : root(s) { }
+        : root(s) { };
     
-    simple_tree(const T s, const vector<simple_tree<T>*> own)
+    simple_tree(const T s, vector<simple_tree<T>*> own)
         : root(s)
-        , forest(own) { }
+        , forest(own) { };
+
+    simple_tree(const T s, simple_tree<T> *own)
+        : root(s) { 
+
+        forest.push_back(own);
+    };
+
+    ~simple_tree(){
+        for (auto &i : forest)
+            delete i;
+    };
 };
 
 #endif /* IVL_SIMPLE_TREE */

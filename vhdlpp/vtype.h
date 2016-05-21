@@ -22,13 +22,14 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  <iostream>
-# include  <list>
-# include  <map>
-# include  <vector>
-# include  <climits>
-# include  <inttypes.h>
-# include  "StringHeap.h"
+# include <iostream>
+# include <list>
+# include <map>
+# include <vector>
+# include <climits>
+# include <inttypes.h>
+# include "StringHeap.h"
+# include "simple_tree.h"
 
 class Architecture;
 class ScopeBase;
@@ -38,17 +39,17 @@ class ExpRange;
 class VTypeDef;
 class ScopeBase;
 
-typedef enum typedef_topo_e
-{
-    NONE = 0, PENDING, MARKED
+typedef enum typedef_topo_e {
+    NONE = 0, 
+    PENDING, 
+    MARKED
 } typedef_topo_t;
-typedef std::map<const VTypeDef *, typedef_topo_t>   typedef_context_t;
 
-/*
- * A description of a VHDL type consists of a graph of VType
+typedef std::map<const VTypeDef *, typedef_topo_t> typedef_context_t;
+
+/* A description of a VHDL type consists of a graph of VType
  * objects. Derived types are specific kinds of types, and those that
- * are compound may in turn reference other types.
- */
+ * are compound may in turn reference other types.  */
 class VType {
 public:
     VType()
@@ -95,6 +96,8 @@ public:
     // uses this method recursively to do a depth-first emit of
     // all the types that it emits.
     virtual int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
+
+    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
     // Determines if a type can be used in Verilog packed array.
     virtual bool can_be_packed() const {
@@ -169,13 +172,15 @@ public:
     int emit_def(std::ostream& out, perm_string name) const;
 };
 
-/*
- * This class represents the primitive types that are available to the
- * type subsystem.
- */
+/* This class represents the primitive types that are available to the
+ * type subsystem.  */
 class VTypePrimitive : public VType {
 public:
-    enum type_t { BIT, INTEGER, NATURAL, REAL, STDLOGIC, TIME };
+    enum type_t { 
+        BIT, INTEGER, 
+        NATURAL, REAL, 
+        STDLOGIC, TIME 
+    };
 
 public:
     VTypePrimitive(type_t tt, bool packed = false);

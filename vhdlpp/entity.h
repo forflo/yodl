@@ -25,6 +25,7 @@
 # include <vector>
 # include <iostream>
 
+# include "simple_tree.h"
 # include "vtype.h"
 # include "StringHeap.h"
 # include "LineInfo.h"
@@ -41,18 +42,16 @@ class Expression;
  * a map because sometimes it needs to look back at an entity by name.  */
 extern std::map<perm_string, Entity *> design_entities;
 
-/*
- * Elaborate the collected entities, and return the number of
- * elaboration errors.
- */
+/* Elaborate the collected entities, and return the number of
+ * elaboration errors.  */
 extern int elaborate_entities(void);
-
 extern int emit_entities(void);
 
 /* Use this function to dump a description of the design entities to a
  * file. This is for debug, not for any useful purpose.  */
 extern void dump_design_entities(ostream& file);
 
+// DOT OK
 class InterfacePort : public LineInfo {
 public:
     InterfacePort(port_mode_t mod = PORT_NONE,
@@ -73,6 +72,9 @@ public:
         : mode(mod)
         , type(typ)
         , expr(NULL) { }
+
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
 
     // Port direction from the source code.
     port_mode_t mode;
@@ -116,9 +118,11 @@ public:
 
     void write_to_stream(std::ostream& fd) const;
 
-public:
     void dump_generics(std::ostream& out, int indent = 0) const;
     void dump_ports(std::ostream& out, int indent = 0) const;
+
+    // FM. MA
+    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
     perm_string name_;
@@ -157,14 +161,17 @@ public:
 
     void dump(ostream& out, int indent = 0) const;
 
+    // FM. MA
+    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+
 public:
     std::map<perm_string, Architecture *> arch_;
     Architecture *bind_arch_;
 
     map<perm_string, VType::decl_t> declarations_;
 
-    int elaborate_generic_exprs_(void);
-    int elaborate_ports_(void);
+    int elaborate_generic_exprs_();
+    int elaborate_ports_();
 };
 
 #endif /* IVL_entity_H */
