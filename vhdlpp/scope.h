@@ -65,7 +65,9 @@ public:
 
     ScopeBase *find_scope(perm_string name) const;
     const VType *find_type(perm_string by_name);
-    virtual bool find_constant(perm_string by_name, const VType *& typ, Expression *& exp) const;
+    virtual bool find_constant(perm_string by_name,
+                               const VType *& typ,
+                               Expression *& exp) const;
     Signal *find_signal(perm_string by_name) const;
     virtual Variable *find_variable(perm_string by_name) const;
     virtual const InterfacePort *find_param(perm_string by_name) const;
@@ -78,11 +80,11 @@ public:
 
     // Moves signals, variables and components from another scope to
     // this one. After the transfer new_* maps are cleared in the source scope.
-    enum transfer_type_t { 
-        SIGNALS = 1, 
-        VARIABLES = 2, 
-        COMPONENTS = 4, 
-        ALL = 0xffff 
+    enum transfer_type_t {
+        SIGNALS = 1,
+        VARIABLES = 2,
+        COMPONENTS = 4,
+        ALL = 0xffff
     };
 
     void transfer_from(ScopeBase& ref, transfer_type_t what = ALL);
@@ -134,11 +136,11 @@ protected:
         for_each(c.begin(), c.end(), ::delete_pair_second<T> ());
     }
 
-    // The new_*_ maps below are managed only by the ActiveScope
-    // derived class. When any scope is constructed from the
-    // ActiveScope, the new_*_ and old_*_ maps are merged and
-    // installed into the old_*_ maps. Thus, all other derived
-    // classes should only use the old_*_ maps.
+    /* The new_*_ maps below are managed only by the ActiveScope
+     * derived class. When any scope is constructed from the
+     * ActiveScope, the new_*_ and old_*_ maps are merged and
+     * installed into the old_*_ maps. Thus, all other derived
+     * classes should only use the old_*_ maps. */
 
     // Signal declarations...
     std::map<perm_string, Signal *> old_signals_;              //previous scopes
@@ -158,7 +160,7 @@ protected:
             delete val;
         }
 
-        const_t(const VType *t, Expression *v) 
+        const_t(const VType *t, Expression *v)
             : typ(t)
             , val(v) {}
 
@@ -200,7 +202,7 @@ private:
 
 class Scope : public ScopeBase {
 public:
-    explicit Scope(const ActiveScope& ref) 
+    explicit Scope(const ActiveScope& ref)
         : ScopeBase(ref) {}
 
     virtual ~Scope() {}
@@ -220,7 +222,7 @@ protected:
  * used by the parser to build up scopes. */
 class ActiveScope : public ScopeBase {
 public:
-    ActiveScope() 
+    ActiveScope()
         : context_entity_(0) {}
 
     explicit ActiveScope(const ActiveScope *par);

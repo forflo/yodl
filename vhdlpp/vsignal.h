@@ -19,10 +19,12 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+# include <map>
 
-# include  "StringHeap.h"
-# include  "LineInfo.h"
-# include  "vtype.h"
+# include "StringHeap.h"
+# include "LineInfo.h"
+# include "vtype.h"
+# include "simple_tree.h"
 
 class Architecture;
 class ScopeBase;
@@ -31,7 +33,9 @@ class Expression;
 
 class SigVarBase : public LineInfo {
 public:
-    SigVarBase(perm_string name, const VType *type, Expression *init_expr);
+    SigVarBase(perm_string name,
+               const VType *type,
+               Expression *init_expr);
     virtual ~SigVarBase();
 
     const VType *peek_type(void) const {
@@ -51,6 +55,9 @@ public:
         return name_;
     }
 
+    // FM. MA
+    virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
+
 protected:
     unsigned peek_refcnt_sequ_() const {
         return refcnt_sequ_;
@@ -62,7 +69,7 @@ protected:
         return init_expr_;
     }
 
-private:
+
     perm_string name_;
     const VType *type_;
     Expression  *init_expr_;
@@ -78,6 +85,9 @@ class Signal : public SigVarBase {
 public:
     Signal(perm_string name, const VType *type, Expression *init_expr);
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
 };
 
@@ -87,6 +97,9 @@ public:
 
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
     void write_to_stream(std::ostream& fd);
+
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 };
 
 inline void SigVarBase::count_ref_sequ() {
@@ -94,14 +107,16 @@ inline void SigVarBase::count_ref_sequ() {
 }
 
 
-inline Signal::Signal(perm_string name, const VType *type, Expression *init_expr)
-    : SigVarBase(name, type, init_expr)
-{}
+inline Signal::Signal(perm_string name,
+                      const VType *type,
+                      Expression *init_expr)
+    : SigVarBase(name, type, init_expr) {}
 
 
-inline Variable::Variable(perm_string name, const VType *type, Expression *init_expr)
-    : SigVarBase(name, type, init_expr)
-{}
+inline Variable::Variable(perm_string name,
+                          const VType *type,
+                          Expression *init_expr)
+    : SigVarBase(name, type, init_expr) {}
 
 
 #endif /* IVL_vsignal_H */

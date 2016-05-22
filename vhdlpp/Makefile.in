@@ -44,7 +44,7 @@ M = StringHeap.o LineInfo.o
 O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
     expression.o package.o scope.o sequential.o subprogram.o vsignal.o vtype.o \
     expression_gendot.o architec_gendot.o sequential_gendot.o entity_gendot.o \
-    vtype_gendot.o \
+    vtype_gendot.o vsignal_gendot.o\
     simple_tree/simple_tree.o \
     enum_overloads.o \
     generate_graph.o \

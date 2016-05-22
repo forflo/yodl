@@ -120,10 +120,45 @@ SimpleTree<map<string, string>> *ProcessStatement::emit_strinfo_tree() const {
             {"node-type", "ProcessStatement"},
             {"label", iname_.str()}});
 
+    // From base StatementList
     for (auto &i : sensitivity_list_)
         result->forest.push_back(i->emit_strinfo_tree());
 
     for (auto &i : statements_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
+
+    // From base Scope
+    for (auto &i : old_signals_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+
+    for (auto &i : new_signals_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : old_variables_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : new_variables_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : old_components_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : new_components_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : use_types_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : cur_types_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+
+    // TODO: implement
+//  for (auto &i : use_constans_)
+//      result->forest.push_back(i.second->emit_strinfo_tree());
+//  for (auto &i : cur_constans_)
+//      result->forest.push_back(i.second->emit_strinfo_tree());
+
+    // TODO: implement
+//    for (auto &i : use_subprograms_)
+//        result->forest.push_back(i.second->emit_strinfo_tree());
+//    for (auto &i : cur_subprograms_)
+//        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : use_enums_)
         result->forest.push_back(i->emit_strinfo_tree());
 
     return result;
