@@ -48,7 +48,7 @@ class ExpName;
  * (i.e. complex expressions).  */
 struct ExprVisitor
 {
-    ExprVisitor() 
+    ExprVisitor()
         : level_(0) {}
 
     virtual ~ExprVisitor() {}

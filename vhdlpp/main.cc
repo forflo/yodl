@@ -33,9 +33,9 @@ const char COPYRIGHT[] =
 #include "vhdlpp_config.h"
 #include "generate_graph.h"
 #include "version_base.h"
-#include "simple_tree/simple_tree.h"
-#include "simple_tree/simple_tree_travers.h"
-#include "../libmisc/StringHeap.h"
+#include "simple_tree.h"
+#include "simple_tree_travers.h"
+#include "StringHeap.h"
 #include "compiler.h"
 #include "sequential.h"
 #include "library.h"
@@ -203,12 +203,12 @@ int main(int argc, char *argv[]) {
 
         if (verbose_flag) {
             fprintf(stderr, "parse_source_file() returns %d"
-                    ", parse_errors=%d, parse_sorrys=%d\n", 
+                    ", parse_errors=%d, parse_sorrys=%d\n",
                     rc, parse_errors, parse_sorrys);
         }
 
         if (parse_errors > 0) {
-            fprintf(stderr, "Encountered %d errors parsing %s\n", 
+            fprintf(stderr, "Encountered %d errors parsing %s\n",
                     parse_errors, argv[idx]);
         }
         if (parse_sorrys > 0) {
@@ -234,8 +234,8 @@ int main(int argc, char *argv[]) {
     Architecture::Statement *stat = arch->statements_.front();
     ProcessStatement *proc = dynamic_cast<ProcessStatement *>(stat);
 
-    cout << "Der Prozess hat das label: " << proc->iname_<< " \n"; 
-    cout << "Der Prozess hat  " << proc->statements_.size()<< " statements\n"; 
+    cout << "Der Prozess hat das label: " << proc->iname_<< " \n";
+    cout << "Der Prozess hat  " << proc->statements_.size()<< " statements\n";
 
     SequentialStmt *ifstmt = proc->statements_.front();
     IfSequential *ifs = dynamic_cast<IfSequential *>(ifstmt);
@@ -250,10 +250,11 @@ int main(int argc, char *argv[]) {
     cout << "Traverse of complete Architecture \n";
     traverse_st(arch->emit_strinfo_tree());
 
+
     emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
 
     cout << '\n';
-    
+
     /* End Playground */
 
     if (dump_libraries_path) {

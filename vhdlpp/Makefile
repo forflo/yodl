@@ -84,6 +84,10 @@ Makefile: $(srcdir)/Makefile.in
 dep:
 	mkdir dep
 
+.PHONY: rtags
+rtags:
+	$(MAKE) --dry-run | grep "clang++ -I" | sed -e "s/ -o .*$$//"
+
 vhdlpp: $O
 	$(CXX) -o vhdlpp $(LDFLAGS) $O $(LIBS)
 
