@@ -15,7 +15,7 @@ SimpleTree<map<string, string>> *WaitStmt::emit_strinfo_tree(void) const {
         map<string, string>{
             {"node-type", "WaitStmt"},
             {"wait-type", "TODO"}});
-    
+
     result->forest = { expr_->emit_strinfo_tree()};
 
     for (auto &i : sens_list_)
@@ -28,7 +28,7 @@ SimpleTree<map<string, string>> *WaitForStmt::emit_strinfo_tree(void) const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "WaitForStmt"}});
-    
+
     result->forest = { delay_->emit_strinfo_tree()};
 
     return result;
@@ -39,7 +39,7 @@ SimpleTree<map<string, string>> *AssertStmt::emit_strinfo_tree(void) const {
         map<string, string>{
             {"node-type", "AssertStmt"},
             {"default-msg", string(default_msg_)}});
-    
+
     result->forest = { cond_->emit_strinfo_tree()};
 
     return result;
@@ -50,7 +50,7 @@ SimpleTree<map<string, string>> *ReportStmt::emit_strinfo_tree(void) const {
         map<string, string>{
             {"node-type", "ReportStmt"},
             {"severity", "TODO"}});
-    
+
     result->forest = { msg_->emit_strinfo_tree()};
 
     return result;
@@ -96,7 +96,7 @@ SimpleTree<map<string, string>> *VariableSeqAssignment::emit_strinfo_tree(void) 
         map<string, string>{
             {"node-type", "VariableSeqAssignment"}});
 
-    result->forest = { 
+    result->forest = {
         lval_->emit_strinfo_tree(),
         rval_->emit_strinfo_tree()};
 
@@ -146,7 +146,7 @@ SimpleTree<map<string, string>> *SignalSeqAssignment::emit_strinfo_tree(void) co
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "SignalSeqAssignment"}});
-            
+
 
     result->forest = { lval_->emit_strinfo_tree() };
 
@@ -160,7 +160,7 @@ SimpleTree<map<string, string>> *ReturnStmt::emit_strinfo_tree(void) const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ReturnStmt"}});
-            
+
 
     result->forest = { val_->emit_strinfo_tree() };
 
@@ -171,7 +171,7 @@ SimpleTree<map<string, string>> *IfSequential::emit_strinfo_tree(void) const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "IfSequential"}});
-            
+
     result->forest = { cond_->emit_strinfo_tree() };
 
     for (auto &i : if_)
@@ -193,7 +193,7 @@ SimpleTree<map<string, string>> *IfSequential::Elsif::emit_strinfo_tree(void) co
 
     result->forest = { cond_->emit_strinfo_tree() };
 
-    for (auto &i : if_) 
+    for (auto &i : if_)
         result->forest.push_back(i->emit_strinfo_tree());
 
     return result;

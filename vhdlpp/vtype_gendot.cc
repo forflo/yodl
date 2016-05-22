@@ -34,8 +34,10 @@ SimpleTree<map<string, string>> *VTypeArray::range_t::emit_strinfo_tree() const 
             {"direction", (dynamic_cast<stringstream&>(
                 stringstream{} << direction_)).str()}});
 
-    result->forest.push_back(msb_->emit_strinfo_tree());
-    result->forest.push_back(lsb_->emit_strinfo_tree());
+    if (msb_)
+        result->forest.push_back(msb_->emit_strinfo_tree());
+    if (lsb_)
+        result->forest.push_back(lsb_->emit_strinfo_tree());
     return result;
 }
 
@@ -50,7 +52,8 @@ SimpleTree<map<string, string>> *VTypeArray::emit_strinfo_tree() const {
     for (auto &i : ranges_)
         result->forest.push_back(i.emit_strinfo_tree());
 
-    result->forest.push_back(parent_->emit_strinfo_tree());
+    if (parent_)
+        result->forest.push_back(parent_->emit_strinfo_tree());
     return result;
 }
 
