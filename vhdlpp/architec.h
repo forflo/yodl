@@ -64,7 +64,7 @@ public:
 public:
     /* Create an architecture from its name and its statements.
      * NOTE: The statement list passed in is emptied. */
-    Architecture(perm_string name, 
+    Architecture(perm_string name,
             const ActiveScope& ref,
             std::list<Architecture::Statement *>& s);
 
@@ -147,12 +147,12 @@ public:
     // Currently elaborated process (or NULL if none).
     ProcessStatement *cur_process_;
 };
- 
+
 /* This is a base class for various generate statement types. It holds
  * the generate statement name, and a list of substatements. */
 class GenerateStatement : public Architecture::Statement {
 public:
-    GenerateStatement(perm_string gname, 
+    GenerateStatement(perm_string gname,
             std::list<Architecture::Statement *>& s);
     ~GenerateStatement();
 
@@ -172,9 +172,9 @@ protected:
 // OK DOT
 class ForGenerate : public GenerateStatement {
 public:
-    ForGenerate(perm_string gname, 
+    ForGenerate(perm_string gname,
             perm_string genvar,
-            ExpRange *rang, 
+            ExpRange *rang,
             std::list<Architecture::Statement *>& s);
     ~ForGenerate();
 
@@ -194,7 +194,7 @@ private:
 // OK DOT
 class IfGenerate : public GenerateStatement {
 public:
-    IfGenerate(perm_string gname, 
+    IfGenerate(perm_string gname,
             Expression *cond,
             std::list<Architecture::Statement *>& s);
     ~IfGenerate();
@@ -233,7 +233,7 @@ private:
 // OK DOT
 class CondSignalAssignment : public Architecture::Statement {
 public:
-    CondSignalAssignment(ExpName *target, 
+    CondSignalAssignment(ExpName *target,
             std::list<ExpConditional::case_t *>& options);
     ~CondSignalAssignment();
 

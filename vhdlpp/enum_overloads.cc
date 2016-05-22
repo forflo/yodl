@@ -5,6 +5,7 @@
 #include "parse_types.h"
 #include "std_funcs.h"
 #include "std_types.h"
+#include "vtype.h"
 #include "sequential.h"
 #include "entity.h"
 #include "scope.h"
@@ -206,4 +207,3 @@ ostream &operator<<(ostream &os, port_mode_t fun){
 
     return os;
 }
-

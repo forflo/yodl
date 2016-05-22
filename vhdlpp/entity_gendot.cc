@@ -14,6 +14,7 @@
 #include <cassert>
 
 #include "simple_tree.h"
+#include "enum_overloads.h"
 #include "entity.h"
 #include "compiler.h"
 #include "architec.h"
@@ -25,12 +26,14 @@ SimpleTree<map<string, string>> *InterfacePort::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "InterfacePort"},
-            {"port name", "name"},
+            {"port name", name.str()},
             {"port mode", (dynamic_cast<stringstream&>(
                 stringstream{} << mode)).str()}});
 
-    result->forest.push_back(expr->emit_strinfo_tree());
-    result->forest.push_back(type->emit_strinfo_tree());
+    if (expr)
+        result->forest.push_back(expr->emit_strinfo_tree());
+    if (type)
+        result->forest.push_back(type->emit_strinfo_tree());
 
     return result;
 }
@@ -69,10 +72,12 @@ SimpleTree<map<string, string>> *Entity::emit_strinfo_tree() const {
 //    for (auto &i : declarations_)
 //        result->forest.push_back(i.second->emit_strinfo_tree());
 
-    result->forest.push_back(
-        new SimpleTree<map<string, string>>(
-            map<string, string>{{"node-type", "Bound Architecture"}},
-            bind_arch_->emit_strinfo_tree()));
+    if (bind_arch_) {
+        result->forest.push_back(
+            new SimpleTree<map<string, string>>(
+                map<string, string>{{"node-type", "Bound Architecture"}},
+                bind_arch_->emit_strinfo_tree()));
+    }
 
     return result;
 }

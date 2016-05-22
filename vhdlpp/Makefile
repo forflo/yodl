@@ -28,22 +28,23 @@ vpath %.cc $(srcdir)/../libmisc
 vpath %.cc $(srcdir)
 
 CC = gcc
-CXX = clang++
+CXX = g++
 LEX = flex
 YACC = bison
 
 INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree
 
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
-CXXFLAGS = -Wall -Wextra -Wshadow   -g --std=c++11
+CXXFLAGS = -Wall -Wextra -Wshadow   -g -O2 --std=c++11
 LDFLAGS =  
-LIBS = -lm -lbz2 -lz -lpthread -lhistory -lreadline  
+LIBS = -lm -lbz2 -lz -lhistory -lreadline  
 
 M = StringHeap.o LineInfo.o
 
 O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
     expression.o package.o scope.o sequential.o subprogram.o vsignal.o vtype.o \
     expression_gendot.o architec_gendot.o sequential_gendot.o entity_gendot.o \
+    vtype_gendot.o \
     simple_tree/simple_tree.o \
     enum_overloads.o \
     generate_graph.o \

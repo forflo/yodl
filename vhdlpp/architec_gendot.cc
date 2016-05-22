@@ -3,14 +3,14 @@
 #include <list>
 #include <map>
 
-#include "../libmisc/StringHeap.h"
-#include "../libmisc/LineInfo.h"
+#include "StringHeap.h"
+#include "LineInfo.h"
 #include "simple_tree/simple_tree.h"
 #include "sequential.h"
 #include "scope.h"
 #include "architec.h"
 
-SimpleTree<map<string, string>> *ForGenerate::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *ForGenerate::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ForGenerate"},
@@ -26,7 +26,7 @@ SimpleTree<map<string, string>> *ForGenerate::emit_strinfo_tree(void) const {
     return result;
 }
 
-SimpleTree<map<string, string>> *Architecture::emit_strinfo_tree(void) const{
+SimpleTree<map<string, string>> *Architecture::emit_strinfo_tree() const{
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Architecture"},
@@ -38,7 +38,7 @@ SimpleTree<map<string, string>> *Architecture::emit_strinfo_tree(void) const{
     return result;
 }
 
-SimpleTree<map<string, string>> *IfGenerate::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *IfGenerate::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "IfGenerate"},
@@ -52,7 +52,7 @@ SimpleTree<map<string, string>> *IfGenerate::emit_strinfo_tree(void) const {
     return result;
 }
 
-SimpleTree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "CondSignalAssignment"}});
@@ -68,7 +68,7 @@ SimpleTree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree(void) c
     return result;
 }
 
-SimpleTree<map<string, string>> *SignalAssignment::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *SignalAssignment::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "SignalAssignment"}});
 
@@ -80,7 +80,7 @@ SimpleTree<map<string, string>> *SignalAssignment::emit_strinfo_tree(void) const
     return result;
 }
 
-SimpleTree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ComponentInstanciation"},
@@ -90,7 +90,7 @@ SimpleTree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree(void)
     return result;
 }
 
-SimpleTree<map<string, string>> *StatementList::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *StatementList::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "StatementList"}});
 
@@ -100,21 +100,21 @@ SimpleTree<map<string, string>> *StatementList::emit_strinfo_tree(void) const {
     return result;
 }
 
-SimpleTree<map<string, string>> *InitialStatement::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *InitialStatement::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "InitialStatement"}});
 
     return result;
 }
 
-SimpleTree<map<string, string>> *FinalStatement::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *FinalStatement::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "FinalStatement"}});
 
     return result;
 }
 
-SimpleTree<map<string, string>> *ProcessStatement::emit_strinfo_tree(void) const {
+SimpleTree<map<string, string>> *ProcessStatement::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ProcessStatement"},

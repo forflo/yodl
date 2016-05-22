@@ -45,6 +45,8 @@ typedef enum typedef_topo_e {
     MARKED
 } typedef_topo_t;
 
+extern void preload_global_types(void);
+
 typedef std::map<const VTypeDef *, typedef_topo_t> typedef_context_t;
 
 /* A description of a VHDL type consists of a graph of VType
@@ -52,8 +54,7 @@ typedef std::map<const VTypeDef *, typedef_topo_t> typedef_context_t;
  * are compound may in turn reference other types.  */
 class VType {
 public:
-    VType()
-    {}
+    VType() {}
 
     virtual ~VType() = 0;
 
@@ -97,7 +98,8 @@ public:
     // all the types that it emits.
     virtual int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
 
-    virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA
+    virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
 
     // Determines if a type can be used in Verilog packed array.
     virtual bool can_be_packed() const {
@@ -129,14 +131,13 @@ public:
     // is used by the decl_t object to emit variable/wire/port declarations.
     virtual int emit_decl(std::ostream& out, perm_string name, bool reg_flag) const;
 
+
 public:
     // A couple places use the VType along with a few
     // per-declaration details, so provide a common structure for
     // holding that stuff together.
-    struct decl_t
-    {
-        decl_t() : type(0), reg_flag(false)
-        {}
+    struct decl_t {
+        decl_t() : type(0), reg_flag(false) {}
 
         int         emit(std::ostream& out, perm_string name) const;
 
@@ -152,26 +153,28 @@ protected:
     }
 };
 
-inline std::ostream& operator <<(std::ostream& out, const VType& item) {
+inline std::ostream& operator<<(std::ostream& out, const VType& item) {
     item.show(out);
     return out;
 }
 
-
-extern void preload_global_types(void);
-
-/*
- * This type is a placeholder for ERROR types.
- */
+// DOT OK
+/* This type is a placeholder for ERROR types. */
 class VTypeERROR : public VType {
     VType *clone() const {
         return NULL;
     }
 
+    // FM. MA -- unimplemented
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+        return empty_simple_tree();
+    };
+
 public:
     int emit_def(std::ostream& out, perm_string name) const;
 };
 
+// DOT OK
 /* This class represents the primitive types that are available to the
  * type subsystem.  */
 class VTypePrimitive : public VType {
@@ -182,7 +185,6 @@ public:
         STDLOGIC, TIME
     };
 
-public:
     VTypePrimitive(type_t tt, bool packed = false);
     ~VTypePrimitive();
 
@@ -206,24 +208,28 @@ public:
         return packed_;
     }
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     type_t type_;
     bool   packed_;
 };
 
-/*
- * An array is a compound N-dimensional array of element type. The
+/* An array is a compound N-dimensional array of element type. The
  * construction of the array is from an element type and a vector of
  * ranges. The array type can be left incomplete by leaving some
- * ranges as "box" ranges, meaning present but not defined.
- */
+ * ranges as "box" ranges, meaning present but not defined. */
 class VTypeArray : public VType {
 public:
     class range_t {
-public:
-        range_t(Expression *m = NULL, Expression *l = NULL, bool down_to = true) :
-            msb_(m), lsb_(l), direction_(down_to)
-        {}
+    public:
+        range_t(Expression *m = NULL,
+                Expression *l = NULL,
+                bool down_to = true)
+            : msb_(m)
+            , lsb_(l)
+            , direction_(down_to) {}
 
         range_t *clone() const;
 
@@ -243,16 +249,27 @@ public:
             return lsb_;
         }
 
-private:
+        // FM. MA
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
+
+    private:
         Expression *msb_;
         Expression *lsb_;
         bool       direction_;
     };
 
 public:
-    VTypeArray(const VType *etype, const std::vector<range_t>& r, bool signed_vector = false);
-    VTypeArray(const VType *etype, std::list<ExpRange *> *r, bool signed_vector = false);
-    VTypeArray(const VType *etype, int msb, int lsb, bool signed_vector = false);
+    VTypeArray(const VType *etype,
+               const std::vector<range_t>& r,
+               bool signed_vector = false);
+    VTypeArray(const VType *etype,
+               std::list<ExpRange *> *r,
+               bool signed_vector = false);
+    VTypeArray(const VType *etype,
+               int msb,
+               int lsb,
+               bool signed_vector = false);
     ~VTypeArray();
 
     VType *clone() const;
@@ -307,6 +324,9 @@ public:
     // constant integers.
     void evaluate_ranges(ScopeBase *scope);
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     int emit_with_dims_(std::ostream& out, bool packed, perm_string name) const;
 
@@ -320,6 +340,7 @@ private:
     const VTypeArray     *parent_;
 };
 
+// DOT OK
 class VTypeRange : public VType {
 public:
     VTypeRange(const VType *base);
@@ -333,6 +354,9 @@ public:
     inline const VType *base_type() const {
         return base_;
     }
+
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 protected:
     const VType *base_;
@@ -356,6 +380,9 @@ public:
 
     void write_to_stream(std::ostream& fd) const;
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     const int64_t start_, end_;
 };
@@ -368,8 +395,10 @@ public:
     VType *clone() const;
     int elaborate(Entity *end, ScopeBase *scope) const;
 
-public:     // Virtual methods
     void write_to_stream(std::ostream& fd) const;
+
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     // Boundaries
@@ -379,6 +408,7 @@ private:
     bool downto_;
 };
 
+// DOT OK
 class VTypeEnum : public VType {
 public:
     explicit VTypeEnum(const std::list<perm_string> *names);
@@ -402,14 +432,18 @@ public:
     // Checks if the name is stored in the enum.
     bool has_name(perm_string name) const;
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     std::vector<perm_string> names_;
 };
 
+// DOT OK
 class VTypeRecord : public VType {
 public:
     class element_t {
-public:
+    public:
         element_t(perm_string name, const VType *type);
 
         void write_to_stream(std::ostream&) const;
@@ -422,11 +456,14 @@ public:
             return type_;
         }
 
-private:
+        // FM. MA
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
+    private:
         perm_string name_;
         const VType *type_;
 
-private:          // Not implement
+    private:          // Not implement
         element_t(const element_t&);
         element_t& operator =(const element_t);
     };
@@ -455,9 +492,13 @@ public:
         return elements_;
     }
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
 private:
     std::vector<element_t *> elements_;
 };
+
 
 class VTypeDef : public VType {
 public:
@@ -506,6 +547,9 @@ public:
         return type_->is_unbounded();
     }
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
 protected:
     perm_string name_;
     const VType *type_;
@@ -513,13 +557,17 @@ protected:
 
 class VSubTypeDef : public VTypeDef {
 public:
-    explicit VSubTypeDef(perm_string name) : VTypeDef(name)
-    {}
+    explicit VSubTypeDef(perm_string name)
+        : VTypeDef(name) {}
 
-    explicit VSubTypeDef(perm_string name, const VType *is) : VTypeDef(name, is)
-    {}
+    explicit VSubTypeDef(perm_string name, const VType *is)
+        : VTypeDef(name, is) {}
 
     void write_typedef_to_stream(std::ostream& fd, perm_string name) const;
+
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
 };
 
 #endif /* IVL_vtype_H */

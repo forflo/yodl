@@ -27,8 +27,7 @@
 
 using namespace std;
 
-VType::~VType()
-{}
+VType::~VType() {}
 
 
 void VType::show(ostream& out) const {
@@ -45,12 +44,11 @@ perm_string VType::get_generic_typename() const {
 
 
 VTypePrimitive::VTypePrimitive(VTypePrimitive::type_t tt, bool packed)
-    : type_(tt), packed_(packed)
-{}
+    : type_(tt)
+    , packed_(packed) {}
 
 
-VTypePrimitive::~VTypePrimitive()
-{}
+VTypePrimitive::~VTypePrimitive() {}
 
 
 void VTypePrimitive::show(ostream& out) const {
@@ -406,22 +404,21 @@ const VTypeRecord::element_t *VTypeRecord::element_by_name(perm_string name, int
 
 
 VTypeRecord::element_t::element_t(perm_string name, const VType *typ)
-    : name_(name), type_(typ)
-{}
+    : name_(name)
+    , type_(typ) {}
 
 
 VTypeDef::VTypeDef(perm_string nam)
-    : name_(nam), type_(0)
-{}
+    : name_(nam)
+    , type_(0) {}
 
 
 VTypeDef::VTypeDef(perm_string nam, const VType *typ)
-    : name_(nam), type_(typ)
-{}
+    : name_(nam)
+    , type_(typ) {}
 
 
-VTypeDef::~VTypeDef()
-{}
+VTypeDef::~VTypeDef() {}
 
 
 void VTypeDef::set_definition(const VType *typ) {

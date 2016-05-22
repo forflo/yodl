@@ -31,7 +31,7 @@
 # include "LineInfo.h"
 
 typedef enum {
-    PORT_NONE = 0, PORT_IN, 
+    PORT_NONE = 0, PORT_IN,
     PORT_OUT, PORT_INOUT
 } port_mode_t;
 
@@ -131,7 +131,7 @@ protected:
     std::vector<InterfacePort *> ports_;
 };
 
-// Entities are fully declared components. 
+// Entities are fully declared components.
 class Entity : public ComponentBase {
 public:
     explicit Entity(perm_string name);

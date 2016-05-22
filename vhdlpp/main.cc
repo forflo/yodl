@@ -225,36 +225,18 @@ int main(int argc, char *argv[]) {
     /* Playground */
     cout << "There are " <<  design_entities.size() << " entities\n";
 
-    emit_dotgraph(std::cout, "g", empty_simple_tree());
 
     Entity *ent = design_entities[perm_string::literal("driver")];
-    Architecture *arch = ent->arch_[perm_string::literal("behaviour")];
+    Architecture *arch = ent->arch_[perm_string::literal("behav")];
     cout << "The name of the Architecture is" << arch->get_name() << '\n';
     cout << "This Architecture has " << arch->get_statement_amount() << " statements\n";
 
-    Architecture::Statement *stat = arch->statements_.front();
-    ProcessStatement *proc = dynamic_cast<ProcessStatement *>(stat);
-
-    cout << "Der Prozess hat das label: " << proc->iname_<< " \n";
-    cout << "Der Prozess hat  " << proc->statements_.size()<< " statements\n";
-
-    SequentialStmt *ifstmt = proc->statements_.front();
-    IfSequential *ifs = dynamic_cast<IfSequential *>(ifstmt);
-
-    Expression *exp = ifs->cond_;
+    cout << "Traverse of complete Architecture \n";
+    traverse_st(ent->emit_strinfo_tree());
 
     cout << "here\n";
-    SimpleTree<map<string, string>> *res = exp->emit_strinfo_tree();
 
-    cout << "Traverse of expression \"x=0\"\n";
-    traverse_st(res, 0);
-    cout << '\n';
-
-    cout << "Traverse of complete Architecture \n";
-    traverse_st(arch->emit_strinfo_tree());
-
-
-    emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
+    emit_dotgraph(std::cout, "g", ent->emit_strinfo_tree());
 
     cout << '\n';
 

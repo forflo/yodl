@@ -55,7 +55,7 @@
 # define HAVE_ALLOCA_H 1
 # define HAVE_FSEEKO 1
 /* And this is needed by the fst files (copied from GTKWave). */
-# define HAVE_LIBPTHREAD 1
+/* # undef HAVE_LIBPTHREAD */
 # define HAVE_REALPATH 1
 
 /*
