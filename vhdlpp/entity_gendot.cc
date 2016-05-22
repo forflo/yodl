@@ -21,8 +21,8 @@
 
 using namespace std;
 
-simple_tree<map<string, string>> *InterfacePort::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *InterfacePort::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "InterfacePort"},
             {"port name", "name"},
@@ -35,8 +35,8 @@ simple_tree<map<string, string>> *InterfacePort::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *ComponentBase::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ComponentBase::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Component"},
             {"component name", name_.str()}});
@@ -50,8 +50,8 @@ simple_tree<map<string, string>> *ComponentBase::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *Entity::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *Entity::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Entity"},
             {"name", name_.str()}});
@@ -70,7 +70,7 @@ simple_tree<map<string, string>> *Entity::emit_strinfo_tree() const {
 //        result->forest.push_back(i.second->emit_strinfo_tree());
 
     result->forest.push_back(
-        new simple_tree<map<string, string>>(
+        new SimpleTree<map<string, string>>(
             map<string, string>{{"node-type", "Bound Architecture"}},
             bind_arch_->emit_strinfo_tree()));
 

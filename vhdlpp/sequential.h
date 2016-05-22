@@ -50,7 +50,7 @@ public:
     virtual void write_to_stream(std::ostream& fd);
 
     // FM. MA
-    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const = 0;
+    virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
 
     // Recursively visits a tree of sequential statements.
     virtual void visit(SeqStmtVisitor& func) {
@@ -102,7 +102,7 @@ public:
         void dump(ostream& out, int indent) const;
         void visit(SeqStmtVisitor& func);
 
-        simple_tree<map<string, string>> *emit_strinfo_tree() const;
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const;
     private:
         Expression *cond_;
         std::list<SequentialStmt *> if_;
@@ -126,7 +126,7 @@ public:
     void visit(SeqStmtVisitor& func);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     const Expression *peek_condition() const {
         return cond_;
@@ -168,7 +168,7 @@ public:
     void cast_to(const VType *type);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *val_;
@@ -188,7 +188,7 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression              *lval_;
@@ -214,7 +214,7 @@ public:
         void visit(SeqStmtVisitor& func);
 
         // FM. MA
-        simple_tree<map<string, string>> *emit_strinfo_tree() const;
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     private:
         std::list<Expression *>     *exp_;
@@ -236,7 +236,7 @@ public:
     void visit(SeqStmtVisitor& func);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *cond_;
@@ -260,7 +260,7 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     perm_string               name_;
@@ -282,7 +282,7 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *lval_;
@@ -304,7 +304,7 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *cond_;
@@ -329,7 +329,7 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     // Emits for-loop which direction is determined at run-time.
@@ -355,7 +355,7 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 };
 
 // --OK DOT
@@ -386,7 +386,7 @@ public:
     }
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 protected:
     void dump_sev_msg(ostream& out, int indent) const;
@@ -409,7 +409,7 @@ public:
     void write_to_stream(std::ostream& fd);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *cond_;
@@ -431,7 +431,7 @@ public:
     void write_to_stream(std::ostream& fd);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *delay_;
@@ -457,7 +457,7 @@ public:
     }
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     wait_type_t type_;

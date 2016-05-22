@@ -10,8 +10,8 @@
 #include "scope.h"
 #include "architec.h"
 
-simple_tree<map<string, string>> *ForGenerate::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ForGenerate::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ForGenerate"},
             {"generator variable", genvar_.str()},
@@ -26,8 +26,8 @@ simple_tree<map<string, string>> *ForGenerate::emit_strinfo_tree(void) const {
     return result;
 }
 
-simple_tree<map<string, string>> *Architecture::emit_strinfo_tree(void) const{
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *Architecture::emit_strinfo_tree(void) const{
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Architecture"},
             {"name", name_.str()}});
@@ -38,8 +38,8 @@ simple_tree<map<string, string>> *Architecture::emit_strinfo_tree(void) const{
     return result;
 }
 
-simple_tree<map<string, string>> *IfGenerate::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *IfGenerate::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "IfGenerate"},
             {"name", name_.str()}});
@@ -52,8 +52,8 @@ simple_tree<map<string, string>> *IfGenerate::emit_strinfo_tree(void) const {
     return result;
 }
 
-simple_tree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "CondSignalAssignment"}});
 
@@ -68,8 +68,8 @@ simple_tree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree(void) 
     return result;
 }
 
-simple_tree<map<string, string>> *SignalAssignment::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *SignalAssignment::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "SignalAssignment"}});
 
     result->forest.push_back(lval_->emit_strinfo_tree());
@@ -80,8 +80,8 @@ simple_tree<map<string, string>> *SignalAssignment::emit_strinfo_tree(void) cons
     return result;
 }
 
-simple_tree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ComponentInstanciation"},
             {"cname", cname_.str()},
@@ -90,8 +90,8 @@ simple_tree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree(void
     return result;
 }
 
-simple_tree<map<string, string>> *StatementList::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *StatementList::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "StatementList"}});
 
     for (auto &i : statements_)
@@ -100,22 +100,22 @@ simple_tree<map<string, string>> *StatementList::emit_strinfo_tree(void) const {
     return result;
 }
 
-simple_tree<map<string, string>> *InitialStatement::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *InitialStatement::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "InitialStatement"}});
 
     return result;
 }
 
-simple_tree<map<string, string>> *FinalStatement::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *FinalStatement::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{{"node-type", "FinalStatement"}});
 
     return result;
 }
 
-simple_tree<map<string, string>> *ProcessStatement::emit_strinfo_tree(void) const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ProcessStatement::emit_strinfo_tree(void) const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ProcessStatement"},
             {"label", iname_.str()}});

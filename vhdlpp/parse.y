@@ -69,7 +69,7 @@ inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where) {
 static void yyerror(YYLTYPE*yyllocp,
         yyscan_t yyscanner,
         const char*file_path,
-        bool, 
+        bool,
         const char*msg);
 
 int parse_errors = 0;

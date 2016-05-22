@@ -20,90 +20,196 @@
 using namespace std;
 
 /* Literal expressions */
-simple_tree<map<string, string>> *ExpInteger::emit_strinfo_tree() const {
-    return new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpInteger::emit_strinfo_tree() const {
+    return new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpInteger"},
             {"value", (dynamic_cast<stringstream&>(
                 stringstream{} << value_)).str()}});
 }
 
-simple_tree<map<string, string>> *ExpReal::emit_strinfo_tree() const {
-    return new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpReal::emit_strinfo_tree() const {
+    return new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpReal"},
             {"value", (dynamic_cast<stringstream&>(
-                stringstream{} << value_)).str()}}); 
+                stringstream{} << value_)).str()}});
 }
 
-simple_tree<map<string, string>> *ExpString::emit_strinfo_tree() const {
-    return new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpString::emit_strinfo_tree() const {
+    return new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpReal"},
             {"value", value_}});
 }
 
-simple_tree<map<string, string>> *ExpName::emit_strinfo_tree() const {
-    return new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpName::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpName"},
             {"value", name_.str()}});
+
+    for (auto &i : *indices_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
+    // prefix_ needs no attention, because currently it's completely unsused
+    //if (prefix_)
+    //    result->forest.push_back(prefix_->emit_strinfo_tree());
+
+    return result;
 }
 
-simple_tree<map<string, string>> *ExpTime::emit_strinfo_tree() const {
-    return new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpTime::emit_strinfo_tree() const {
+    return new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpTime"},
             {"unit", (dynamic_cast<stringstream&>(
                 stringstream{} << unit_)).str()},
             {"time value", (dynamic_cast<stringstream&>(
-                stringstream{} << amount_)).str()}}); 
+                stringstream{} << amount_)).str()}});
 }
 
-simple_tree<map<string, string>> *ExpBitstring::emit_strinfo_tree() const {
+SimpleTree<map<string, string>> *ExpBitstring::emit_strinfo_tree() const {
     stringstream conv;
     for (vector<char>::const_iterator i = value_.begin();
             i != value_.end();
             ++i)
         conv << *i;
 
-    return new simple_tree<map<string, string>>(
+    return new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpBitstring"},
             {"value", conv.str()}});
 }
 
-simple_tree<map<string, string>> *ExpFunc::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpFunc::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpFunc"},
             {"value", name_.str()}});
 
-    for (vector<Expression *>::const_iterator i = argv_.begin();
-            i != argv_.end();
-            ++i){
-        result->forest.push_back((*i)->emit_strinfo_tree());
-    }
+    for (auto &i : argv_)
+        result->forest.push_back(i->emit_strinfo_tree());
 
     return result;
 }
 
-simple_tree<map<string, string>> *ExpCharacter::emit_strinfo_tree() const {
-    return new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpCharacter::emit_strinfo_tree() const {
+    return new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpCharacter"},
             {"value", string{value_}}});
 }
 
+SimpleTree<map<string, string>> *ExpConditional::case_t::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+            {"node-type", "Case"}});
 
+    result->forest.push_back(cond_->emit_strinfo_tree());
+
+    for (auto &i : true_clause_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
+    return result;
+}
+
+SimpleTree<map<string, string>> *ExpConditional::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+            {"node-type", "ExpConditional"}});
+
+    for (auto &i : options_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
+    return result;
+}
+
+SimpleTree<map<string, string>> *ExpAggregate::emit_strinfo_tree() const {
+    return new SimpleTree<map<string, string>>(
+        map<string, string>{
+            {"node-type", "ExpAggregate"}});
+}
+
+SimpleTree<map<string, string>> *ExpAttribute::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+             {"node-type", "ExpAttribute"},
+             {"attribute", name_.str()}});
+
+    for (auto &i : *args_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
+    return result;
+}
+
+SimpleTree<map<string, string>> *ExpNew::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+            {"node-type", "ExpNew"}});
+
+    result->forest.push_back(size_->emit_strinfo_tree());
+
+    return result;
+}
+
+SimpleTree<map<string, string>> *ExpDelay::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+            {"node-type", "ExpDelay"}});
+
+    result->forest.push_back(expr_->emit_strinfo_tree());
+    result->forest.push_back(delay_->emit_strinfo_tree());
+
+    return result;
+}
+
+SimpleTree<map<string, string>> *ExpCast::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+            {"node-type", "ExpCast"}});
+
+    result->forest.push_back(base_->emit_strinfo_tree());
+    result->forest.push_back(type_->emit_strinfo_tree());
+
+    return result;
+}
+
+SimpleTree<map<string, string>> *ExpObjAttribute::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+             {"node-type", "ExpObjAttribute"},
+             {"attribute", name_.str()}});
+
+    for (auto &i : *args_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
+    result->forest.push_back(base_->emit_strinfo_tree());
+
+    return result;
+}
+
+SimpleTree<map<string, string>> *ExpTypeAttribute::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+             {"node-type", "ExpTypeAttribute"},
+             {"attribute", name_.str()}});
+
+    for (auto &i : *args_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
+    result->forest.push_back(base_->emit_strinfo_tree());
+
+    return result;
+}
 /* All ExpBinary implementors */
-simple_tree<map<string, string>> *ExpArithmetic::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpArithmetic::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpArithmetic"},
             {"operator", (dynamic_cast<stringstream&>(
                 stringstream{} << fun_)).str()}});
-    
+
     result->forest = {
         operand1_->emit_strinfo_tree(),
         operand2_->emit_strinfo_tree()};
@@ -111,8 +217,8 @@ simple_tree<map<string, string>> *ExpArithmetic::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *ExpLogical::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpLogical::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpLogical"},
             {"operator", (dynamic_cast<stringstream&>(
@@ -125,13 +231,13 @@ simple_tree<map<string, string>> *ExpLogical::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *ExpRelation::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpRelation::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpRelation"},
             {"operator", (dynamic_cast<stringstream&>(
                 stringstream{} << fun_)).str()}});
-    
+
     result->forest = {
         operand1_->emit_strinfo_tree(),
         operand2_->emit_strinfo_tree()};
@@ -139,8 +245,8 @@ simple_tree<map<string, string>> *ExpRelation::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *ExpShift::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpShift::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpShift"},
             {"operator", (dynamic_cast<stringstream&>(
@@ -154,8 +260,8 @@ simple_tree<map<string, string>> *ExpShift::emit_strinfo_tree() const {
 }
 
 /* All ExpUnary implementors */
-simple_tree<map<string, string>> *ExpEdge::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpEdge::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpEdge"},
             {"edgespec", (dynamic_cast<stringstream&>(
@@ -166,8 +272,8 @@ simple_tree<map<string, string>> *ExpEdge::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *ExpUAbs::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpUAbs::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpUAbs"},
             {"operator", "abs"}});
@@ -177,8 +283,8 @@ simple_tree<map<string, string>> *ExpUAbs::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *ExpUNot::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpUNot::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpUNot"},
             {"operator", "not"}});
@@ -189,8 +295,8 @@ simple_tree<map<string, string>> *ExpUNot::emit_strinfo_tree() const {
 }
 
 /* Not implementing ExpBinary or ExpUnary but also has two operands */
-simple_tree<map<string, string>> *ExpConcat::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpConcat::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpConcat"},
             {"operator", "&"}});
@@ -202,8 +308,8 @@ simple_tree<map<string, string>> *ExpConcat::emit_strinfo_tree() const {
     return result;
 }
 
-simple_tree<map<string, string>> *ExpRange::emit_strinfo_tree() const {
-    auto result = new simple_tree<map<string, string>>(
+SimpleTree<map<string, string>> *ExpRange::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ExpRange"},
             {"rangespec", (dynamic_cast<stringstream&>(

@@ -26,7 +26,7 @@
 # include "StringHeap.h"
 # include "LineInfo.h"
 # include "scope.h"
-# include "simple_tree/simple_tree.h"
+# include "simple_tree.h"
 
 class ComponentInstantiation;
 class Entity;
@@ -58,7 +58,7 @@ public:
         virtual void dump(ostream& out, int indent = 0) const;
 
         // FM. MA
-        virtual simple_tree<map<string, string>> *emit_strinfo_tree() const = 0;
+        virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
     };
 
 public:
@@ -115,7 +115,7 @@ public:
     int emit(ostream& out, Entity *entity);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     // The dump method writes a debug display to the given output.
     void dump(ostream& out, perm_string of_entity, int indent = 0) const;
@@ -183,7 +183,7 @@ public:
     void dump(ostream& out, int ident = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     perm_string genvar_;
@@ -203,7 +203,7 @@ public:
     int emit(ostream& out, Entity *entity, Architecture *arc);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *cond_;
@@ -223,7 +223,7 @@ public:
     virtual void dump(ostream& out, int ident = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     ExpName                 *lval_;
@@ -242,7 +242,7 @@ public:
     void dump(ostream& out, int ident = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     ExpName *lval_;
@@ -277,7 +277,7 @@ public:
     }
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     perm_string iname_;
@@ -307,7 +307,7 @@ public:
     virtual void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     std::list<SequentialStmt *>& stmt_list() {
         return statements_;
@@ -329,7 +329,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 };
 
 // OK DOT
@@ -344,7 +344,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA (not implemented)
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 };
 
 // OK DOT
@@ -362,7 +362,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
     perm_string             iname_;

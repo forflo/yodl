@@ -617,8 +617,9 @@ ExpLogical::~ExpLogical() {}
 
 
 ExpName::ExpName(perm_string nn)
-    : name_(nn)
-    , indices_(NULL) {}
+    : name_(nn) { 
+    indices_ = new list<Expression *>(); 
+}
 
 
 ExpName::ExpName(perm_string nn, list<Expression *> *indices)

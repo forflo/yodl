@@ -27,7 +27,7 @@ static int path_to_num(vector<int> &path){
 }
 
 int emit_edges(ostream &out, 
-        simple_tree<map<string, string>> * ast){
+        SimpleTree<map<string, string>> * ast){
     
     for (auto &i : ast->forest){
         out << ast->root[NODEID]
@@ -43,7 +43,7 @@ int emit_edges(ostream &out,
 }
 
 int emit_vertices(ostream &out, 
-        const simple_tree<map<string, string>> * ast, 
+        const SimpleTree<map<string, string>> * ast, 
         vector<int> &path, 
         int depth = 0){
     int pcount = 0;
@@ -68,7 +68,7 @@ int emit_vertices(ostream &out,
     return 0;
 }
 
-int add_nodeids(simple_tree<map<string, string>> *ast, 
+int add_nodeids(SimpleTree<map<string, string>> *ast, 
         vector<int> &path,
         int depth = 0){
     int pcount = 0;
@@ -91,7 +91,7 @@ int add_nodeids(simple_tree<map<string, string>> *ast,
 
 int emit_dotgraph(ostream &out, 
         string name, 
-        simple_tree<map<string, string>> *ast){
+        SimpleTree<map<string, string>> *ast){
     vector<int> path;
     add_nodeids(ast, path);
 

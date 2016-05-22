@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 
-int emit_vertices(ostream &out, simple_tree<map<string, string>> *ast);
-int emit_dotgraph(ostream &out, string name, simple_tree<map<string, string>> *ast);
+int emit_vertices(ostream &out, SimpleTree<map<string, string>> *ast);
+int emit_dotgraph(ostream &out, string name, SimpleTree<map<string, string>> *ast);
 
 #endif /* IVL_GENERATE_GRAPH */

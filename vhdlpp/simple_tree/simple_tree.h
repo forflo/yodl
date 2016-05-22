@@ -2,34 +2,38 @@
 #define IVL_SIMPLE_TREE
 
 # include <vector>
+# include <map>
 # include <string>
 # include <iostream>
 
 using namespace std;
 
 template<typename T>
-class simple_tree {
+class SimpleTree {
 public:
     T root;
-    vector<simple_tree<T>*> forest;
+    vector<SimpleTree<T>*> forest;
 
-    simple_tree(const T s)
+    SimpleTree(const T s)
         : root(s) { };
-    
-    simple_tree(const T s, vector<simple_tree<T>*> own)
+
+    SimpleTree(const T s, vector<SimpleTree<T>*> own)
         : root(s)
         , forest(own) { };
 
-    simple_tree(const T s, simple_tree<T> *own)
-        : root(s) { 
-
+    SimpleTree(const T s, SimpleTree<T> *own)
+        : root(s) {
         forest.push_back(own);
     };
 
-    ~simple_tree(){
+    ~SimpleTree(){
         for (auto &i : forest)
             delete i;
     };
 };
+
+void traverse_st(SimpleTree<map<string, string>> *tree, int depth = 0);
+
+SimpleTree<map<string, string>> *empty_simple_tree();
 
 #endif /* IVL_SIMPLE_TREE */

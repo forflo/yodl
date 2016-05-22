@@ -40,8 +40,8 @@ class VTypeDef;
 class ScopeBase;
 
 typedef enum typedef_topo_e {
-    NONE = 0, 
-    PENDING, 
+    NONE = 0,
+    PENDING,
     MARKED
 } typedef_topo_t;
 
@@ -97,7 +97,7 @@ public:
     // all the types that it emits.
     virtual int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
 
-    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
     // Determines if a type can be used in Verilog packed array.
     virtual bool can_be_packed() const {
@@ -176,10 +176,10 @@ public:
  * type subsystem.  */
 class VTypePrimitive : public VType {
 public:
-    enum type_t { 
-        BIT, INTEGER, 
-        NATURAL, REAL, 
-        STDLOGIC, TIME 
+    enum type_t {
+        BIT, INTEGER,
+        NATURAL, REAL,
+        STDLOGIC, TIME
     };
 
 public:

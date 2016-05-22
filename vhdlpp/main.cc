@@ -34,7 +34,6 @@ const char COPYRIGHT[] =
 #include "generate_graph.h"
 #include "version_base.h"
 #include "simple_tree.h"
-#include "simple_tree_travers.h"
 #include "StringHeap.h"
 #include "compiler.h"
 #include "sequential.h"
@@ -226,6 +225,8 @@ int main(int argc, char *argv[]) {
     /* Playground */
     cout << "There are " <<  design_entities.size() << " entities\n";
 
+    emit_dotgraph(std::cout, "g", empty_simple_tree());
+
     Entity *ent = design_entities[perm_string::literal("driver")];
     Architecture *arch = ent->arch_[perm_string::literal("behaviour")];
     cout << "The name of the Architecture is" << arch->get_name() << '\n';
@@ -241,7 +242,9 @@ int main(int argc, char *argv[]) {
     IfSequential *ifs = dynamic_cast<IfSequential *>(ifstmt);
 
     Expression *exp = ifs->cond_;
-    simple_tree<map<string, string>> *res = exp->emit_strinfo_tree();
+
+    cout << "here\n";
+    SimpleTree<map<string, string>> *res = exp->emit_strinfo_tree();
 
     cout << "Traverse of expression \"x=0\"\n";
     traverse_st(res, 0);

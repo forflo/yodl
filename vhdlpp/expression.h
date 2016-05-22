@@ -34,7 +34,7 @@
 # include "StringHeap.h"
 # include "LineInfo.h"
 # include "entity.h"
-# include "simple_tree/simple_tree.h"
+# include "simple_tree.h"
 
 class ExpRange;
 class ScopeBase;
@@ -154,7 +154,7 @@ public:
     virtual bool is_primary(void) const;
 
     // FM. MA
-    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const = 0;
+    virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
 
     // Debug dump of the expression.
     virtual void dump(ostream& out, int indent = 0) const = 0;
@@ -272,10 +272,10 @@ protected:
 // --NOK DOT
 class ExpAggregate : public Expression {
 public:
-    // A "choice" is only part of an element. It is the thing that
-    // is used to identify an element of the aggregate. It can
-    // represent the index (or range) of an array, or the name of
-    // a record member.
+    /* A "choice" is only part of an element. It is the thing that
+     * is used to identify an element of the aggregate. It can
+     * represent the index (or range) of an array, or the name of
+     * a record member. */
     class choice_t {
     public:
         // Create an "others" choice
@@ -305,6 +305,9 @@ public:
         void write_to_stream(std::ostream& fd);
         void dump(ostream& out, int indent) const;
 
+        // FM. MA TODO
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+
     private:
         std::auto_ptr<Expression> expr_;
         std::auto_ptr<ExpRange>   range_;
@@ -313,7 +316,7 @@ public:
     };
 
     struct choice_element {
-        choice_element() 
+        choice_element()
             : choice(), expr() {}
 
         choice_element(const choice_element& other) {
@@ -322,14 +325,17 @@ public:
             expr = safe_clone(other.expr);
         }
 
+        // FM. MA TODO
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+
         choice_t   *choice;
         Expression *expr;
         bool       alias_flag;
     };
 
-    // Elements are the syntactic items in an aggregate
-    // expression. Each element expressions a bunch of fields
-    // (choices) and binds them to a single expression
+    /* Elements are the syntactic items in an aggregate
+     * expression. Each element expressions a bunch of fields
+     * (choices) and binds them to a single expression */
     class element_t {
     public:
         explicit element_t(std::list<choice_t *> *fields, Expression *val);
@@ -350,6 +356,9 @@ public:
         void write_to_stream(std::ostream& fd) const;
 
         void dump(ostream& out, int indent) const;
+
+        // FM. MA TODO
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
     private:
         std::vector<choice_t *> fields_;
@@ -372,8 +381,8 @@ public:
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);
 
-    // FM. MA TODO
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     int elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *ltype);
@@ -393,11 +402,11 @@ private:
 // --OK DOT
 class ExpArithmetic : public ExpBinary {
 public:
-    enum fun_t { 
-        PLUS, MINUS, 
-        MULT, DIV, 
-        MOD, REM, 
-        POW, xCONCAT 
+    enum fun_t {
+        PLUS, MINUS,
+        MULT, DIV,
+        MOD, REM,
+        POW, xCONCAT
     };
 
 public:
@@ -415,7 +424,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     const VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
@@ -425,7 +434,7 @@ private:
 };
 
 
-// FM. rather unused
+// DOT OK
 class ExpAttribute : public Expression {
 public:
     ExpAttribute(perm_string name, std::list<Expression *> *args);
@@ -439,13 +448,14 @@ public:
     static const perm_string LEFT;
     static const perm_string RIGHT;
 
-    // FM. MA TODO
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 protected:
-    std::list<Expression *> *clone_args() const;
     int elaborate_args(Entity *ent, ScopeBase *scope, const VType *ltype);
     void visit_args(ExprVisitor& func);
+
+    std::list<Expression *> *clone_args() const;
 
     bool evaluate_type_attr(const VType *type, Entity *ent, ScopeBase *scope, int64_t& val) const;
     bool test_array_type(const VType *type) const;
@@ -454,7 +464,7 @@ protected:
     std::list<Expression *> *args_;
 };
 
-// FM. rather unused
+// DOT OK
 class ExpObjAttribute : public ExpAttribute {
 public:
     ExpObjAttribute(ExpName *base, perm_string name, std::list<Expression *> *args);
@@ -476,14 +486,14 @@ public:
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);
 
-    // FM. MA TODO
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     ExpName *base_;
 };
 
-// FM. rather unsued
+//  DOT OK
 class ExpTypeAttribute : public ExpAttribute {
 public:
     ExpTypeAttribute(const VType *base, perm_string name, std::list<Expression *> *args);
@@ -506,8 +516,8 @@ public:
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);
 
-    // FM. MA TODO
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     const VType *base_;
@@ -535,7 +545,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     std::vector<char> value_;
@@ -568,7 +578,7 @@ public:
     }
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     int emit_primitive_bit_(ostream& out, Entity *ent, ScopeBase *scope,
@@ -599,7 +609,7 @@ public:
     void visit(ExprVisitor& func);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     int elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *ltype);
@@ -609,7 +619,7 @@ private:
     Expression *operand2_;
 };
 
-// TODO
+// DOT OK
 /* The conditional expression represents the VHDL when-else
  * expressions. Note that by the VHDL syntax rules, these cannot show
  * up other than at the root of an expression. */
@@ -644,7 +654,7 @@ public:
 
         void visit(ExprVisitor& func);
         // FM. MA
-        simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     private:
         Expression              *cond_;
@@ -666,14 +676,14 @@ public:
     void visit(ExprVisitor& func);
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 protected:
     std::list<case_t *> options_;
 };
 
 // TODO
-/* Expression to handle selected assignments 
+/* Expression to handle selected assignments
  * (with .. select target <= value when ..) */
 class ExpSelected : public ExpConditional {
 public:
@@ -682,8 +692,11 @@ public:
 
     Expression *clone() const;
 
-    // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA TODO
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+        return new SimpleTree<map<string, string>>(
+            map<string, string>{
+                {"node-type", "dummy"}}); };
 
 private:
     Expression *selector_;
@@ -694,9 +707,9 @@ private:
  * expressions in sensitivity lists. */
 class ExpEdge : public ExpUnary {
 public:
-    enum fun_t { 
-        NEGEDGE, ANYEDGE, 
-        POSEDGE 
+    enum fun_t {
+        NEGEDGE, ANYEDGE,
+        POSEDGE
     };
 
 public:
@@ -717,7 +730,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     fun_t fun_;
@@ -750,7 +763,7 @@ public:
     const VType *func_ret_type() const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:     // Base methods
     const VType *probe_type(Entity *ent, ScopeBase *scope) const;
@@ -788,7 +801,7 @@ public:
     int emit_package(std::ostream& out) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     bool is_primary(void) const {
         return true;
@@ -827,7 +840,7 @@ public:
     virtual ostream& dump_inline(ostream& out) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     double value_;
@@ -860,7 +873,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     fun_t fun_;
@@ -878,7 +891,6 @@ public:
     ExpName(ExpName *prefix, perm_string nn, std::list<Expression *> *indices = NULL);
     virtual ~ExpName();
 
-public:     // Base methods
     Expression *clone() const;
     int elaborate_lval(Entity *ent, ScopeBase *scope, bool);
     int elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *);
@@ -894,7 +906,7 @@ public:     // Base methods
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     inline const char *name() const {
         return name_;
@@ -910,7 +922,7 @@ public:     // Base methods
 private:
     class index_t {
     public:
-        index_t(Expression *idx, Expression *size, Expression *offset = NULL) 
+        index_t(Expression *idx, Expression *size, Expression *offset = NULL)
             : idx_(idx)
             , size_(size)
             , offset_(offset) {}
@@ -929,8 +941,8 @@ private:
         Expression *offset_;
     };
 
-    const VType *elaborate_adjust_type_with_range_(Entity *ent, 
-            ScopeBase *scope, 
+    const VType *elaborate_adjust_type_with_range_(Entity *ent,
+            ScopeBase *scope,
             const VType *type);
 
     int elaborate_lval_(Entity *ent, ScopeBase *scope, bool, ExpName *suffix);
@@ -939,10 +951,10 @@ private:
 
     int emit_as_prefix_(ostream& out, Entity *ent, ScopeBase *scope) const;
 
-    // There are some workarounds required for constant arrays/records, as
-    // they are currently emitted as flat localparams (without any type
-    // information). The following workarounds adjust the access indices
-    // to select appropriate parts of the localparam.
+    /* There are some workarounds required for constant arrays/records, as
+     * they are currently emitted as flat localparams (without any type
+     * information). The following workarounds adjust the access indices
+     * to select appropriate parts of the localparam. */
     bool try_workarounds_(ostream& out, Entity *ent, ScopeBase *scope,
                           list<index_t *>& indices, int& data_size) const;
 
@@ -963,11 +975,11 @@ private:
     std::list<Expression *> *indices_;
 };
 
-// TODO
+// DOT OK - implemented in base
 class ExpNameALL : public ExpName {
 public:
-    ExpNameALL() 
-        : ExpName(empty_perm_string) {}
+    ExpNameALL() : ExpName(empty_perm_string) {}
+
 
 public:
     const VType *probe_type(Entity *ent, ScopeBase *scope) const;
@@ -977,10 +989,10 @@ public:
 // --DOT OK
 class ExpRelation : public ExpBinary {
 public:
-    enum fun_t { 
-        EQ, LT, 
-        GT, NEQ, 
-        LE, GE 
+    enum fun_t {
+        EQ, LT,
+        GT, NEQ,
+        LE, GE
     };
 
     inline fun_t relation_fun(void) const {
@@ -1001,12 +1013,13 @@ public:
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
 
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     fun_t fun_;
 };
 
+// TODO
 /* Helper class to handle name expressions coming from another scope. As such,
  * we get more information regarding their type, etc. from the associated scope. */
 class ExpScopedName : public Expression {
@@ -1064,7 +1077,9 @@ public:
     void visit(ExprVisitor& func);
 
     // FM. MA TODO
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+        return empty_simple_tree();
+    };
 
 private:
     // Functions that resolve the origin scope for the name expression
@@ -1079,18 +1094,18 @@ private:
 // --DOT OK
 class ExpShift : public ExpBinary {
 public:
-    enum shift_t { 
-        SRL, SLL, 
-        SRA, SLA, 
-        ROL, ROR 
+    enum shift_t {
+        SRL, SLL,
+        SRA, SLA,
+        ROL, ROR
     };
 
 public:
     ExpShift(ExpShift::shift_t op, Expression *op1, Expression *op2);
 
     Expression *clone() const {
-        return new ExpShift(shift_, 
-            peek_operand1()->clone(), 
+        return new ExpShift(shift_,
+            peek_operand1()->clone(),
             peek_operand2()->clone());
     }
 
@@ -1101,7 +1116,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     shift_t shift_;
@@ -1112,7 +1127,7 @@ class ExpString : public Expression {
 public:
     explicit ExpString(const char *);
 
-    ExpString(const ExpString& other) 
+    ExpString(const ExpString& other)
         : Expression()
         , value_(other.value_) {}
 
@@ -1134,7 +1149,7 @@ public:
     }
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     // Converts quotation marks (") to its escaped
     // counterpart in SystemVerilog (\")
@@ -1166,7 +1181,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 };
 
 // --OK DOT
@@ -1185,10 +1200,10 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 };
 
-// FM. TODO
+// DOT OK
 // Class that wraps other expressions to cast them to other types. 
 class ExpCast : public Expression {
 public:
@@ -1208,15 +1223,15 @@ public:
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);
 
-    // FM. MA TODO
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression  *base_;
     const VType *type_;
 };
 
-// TODO
+// DOT OK
 /* Class that handles 'new' statement. VHDL is not capable of dynamic memory
  * allocation, but it is useful for emitting some cases. */
 class ExpNew : public Expression {
@@ -1236,8 +1251,8 @@ public:
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);
 
-    // FM. MA (not implemented)
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     Expression *size_;
@@ -1246,10 +1261,10 @@ private:
 // --OK DOT
 class ExpTime : public Expression {
 public:
-    typedef enum { 
-        FS, PS, 
-        NS, US, 
-        MS, S 
+    typedef enum {
+        FS, PS,
+        NS, US,
+        MS, S
     } timeunit_t;
 
     ExpTime(uint64_t amount, timeunit_t unit);
@@ -1266,7 +1281,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     // Returns the time value expressed in femtoseconds
@@ -1279,14 +1294,14 @@ private:
 // --OK DOT
 class ExpRange : public Expression {
 public:
-    typedef enum { 
-        DOWNTO, TO, 
-        AUTO 
+    typedef enum {
+        DOWNTO, TO,
+        AUTO
     } range_dir_t;
 
     // Regular range
-    ExpRange(Expression *left_idx, 
-            Expression *right_idx, 
+    ExpRange(Expression *left_idx,
+            Expression *right_idx,
             range_dir_t dir);
     // 'range/'reverse range attribute
     ExpRange(ExpName *base, bool reverse_range);
@@ -1311,9 +1326,9 @@ public:
     void write_to_stream(std::ostream&) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
-    
+
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 private:
     // Regular range related fields
@@ -1329,7 +1344,7 @@ private:
     bool range_reverse_;
 };
 
-
+// DOT OK
 // Helper class that wraps other expression to specify delay.
 class ExpDelay : public Expression {
 public:
@@ -1346,10 +1361,8 @@ public:
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);
 
-    // FM. TODO
-    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const {
-        return NULL;
-    }
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     const Expression *peek_expr() const {
         return expr_;

@@ -39,7 +39,7 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. not implemented!
-    simple_tree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
 
 private:
     perm_string name_;

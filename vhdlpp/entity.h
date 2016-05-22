@@ -74,7 +74,7 @@ public:
         , expr(NULL) { }
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     // Port direction from the source code.
     port_mode_t mode;
@@ -122,7 +122,7 @@ public:
     void dump_ports(std::ostream& out, int indent = 0) const;
 
     // FM. MA
-    virtual simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
     perm_string name_;
@@ -162,7 +162,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
-    simple_tree<map<string, string>> *emit_strinfo_tree() const;
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
     std::map<perm_string, Architecture *> arch_;
