@@ -86,7 +86,7 @@ dep:
 
 .PHONY: rtags
 rtags:
-	make --dry-run all | grep "clang\+\+ -I" | sed -e "s/ -o .*$$//" | rc -c -
+	$(MAKE) --dry-run | grep "clang++ -I" | sed -e "s/ -o .*$$//"
 
 vhdlpp: $O
 	$(CXX) -o vhdlpp $(LDFLAGS) $O $(LIBS)
