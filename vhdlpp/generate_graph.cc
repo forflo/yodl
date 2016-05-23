@@ -34,7 +34,7 @@ static string path_to_string(vector<int> &path){
     return result;
 }
 
-int emit_edges(ostream &out,
+static int emit_edges(ostream &out,
         SimpleTree<map<string, string>> * ast){
 
     for (auto &i : ast->forest){
@@ -50,11 +50,9 @@ int emit_edges(ostream &out,
     return 0;
 }
 
-int emit_vertices(ostream &out,
+static int emit_vertices(ostream &out,
         const SimpleTree<map<string, string>> * ast,
-        vector<int> &path,
         int depth = 0){
-    int pcount = 0;
     map<string, string> root_copy(ast->root);
 
     out << root_copy[NODEID] << " [label=\"{";
@@ -69,15 +67,14 @@ int emit_vertices(ostream &out,
     out << "}\"];\n";
 
     for (auto &i : ast->forest) {
-        path.push_back(pcount++);
-        emit_vertices(out, i, path, ++depth);
+        emit_vertices(out, i, ++depth);
     }
 
     return 0;
 }
 
-int add_nodeids(SimpleTree<map<string, string>> *ast,
-        vector<int> &path,
+static int add_nodeids(SimpleTree<map<string, string>> *ast,
+        vector<int> path,
         int depth = 0){
     int pcount = 0;
 
@@ -90,8 +87,9 @@ int add_nodeids(SimpleTree<map<string, string>> *ast,
     ast->root[NODEID] = buffer.str();
 
     for (auto &i : ast->forest){
-        path.push_back(pcount++);
-        add_nodeids(i, path, ++depth);
+        vector<int> tpath(path);
+        tpath.push_back(pcount++);
+        add_nodeids(i, tpath, ++depth);
     }
 
     return 0;
@@ -106,7 +104,7 @@ int emit_dotgraph(ostream &out,
     out << "digraph " << name << "{\n";
     out << EDGE_ATTRIBS << NODE_ATTRIBS;
 
-    emit_vertices(out, ast, path);
+    emit_vertices(out, ast);
     out << '\n';
     emit_edges(out, ast);
 

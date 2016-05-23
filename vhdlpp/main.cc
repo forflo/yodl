@@ -228,13 +228,13 @@ int main(int argc, char *argv[]) {
 
     Entity *ent = design_entities[perm_string::literal("driver")];
     Architecture *arch = ent->arch_[perm_string::literal("behav")];
-    cout << "The name of the Architecture is" << arch->get_name() << '\n';
-    cout << "This Architecture has " << arch->get_statement_amount() << " statements\n";
+//  cout << "The name of the Architecture is" << arch->get_name() << '\n';
+//  cout << "This Architecture has " << arch->get_statement_amount() << " statements\n";
 
-    cout << "Traverse of complete Architecture \n";
-    traverse_st(ent->emit_strinfo_tree());
+//  cout << "Traverse of complete Architecture \n";
+//  traverse_st(ent->emit_strinfo_tree());
 
-    cout << "here\n";
+//  cout << "here\n";
 
     emit_dotgraph(std::cout, "g", ent->emit_strinfo_tree());
 
