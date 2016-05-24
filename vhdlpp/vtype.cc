@@ -36,7 +36,7 @@ void VType::show(ostream& out) const {
 
 
 perm_string VType::get_generic_typename() const {
-    char buf[16] = { 0, };
+    char buf[16] = { 0 };
 
     snprintf(buf, 16, "type_%p", this);
     return lex_strings.make(buf);
@@ -45,10 +45,10 @@ perm_string VType::get_generic_typename() const {
 
 VTypePrimitive::VTypePrimitive(VTypePrimitive::type_t tt, bool packed)
     : type_(tt)
-    , packed_(packed) {}
+    , packed_(packed) { }
 
 
-VTypePrimitive::~VTypePrimitive() {}
+VTypePrimitive::~VTypePrimitive() { }
 
 
 void VTypePrimitive::show(ostream& out) const {
@@ -79,7 +79,6 @@ void VTypePrimitive::show(ostream& out) const {
     }
 }
 
-
 int VTypePrimitive::get_width(ScopeBase *) const {
     switch (type_) {
     case BIT:
@@ -99,24 +98,23 @@ int VTypePrimitive::get_width(ScopeBase *) const {
     return -1;
 }
 
-
 VTypeArray::range_t *VTypeArray::range_t::clone() const {
     return new VTypeArray::range_t(safe_clone(msb_), safe_clone(lsb_), direction_);
 }
 
 
 VTypeArray::VTypeArray(const VType *element, const vector<VTypeArray::range_t>& r, bool sv)
-    : etype_(element), ranges_(r), signed_flag_(sv), parent_(NULL)
-{}
+    : etype_(element)
+    , ranges_(r)
+    , signed_flag_(sv)
+    , parent_(NULL) { }
 
 
-/*
- * Create a VTypeArray range set from a list of parsed ranges.
+/* Create a VTypeArray range set from a list of parsed ranges.
  * FIXME: We are copying pointers from the ExpRange object into the
  * range_t. This means that we cannot delete the ExpRange object
  * unless we invent a way to remove the pointers from that object. So
- * this is a memory leak. Something to fix.
- */
+ * this is a memory leak. Something to fix.  */
 VTypeArray::VTypeArray(const VType *element, std::list<ExpRange *> *r, bool sv)
     : etype_(element), ranges_(r->size()), signed_flag_(sv), parent_(NULL) {
     for (size_t idx = 0; idx < ranges_.size(); idx += 1) {

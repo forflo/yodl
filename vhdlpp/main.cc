@@ -226,8 +226,10 @@ int main(int argc, char *argv[]) {
     cout << "There are " <<  design_entities.size() << " entities\n";
 
 
-    Entity *ent = design_entities[perm_string::literal("driver")];
-    Architecture *arch = ent->arch_[perm_string::literal("behav")];
+    Entity *ent = design_entities[perm_string::literal("fir_filter")];
+    cout << "Entity found!\n";
+    Architecture *arch = ent->arch_[perm_string::literal("beh")];
+    cout << "Architecture found!\n";
 //  cout << "The name of the Architecture is" << arch->get_name() << '\n';
 //  cout << "This Architecture has " << arch->get_statement_amount() << " statements\n";
 

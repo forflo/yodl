@@ -106,7 +106,13 @@ SimpleTree<map<string, string>> *ExpConditional::case_t::emit_strinfo_tree() con
         map<string, string>{
             {"node-type", "Case"}});
 
-    result->forest.push_back(cond_->emit_strinfo_tree());
+    /* In a statement like
+     * fnord <= '1' when (start = '1') else '0';
+     * a case_t object for the else alternative does
+     * only contain NULL for the condition, which is
+     * represented as pointer to Expression */
+    if (cond_)
+        result->forest.push_back(cond_->emit_strinfo_tree());
 
     for (auto &i : true_clause_)
         result->forest.push_back(i->emit_strinfo_tree());
@@ -181,8 +187,11 @@ SimpleTree<map<string, string>> *ExpObjAttribute::emit_strinfo_tree() const {
              {"node-type", "ExpObjAttribute"},
              {"attribute", name_.str()}});
 
-    for (auto &i : *args_)
-        result->forest.push_back(i->emit_strinfo_tree());
+    /* The attribute might not have arguments, in which
+     * case args_ will be NULL */
+    if (args_)
+        for (auto &i : *args_)
+            result->forest.push_back(i->emit_strinfo_tree());
 
     result->forest.push_back(base_->emit_strinfo_tree());
 
@@ -251,7 +260,7 @@ SimpleTree<map<string, string>> *ExpShift::emit_strinfo_tree() const {
             {"node-type", "ExpShift"},
             {"operator", (dynamic_cast<stringstream&>(
                 stringstream{} << shift_)).str()}});
-    
+
     result->forest = {
         operand1_->emit_strinfo_tree(),
         operand2_->emit_strinfo_tree()};
@@ -266,7 +275,7 @@ SimpleTree<map<string, string>> *ExpEdge::emit_strinfo_tree() const {
             {"node-type", "ExpEdge"},
             {"edgespec", (dynamic_cast<stringstream&>(
                 stringstream{} << fun_)).str()}});
-    
+
     result->forest = { operand1_->emit_strinfo_tree() };
 
     return result;
@@ -277,7 +286,7 @@ SimpleTree<map<string, string>> *ExpUAbs::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpUAbs"},
             {"operator", "abs"}});
-    
+
     result->forest = { operand1_->emit_strinfo_tree() };
 
     return result;
@@ -288,7 +297,7 @@ SimpleTree<map<string, string>> *ExpUNot::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpUNot"},
             {"operator", "not"}});
-    
+
     result->forest = { operand1_->emit_strinfo_tree() };
 
     return result;
@@ -300,7 +309,7 @@ SimpleTree<map<string, string>> *ExpConcat::emit_strinfo_tree() const {
         map<string, string>{
             {"node-type", "ExpConcat"},
             {"operator", "&"}});
-    
+
     result->forest = {
         operand1_->emit_strinfo_tree(),
         operand2_->emit_strinfo_tree()};
@@ -314,7 +323,7 @@ SimpleTree<map<string, string>> *ExpRange::emit_strinfo_tree() const {
             {"node-type", "ExpRange"},
             {"rangespec", (dynamic_cast<stringstream&>(
                 stringstream{} << direction_)).str()}});
-    
+
     result->forest = {
         left_->emit_strinfo_tree(),
         right_->emit_strinfo_tree()};

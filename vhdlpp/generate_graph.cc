@@ -1,7 +1,7 @@
 // FM. MA
 //
 #include "generate_graph.h"
-#include "simple_tree/simple_tree.h"
+#include "simple_tree.h"
 
 #include <sstream>
 #include <cmath>
@@ -13,6 +13,7 @@
 using namespace std;
 
 static const char * NODEID = "NODEID";
+static const char * GRAPH_ATTRIBS = "graph [ranksep=\"3.0 equally\"];\n";
 static const char * NODE_ATTRIBS = "node [shape=record, color=indigo];\n";
 static const char * EDGE_ATTRIBS = "edge [arrowhead=vee, color=black];\n";
 
@@ -102,7 +103,9 @@ int emit_dotgraph(ostream &out,
     add_nodeids(ast, path);
 
     out << "digraph " << name << "{\n";
-    out << EDGE_ATTRIBS << NODE_ATTRIBS;
+    out << GRAPH_ATTRIBS
+        << EDGE_ATTRIBS
+        << NODE_ATTRIBS;
 
     emit_vertices(out, ast);
     out << '\n';

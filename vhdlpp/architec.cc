@@ -27,7 +27,7 @@
 
 using namespace std;
 
-Architecture::Architecture(perm_string name, 
+Architecture::Architecture(perm_string name,
         const ActiveScope& ref,
         list<Architecture::Statement *>& s)
         : Scope(ref)
@@ -43,8 +43,8 @@ Architecture::~Architecture() {
 }
 
 
-bool Architecture::find_constant(perm_string by_name, 
-        const VType *& typ, 
+bool Architecture::find_constant(perm_string by_name,
+        const VType *& typ,
         Expression *& exp) const {
     if (Scope::find_constant(by_name, typ, exp)) {
         return true;
@@ -52,7 +52,7 @@ bool Architecture::find_constant(perm_string by_name,
 
     // Check generics in components
     if (cur_component_) {
-        std::map<perm_string, ComponentBase *>::const_iterator c = 
+        std::map<perm_string, ComponentBase *>::const_iterator c =
             new_components_.find(cur_component_->component_name());
 
         if (c == new_components_.end()) {
@@ -152,14 +152,14 @@ GenerateStatement::GenerateStatement(perm_string                           gname
 
 
 GenerateStatement::~GenerateStatement() {
-    for_each(statements_.begin(), statements_.end(), 
+    for_each(statements_.begin(), statements_.end(),
         ::delete_object<Architecture::Statement> ());
 }
 
 
-ForGenerate::ForGenerate(perm_string gname, 
+ForGenerate::ForGenerate(perm_string gname,
         perm_string genvar,
-        ExpRange *rang, 
+        ExpRange *rang,
         std::list<Architecture::Statement *>& s)
     : GenerateStatement(gname, s)
     , genvar_(genvar)
@@ -170,8 +170,8 @@ ForGenerate::ForGenerate(perm_string gname,
 ForGenerate::~ForGenerate() {}
 
 
-IfGenerate::IfGenerate(perm_string gname, 
-        Expression *cond, 
+IfGenerate::IfGenerate(perm_string gname,
+        Expression *cond,
         std::list<Architecture::Statement *>& s)
     : GenerateStatement(gname, s)
     , cond_(cond) {}
@@ -200,8 +200,7 @@ SignalAssignment::~SignalAssignment() {
     delete lval_;
 }
 
-
-CondSignalAssignment::CondSignalAssignment(ExpName *target, 
+CondSignalAssignment::CondSignalAssignment(ExpName *target,
         std::list<ExpConditional::case_t *>& options)
     : lval_(target) {
     options_.splice(options_.end(), options);
@@ -218,9 +217,9 @@ CondSignalAssignment::~CondSignalAssignment() {
 }
 
 
-ComponentInstantiation::ComponentInstantiation(perm_string i, 
-        perm_string c, 
-        list<named_expr_t *> *parms, 
+ComponentInstantiation::ComponentInstantiation(perm_string i,
+        perm_string c,
+        list<named_expr_t *> *parms,
         list<named_expr_t *> *ports)
     : iname_(i)
     , cname_(c) {

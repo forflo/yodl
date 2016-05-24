@@ -127,8 +127,8 @@ void ExpObjAttribute::visit(ExprVisitor& func) {
 }
 
 
-ExpTypeAttribute::ExpTypeAttribute(const VType *base, 
-        perm_string name, 
+ExpTypeAttribute::ExpTypeAttribute(const VType *base,
+        perm_string name,
         list<Expression *> *args)
     : ExpAttribute(name, args)
     , base_(base) {}
@@ -387,8 +387,8 @@ void ExpConcat::visit(ExprVisitor& func) {
 }
 
 
-ExpConditional::ExpConditional(Expression *co, 
-        list<Expression *> *tru, 
+ExpConditional::ExpConditional(Expression *co,
+        list<Expression *> *tru,
         list<ExpConditional::case_t *> *options) {
     if (co && tru) {
         options_.push_back(new case_t(co, tru));
@@ -437,8 +437,8 @@ void ExpConditional::visit(ExprVisitor& func) {
 }
 
 
-ExpConditional::case_t::case_t(Expression *cond
-        , std::list<Expression *> *tru)
+ExpConditional::case_t::case_t(Expression *cond,
+                               std::list<Expression *> *tru)
     : cond_(cond) {
     if (tru) {
         true_clause_.splice(true_clause_.end(), *tru);
@@ -617,8 +617,8 @@ ExpLogical::~ExpLogical() {}
 
 
 ExpName::ExpName(perm_string nn)
-    : name_(nn) { 
-    indices_ = new list<Expression *>(); 
+    : name_(nn) {
+    indices_ = new list<Expression *>();
 }
 
 
@@ -627,8 +627,8 @@ ExpName::ExpName(perm_string nn, list<Expression *> *indices)
     , indices_(indices) {}
 
 
-ExpName::ExpName(ExpName *prefix, 
-        perm_string nn, 
+ExpName::ExpName(ExpName *prefix,
+        perm_string nn,
         std::list<Expression *> *indices)
     : prefix_(prefix)
     , name_(nn)
@@ -845,7 +845,7 @@ ExpUNot::ExpUNot(Expression *op1)
 ExpUNot::~ExpUNot() {}
 
 
-ExpCast::ExpCast(Expression *base, const VType *type) 
+ExpCast::ExpCast(Expression *base, const VType *type)
     : base_(base)
     , type_(type) {}
 

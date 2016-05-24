@@ -57,7 +57,8 @@ SimpleTree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree() const
         map<string, string>{
             {"node-type", "CondSignalAssignment"}});
 
-    result->forest.push_back(lval_->emit_strinfo_tree());
+    if(lval_)
+        result->forest.push_back(lval_->emit_strinfo_tree());
 
     for (auto &i : options_)
         result->forest.push_back(i->emit_strinfo_tree());
