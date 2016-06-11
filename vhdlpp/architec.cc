@@ -17,13 +17,14 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "architec.h"
-# include  "expression.h"
-# include  "parse_types.h"
-# include  "sequential.h"
+# include <cassert>
+
+# include "architec.h"
+# include "expression.h"
+# include "parse_types.h"
+# include "sequential.h"
 // Need this for parse_errors?
-# include  "parse_api.h"
-# include  <cassert>
+# include "parse_api.h"
 
 using namespace std;
 
@@ -41,7 +42,6 @@ Architecture::~Architecture() {
     delete_all(statements_);
     ScopeBase::cleanup();
 }
-
 
 bool Architecture::find_constant(perm_string by_name,
         const VType *& typ,
@@ -75,7 +75,6 @@ bool Architecture::find_constant(perm_string by_name,
 
     return false;
 }
-
 
 Variable *Architecture::find_variable(perm_string by_name) const {
     if (cur_process_) {
@@ -144,7 +143,7 @@ Architecture::Statement::Statement() {}
 Architecture::Statement::~Statement() {}
 
 
-GenerateStatement::GenerateStatement(perm_string                           gname,
+GenerateStatement::GenerateStatement(perm_string gname,
                                      std::list<Architecture::Statement *>& s)
     : name_(gname) {
     statements_.splice(statements_.end(), s);
@@ -166,6 +165,16 @@ ForGenerate::ForGenerate(perm_string gname,
     , lsb_(rang->lsb())
     , msb_(rang->msb()) {}
 
+// FM. MA purpose: overload for clone
+ForGenerate::ForGenerate(perm_string gname,
+                         perm_string genvar,
+                         Expression *lsb,
+                         expression *msb,
+        std::list<Architecture::Statement *>& s)
+    : GenerateStatement(gname, s)
+    , genvar_(genvar)
+    , lsb_(lsb)
+    , msb_(msb) {}
 
 ForGenerate::~ForGenerate() {}
 

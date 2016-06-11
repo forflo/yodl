@@ -59,6 +59,7 @@ public:
 
         // FM. MA
         virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
+        virtual Statement *clone() const = 0;
     };
 
 public:
@@ -184,6 +185,19 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    ForGenerate *clone() const {
+        list<Architecture::Statement*> copy;
+
+        for (auto &i : statements_)
+            statements.push_back(i->clone());
+
+        return new ForGenerate(
+            name_,
+            genvar_,
+            lsb_->clone(),
+            msb_->clone(),
+            copy);
+    }
 
 private:
     perm_string genvar_;

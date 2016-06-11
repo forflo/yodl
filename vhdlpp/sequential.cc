@@ -17,9 +17,10 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "sequential.h"
-# include  "expression.h"
-# include  <cassert>
+# include <cassert>
+
+# include "sequential.h"
+# include "expression.h"
 
 template<typename T>
 inline static void visit_stmt_list(std::list<T *>& stmts, SeqStmtVisitor& func) {
@@ -97,8 +98,7 @@ void IfSequential::visit(SeqStmtVisitor& func) {
     func(this);
 }
 
-
-IfSequential::Elsif::Elsif(Expression *cond, 
+IfSequential::Elsif::Elsif(Expression *cond,
         std::list<SequentialStmt *> *tr)
     : cond_(cond) {
     if (tr) {
@@ -123,7 +123,7 @@ void IfSequential::Elsif::visit(SeqStmtVisitor& func) {
 }
 
 
-SignalSeqAssignment::SignalSeqAssignment(Expression *sig, 
+SignalSeqAssignment::SignalSeqAssignment(Expression *sig,
         std::list<Expression *> *wav) {
     lval_ = sig;
     if (wav) {
@@ -137,7 +137,7 @@ SignalSeqAssignment::~SignalSeqAssignment() {
 }
 
 
-CaseSeqStmt::CaseSeqStmt(Expression *cond, 
+CaseSeqStmt::CaseSeqStmt(Expression *cond,
         list<CaseSeqStmt::CaseStmtAlternative *> *ap)
     : cond_(cond) {
     if (ap) {
@@ -199,12 +199,12 @@ ProcedureCall::ProcedureCall(perm_string name,
     : name_(name), param_list_(param_list), def_(NULL) {}
 
 
-ProcedureCall::ProcedureCall(perm_string name, 
+ProcedureCall::ProcedureCall(perm_string name,
         std::list<Expression *> *param_list)
     : name_(name), def_(NULL) {
     param_list_ = new std::list<named_expr_t *>;
     for (std::list<Expression *>::const_iterator it = param_list->begin();
-         it != param_list->end(); 
+         it != param_list->end();
          ++it) {
         param_list_->push_back(new named_expr_t(empty_perm_string, *it));
     }
@@ -264,9 +264,9 @@ void LoopStatement::visit(SeqStmtVisitor& func) {
 }
 
 
-ForLoopStatement::ForLoopStatement(perm_string scope_name, 
-        perm_string it, 
-        ExpRange *range, 
+ForLoopStatement::ForLoopStatement(perm_string scope_name,
+        perm_string it,
+        ExpRange *range,
         list<SequentialStmt *> *stmts)
     : LoopStatement(scope_name, stmts)
     , it_(it)
@@ -277,7 +277,7 @@ ForLoopStatement::~ForLoopStatement() {
 }
 
 
-VariableSeqAssignment::VariableSeqAssignment(Expression *lval, 
+VariableSeqAssignment::VariableSeqAssignment(Expression *lval,
         Expression *rval)
     : lval_(lval)
     , rval_(rval) {}
@@ -289,8 +289,8 @@ VariableSeqAssignment::~VariableSeqAssignment() {
 }
 
 
-WhileLoopStatement::WhileLoopStatement(perm_string lname, 
-        Expression *cond, 
+WhileLoopStatement::WhileLoopStatement(perm_string lname,
+        Expression *cond,
         list<SequentialStmt *> *stmts)
     : LoopStatement(lname, stmts)
     , cond_(cond) {}
@@ -301,7 +301,7 @@ WhileLoopStatement::~WhileLoopStatement() {
 }
 
 
-BasicLoopStatement::BasicLoopStatement(perm_string lname, 
+BasicLoopStatement::BasicLoopStatement(perm_string lname,
         list<SequentialStmt *> *stmts)
     : LoopStatement(lname, stmts) {}
 
@@ -317,8 +317,8 @@ ReportStmt::ReportStmt(Expression *msg, severity_t sev)
 }
 
 
-AssertStmt::AssertStmt(Expression *condition, 
-        Expression *msg, 
+AssertStmt::AssertStmt(Expression *condition,
+        Expression *msg,
         ReportStmt::severity_t sev)
     : ReportStmt(msg, sev)
     , cond_(condition) {

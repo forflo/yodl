@@ -45,8 +45,8 @@ int Entity::emit(ostream& out) {
     // If there are generics, emit them
     if (parms_.size() > 0) {
         out << "#(";
-        for (vector<InterfacePort *>::const_iterator cur = parms_.begin(); 
-                cur != parms_.end(); 
+        for (vector<InterfacePort *>::const_iterator cur = parms_.begin();
+                cur != parms_.end();
                 ++cur) {
             const InterfacePort *curp = *cur;
             if (cur != parms_.begin()) {

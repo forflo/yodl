@@ -784,7 +784,7 @@ class ExpInteger : public Expression {
 public:
     explicit ExpInteger(int64_t val);
 
-    ExpInteger(const ExpInteger& other) 
+    ExpInteger(const ExpInteger& other)
         : Expression()
         , value_(other.value_) {}
 
@@ -820,7 +820,7 @@ class ExpReal : public Expression {
 public:
     explicit ExpReal(double val);
 
-    ExpReal(const ExpReal& other) 
+    ExpReal(const ExpReal& other)
         : Expression()
         , value_(other.value_) {}
 
@@ -849,10 +849,10 @@ private:
 // --OK DOT
 class ExpLogical : public ExpBinary {
 public:
-    enum fun_t { 
-        AND, OR, 
-        NAND, NOR, 
-        XOR, XNOR 
+    enum fun_t {
+        AND, OR,
+        NAND, NOR,
+        XOR, XNOR
     };
 
 public:
@@ -1156,9 +1156,9 @@ public:
     static std::string escape_quot(const std::string& str);
 
 private:
-    int emit_as_array_(ostream& out, 
-            Entity *ent, 
-            ScopeBase *scope, 
+    int emit_as_array_(ostream& out,
+            Entity *ent,
+            ScopeBase *scope,
             const VTypeArray *arr) const;
 
 private:
@@ -1204,7 +1204,7 @@ public:
 };
 
 // DOT OK
-// Class that wraps other expressions to cast them to other types. 
+// Class that wraps other expressions to cast them to other types.
 class ExpCast : public Expression {
 public:
     ExpCast(Expression *base, const VType *type);

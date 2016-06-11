@@ -26,10 +26,10 @@ using namespace std;
 
 class perm_string {
 public:
-    perm_string() 
+    perm_string()
         : text_(0) { }
 
-    perm_string(const perm_string &that) 
+    perm_string(const perm_string &that)
         : text_(that.text_) { }
 
     ~perm_string() { }
@@ -38,7 +38,7 @@ public:
         return text_ == 0;
     }
 
-    perm_string& operator =(const perm_string &that) { 
+    perm_string& operator =(const perm_string &that) {
         text_ = that.text_;
         return *this;
     }
@@ -47,7 +47,7 @@ public:
         return text_;
     }
 
-    operator const char * () const { 
+    operator const char * () const {
         return str();
     }
 
@@ -62,7 +62,7 @@ public:
 private:
     friend class StringHeap;
     friend class StringHeapLex;
-    explicit perm_string(const char *t) 
+    explicit perm_string(const char *t)
       : text_(t) { };
 
 private:

@@ -165,7 +165,6 @@ int ComponentInstantiation::elaborate(Entity *ent, Architecture *arc) {
     return errors;
 }
 
-
 int GenerateStatement::elaborate_statements(Entity *ent, Architecture *arc) {
     int errors = 0;
 

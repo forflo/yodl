@@ -21,6 +21,8 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+// FM TODO: Make deep copy of lists in clone() impls generic!
+
 # include <set>
 
 # include "LineInfo.h"
@@ -51,6 +53,7 @@ public:
 
     // FM. MA
     virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
+    virtual SequentialStmt *clone() const = 0;
 
     // Recursively visits a tree of sequential statements.
     virtual void visit(SeqStmtVisitor& func) {
@@ -102,7 +105,9 @@ public:
         void dump(ostream& out, int indent) const;
         void visit(SeqStmtVisitor& func);
 
+        // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+        Elsif *clone() const;
     private:
         Expression *cond_;
         std::list<SequentialStmt *> if_;
@@ -112,7 +117,7 @@ public:
     };
 
 public:
-    IfSequential(Expression *cond, 
+    IfSequential(Expression *cond,
         std::list<SequentialStmt *> *tr,
         std::list<IfSequential::Elsif *> *elsif,
         std::list<SequentialStmt *> *fa);
@@ -124,9 +129,6 @@ public:
     void write_to_stream(std::ostream& fd);
     void dump(ostream& out, int indent) const;
     void visit(SeqStmtVisitor& func);
-
-    // FM. MA
-    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
     const Expression *peek_condition() const {
         return cond_;
@@ -140,6 +142,31 @@ public:
      * the true or false clause. */
     void extract_true(std::list<SequentialStmt *>& that);
     void extract_false(std::list<SequentialStmt *>& that);
+
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    IfSequential *clone() const { // TODO: Auslagern
+        list<SequentialStmt*> *copy_if = new list<SequentialStmt*>();
+        list<IfSequential::Elsif*> *copy_elseif = new list<IfSequential::Elsif*>();
+        list<SequentialStmt*> *copy_else = new list<SequentialStmt*>();
+
+        for (auto &i : if_)
+            copy_if->push_back(i->clone());
+
+
+        for (auto &i : elsif_)
+            copy_elseif->push_back(i->clone());
+
+
+        for (auto &i : else_)
+            copy_else->push_back(i->clone());
+
+        return new IfSequential(
+            cond_->clone(),
+            copy_if,
+            copy_elseif,
+            copy_else);
+    };
 
 public:
     Expression *cond_;
@@ -169,6 +196,9 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    ReturnStmt *clone() const {
+        return new ReturnStmt(val_->clone());
+    };
 
 private:
     Expression *val_;
@@ -189,6 +219,16 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    SignalSeqAssignment *clone() const { //TODO: Auslagern
+        list<Expression*> *copy = new list<Expression*>();
+
+        for (auto &i : waveform_)
+            copy->push_back(i->clone());
+
+        return new SignalSeqAssignment(
+            lval_->clone(),
+            copy);
+    };
 
 private:
     Expression              *lval_;
@@ -201,12 +241,12 @@ class CaseSeqStmt : public SequentialStmt {
 public:
     class CaseStmtAlternative : public LineInfo {
     public:
-        CaseStmtAlternative(std::list<Expression *> *exp, 
+        CaseStmtAlternative(std::list<Expression *> *exp,
                 std::list<SequentialStmt *> *stmts);
         ~CaseStmtAlternative();
         void dump(std::ostream& out, int indent) const;
-        int elaborate_expr(Entity *ent, 
-                ScopeBase *scope, 
+        int elaborate_expr(Entity *ent,
+                ScopeBase *scope,
                 const VType *ltype);
         int elaborate(Entity *ent, ScopeBase *scope);
         int emit(ostream& out, Entity *entity, ScopeBase *scope);
@@ -215,6 +255,23 @@ public:
 
         // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+        // TODO: Auslagern
+        CaseStmtAlternative *clone() const {
+            list<Expression*> *copy_exp = NULL;
+            list<SequentialStmt*> *copy_stmts = new list<SequentialStmt*>();
+
+            if (exp_) {
+                copy_exp = new list<Expression*>();
+
+                for (auto &i : *exp_)
+                    copy_exp->push_back(i->clone());
+            }
+
+            for (auto &i : stmts_)
+                copy_stmts->push_back(i->clone());
+
+            return new CaseStmtAlternative(copy_exp, copy_stmts);
+        };
 
     private:
         std::list<Expression *>     *exp_;
@@ -237,6 +294,15 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    // TODO: Auslagern
+    CaseSeqStmt *clone() const {
+        list<CaseStmtAlternative*> *copy = new list<CaseStmtAlternative*>();
+
+        for (auto &i : alt_)
+            copy->push_back(i->clone());
+
+        return new CaseSeqStmt(cond_->clone(), copy);
+    };
 
 private:
     Expression *cond_;
@@ -244,8 +310,8 @@ private:
 };
 
 // --OK DOT
-/* Grammar rule: procedure_call ::= 
- *      IDENTIFIER ';' 
+/* Grammar rule: procedure_call ::=
+ *      IDENTIFIER ';'
  *      | IDENTIFIER '(' argument_list ')' ';' */
 class ProcedureCall : public SequentialStmt {
 public:
@@ -261,6 +327,20 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    ProcedureCall *clone() const {
+        list<named_expr_t*> *copy = NULL;
+
+        if (param_list_){
+            copy = new list<named_expr_t*>();
+
+            for (auto &i : *param_list_)
+                copy->push_back(i->clone());
+        }
+
+        return new ProcedureCall(
+            name_,
+            copy);
+    };
 
 private:
     perm_string               name_;
@@ -283,6 +363,11 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    VariableSeqAssignment *clone() const {
+        return new VariableSeqAssignment(
+            lval_->clone(),
+            rval_->clone());
+    }
 
 private:
     Expression *lval_;
@@ -290,7 +375,7 @@ private:
 };
 
 // --OK DOT
-/* Grammar rule: loop_statement ::= 
+/* Grammar rule: loop_statement ::=
  *   identifier_colon_opt K_while expression ...*/
 class WhileLoopStatement : public LoopStatement {
 public:
@@ -305,6 +390,18 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    // TODO: Auslagern
+    WhileLoopStatement *clone() const {
+        list<SequentialStmt *> *copy = new list<SequentialStmt*>();
+
+        for (auto &i : stmts_)
+            copy->push_back(i->clone());
+
+        return new WhileLoopStatement(
+            name_,
+            cond_->clone(),
+            copy);
+    }
 
 private:
     Expression *cond_;
@@ -312,14 +409,14 @@ private:
 
 
 // --OK DOT
-/* Grammar rule: loop_statement ::= 
+/* Grammar rule: loop_statement ::=
  *   identifier_colon_opt K_for IDENTIFIER K_in range
  *   K_loop sequence_of_statements ...*/
 class ForLoopStatement : public LoopStatement {
 public:
     ForLoopStatement(perm_string loop_name,
-            perm_string index, 
-            ExpRange *, 
+            perm_string index,
+            ExpRange *,
             list<SequentialStmt *> *);
     ~ForLoopStatement();
 
@@ -330,6 +427,8 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    // TODO: Auslagern
+    ForLoopStatement *clone() const;
 
 private:
     // Emits for-loop which direction is determined at run-time.
@@ -342,7 +441,7 @@ private:
 
 // --OK DOT
 /* Grammar rule: loop_statement ::=
- *   identifier_colon_opt K_loop 
+ *   identifier_colon_opt K_loop
  *   sequence_of_statements K_end ... */
 class BasicLoopStatement : public LoopStatement {
 public:
@@ -356,6 +455,15 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    // TODO: Auslagern
+    BasicLoopStatement *clone() const {
+        list<SequentialStmt *> *copy = new list<SequentialStmt *>();
+
+        for (auto &i : stmts_)
+            copy->push_back(i->clone());
+
+        return new BasicLoopStatement(name_, copy);
+    }
 };
 
 // --OK DOT
@@ -363,10 +471,10 @@ public:
  *   K_report expression severity_opt ';' */
 class ReportStmt : public SequentialStmt {
 public:
-    typedef enum { 
-        UNSPECIFIED, NOTE, 
-        WARNING, ERROR, 
-        FAILURE 
+    typedef enum {
+        UNSPECIFIED, NOTE,
+        WARNING, ERROR,
+        FAILURE
     } severity_t;
 
     ReportStmt(Expression *message, severity_t severity);
@@ -387,6 +495,11 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    ReportStmt *clone() const {
+        return new ReportStmt(
+            msg_->clone(),
+            severity_);
+    };
 
 protected:
     void dump_sev_msg(ostream& out, int indent) const;
@@ -410,6 +523,12 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    AssertStmt *clone() const {
+        return new AssertStmt(
+            cond_->clone(),
+            msg_->clone(),
+            severity_);
+    }
 
 private:
     Expression *cond_;
@@ -432,6 +551,9 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    WaitForStmt *clone() const {
+        return new WaitForStmt(delay_->clone());
+    }
 
 private:
     Expression *delay_;
@@ -440,9 +562,9 @@ private:
 // --OK DOT
 class WaitStmt : public SequentialStmt {
 public:
-    typedef enum { 
-        ON, UNTIL, 
-        FINAL 
+    typedef enum {
+        ON, UNTIL,
+        FINAL
     } wait_type_t;
 
     WaitStmt(wait_type_t typ, Expression *expression);
@@ -458,6 +580,11 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    WaitStmt *clone() const {
+        return new WaitStmt(
+            type_,
+            expr_->clone());
+    }
 
 private:
     wait_type_t type_;

@@ -26,7 +26,7 @@
 
 class named_expr_t {
 public:
-    named_expr_t(perm_string n, Expression *e) 
+    named_expr_t(perm_string n, Expression *e)
         : name_(n)
         , expr_(e) {}
 
@@ -40,6 +40,11 @@ public:
 
     // FM. not implemented!
     SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    named_expr_t *clone() {
+        return new named_expr_t(
+            name_,
+            expr_->clone());
+    };
 
 private:
     perm_string name_;
@@ -52,13 +57,13 @@ private:     // Not implemented
 
 class entity_aspect_t {
 public:
-    typedef enum { 
-        ENTITY = 0, 
-        CONFIGURATION, 
-        OPEN 
+    typedef enum {
+        ENTITY = 0,
+        CONFIGURATION,
+        OPEN
     } entity_aspect_type_t;
 
-    entity_aspect_t(entity_aspect_type_t t, ExpName *n) 
+    entity_aspect_t(entity_aspect_type_t t, ExpName *n)
         : type_(t)
         , name_(n) {}
 
@@ -80,13 +85,13 @@ public:
 
 class instant_list_t {
 public:
-    typedef enum { 
-        ALL = 0, 
-        OTHERS, 
-        NONE 
+    typedef enum {
+        ALL = 0,
+        OTHERS,
+        NONE
     } application_domain_t;
 
-    instant_list_t(application_domain_t d, std::list<perm_string> *l) 
+    instant_list_t(application_domain_t d, std::list<perm_string> *l)
         : domain_(d)
         , labels_(l) { }
 
