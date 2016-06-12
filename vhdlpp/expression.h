@@ -628,6 +628,7 @@ public:
     class case_t : public LineInfo {
     public:
         case_t(Expression *cond, std::list<Expression *> *tru);
+        case_t(Expression *cond, const std::list<Expression *> &tru); // FM. MA
         case_t(const case_t& other);
         ~case_t();
 
@@ -655,6 +656,11 @@ public:
         void visit(ExprVisitor& func);
         // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+        case_t *clone() const {
+            return new ExpConditional::case_t(
+                cond_->clone(),
+                true_clause_);
+        }
 
     private:
         Expression              *cond_;

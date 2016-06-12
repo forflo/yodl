@@ -436,6 +436,13 @@ void ExpConditional::visit(ExprVisitor& func) {
     func.up();
 }
 
+// FM. MA better clone performance
+ExpConditional::case_t::case_t(Expression *cond,
+                               const std::list<Expression *> &tru)
+    : cond_(cond) {
+    for (auto &i : tru)
+        true_clause_.push_back(i->clone());
+}
 
 ExpConditional::case_t::case_t(Expression *cond,
                                std::list<Expression *> *tru)

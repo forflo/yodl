@@ -169,7 +169,7 @@ ForGenerate::ForGenerate(perm_string gname,
 ForGenerate::ForGenerate(perm_string gname,
                          perm_string genvar,
                          Expression *lsb,
-                         expression *msb,
+                         Expression *msb,
         std::list<Architecture::Statement *>& s)
     : GenerateStatement(gname, s)
     , genvar_(genvar)
@@ -225,6 +225,20 @@ CondSignalAssignment::~CondSignalAssignment() {
     }
 }
 
+// FM. Constructor overload for easier clone implementation
+ComponentInstantiation::ComponentInstantiation(perm_string i,
+                                               perm_string c,
+                                               const map<perm_string, Expression *> &generic_map,
+                                               const map<perm_string, Expression *> &port_map)
+    : iname_(i)
+    , cname_(c) {
+
+    for (auto &i : generic_map)
+        generic_map_[i.first] = i.second->clone();
+
+    for (auto &i : port_map)
+        port_map_[i.first] = i.second->clone();
+}
 
 ComponentInstantiation::ComponentInstantiation(perm_string i,
         perm_string c,
@@ -280,6 +294,11 @@ Expression *ComponentInstantiation::find_generic_map(perm_string by_name) const 
     return p->second;
 }
 
+// FM. More performance for clone() operation
+StatementList::StatementList(const std::list<SequentialStmt*> &statement_list) {
+    for (auto &i : statement_list)
+        statements_.push_back(i->clone());
+}
 
 StatementList::StatementList(std::list<SequentialStmt *> *statement_list) {
     if (statement_list) {

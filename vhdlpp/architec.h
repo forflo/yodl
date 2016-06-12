@@ -22,6 +22,7 @@
 
 # include <list>
 # include <map>
+# include <stdio.h>
 
 # include "StringHeap.h"
 # include "LineInfo.h"
@@ -170,13 +171,19 @@ protected:
     std::list<Architecture::Statement *> statements_;
 };
 
+
 // OK DOT
 class ForGenerate : public GenerateStatement {
 public:
     ForGenerate(perm_string gname,
-            perm_string genvar,
-            ExpRange *rang,
-            std::list<Architecture::Statement *>& s);
+                perm_string genvar,
+                ExpRange *rang,
+                std::list<Architecture::Statement *>& s);
+    ForGenerate(perm_string gname,
+                             perm_string genvar,
+                             Expression *lsb,
+                             Expression *msb,
+                             std::list<Architecture::Statement *>& s);
     ~ForGenerate();
 
     int elaborate(Entity *ent, Architecture *arc);
@@ -189,7 +196,7 @@ public:
         list<Architecture::Statement*> copy;
 
         for (auto &i : statements_)
-            statements.push_back(i->clone());
+            copy.push_back(i->clone());
 
         return new ForGenerate(
             name_,
@@ -218,6 +225,17 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    IfGenerate *clone() const {
+        list<Architecture::Statement*> copy;
+
+        for (auto &i : statements_)
+            copy.push_back(i->clone());
+
+        return new IfGenerate(
+            name_,
+            cond_->clone(),
+            copy);
+    }
 
 private:
     Expression *cond_;
@@ -238,6 +256,16 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    SignalAssignment *clone() const {
+        list<Expression*> copy;
+
+        for (auto &i : rval_)
+            copy.push_back(i->clone());
+
+        return new SignalAssignment(
+            static_cast<ExpName*>(lval_->clone()),
+            copy);
+    }
 
 private:
     ExpName                 *lval_;
@@ -257,6 +285,16 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    CondSignalAssignment *clone() const {
+        list<ExpConditional::case_t*> copy;
+
+        for (auto &i : options_)
+            copy.push_back(i->clone());
+
+        return new CondSignalAssignment(
+            static_cast<ExpName*>(lval_->clone()),
+            copy);
+    }
 
 private:
     ExpName *lval_;
@@ -273,6 +311,10 @@ public:
     ComponentInstantiation(perm_string iname, perm_string cname,
                            std::list<named_expr_t *> *parms,
                            std::list<named_expr_t *> *ports);
+    ComponentInstantiation(perm_string i,
+                           perm_string c,
+                           const map<perm_string, Expression *> &generic_map,
+                           const map<perm_string, Expression *> &port_map);
     ~ComponentInstantiation();
 
     virtual int elaborate(Entity *ent, Architecture *arc);
@@ -292,6 +334,13 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    ComponentInstantiation *clone() const {
+        return new ComponentInstantiation(
+            iname_,
+            cname_,
+            generic_map_,
+            port_map_);
+    }
 
 private:
     perm_string iname_;
@@ -306,6 +355,7 @@ private:
 class StatementList : public Architecture::Statement {
 public:
     StatementList(std::list<SequentialStmt *> *statement_list);
+    StatementList(const std::list<SequentialStmt*> &statement_list); // FM. MA
     virtual ~StatementList();
 
     int elaborate(Entity *ent, Architecture *arc) {
@@ -320,15 +370,65 @@ public:
     virtual int emit(ostream& out, Entity *entity, ScopeBase *scope);
     virtual void dump(ostream& out, int indent = 0) const;
 
-    // FM. MA
-    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
-
     std::list<SequentialStmt *>& stmt_list() {
         return statements_;
     }
 
+    // FM. MA
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    StatementList *clone() const {
+        return new StatementList(statements_);
+    }
+
 public:
     std::list<SequentialStmt *> statements_;
+};
+
+// FM. MA
+class BlockStatement : public Architecture::Statement, public Scope {
+public:
+    class BlockHeader {
+    public:
+        BlockHeader(std::list<InterfacePort*> *generic_clause,
+                    std::list<named_expr_t*> *generic_map_aspect,
+                    std::list<InterfacePort*> *port_clause,
+                    std::list<named_expr_t*> *port_map_aspect)
+            : generic_clause_(generic_clause)
+            , generic_map_aspect_(generic_map_aspect)
+            , port_clause_(port_clause)
+            , port_map_aspect_(port_map_aspect) { }
+
+    private:
+        std::list<InterfacePort*> *generic_clause_;
+        std::list<named_expr_t*> *generic_map_aspect_;
+        std::list<InterfacePort*> *port_clause_;
+        std::list<named_expr_t*> *port_map_aspect_;
+    };
+
+public:
+    BlockStatement(BlockStatement::BlockHeader *header,
+                   const ActiveScope &scope,
+                   std::list<Architecture::Statement*> *concurrent_stmts)
+        : Scope(scope)
+        , header_(header)
+        , concurrent_stmts_(concurrent_stmts) { }
+
+    int elaborate(void) {
+        return 0; // TODO: Implement
+    }
+
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+        // TODO: Implement
+        return NULL;
+    };
+    BlockStatement *clone() const {
+        // TODO: Implement
+        return NULL;
+    }
+
+private:
+    BlockHeader *header_;
+    std::list<Architecture::Statement*> *concurrent_stmts_;
 };
 
 // OK DOT
@@ -339,26 +439,41 @@ public:
     InitialStatement(std::list<SequentialStmt *> *statement_list)
         : StatementList(statement_list) {}
 
+    // FM. MA
+    InitialStatement(const std::list<SequentialStmt*> &statement_list)
+        : StatementList(statement_list) {}
+
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    InitialStatement *clone() const {
+        return new InitialStatement(statements_);
+    }
 };
 
 // OK DOT
-/* There is no direct VHDL countepart to SV 'initial' statement,
+/* There is no direct VHDL countepart to SV 'final' statement,
  * but we can still use it during the translation process. */
 class FinalStatement : public StatementList {
 public:
     FinalStatement(std::list<SequentialStmt *> *statement_list)
         : StatementList(statement_list) {}
 
+
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
     void dump(ostream& out, int indent = 0) const;
 
     // FM. MA (not implemented)
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+
+    FinalStatement(const std::list<SequentialStmt *> &statement_list)
+        : StatementList(statement_list) {}
+
+    FinalStatement *clone() const {
+        return new FinalStatement(statements_);
+    }
 };
 
 // OK DOT
@@ -377,6 +492,8 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    // TODO: Implement
+    ProcessStatement *clone() const { printf("Implement ME!\n"); return NULL; }
 
 public:
     perm_string             iname_;

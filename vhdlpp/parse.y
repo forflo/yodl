@@ -127,7 +127,7 @@ static void delete_global_scope(void) {
 //delete global entities that were gathered over the parsing process
 static void delete_design_entities(void) {
     for(map<perm_string,Entity*>::iterator cur = design_entities.begin()
-            ; cur != design_entities.end(); 
+            ; cur != design_entities.end();
             ++cur)
         delete cur->second;
 }
@@ -172,13 +172,13 @@ static Expression*aggregate_or_primary(const YYLTYPE&loc, std::list<ExpAggregate
 }
 
 static list<VTypeRecord::element_t*>* record_elements(
-        list<perm_string>*names, 
+        list<perm_string>*names,
         const VType*type) {
 
     list<VTypeRecord::element_t*>*res = new list<VTypeRecord::element_t*>;
 
     for (list<perm_string>::iterator cur = names->begin()
-            ; cur != names->end() 
+            ; cur != names->end()
             ; ++cur) {
         res->push_back(new VTypeRecord::element_t(*cur, type));
     }
@@ -187,12 +187,12 @@ static list<VTypeRecord::element_t*>* record_elements(
 }
 
 static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
-      for (list<InterfacePort*>::iterator cur = ports->begin()
-		 ; cur != ports->end() ; ++cur) {
-	    InterfacePort*curp = *cur;
-	    if (curp->mode == PORT_NONE)
-		  curp->mode = PORT_IN;
-      }
+    for (list<InterfacePort*>::iterator cur = ports->begin()
+             ; cur != ports->end() ; ++cur) {
+        InterfacePort*curp = *cur;
+        if (curp->mode == PORT_NONE)
+            curp->mode = PORT_IN;
+    }
 }
 
 %}
@@ -228,6 +228,10 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
     instant_list_t* instantiation_list;
     std::pair<instant_list_t*, ExpName*>* component_specification;
 
+    //FM. MA
+    std::pair<std::list<InterfacePort*>*, std::list<named_expr_t*>*>
+        *block_header_named_expr_list_pair;
+
     const VType* vtype;
 
     ExpRange*range;
@@ -247,6 +251,7 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
     std::list<InterfacePort*>* interface_list;
 
     Architecture::Statement* arch_statement;
+    BlockStatement::BlockHeader *arch_statement_block_header;
     std::list<Architecture::Statement*>* arch_statement_list;
 
     ReportStmt::severity_t severity;
@@ -305,12 +310,18 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 %type <component_specification> component_specification
 
 %type <arch_statement> concurrent_statement component_instantiation_statement
+%type <arch_statement> block_statement // FM. MA
+%type <arch_statement_block_header> block_header
 %type <arch_statement> concurrent_conditional_signal_assignment
 %type <arch_statement> concurrent_signal_assignment_statement concurrent_simple_signal_assignment
 %type <arch_statement> concurrent_assertion_statement
 %type <arch_statement> for_generate_statement generate_statement if_generate_statement
 %type <arch_statement> process_statement selected_signal_assignment
 %type <arch_statement_list> architecture_statement_part generate_statement_body
+
+ // FM. MA
+%type <named_expr_list> block_header_gma_opt_semi block_header_pma_opt_semi
+%type <block_header_named_expr_list_pair> block_header_generic_opt block_header_port_opt
 
 %type <choice> choice
 %type <choice_list> choices
@@ -895,6 +906,7 @@ concurrent_signal_assignment_statement /* IEEE 1076-2008 P11.6 */
 concurrent_statement
   : component_instantiation_statement
   | concurrent_signal_assignment_statement
+  | block_statement
   | concurrent_assertion_statement
   | generate_statement
   | process_statement
@@ -1329,6 +1341,83 @@ file_open_information_opt
   : file_open_information { $$ = $1; }
   | { $$ = 0; }
   ;
+
+// FM. MA| NOTE
+//  : architecture_body_start
+//    K_of   IDENTIFIER
+//      { bind_entity_to_active_scope($3, active_scope); }
+//    K_is   block_declarative_items_opt
+//    K_begin   architecture_statement_part
+//    K_end  K_architecture_opt  identifier_opt ';'
+//      { Architecture *tmp = new Architecture(lex_strings.make($1),
+//					    *active_scope, *$8);
+//	FILE_NAME(tmp, @1);
+//	bind_architecture_to_entity($3, tmp);
+
+// FM. MA| TODO: IEEE 1076-2008 P11.2 requires guard condition
+block_statement :
+  IDENTIFIER   ':'   K_block
+    { bind_entity_to_active_scope($1, active_scope); }
+  K_is_opt
+  //block_declarative_items_opt  is equal to block_declarative_part
+  block_header   block_declarative_items_opt
+  K_begin
+  architecture_statement_part
+  K_end   K_block   identifier_opt ';' {
+      // TODO: Error messages?
+      perm_string label = lex_strings.make($1);
+
+      if ($12 && label != $12)
+          errormsg(@1, "block_statement label %s does not "
+                   "match closing name %s\n", label.str(), $12);
+
+      delete[] $1;
+      if ($12)
+          delete[] $12;
+
+      BlockStatement *tmp = new BlockStatement($6, *active_scope, $9);
+      //FILE_NAME(tmp, @1);
+
+      delete[] $1;
+      if ($12)
+          delete[] $12;
+
+      $$ = tmp;
+  }
+  ;
+
+block_header :
+block_header_generic_opt
+block_header_port_opt {
+
+    // TODO: Error messages? FILE_NAME
+    BlockStatement::BlockHeader *tmp = new BlockStatement::BlockHeader(
+        ($1)->first, ($1)->second,
+        ($2)->first, ($2)->second);
+
+    delete $1;
+    delete $2;
+
+    $$ = tmp;
+  }
+  ;
+
+block_header_generic_opt
+  : generic_clause block_header_gma_opt_semi {
+      $$ = new std::pair<std::list<InterfacePort*>*,
+          std::list<named_expr_t*>*>($1, $2);
+  }
+  ;
+
+block_header_port_opt
+  : port_clause block_header_pma_opt_semi {
+      $$ = new std::pair<std::list<InterfacePort*>*,
+          std::list<named_expr_t*>*>($1, $2);
+  }
+  ;
+
+block_header_gma_opt_semi : generic_map_aspect ';' { $$ = $1; };
+block_header_pma_opt_semi : port_map_aspect ';' { $$ = $1; };
 
 for_generate_statement
   : IDENTIFIER ':' K_for IDENTIFIER K_in range
@@ -2963,7 +3052,7 @@ int parse_source_file(const char*file_path, perm_string parse_library_name) {
       perror(file_path);
       return -1;
     }
-  
+
     yyscan_t scanner = prepare_lexor(fd);
 
     int rc = yyparse(scanner, file_path, parse_library_name);
