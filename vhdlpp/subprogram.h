@@ -71,7 +71,7 @@ private:
 
 class SubprogramHeader : public LineInfo {
 public:
-    SubprogramHeader(perm_string name, 
+    SubprogramHeader(perm_string name,
             std::list<InterfacePort *> *ports,
             const VType *return_type);
     virtual ~SubprogramHeader();
@@ -171,12 +171,11 @@ protected:
 };
 
 // Class to define functions headers defined in the standard VHDL libraries.
-class SubprogramStdHeader : public SubprogramHeader
-{
+class SubprogramStdHeader : public SubprogramHeader {
 public:
-    SubprogramStdHeader(perm_string nam, 
+    SubprogramStdHeader(perm_string nam,
             std::list<InterfacePort *> *ports,
-            const VType *return_type) 
+            const VType *return_type)
         : SubprogramHeader(nam, ports, return_type) {}
 
     virtual ~SubprogramStdHeader() {}
@@ -189,18 +188,18 @@ public:
 // The simplest case, when only function name has to be changed.
 class SubprogramBuiltin : public SubprogramStdHeader {
 public:
-    SubprogramBuiltin(perm_string vhdl_name, 
+    SubprogramBuiltin(perm_string vhdl_name,
             perm_string sv_name,
-            std::list<InterfacePort *> *ports, 
-            const VType *return_type) 
+            std::list<InterfacePort *> *ports,
+            const VType *return_type)
         : SubprogramStdHeader(vhdl_name, ports, return_type)
         , sv_name_(sv_name) { }
 
     ~SubprogramBuiltin() { }
 
-    int emit_name(const std::vector<Expression *>&, 
-            std::ostream& out, 
-            Entity *, 
+    int emit_name(const std::vector<Expression *>&,
+            std::ostream& out,
+            Entity *,
             ScopeBase *) const;
 
 private:
@@ -209,7 +208,7 @@ private:
 };
 
 // Helper function to print out a human-readable function signature.
-void emit_subprogram_sig(std::ostream& out, 
+void emit_subprogram_sig(std::ostream& out,
         perm_string name,
         const std::list<const VType *>& arg_types);
 

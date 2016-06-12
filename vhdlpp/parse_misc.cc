@@ -70,7 +70,8 @@ void bind_architecture_to_entity(const char *ename, Architecture *arch) {
 }
 
 
-static const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base_name,
+static const VType *calculate_subtype_array(const YYLTYPE& loc,
+                                            const char *base_name,
                                             ScopeBase * /* scope */,
                                             Expression *array_left,
                                             bool downto,
@@ -79,14 +80,14 @@ static const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base
 
     if (base_type == 0) {
         errormsg(loc, "Unable to find base type %s of array.\n", base_name);
-        return 0;
+        return NULL;
     }
 
     assert(array_left == 0 || array_right != 0);
 
     // unfold typedef, there might be VTypeArray inside
     const VType    *origin_type = base_type;
-    const VTypeDef *type_def    = dynamic_cast<const VTypeDef *> (base_type);
+    const VTypeDef *type_def    = dynamic_cast<const VTypeDef *>(base_type);
     if (type_def) {
         base_type = type_def->peek_definition();
     }
@@ -97,13 +98,15 @@ static const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base
 
         vector<VTypeArray::range_t> range(base_array->dimensions());
 
-        // For now, I only know how to handle 1 dimension
+        // FIXME: For now, I only know how to handle 1 dimension
         assert(base_array->dimensions() == 1);
 
         range[0] = VTypeArray::range_t(array_left, array_right, downto);
 
         // use typedef as the element type if possible
-        const VType *element = type_def ? origin_type : base_array->element_type();
+        const VType *element = type_def
+            ? origin_type
+            : base_array->element_type();
 
         VTypeArray *subtype = new VTypeArray(element, range,
                                              base_array->signed_vector());
@@ -116,18 +119,27 @@ static const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base
 }
 
 
-const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base_name,
-                                     ScopeBase *scope, list<ExpRange *> *ranges) {
+const VType *calculate_subtype_array(const YYLTYPE& loc,
+                                     const char *base_name,
+                                     ScopeBase *scope,
+                                     list<ExpRange *> *ranges) {
     if (ranges->size() == 1) {
         ExpRange   *tmpr = ranges->front();
         Expression *lef  = tmpr->left();
         Expression *rig  = tmpr->right();
-        return calculate_subtype_array(loc, base_name, scope,
-                                       lef, tmpr->direction(), rig);
+        // FM. MA| Fixed bug tmpr->direction() is 0 if downto
+        return calculate_subtype_array(loc,
+                                       base_name,
+                                       scope,
+                                       lef,
+                                       (tmpr->direction() == ExpRange::range_dir_t::DOWNTO
+                                           ? true
+                                           : false),
+                                       rig);
     }
 
     sorrymsg(loc, "Don't know how to handle multiple ranges here.\n");
-    return 0;
+    return NULL;
 }
 
 

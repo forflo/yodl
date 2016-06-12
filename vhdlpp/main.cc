@@ -188,6 +188,7 @@ int main(int argc, char *argv[]) {
     library_set_work_path(work_path);
 
     preload_global_types();
+    //generate_global_types();
     preload_std_funcs();
 
     int errors = 0;
@@ -225,20 +226,13 @@ int main(int argc, char *argv[]) {
     /* Playground */
     cout << "There are " <<  design_entities.size() << " entities\n";
 
-
-    Entity *ent = design_entities[perm_string::literal("fir_filter")];
+    ////
+    // WARNING: CHECK ENTITY NAME!!
+    Entity *ent = design_entities[perm_string::literal("adder")];
     cout << "Entity found!\n";
-    Architecture *arch = ent->arch_[perm_string::literal("beh")];
-    cout << "Architecture found!\n";
-//  cout << "The name of the Architecture is" << arch->get_name() << '\n';
-//  cout << "This Architecture has " << arch->get_statement_amount() << " statements\n";
 
-//  cout << "Traverse of complete Architecture \n";
-//  traverse_st(ent->emit_strinfo_tree());
-
-//  cout << "here\n";
-
-    emit_dotgraph(std::cout, "g", ent->emit_strinfo_tree());
+    //emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
+    emit_dotgraph(std::cout, "g", ent->arch_[perm_string::literal("beh")]->emit_strinfo_tree());
 
     cout << '\n';
 

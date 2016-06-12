@@ -39,7 +39,9 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. not implemented!
-    SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const { 
+        return empty_simple_tree(); 
+    };
     named_expr_t *clone() {
         return new named_expr_t(
             name_,
@@ -111,8 +113,7 @@ public:
     std::list<perm_string> *labels_;
 };
 
-struct adding_term
-{
+struct adding_term {
     ExpArithmetic::fun_t op;
     Expression           *term;
 };

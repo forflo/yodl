@@ -156,13 +156,24 @@ protected:
     std::map<perm_string, const VType *> cur_types_;           //current types
     // Constant declarations...
     struct const_t {
+        const_t(const VType *t, Expression *v)
+            : typ(t)
+            , val(v) {}
+
         ~const_t() {
             delete val;
         }
 
-        const_t(const VType *t, Expression *v)
-            : typ(t)
-            , val(v) {}
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+            auto result =  new SimpleTree<map<string, string>>(
+                map<string, string>{
+                    {"node-type", "Constant"}});
+
+            result->forest.push_back(typ->emit_strinfo_tree());
+            result->forest.push_back(val->emit_strinfo_tree());
+
+            return result;
+        }
 
         const VType *typ;
         Expression  *val;

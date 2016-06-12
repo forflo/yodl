@@ -165,7 +165,7 @@ class VTypeERROR : public VType {
         return NULL;
     }
 
-    // FM. MA -- unimplemented
+    // FM. MA| TODO: Implement
     SimpleTree<map<string, string>> *emit_strinfo_tree() const {
         return empty_simple_tree();
     };
@@ -229,7 +229,7 @@ public:
                 bool down_to = true)
             : msb_(m)
             , lsb_(l)
-            , direction_(down_to) {}
+            , direction_(down_to) { }
 
         range_t *clone() const;
 
@@ -251,7 +251,6 @@ public:
 
         // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
-
 
     private:
         Expression *msb_;

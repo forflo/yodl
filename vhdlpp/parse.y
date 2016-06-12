@@ -1,9 +1,3 @@
-%pure-parser
-%lex-param   {yyscan_t yyscanner}
-%parse-param {yyscan_t yyscanner}
-%parse-param {const char*file_path}
-%parse-param {perm_string parse_library_name}
-%{
 /*
  * Copyright (c) 2011-2013 Stephen Williams (steve@icarus.com)
  * Copyright CERN 2012-2016 / Stephen Williams (steve@icarus.com),
@@ -24,6 +18,12 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+%pure-parser
+%lex-param   {yyscan_t yyscanner}
+%parse-param {yyscan_t yyscanner}
+%parse-param {const char*file_path}
+%parse-param {perm_string parse_library_name}
+%{
 
 #include <cstdarg>
 #include <iostream>
@@ -56,7 +56,6 @@ inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where) {
     tmp->set_lineno(where.first_line);
     tmp->set_file(filename_strings.make(where.text));
 }
-
 
 /* Recent version of bison expect that the user supply a
    YYLLOC_DEFAULT macro that makes up a yylloc value from existing
@@ -113,7 +112,8 @@ static bool is_subprogram_param(perm_string name) {
 }
 
 void preload_global_types(void) {
-    generate_global_types(active_scope);
+    generate_global_types();
+    add_global_types_to(active_scope);
 }
 
 //Remove the scope created at the beginning of parser's work.
@@ -295,7 +295,6 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 %token LEQ GEQ VASSIGN NE BOX EXP ARROW DLT DGT CC M_EQ M_NE M_LT M_LEQ M_GT M_GEQ
 
  /* The rules may have types. */
-
 %type <arithmetic_op> adding_operator
 %type <adding_terms> simple_expression_terms
 
@@ -386,188 +385,191 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 
 %%
 
-/* The design_file is the root for the VHDL parse. This rule is also
-   where I put some run-time initializations. */
+ /* The design_file is the root for the VHDL parse. This rule is also
+    where I put some run-time initializations. */
 design_file : { yylloc.text = file_path; } design_units ;
 
 adding_operator
-  : '+' { $$ = ExpArithmetic::PLUS; }
-  | '-' { $$ = ExpArithmetic::MINUS; }
-  | '&' { $$ = ExpArithmetic::xCONCAT; }
-  ;
+: '+' { $$ = ExpArithmetic::PLUS; }
+| '-' { $$ = ExpArithmetic::MINUS; }
+| '&' { $$ = ExpArithmetic::xCONCAT; }
+;
 
 /* Because this is some kind of semantic parser, some rules
    (like this) have to use mid-rule actions in order to do certain
    things at the right point of time. */
 architecture_body
-  : architecture_body_start
-    K_of   IDENTIFIER
-      { bind_entity_to_active_scope($3, active_scope); }
-    K_is   block_declarative_items_opt
-    K_begin   architecture_statement_part
-    K_end  K_architecture_opt  identifier_opt ';'
-      { Architecture *tmp = new Architecture(lex_strings.make($1),
-					    *active_scope, *$8);
-	FILE_NAME(tmp, @1);
-	bind_architecture_to_entity($3, tmp);
-	if ($11 && tmp->get_name() != $11)
-	      errormsg(@1, "Architecture name doesn't match closing name.\n");
-	delete[]$1;
-	delete[]$3;
-	delete $8;
-	pop_scope();
-	assert(arc_scope);
-	arc_scope = NULL;
-	if ($11) delete[]$11;
-      }
-  ;
+: architecture_body_start
+K_of   IDENTIFIER
+{ bind_entity_to_active_scope($3, active_scope); }
+K_is   block_declarative_items_opt
+K_begin   architecture_statement_part
+K_end  K_architecture_opt  identifier_opt ';'
+{
+    Architecture *tmp = new Architecture(lex_strings.make($1),
+                                         *active_scope, *$8);
+    FILE_NAME(tmp, @1);
+    bind_architecture_to_entity($3, tmp);
+    if ($11 && tmp->get_name() != $11)
+        errormsg(@1, "Architecture name doesn't match closing name.\n");
+    delete[]$1;
+    delete[]$3;
+    delete $8;
+    pop_scope();
+    assert(arc_scope);
+    arc_scope = NULL;
+    if ($11) delete[]$11;
+}
+;
 
 architecture_body_start
-  : K_architecture IDENTIFIER
-      { $$ = $2;
-	push_scope();
-	assert(!arc_scope);
-	arc_scope = active_scope;
-      }
-  ;
+: K_architecture IDENTIFIER
+{
+    $$ = $2;
+    push_scope();
+    assert(!arc_scope);
+    arc_scope = active_scope;
+}
+;
 
 /* The architecture_statement_part is a list of concurrent statements. */
 architecture_statement_part
-  : architecture_statement_part concurrent_statement
-      { std::list<Architecture::Statement*>*tmp = $1;
-	if ($2) tmp->push_back($2);
-	$$ = tmp;
-      }
-  | concurrent_statement
-      { std::list<Architecture::Statement*>*tmp = new std::list<Architecture::Statement*>;
-	if ($1) tmp->push_back($1);
-	$$ = tmp;
-      }
+: architecture_statement_part concurrent_statement
+{
+    std::list<Architecture::Statement*>*tmp = $1;
+    if ($2) tmp->push_back($2);
+    $$ = tmp;
+}
+| concurrent_statement
+{
+    std::list<Architecture::Statement*>*tmp = new std::list<Architecture::Statement*>;
+    if ($1) tmp->push_back($1);
+    $$ = tmp;
+}
 
-  | error ';'
-      { $$ = 0;
-	errormsg(@1, "Syntax error in architecture statement.\n");
-	yyerrok;
-      }
-  ;
+| error ';'
+{ $$ = 0;
+    errormsg(@1, "Syntax error in architecture statement.\n");
+    yyerrok;
+}
+;
 
 argument_list : '(' expression_list ')' { $$ = $2; };
 
 argument_list_opt
-  : argument_list { $$ = $1; }
-  | { $$ = 0; }
-  ;
+: argument_list { $$ = $1; }
+| { $$ = 0; }
+;
 
 assertion_statement
-  : K_assert expression report_statement
-      { ReportStmt*report = dynamic_cast<ReportStmt*>($3);
-        assert(report);
-	AssertStmt*tmp = new AssertStmt($2, report->message(), report->severity());
-        delete report;
-	FILE_NAME(tmp,@2);
-	$$ = tmp;
-      }
-  | K_assert expression severity_opt ';'
-      { AssertStmt*tmp = new AssertStmt($2, NULL, $3);
-	FILE_NAME(tmp,@2);
-	$$ = tmp;
-      }
-  ;
+: K_assert expression report_statement
+{
+    ReportStmt*report = dynamic_cast<ReportStmt*>($3);
+    assert(report);
+    AssertStmt*tmp = new AssertStmt($2, report->message(), report->severity());
+    delete report;
+    FILE_NAME(tmp,@2);
+    $$ = tmp;
+}
+| K_assert expression severity_opt ';'
+{
+    AssertStmt*tmp = new AssertStmt($2, NULL, $3);
+    FILE_NAME(tmp,@2);
+    $$ = tmp;
+}
+;
 
 association_element
-  : IDENTIFIER ARROW expression
-      { named_expr_t*tmp = new named_expr_t(lex_strings.make($1), $3);
-	delete[]$1;
-	$$ = tmp;
-      }
-  | IDENTIFIER ARROW K_open
-      { named_expr_t*tmp = new named_expr_t(lex_strings.make($1), 0);
-	delete[]$1;
-	$$ = tmp;
-      }
-  | IDENTIFIER ARROW error
-      { errormsg(@3, "Invalid target for port map association.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  ;
+: IDENTIFIER ARROW expression
+{
+    named_expr_t*tmp = new named_expr_t(lex_strings.make($1), $3);
+    delete[]$1;
+    $$ = tmp;
+}
+| IDENTIFIER ARROW K_open
+{
+    named_expr_t*tmp = new named_expr_t(lex_strings.make($1), 0);
+    delete[]$1;
+    $$ = tmp;
+}
+| IDENTIFIER ARROW error
+{
+    errormsg(@3, "Invalid target for port map association.\n");
+    yyerrok;
+    $$ = 0;
+}
+;
 
 association_list
-  : association_list ',' association_element
-      { std::list<named_expr_t*>*tmp = $1;
-	tmp->push_back($3);
-	$$ = tmp;
-      }
-  | association_element
-      { std::list<named_expr_t*>*tmp = new std::list<named_expr_t*>;
-	tmp->push_back($1);
-	$$ = tmp;
-      }
-  ;
+: association_list ',' association_element
+{
+    std::list<named_expr_t*>*tmp = $1;
+    tmp->push_back($3);
+    $$ = tmp;
+}
+| association_element
+{
+    std::list<named_expr_t*>*tmp = new std::list<named_expr_t*>;
+    tmp->push_back($1);
+    $$ = tmp;
+}
+;
 
 binding_indication
-  : K_use entity_aspect_opt port_map_aspect_opt generic_map_aspect_opt
-      { $$ = $2;
-	if ($3) sorrymsg(@3, "Port map aspect not supported here. (binding_indication)\n");
-	if ($4) sorrymsg(@4, "Generic map aspect not supported here. (binding_indication)\n");
-	delete $3;
-	delete $4;
-      }
-  ;
+: K_use entity_aspect_opt port_map_aspect_opt generic_map_aspect_opt
+{
+    $$ = $2;
+    if ($3) sorrymsg(@3, "Port map aspect not supported here. (binding_indication)\n");
+    if ($4) sorrymsg(@4, "Generic map aspect not supported here. (binding_indication)\n");
+    delete $3;
+    delete $4;
+}
+;
 
 binding_indication_semicolon_opt
-  : binding_indication ';' { $$ = $1; }
-  | { $$ = 0; }
-  ;
+: binding_indication ';' { $$ = $1; }
+| { $$ = 0; }
+;
 
 block_configuration
-  : K_for IDENTIFIER
-    use_clauses_opt
-    configuration_items_opt
-    K_end K_for ';'
-    { delete[] $2; }
- ;
+: K_for   IDENTIFIER   use_clauses_opt
+configuration_items_opt   K_end   K_for   ';'
+{ delete[] $2; }
+;
 
 block_configuration_opt
-  : block_configuration
-  |
-  ;
+: block_configuration
+|
+;
 
 block_declarative_item
-  : K_signal identifier_list ':' subtype_indication
-    signal_declaration_assign_opt ';'
-      { /* Save the signal declaration in the block_signals map. */
-	for (std::list<perm_string>::iterator cur = $2->begin()
-		   ; cur != $2->end() ; ++cur) {
-	      Signal*sig = new Signal(*cur, $4, $5 ? $5->clone() : 0);
-	      FILE_NAME(sig, @1);
-	      active_scope->bind_name(*cur, sig);
-	}
-	delete $2;
-      }
+: K_signal identifier_list ':' subtype_indication
+signal_declaration_assign_opt ';'
+{
+    /* Save the signal declaration in the block_signals map. */
+    for (std::list<perm_string>::iterator cur = $2->begin()
+             ; cur != $2->end() ; ++cur) {
+        Signal*sig = new Signal(*cur, $4, $5 ? $5->clone() : 0);
+        FILE_NAME(sig, @1);
+        active_scope->bind_name(*cur, sig);
+    }
+    delete $2;
+}
 
-  | component_declaration
+| component_declaration
+| constant_declaration
+| subprogram_declaration
+| subprogram_body
+| subtype_declaration
+| type_declaration
+| use_clause_lib
 
-  | constant_declaration
-
-  | subprogram_declaration
-
-  | subprogram_body
-
-  | subtype_declaration
-
-  | type_declaration
-
-  | use_clause_lib
-
-      /* Various error handling rules for block_declarative_item... */
-
-  | K_signal error ';'
-      { errormsg(@2, "Syntax error declaring signals.\n"); yyerrok; }
-  | error ';'
-      { errormsg(@1, "Syntax error in block declarations.\n"); yyerrok; }
-
-  ;
+  /* Various error handling rules for block_declarative_item... */
+| K_signal error ';'
+{ errormsg(@2, "Syntax error declaring signals.\n"); yyerrok; }
+| error ';'
+{ errormsg(@1, "Syntax error in block declarations.\n"); yyerrok; }
+;
 
 /* The block_declarative_items rule matches "{ block_declarative_item }"
  * which is a synonym for "architecture_declarative_part" and
@@ -1342,506 +1344,511 @@ file_open_information_opt
   | { $$ = 0; }
   ;
 
-// FM. MA| NOTE
-//  : architecture_body_start
-//    K_of   IDENTIFIER
-//      { bind_entity_to_active_scope($3, active_scope); }
-//    K_is   block_declarative_items_opt
-//    K_begin   architecture_statement_part
-//    K_end  K_architecture_opt  identifier_opt ';'
-//      { Architecture *tmp = new Architecture(lex_strings.make($1),
-//					    *active_scope, *$8);
-//	FILE_NAME(tmp, @1);
-//	bind_architecture_to_entity($3, tmp);
-
 // FM. MA| TODO: IEEE 1076-2008 P11.2 requires guard condition
 block_statement :
-  IDENTIFIER   ':'   K_block
-    { bind_entity_to_active_scope($1, active_scope); }
-  K_is_opt
-  //block_declarative_items_opt  is equal to block_declarative_part
-  block_header   block_declarative_items_opt
-  K_begin
-  architecture_statement_part
-  K_end   K_block   identifier_opt ';' {
-      // TODO: Error messages?
-      perm_string label = lex_strings.make($1);
+IDENTIFIER   ':'   K_block   { push_scope(); }
+K_is_opt   block_header   block_declarative_items_opt
+//NOTE: block_declarative_items_opt  is equal to block_declarative_part
+K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
+{
+    // TODO: Error messages?
+    perm_string label = lex_strings.make($1);
 
-      if ($12 && label != $12)
-          errormsg(@1, "block_statement label %s does not "
-                   "match closing name %s\n", label.str(), $12);
+    if ($12 && label != $12)
+        errormsg(@1, "block_statement label %s does not "
+                 "match closing name %s\n", label.str(), $12);
 
-      delete[] $1;
-      if ($12)
-          delete[] $12;
+    BlockStatement *tmp = new BlockStatement($6, label, *active_scope, $9);
+    arc_scope->bind_scope(tmp->peek_name(), tmp);
+    pop_scope();
 
-      BlockStatement *tmp = new BlockStatement($6, *active_scope, $9);
-      //FILE_NAME(tmp, @1);
+    //FILE_NAME(tmp, @1);
 
-      delete[] $1;
-      if ($12)
-          delete[] $12;
+    delete[] $1;
+    if ($12)
+        delete[] $12;
 
-      $$ = tmp;
-  }
-  ;
+    $$ = tmp;
+}
+;
 
 block_header :
-block_header_generic_opt
-block_header_port_opt {
-
+block_header_generic_opt   block_header_port_opt
+{
     // TODO: Error messages? FILE_NAME
     BlockStatement::BlockHeader *tmp = new BlockStatement::BlockHeader(
-        ($1)->first, ($1)->second,
-        ($2)->first, ($2)->second);
+        ($1 ? ($1)->first : NULL),
+        ($1 ? ($1)->second : NULL),
+        ($2 ? ($2)->first : NULL),
+        ($2 ? ($2)->second : NULL));
 
     delete $1;
     delete $2;
 
     $$ = tmp;
-  }
-  ;
+}
+;
 
 block_header_generic_opt
-  : generic_clause block_header_gma_opt_semi {
-      $$ = new std::pair<std::list<InterfacePort*>*,
-          std::list<named_expr_t*>*>($1, $2);
-  }
-  ;
+: generic_clause   block_header_gma_opt_semi
+{
+    $$ = new std::pair<std::list<InterfacePort*>*,
+        std::list<named_expr_t*>*>($1, $2);
+}
+| { $$ = NULL; }
+;
 
 block_header_port_opt
-  : port_clause block_header_pma_opt_semi {
-      $$ = new std::pair<std::list<InterfacePort*>*,
-          std::list<named_expr_t*>*>($1, $2);
-  }
-  ;
+: port_clause   block_header_pma_opt_semi
+{
+    $$ = new std::pair<std::list<InterfacePort*>*,
+        std::list<named_expr_t*>*>($1, $2);
+}
+| { $$ = NULL; }
+;
 
-block_header_gma_opt_semi : generic_map_aspect ';' { $$ = $1; };
-block_header_pma_opt_semi : port_map_aspect ';' { $$ = $1; };
+block_header_gma_opt_semi
+: generic_map_aspect ';' { $$ = $1; };
+
+block_header_pma_opt_semi
+: port_map_aspect ';' { $$ = $1; };
+
 
 for_generate_statement
-  : IDENTIFIER ':' K_for IDENTIFIER K_in range
-    K_generate generate_statement_body
-    K_end K_generate identifier_opt ';'
-      { perm_string name = lex_strings.make($1);
-	perm_string gvar = lex_strings.make($4);
-	ForGenerate *tmp = new ForGenerate(name, gvar, $6, *$8);
-	FILE_NAME(tmp, @1);
+: IDENTIFIER   ':'   K_for IDENTIFIER   K_in   range
+K_generate   generate_statement_body   K_end   K_generate identifier_opt   ';'
+{
+    perm_string name = lex_strings.make($1);
+    perm_string gvar = lex_strings.make($4);
+    ForGenerate *tmp = new ForGenerate(name, gvar, $6, *$8);
+    FILE_NAME(tmp, @1);
 
-	if ($11 && name != $11) {
-	      errormsg(@1, "for-generate name %s does not match closing name %s\n",
-		       name.str(), $11);
-	}
-	delete[]$1;
-	delete[]$4;
-	delete $8;
-	delete[]$11;
-	$$ = tmp;
-      }
-  ;
+    if ($11 && name != $11) {
+        errormsg(@1, "for-generate name %s does not match closing name %s\n",
+                 name.str(), $11);
+    }
+    delete[]$1;
+    delete[]$4;
+    delete $8;
+    delete[]$11;
+    $$ = tmp;
+}
+;
 
 function_specification /* IEEE 1076-2008 P4.2.1 */
-  : K_function IDENTIFIER parameter_list K_return IDENTIFIER
-      { perm_string type_name = lex_strings.make($5);
-	perm_string name = lex_strings.make($2);
-	const VType*type_mark = active_scope->find_type(type_name);
-	touchup_interface_for_functions($3);
-	SubprogramHeader*tmp = new SubprogramHeader(name, $3, type_mark);
-	FILE_NAME(tmp, @1);
-	delete[]$2;
-	delete[]$5;
-	$$ = tmp;
-      }
-  ;
+: K_function   IDENTIFIER   parameter_list   K_return   IDENTIFIER
+{
+    perm_string type_name = lex_strings.make($5);
+    perm_string name = lex_strings.make($2);
+    const VType*type_mark = active_scope->find_type(type_name);
+    touchup_interface_for_functions($3);
+    SubprogramHeader*tmp = new SubprogramHeader(name, $3, type_mark);
+    FILE_NAME(tmp, @1);
+    delete[]$2;
+    delete[]$5;
+    $$ = tmp;
+}
+;
 
 generate_statement /* IEEE 1076-2008 P11.8 */
-  : if_generate_statement
-  | for_generate_statement
-  ;
+: if_generate_statement
+| for_generate_statement
+;
 
 generate_statement_body
-  : architecture_statement_part { $$ = $1; }
-  ;
+: architecture_statement_part { $$ = $1; }
+;
 
 generic_clause_opt
-  : generic_clause
-      { $$ = $1;}
-  |
-      { $$ = 0; }
-  ;
+: generic_clause { $$ = $1;}
+| { $$ = 0; }
+;
 
 generic_clause
-  : K_generic parameter_list ';'
-      { $$ = $2; }
-  | K_generic '(' error ')' ';'
-      { errormsg(@3, "Error in interface list for generic.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  ;
+: K_generic parameter_list ';' { $$ = $2; }
+| K_generic '(' error ')' ';'
+{
+    errormsg(@3, "Error in interface list for generic.\n");
+    yyerrok;
+    $$ = 0;
+}
+;
 
 generic_map_aspect_opt
-  : generic_map_aspect { $$ = $1; }
-  |                    { $$ = 0; }
-  ;
+: generic_map_aspect { $$ = $1; }
+| { $$ = 0; }
+;
 
 generic_map_aspect
-  : K_generic K_map '(' association_list ')'
-      { $$ = $4; }
-  | K_generic K_map '(' error ')'
-      { errormsg(@4, "Error in association list for generic map.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  ;
+: K_generic K_map '(' association_list ')' { $$ = $4; }
+| K_generic K_map '(' error ')'
+{
+    errormsg(@4, "Error in association list for generic map.\n");
+    yyerrok;
+    $$ = 0;
+}
+;
 
 identifier_list
-  : identifier_list ',' IDENTIFIER
-      { std::list<perm_string>* tmp = $1;
-	tmp->push_back(lex_strings.make($3));
-	delete[]$3;
-	$$ = tmp;
-      }
-  | IDENTIFIER
-      { std::list<perm_string>*tmp = new std::list<perm_string>;
-	tmp->push_back(lex_strings.make($1));
-	delete[]$1;
-	$$ = tmp;
-      }
-  ;
+: identifier_list ',' IDENTIFIER
+{
+    std::list<perm_string>* tmp = $1;
+    tmp->push_back(lex_strings.make($3));
+    delete[]$3;
+    $$ = tmp;
+}
+| IDENTIFIER
+{
+    std::list<perm_string>*tmp = new std::list<perm_string>;
+    tmp->push_back(lex_strings.make($1));
+    delete[]$1;
+    $$ = tmp;
+}
+;
 
 identifier_opt : IDENTIFIER { $$ = $1; } | { $$ = 0; } ;
 
 identifier_colon_opt : IDENTIFIER ':' { $$ = $1; } | { $$ = 0; };
 
-  /* The if_generate_statement rule describes the if_generate syntax.
+/* The if_generate_statement rule describes the if_generate syntax.
 
-     NOTE: This does not yet implement the elsif and else parts of the
-     syntax. This shouldn't be hard, but is simply not done yet. */
+   NOTE: This does not yet implement the elsif and else parts of the
+   syntax. This shouldn't be hard, but is simply not done yet. */
 if_generate_statement /* IEEE 1076-2008 P11.8 */
-  : IDENTIFIER ':' K_if expression
-    K_generate generate_statement_body
-    K_end K_generate identifier_opt ';'
-      { perm_string name = lex_strings.make($1);
-	IfGenerate*tmp = new IfGenerate(name, $4, *$6);
-	FILE_NAME(tmp, @3);
+: IDENTIFIER ':' K_if expression
+K_generate generate_statement_body
+K_end K_generate identifier_opt ';'
+{
+    perm_string name = lex_strings.make($1);
+    IfGenerate*tmp = new IfGenerate(name, $4, *$6);
+    FILE_NAME(tmp, @3);
 
-	if ($9 && name != $9) {
-	      errormsg(@1, "if-generate name %s does not match closing name %s\n",
-		       name.str(), $9);
-	}
-	delete[]$1;
-	delete  $6;
-	delete[]$9;
-	$$ = tmp;
-      }
-  ;
+    if ($9 && name != $9) {
+        errormsg(@1, "if-generate name %s does not match closing name %s\n",
+                 name.str(), $9);
+    }
+    delete[]$1;
+    delete  $6;
+    delete[]$9;
+    $$ = tmp;
+}
+;
 
 if_statement
-  : K_if expression K_then sequence_of_statements
-    if_statement_elsif_list_opt if_statement_else
-    K_end K_if ';'
-      { IfSequential*tmp = new IfSequential($2, $4, $5, $6);
-	FILE_NAME(tmp, @1);
-	delete $4;
-	delete $5;
-	delete $6;
-	$$ = tmp;
-      }
-
-  | K_if error K_then sequence_of_statements
-    if_statement_elsif_list_opt if_statement_else
-    K_end K_if ';'
-      { errormsg(@2, "Error in if_statement condition expression.\n");
-	yyerrok;
-	$$ = 0;
-	delete $4;
-      }
-
-  | K_if expression K_then error K_end K_if ';'
-      { errormsg(@4, "Too many errors in sequence within if_statement.\n");
-	yyerrok;
-	$$ = 0;
-      }
-
-  | K_if error K_end K_if ';'
-      { errormsg(@2, "Too many errors in if_statement.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  ;
+: K_if expression K_then sequence_of_statements
+if_statement_elsif_list_opt if_statement_else
+K_end K_if ';'
+{
+    IfSequential*tmp = new IfSequential($2, $4, $5, $6);
+    FILE_NAME(tmp, @1);
+    delete $4;
+    delete $5;
+    delete $6;
+    $$ = tmp;
+}
+| K_if error K_then sequence_of_statements
+if_statement_elsif_list_opt if_statement_else
+K_end K_if ';'
+{
+    errormsg(@2, "Error in if_statement condition expression.\n");
+    yyerrok;
+    $$ = 0;
+    delete $4;
+}
+| K_if expression K_then error K_end K_if ';'
+{
+    errormsg(@4, "Too many errors in sequence within if_statement.\n");
+    yyerrok;
+    $$ = 0;
+}
+| K_if error K_end K_if ';'
+{
+    errormsg(@2, "Too many errors in if_statement.\n");
+    yyerrok;
+    $$ = 0;
+}
+;
 
 if_statement_elsif_list_opt
-  : if_statement_elsif_list { $$ = $1; }
-  |                         { $$ = 0;  }
-  ;
+: if_statement_elsif_list { $$ = $1; }
+| { $$ = 0;  }
+;
 
 if_statement_elsif_list
-  : if_statement_elsif_list if_statement_elsif
-      { list<IfSequential::Elsif*>*tmp = $1;
-	tmp->push_back($2);
-	$$ = tmp;
-      }
-  | if_statement_elsif
-      { list<IfSequential::Elsif*>*tmp = new list<IfSequential::Elsif*>;
-	tmp->push_back($1);
-	$$ = tmp;
-      }
-  ;
+: if_statement_elsif_list if_statement_elsif
+{
+    list<IfSequential::Elsif*>*tmp = $1;
+    tmp->push_back($2);
+    $$ = tmp;
+}
+| if_statement_elsif
+{
+    list<IfSequential::Elsif*>*tmp = new list<IfSequential::Elsif*>;
+    tmp->push_back($1);
+    $$ = tmp;
+}
+;
 
 if_statement_elsif
-  : K_elsif expression K_then sequence_of_statements
-      { IfSequential::Elsif*tmp = new IfSequential::Elsif($2, $4);
-	FILE_NAME(tmp, @1);
-	delete $4;
-	$$ = tmp;
-      }
-  | K_elsif expression K_then error
-      { errormsg(@4, "Too many errors in elsif sub-statements.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  ;
+: K_elsif expression K_then sequence_of_statements
+{
+    IfSequential::Elsif*tmp = new IfSequential::Elsif($2, $4);
+    FILE_NAME(tmp, @1);
+    delete $4;
+    $$ = tmp;
+}
+| K_elsif expression K_then error
+{
+    errormsg(@4, "Too many errors in elsif sub-statements.\n");
+    yyerrok;
+    $$ = 0;
+}
+;
 
 if_statement_else
-  : K_else sequence_of_statements
-      { $$ = $2; }
-  | K_else error
-      { errormsg(@2, "Too many errors in else sub-statements.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  |
-      { $$ = 0; }
-  ;
+: K_else sequence_of_statements { $$ = $2; }
+| K_else error
+{
+    errormsg(@2, "Too many errors in else sub-statements.\n");
+    yyerrok;
+    $$ = 0;
+}
+| { $$ = 0; }
+;
 
 index_constraint
-  : '(' range_list ')'
-      { $$ = $2; }
-  | '(' error ')'
-      { errormsg(@2, "Errors in the index constraint.\n");
-	yyerrok;
-	$$ = new list<ExpRange*>;
-      }
-  ;
+: '(' range_list ')' { $$ = $2; }
+| '(' error ')'
+{
+    errormsg(@2, "Errors in the index constraint.\n");
+    yyerrok;
+    $$ = new list<ExpRange*>;
+}
+;
 
-  /* The identifier should be a type name */
+/* The identifier should be a type name */
 index_subtype_definition /* IEEE 1076-2008 P5.3.2.1 */
-  : IDENTIFIER K_range BOX
-  ;
+: IDENTIFIER K_range BOX
+;
 
 index_subtype_definition_list
-  : index_subtype_definition_list ',' index_subtype_definition
-  | index_subtype_definition
-  ;
+: index_subtype_definition_list ',' index_subtype_definition
+| index_subtype_definition
+;
 
 instantiation_list
-  : identifier_list
-     {
-  instant_list_t* tmp = new instant_list_t(instant_list_t::NONE, $1);
-  $$ = tmp;
-     }
-  | K_others
-     {
-  instant_list_t* tmp = new instant_list_t(instant_list_t::OTHERS, 0);
-  $$ = tmp;
-     }
-  | K_all
-   {
-  instant_list_t* tmp = new instant_list_t(instant_list_t::ALL, 0);
-  $$ = tmp;
-   }
-  ;
+: identifier_list
+{
+    instant_list_t* tmp = new instant_list_t(instant_list_t::NONE, $1);
+    $$ = tmp;
+}
+| K_others
+{
+    instant_list_t* tmp = new instant_list_t(instant_list_t::OTHERS, 0);
+    $$ = tmp;
+}
+| K_all
+{
+    instant_list_t* tmp = new instant_list_t(instant_list_t::ALL, 0);
+    $$ = tmp;
+}
+;
 
-  /* The interface_element is also an interface_declaration */
+/* The interface_element is also an interface_declaration */
 interface_element
-  : identifier_list ':' mode_opt subtype_indication interface_element_expression
-      { std::list<InterfacePort*>*tmp = new std::list<InterfacePort*>;
-	for (std::list<perm_string>::iterator cur = $1->begin()
-		   ; cur != $1->end() ; ++cur) {
-	      InterfacePort*port = new InterfacePort;
-	      FILE_NAME(port, @1);
-	      port->mode = $3;
-	      port->name = *(cur);
-	      port->type = $4;
-	      port->expr = $5;
-	      tmp->push_back(port);
-	}
-	delete $1;
-	$$ = tmp;
-      }
-  ;
+: identifier_list ':' mode_opt subtype_indication interface_element_expression
+{
+    std::list<InterfacePort*>*tmp = new std::list<InterfacePort*>;
+    for (std::list<perm_string>::iterator cur = $1->begin()
+             ; cur != $1->end() ; ++cur) {
+        InterfacePort*port = new InterfacePort;
+        FILE_NAME(port, @1);
+        port->mode = $3;
+        port->name = *(cur);
+        port->type = $4;
+        port->expr = $5;
+        tmp->push_back(port);
+    }
+    delete $1;
+    $$ = tmp;
+}
+;
 
 interface_element_expression
-  : VASSIGN expression { $$ = $2; }
-  |                    { $$ = 0; }
-  ;
+: VASSIGN expression { $$ = $2; }
+| { $$ = 0; }
+;
 
 interface_list
-  : interface_list ';' interface_element
-      { std::list<InterfacePort*>*tmp = $1;
-	tmp->splice(tmp->end(), *$3);
-	delete $3;
-	$$ = tmp;
-      }
-  | interface_element
-      { std::list<InterfacePort*>*tmp = $1;
-	$$ = tmp;
-      }
-  ;
+: interface_list ';' interface_element
+{
+    std::list<InterfacePort*>*tmp = $1;
+    tmp->splice(tmp->end(), *$3);
+    delete $3;
+    $$ = tmp;
+}
+| interface_element
+{
+    std::list<InterfacePort*>*tmp = $1;
+    $$ = tmp;
+}
+;
 
 library_clause
-  : K_library logical_name_list ';'
-      { library_import(@1, $2);
-	delete $2;
-      }
-  | K_library error ';'
-     { errormsg(@1, "Syntax error in library clause.\n"); yyerrok; }
-  ;
+: K_library logical_name_list ';'
+{
+    library_import(@1, $2);
+    delete $2;
+}
+| K_library error ';'
+{ errormsg(@1, "Syntax error in library clause.\n"); yyerrok; }
+;
 
-  /* Collapse the primary_unit and secondary_unit of the library_unit
-     into this single set of rules. */
+/* Collapse the primary_unit and secondary_unit of the library_unit
+   into this single set of rules. */
 library_unit
-  : primary_unit
-  | secondary_unit
-  ;
+: primary_unit
+| secondary_unit
+;
 
 logical_name : IDENTIFIER { $$ = $1; } ;
 
 logical_name_list
-  : logical_name_list ',' logical_name
-      { std::list<perm_string>*tmp = $1;
-	tmp->push_back(lex_strings.make($3));
-	delete[]$3;
-	$$ = tmp;
-      }
-  | logical_name
-      { std::list<perm_string>*tmp = new std::list<perm_string>;
-	tmp->push_back(lex_strings.make($1));
-	delete[]$1;
-	$$ = tmp;
-      }
-  ;
+: logical_name_list ',' logical_name
+{
+    std::list<perm_string>*tmp = $1;
+    tmp->push_back(lex_strings.make($3));
+    delete[]$3;
+    $$ = tmp;
+}
+| logical_name
+{
+    std::list<perm_string>*tmp = new std::list<perm_string>;
+    tmp->push_back(lex_strings.make($1));
+    delete[]$1;
+    $$ = tmp;
+}
+;
 
 loop_statement
-  : identifier_colon_opt
-    K_while expression_logical K_loop
-    sequence_of_statements
-    K_end K_loop identifier_opt ';'
-      { perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
-	if ($8 && !$1) {
-	      errormsg(@8, "Loop statement closing name %s for un-named statement\n", $8);
-	} else if($8 && loop_name != $8) {
-	      errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $8);
-	}
-	if($1) delete[]$1;
-	if($8) delete[]$8;
+: identifier_colon_opt
+K_while expression_logical K_loop
+sequence_of_statements
+K_end K_loop identifier_opt ';'
+{
+    perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
+    if ($8 && !$1) {
+        errormsg(@8, "Loop statement closing name %s for un-named statement\n", $8);
+    } else if($8 && loop_name != $8) {
+        errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $8);
+    }
+    if($1) delete[]$1;
+    if($8) delete[]$8;
 
-	WhileLoopStatement* tmp = new WhileLoopStatement(loop_name, $3, $5);
-	FILE_NAME(tmp, @1);
-	$$ = tmp;
-      }
+    WhileLoopStatement* tmp = new WhileLoopStatement(loop_name, $3, $5);
+    FILE_NAME(tmp, @1);
+    $$ = tmp;
+}
+| identifier_colon_opt
+K_for IDENTIFIER K_in range
+K_loop sequence_of_statements K_end K_loop identifier_opt ';'
+{
+    perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
+    perm_string index_name = lex_strings.make($3);
+    if ($10 && !$1) {
+        errormsg(@10, "Loop statement closing name %s for un-named statement\n", $10);
+    } else if($10 && loop_name != $10) {
+        errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $10);
+    }
+    if($1)  delete[] $1;
+    delete[] $3;
+    if($10) delete[] $10;
 
-  | identifier_colon_opt
-    K_for IDENTIFIER K_in range
-    K_loop sequence_of_statements K_end K_loop identifier_opt ';'
-      { perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
-	perm_string index_name = lex_strings.make($3);
-	if ($10 && !$1) {
-	      errormsg(@10, "Loop statement closing name %s for un-named statement\n", $10);
-	} else if($10 && loop_name != $10) {
-	      errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $10);
-	}
-	if($1)  delete[] $1;
-	delete[] $3;
-	if($10) delete[] $10;
+    ForLoopStatement* tmp = new ForLoopStatement(loop_name, index_name, $5, $7);
+    FILE_NAME(tmp, @1);
+    $$ = tmp;
+}
 
-	ForLoopStatement* tmp = new ForLoopStatement(loop_name, index_name, $5, $7);
-	FILE_NAME(tmp, @1);
-	$$ = tmp;
-      }
+| identifier_colon_opt
+K_loop sequence_of_statements K_end K_loop identifier_opt ';'
+{
+    perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
+    if ($6 && !$1) {
+        errormsg(@6, "Loop statement closing name %s for un-named statement\n", $6);
+    } else if($6 && loop_name != $6) {
+        errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $6);
+    }
+    if($1) delete[]$1;
+    if($6) delete[]$6;
 
-  | identifier_colon_opt
-    K_loop sequence_of_statements K_end K_loop identifier_opt ';'
-      { perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
-	if ($6 && !$1) {
-	      errormsg(@6, "Loop statement closing name %s for un-named statement\n", $6);
-	} else if($6 && loop_name != $6) {
-	      errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $6);
-	}
-	if($1) delete[]$1;
-	if($6) delete[]$6;
+    BasicLoopStatement* tmp = new BasicLoopStatement(loop_name, $3);
+    FILE_NAME(tmp, @2);
 
-	BasicLoopStatement* tmp = new BasicLoopStatement(loop_name, $3);
-	FILE_NAME(tmp, @2);
-
-	$$ = tmp;
-      };
+    $$ = tmp;
+};
 
 mode
-  : K_in  { $$ = PORT_IN; }
-  | K_out { $$ = PORT_OUT; }
-  | K_inout { $$ = PORT_INOUT; }
-  ;
+: K_in  { $$ = PORT_IN; }
+| K_out { $$ = PORT_OUT; }
+| K_inout { $$ = PORT_INOUT; }
+;
 
 mode_opt : mode {$$ = $1;} | {$$ = PORT_NONE;} ;
 
 name /* IEEE 1076-2008 P8.1 */
-  : IDENTIFIER /* simple_name (IEEE 1076-2008 P8.2) */
-      { Expression*tmp;
-        /* Check if the IDENTIFIER is one of CHARACTER enums (LF, CR, etc.) */
-        tmp = parse_char_enums($1);
-        if(!tmp) {
-            perm_string name = lex_strings.make($1);
-            /* There are functions that have the same name types, e.g. integer */
-            if(!active_scope->find_subprogram(name).empty() && !parse_type_by_name(name))
-                tmp = new ExpFunc(name);
-            else
-                tmp = new ExpName(name);
-        }
-        FILE_NAME(tmp, @1);
-        delete[]$1;
-        $$ = tmp;
-      }
-
-  | selected_name
-      { $$ = $1; }
-
-  | indexed_name
-      { $$ = $1; }
-
-  | selected_name '(' expression_list ')'
-    {
-        ExpName*name = dynamic_cast<ExpName*>($1);
-        assert(name);
-        name->add_index($3);
-        delete $3;  // contents of the list is moved to the selected_name
+: IDENTIFIER /* simple_name (IEEE 1076-2008 P8.2) */
+{
+    Expression*tmp;
+    /* Check if the IDENTIFIER is one of CHARACTER enums (LF, CR, etc.) */
+    tmp = parse_char_enums($1);
+    if(!tmp) {
+        perm_string name = lex_strings.make($1);
+        /* There are functions that have the same name types, e.g. integer */
+        if(!active_scope->find_subprogram(name).empty() && !parse_type_by_name(name))
+            tmp = new ExpFunc(name);
+        else
+            tmp = new ExpName(name);
     }
-  ;
+    FILE_NAME(tmp, @1);
+    delete[]$1;
+    $$ = tmp;
+}
+| selected_name { $$ = $1; }
+| indexed_name { $$ = $1; }
+| selected_name '(' expression_list ')'
+{
+    ExpName*name = dynamic_cast<ExpName*>($1);
+    assert(name);
+    name->add_index($3);
+    delete $3;  // contents of the list is moved to the selected_name
+}
+;
 
 indexed_name
-  /* Note that this rule can match array element selects and various
-     function calls. The only way we can tell the difference is from
-     left context, namely whether the name is a type name or function
-     name. If none of the above, treat it as a array element select. */
-  : IDENTIFIER '(' expression_list ')'
-      { Expression*tmp;
-        perm_string name = lex_strings.make($1);
-        delete[]$1;
-        if (active_scope->is_vector_name(name) || is_subprogram_param(name))
-            tmp = new ExpName(name, $3);
-        else
-            tmp = new ExpFunc(name, $3);
-        FILE_NAME(tmp, @1);
-        $$ = tmp;
-      }
-  | indexed_name '(' expression_list ')'
-      { ExpName*name = dynamic_cast<ExpName*>($1);
-        assert(name);
-        name->add_index($3);
-        $$ = $1;
-      }
-  ;
+/* Note that this rule can match array element selects and various
+   function calls. The only way we can tell the difference is from
+   left context, namely whether the name is a type name or function
+   name. If none of the above, treat it as a array element select. */
+: IDENTIFIER '(' expression_list ')'
+{
+    Expression*tmp;
+    perm_string name = lex_strings.make($1);
+    delete[]$1;
+    if (active_scope->is_vector_name(name) || is_subprogram_param(name))
+        tmp = new ExpName(name, $3);
+    else
+        tmp = new ExpFunc(name, $3);
+    FILE_NAME(tmp, @1);
+    $$ = tmp;
+}
+| indexed_name '(' expression_list ')'
+{
+    ExpName*name = dynamic_cast<ExpName*>($1);
+    assert(name);
+    name->add_index($3);
+    $$ = $1;
+}
+;
 
   /* Handle name lists as lists of expressions. */
 name_list
@@ -2247,6 +2254,7 @@ process_sensitivity_list
 range
   : simple_expression direction simple_expression
       { ExpRange* tmp = new ExpRange($1, $3, $2);
+
 	FILE_NAME(tmp, @1);
 	$$ = tmp;
       }
@@ -2741,90 +2749,91 @@ subprogram_statement_part
   ;
 
 subtype_declaration
-  : K_subtype IDENTIFIER K_is subtype_indication ';'
-      { perm_string name = lex_strings.make($2);
-	if ($4 == 0) {
-	      errormsg(@1, "Failed to declare type name %s.\n", name.str());
-	} else {
-	      VTypeDef*tmp;
-	      map<perm_string,VTypeDef*>::iterator cur = active_scope->incomplete_types.find(name);
-	      if (cur == active_scope->incomplete_types.end()) {
-		    tmp = new VSubTypeDef(name, $4);
-		    active_scope->bind_name(name, tmp);
-	      } else {
-		    tmp = cur->second;
-		    tmp->set_definition($4);
-		    active_scope->incomplete_types.erase(cur);
-	      }
-	}
-	delete[]$2;
-      }
-  ;
+: K_subtype IDENTIFIER K_is subtype_indication ';'
+{
+    perm_string name = lex_strings.make($2);
+    if ($4 == 0) {
+        errormsg(@1, "Failed to declare type name %s.\n", name.str());
+    } else {
+        VTypeDef*tmp;
+        map<perm_string,VTypeDef*>::iterator cur = active_scope->incomplete_types.find(name);
+        if (cur == active_scope->incomplete_types.end()) {
+            tmp = new VSubTypeDef(name, $4);
+            active_scope->bind_name(name, tmp);
+        } else {
+            tmp = cur->second;
+            tmp->set_definition($4);
+            active_scope->incomplete_types.erase(cur);
+        }
+    }
+    delete[]$2;
+}
+;
 
 subtype_indication
-  : IDENTIFIER
-      { const VType*tmp = parse_type_by_name(lex_strings.make($1));
-	if (tmp == 0) {
-	      errormsg(@1, "Can't find type name `%s'\n", $1);
-	      tmp = new VTypeERROR;
-	}
-	delete[]$1;
-	$$ = tmp;
-      }
-  | IDENTIFIER index_constraint
-      { const VType*tmp = calculate_subtype_array(@1, $1, active_scope, $2);
-	if (tmp == 0) {
-	      errormsg(@1, "Unable to calculate bounds for array of %s.\n", $1);
-	}
-	delete[]$1;
-	delete  $2;
-	$$ = tmp;
-      }
-  | IDENTIFIER K_range simple_expression direction simple_expression
-      { const VType*tmp = calculate_subtype_range(@1, $1, active_scope, $3, $4, $5);
-	if (tmp == 0) {
-	      errormsg(@1, "Unable to calculate bounds for range of %s.\n", $1);
-	}
-	delete[]$1;
-	$$ = tmp;
-      }
-  ;
+: IDENTIFIER
+{
+    const VType*tmp = parse_type_by_name(lex_strings.make($1));
+    if (tmp == 0) {
+        errormsg(@1, "Can't find type name `%s'\n", $1);
+        tmp = new VTypeERROR;
+    }
+    delete[]$1;
+    $$ = tmp;
+}
+| IDENTIFIER index_constraint
+{
+    const VType*tmp = calculate_subtype_array(@1, $1, active_scope, $2);
+    if (tmp == 0) {
+        errormsg(@1, "Unable to calculate bounds for array of %s.\n", $1);
+    }
+    delete[]$1;
+    delete  $2;
+    $$ = tmp;
+}
+| IDENTIFIER K_range simple_expression direction simple_expression
+{
+    const VType*tmp = calculate_subtype_range(@1, $1, active_scope, $3, $4, $5);
+    if (tmp == 0) {
+        errormsg(@1, "Unable to calculate bounds for range of %s.\n", $1);
+    }
+    delete[]$1;
+    $$ = tmp;
+}
+;
 
 suffix
-  : IDENTIFIER
-      { $$ = $1; }
-  | CHARACTER_LITERAL
-      { $$ = $1; }
-  | K_all
-      { //do not have now better idea than using char constant
-	$$ = strdup("all");
-      }
-  ;
+: IDENTIFIER { $$ = $1; }
+| CHARACTER_LITERAL { $$ = $1; }
+| K_all
+{ //do not have now better idea than using char constant
+    $$ = strdup("all");
+}
+;
 
 term
-  : factor
-      { $$ = $1; }
-  | factor '*' factor
-      { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::MULT, $1, $3);
-	FILE_NAME(tmp, @2);
-	$$ = tmp;
-      }
-  | factor '/' factor
-      { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::DIV, $1, $3);
-	FILE_NAME(tmp, @2);
-	$$ = tmp;
-      }
-  | factor K_mod factor
-      { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::MOD, $1, $3);
-	FILE_NAME(tmp, @2);
-	$$ = tmp;
-      }
-  | factor K_rem factor
-      { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::REM, $1, $3);
-	FILE_NAME(tmp, @2);
-	$$ = tmp;
-      }
-  ;
+: factor { $$ = $1; }
+| factor '*' factor
+{ ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::MULT, $1, $3);
+    FILE_NAME(tmp, @2);
+    $$ = tmp;
+}
+| factor '/' factor
+{ ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::DIV, $1, $3);
+    FILE_NAME(tmp, @2);
+    $$ = tmp;
+}
+| factor K_mod factor
+{ ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::MOD, $1, $3);
+    FILE_NAME(tmp, @2);
+    $$ = tmp;
+}
+| factor K_rem factor
+{ ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::REM, $1, $3);
+    FILE_NAME(tmp, @2);
+    $$ = tmp;
+}
+;
 
 type_declaration
   : K_type IDENTIFIER K_is type_definition ';'

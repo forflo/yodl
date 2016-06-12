@@ -31,8 +31,7 @@ SimpleTree<map<string, string>> *VTypeArray::range_t::emit_strinfo_tree() const 
     auto result =  new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Range"},
-            {"direction", (dynamic_cast<stringstream&>(
-                stringstream{} << direction_)).str()}});
+            {"direction", (direction_ ? "downto" : "to")}});
 
     if (msb_)
         result->forest.push_back(msb_->emit_strinfo_tree());

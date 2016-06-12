@@ -59,7 +59,7 @@ public:
 
         if (array) {
             signed_flag = array->signed_vector();
-        }else  {
+        } else {
             cerr << get_fileline() << ": sorry: Could not determine the "
                  << "expression sign. Output may be erroneous." << endl;
             return 1;

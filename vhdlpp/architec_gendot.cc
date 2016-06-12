@@ -10,6 +10,8 @@
 #include "scope.h"
 #include "architec.h"
 
+
+
 SimpleTree<map<string, string>> *ForGenerate::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{

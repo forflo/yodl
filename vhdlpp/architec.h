@@ -398,6 +398,15 @@ public:
             , port_clause_(port_clause)
             , port_map_aspect_(port_map_aspect) { }
 
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+            return empty_simple_tree();
+        }
+
+        BlockHeader *clone() const {
+            return NULL;
+            //TODO: implement
+        }
+
     private:
         std::list<InterfacePort*> *generic_clause_;
         std::list<named_expr_t*> *generic_map_aspect_;
@@ -407,9 +416,11 @@ public:
 
 public:
     BlockStatement(BlockStatement::BlockHeader *header,
+                   perm_string label,
                    const ActiveScope &scope,
                    std::list<Architecture::Statement*> *concurrent_stmts)
         : Scope(scope)
+        , label_(label)
         , header_(header)
         , concurrent_stmts_(concurrent_stmts) { }
 
@@ -417,16 +428,42 @@ public:
         return 0; // TODO: Implement
     }
 
+    // TODO: Auslagern
     SimpleTree<map<string, string>> *emit_strinfo_tree() const {
-        // TODO: Implement
-        return NULL;
+        auto result = new SimpleTree<map<string, string>>(
+            map<string, string>{
+                {"node-type", "BlockStatement"},
+                {"label", label_.str()}});
+
+        if (header_)
+            result->forest.push_back(header_->emit_strinfo_tree());
+
+        if (concurrent_stmts_)
+            for (auto &i : *concurrent_stmts_)
+                result->forest.push_back(i->emit_strinfo_tree());
+
+        // from base scope
+        for (auto &i : new_signals_)
+            result->forest.push_back(i.second->emit_strinfo_tree());
+        for (auto &i : new_variables_)
+            result->forest.push_back(i.second->emit_strinfo_tree());
+        for (auto &i : new_components_)
+            result->forest.push_back(i.second->emit_strinfo_tree());
+        for (auto &i : cur_types_)
+            result->forest.push_back(i.second->emit_strinfo_tree());
+        for (auto &i : cur_constants_)
+            result->forest.push_back(i.second->emit_strinfo_tree());
+
+        return result;
     };
+
     BlockStatement *clone() const {
         // TODO: Implement
         return NULL;
     }
 
 private:
+    perm_string label_;
     BlockHeader *header_;
     std::list<Architecture::Statement*> *concurrent_stmts_;
 };

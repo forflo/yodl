@@ -114,27 +114,37 @@ VTypeArray::VTypeArray(const VType *element, const vector<VTypeArray::range_t>& 
  * FIXME: We are copying pointers from the ExpRange object into the
  * range_t. This means that we cannot delete the ExpRange object
  * unless we invent a way to remove the pointers from that object. So
- * this is a memory leak. Something to fix.  */
+ * this is a memory leak. Something to fix. */
 VTypeArray::VTypeArray(const VType *element, std::list<ExpRange *> *r, bool sv)
-    : etype_(element), ranges_(r->size()), signed_flag_(sv), parent_(NULL) {
+    : etype_(element)
+    , ranges_(r->size())
+    , signed_flag_(sv)
+    , parent_(NULL) {
     for (size_t idx = 0; idx < ranges_.size(); idx += 1) {
         ExpRange *curp = r->front();
         r->pop_front();
-        ranges_[idx] = range_t(curp->msb(), curp->lsb(), curp->direction());
+        ranges_[idx] = range_t(curp->msb(),
+                               curp->lsb(),
+                               // FM. MA| DOWNTO equals 0 which equals false
+                               (curp->direction() == ExpRange::range_dir_t::DOWNTO
+                                ? true
+                                : false));
     }
 }
 
 
 VTypeArray::VTypeArray(const VType *element, int msb, int lsb, bool sv)
-    : etype_(element), ranges_(1), signed_flag_(sv), parent_(NULL) {
+    : etype_(element)
+    , ranges_(1)
+    , signed_flag_(sv)
+    , parent_(NULL) {
     bool down_to = msb > lsb;
 
     ranges_[0] = range_t(new ExpInteger(msb), new ExpInteger(lsb), down_to);
 }
 
 
-VTypeArray::~VTypeArray()
-{}
+VTypeArray::~VTypeArray() { }
 
 
 VType *VTypeArray::clone() const {

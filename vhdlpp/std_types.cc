@@ -45,7 +45,22 @@ const VTypeArray primitive_STRING(&primitive_CHARACTER, vector<VTypeArray::range
 const VTypeArray primitive_SIGNED(&primitive_STDLOGIC, vector<VTypeArray::range_t> (1), true);
 const VTypeArray primitive_UNSIGNED(&primitive_STDLOGIC, vector<VTypeArray::range_t> (1), false);
 
-void generate_global_types(ActiveScope *res) {
+// FM. MA| Refactored out global function assignment for active scope 
+void add_global_types_to(ActiveScope *scope){
+    scope->use_name(type_BOOLEAN.peek_name(), &type_BOOLEAN);
+    scope->use_name(perm_string::literal("bit"), &primitive_BIT);
+//    scope->use_name(perm_string::literal("std_logic_vector"), &primitive_STDLOGIC_VECTOR);
+    scope->use_name(perm_string::literal("bit_vector"), &primitive_BIT_VECTOR);
+    scope->use_name(perm_string::literal("integer"), &primitive_INTEGER);
+    scope->use_name(perm_string::literal("real"), &primitive_REAL);
+    scope->use_name(perm_string::literal("std_logic"), &primitive_STDLOGIC);
+    scope->use_name(perm_string::literal("character"), &primitive_CHARACTER);
+    scope->use_name(perm_string::literal("string"), &primitive_STRING);
+    scope->use_name(perm_string::literal("natural"), &primitive_NATURAL);
+    scope->use_name(perm_string::literal("time"), &primitive_TIME);
+}
+
+void generate_global_types() {
     // boolean
     list<perm_string> enum_BOOLEAN_vals;
     enum_BOOLEAN_vals.push_back(perm_string::literal("false"));
@@ -78,17 +93,6 @@ void generate_global_types(ActiveScope *res) {
     type_FILE_OPEN_STATUS.set_definition(enum_FILE_OPEN_STATUS);
     std_types[type_FILE_OPEN_STATUS.peek_name()] = &type_FILE_OPEN_STATUS;
     std_enums.push_back(enum_FILE_OPEN_STATUS);
-
-    res->use_name(type_BOOLEAN.peek_name(), &type_BOOLEAN);
-    res->use_name(perm_string::literal("bit"), &primitive_BIT);
-    res->use_name(perm_string::literal("bit_vector"), &primitive_BIT_VECTOR);
-    res->use_name(perm_string::literal("integer"), &primitive_INTEGER);
-    res->use_name(perm_string::literal("real"), &primitive_REAL);
-    res->use_name(perm_string::literal("std_logic"), &primitive_STDLOGIC);
-    res->use_name(perm_string::literal("character"), &primitive_CHARACTER);
-    res->use_name(perm_string::literal("string"), &primitive_STRING);
-    res->use_name(perm_string::literal("natural"), &primitive_NATURAL);
-    res->use_name(perm_string::literal("time"), &primitive_TIME);
 }
 
 

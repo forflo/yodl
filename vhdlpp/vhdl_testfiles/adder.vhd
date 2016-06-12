@@ -13,10 +13,9 @@ end adder;
 
 architecture behv of adder is
     signal result: std_logic_vector(n downto 0);
-begin					  
+begin
     -- the 3rd bit should be carry
     result <= ('0' & A) + ('0' & B);
     sum <= result(n - 1 downto 0);
     carry <= result(n);
 end behv;
-
