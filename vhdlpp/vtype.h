@@ -145,7 +145,7 @@ public:
         bool        reg_flag;
     };
 
-protected:
+public:
     inline void emit_name(std::ostream& out, perm_string name) const {
         if (name != empty_perm_string) {
             out << " \\" << name << " ";
@@ -357,7 +357,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-protected:
+private:
     const VType *base_;
 };
 
@@ -549,7 +549,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-protected:
+private:
     perm_string name_;
     const VType *type_;
 };
