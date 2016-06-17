@@ -64,6 +64,20 @@ const char COPYRIGHT[] =
 #endif
 
 using namespace std;
+using namespace mch;
+
+// test for mach7
+int fac(int n){
+    unsigned short m;
+
+    Match (n){
+        When(0) return 1;
+        When(1) return 1;
+        When(m) return m * fac(m - 1);
+        When(_) return 0;
+    }
+    EndMatch
+}
 
 extern map<perm_string, Entity *> design_entities;
 
@@ -207,6 +221,7 @@ int main(int argc, char *argv[]) {
     emit_dotgraph(std::cout, "g", ent->arch_[perm_string::literal("beh")]->emit_strinfo_tree());
 
     cout << '\n';
+    cout << fac(10) << endl;
 
     /* End Playground */
 

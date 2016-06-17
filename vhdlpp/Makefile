@@ -32,13 +32,14 @@ CXX = clang++
 LEX = flex
 YACC = bison
 
-INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree
+# FM. MA| Added new include paths
+INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns
 
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
 CXXFLAGS = -Wall -Wextra -Wshadow   -g -O2 --std=c++11 $(CUSTOM)
 LDFLAGS =  
-LIBS = -lm -lbz2 -lz -lhistory -lreadline  
+LIBS = -lm -lbz2 -lz -lhistory -lreadline 
 
 M = StringHeap.o LineInfo.o
 
