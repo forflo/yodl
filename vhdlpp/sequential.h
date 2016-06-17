@@ -76,12 +76,12 @@ public:
     void dump(ostream& out, int indent)  const;
     void visit(SeqStmtVisitor& func);
 
-protected:
+public:
     int elaborate_substatements(Entity *ent, ScopeBase *scope);
     int emit_substatements(std::ostream& out, Entity *ent, ScopeBase *scope);
     void write_to_stream_substatements(ostream& fd);
 
-protected:
+public:
     perm_string                 name_;
     std::list<SequentialStmt *> stmts_;
 };
@@ -108,10 +108,10 @@ public:
         // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
         Elsif *clone() const;
-    private:
+    public:
         Expression *cond_;
         std::list<SequentialStmt *> if_;
-    private:           // not implemented
+    public:           // not implemented
         Elsif(const Elsif&);
         Elsif& operator =(const Elsif&);
     };
@@ -230,7 +230,7 @@ public:
             copy);
     };
 
-private:
+public:
     Expression              *lval_;
     std::list<Expression *> waveform_;
 };
@@ -273,10 +273,10 @@ public:
             return new CaseStmtAlternative(copy_exp, copy_stmts);
         };
 
-    private:
+    public:
         std::list<Expression *>     *exp_;
         std::list<SequentialStmt *> stmts_;
-    private:         // not implemented
+    public:         // not implemented
         CaseStmtAlternative(const CaseStmtAlternative&);
         CaseStmtAlternative& operator =(const CaseStmtAlternative&);
     };
@@ -304,7 +304,7 @@ public:
         return new CaseSeqStmt(cond_->clone(), copy);
     };
 
-private:
+public:
     Expression *cond_;
     std::list<CaseStmtAlternative *> alt_;
 };
@@ -342,7 +342,7 @@ public:
             copy);
     };
 
-private:
+public:
     perm_string               name_;
     std::list<named_expr_t *> *param_list_;
     SubprogramHeader          *def_;
@@ -369,7 +369,7 @@ public:
             rval_->clone());
     }
 
-private:
+public:
     Expression *lval_;
     Expression *rval_;
 };
@@ -403,7 +403,7 @@ public:
             copy);
     }
 
-private:
+public:
     Expression *cond_;
 };
 
@@ -430,7 +430,7 @@ public:
     // TODO: Auslagern
     ForLoopStatement *clone() const;
 
-private:
+public:
     // Emits for-loop which direction is determined at run-time.
     // It is used for 'range & 'reverse_range attributes.
     int emit_runtime_(ostream& out, Entity *ent, ScopeBase *scope);
@@ -530,7 +530,7 @@ public:
             severity_);
     }
 
-private:
+public:
     Expression *cond_;
 
     // Message displayed when there is no report assigned.
@@ -555,7 +555,7 @@ public:
         return new WaitForStmt(delay_->clone());
     }
 
-private:
+public:
     Expression *delay_;
 };
 
@@ -586,7 +586,7 @@ public:
             expr_->clone());
     }
 
-private:
+public:
     wait_type_t type_;
     Expression  *expr_;
     // Sensitivity list for 'wait until' statement
