@@ -166,7 +166,7 @@ public:
     int emit_statements(ostream& out, Entity *ent, Architecture *arc);
     void dump_statements(ostream& out, int indent) const;
 
-protected:
+public:
     perm_string name_;
     std::list<Architecture::Statement *> statements_;
 };
@@ -206,7 +206,7 @@ public:
             copy);
     }
 
-private:
+public:
     perm_string genvar_;
     Expression  *lsb_;
     Expression  *msb_;
@@ -237,7 +237,7 @@ public:
             copy);
     }
 
-private:
+public:
     Expression *cond_;
 };
 
@@ -267,7 +267,7 @@ public:
             copy);
     }
 
-private:
+public:
     ExpName                 *lval_;
     std::list<Expression *> rval_;
 };
@@ -296,7 +296,7 @@ public:
             copy);
     }
 
-private:
+public:
     ExpName *lval_;
     std::list<ExpConditional::case_t *> options_;
 
@@ -342,7 +342,7 @@ public:
             port_map_);
     }
 
-private:
+public
     perm_string iname_;
     perm_string cname_;
 
@@ -407,7 +407,7 @@ public:
             //TODO: implement
         }
 
-    private:
+    public:
         std::list<InterfacePort*> *generic_clause_;
         std::list<named_expr_t*> *generic_map_aspect_;
         std::list<InterfacePort*> *port_clause_;
@@ -462,7 +462,7 @@ public:
         return NULL;
     }
 
-private:
+public:
     perm_string label_;
     BlockHeader *header_;
     std::list<Architecture::Statement*> *concurrent_stmts_;
