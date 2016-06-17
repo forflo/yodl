@@ -29,6 +29,13 @@ const char COPYRIGHT[] =
 #include <vector>
 #include <map>
 #include <iostream>
+#include <math.h>
+
+// mach7 setup
+#define XTL_DEFAULT_SYNTAX 'S'
+
+#include "match.hpp"
+
 
 #include "vhdlpp_config.h"
 #include "generate_graph.h"
