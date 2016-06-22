@@ -64,10 +64,10 @@ struct ExprVisitor
         assert(level_ >= 0);
     }
 
-protected:
+public:
     int level() const { return level_; }
 
-private:
+public:
     int         level_;
 };
 
@@ -167,16 +167,16 @@ public:
         func.up();
     }
 
-protected:
+public:
     // This function is called by the derived class during
     // elaboration to set the type of the current expression that
     // elaboration assigns to this expression.
     void set_type(const VType *);
 
-private:
+public:
     const VType *type_;
 
-private:     // Not implemented
+public:     // Not implemented
     Expression(const Expression&);
     Expression& operator =(const Expression&);
 };
@@ -186,11 +186,9 @@ static inline Expression *safe_clone(const Expression *other) {
     return(other ? other->clone() : NULL);
 }
 
-
 static inline void FILE_NAME(Expression *tgt, const LineInfo *src) {
     tgt->set_line(*src);
 }
-
 
 static inline ostream& operator <<(ostream& out, const Expression& exp) {
     return exp.dump_inline(out);
@@ -212,7 +210,7 @@ public:
     int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
     void visit(ExprVisitor& func);
 
-protected:
+public:
     inline void write_to_stream_operand1(std::ostream& fd) const {
         operand1_->write_to_stream(fd);
     }
@@ -220,7 +218,7 @@ protected:
     int emit_operand1(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump_operand1(ostream& out, int indent = 0) const;
 
-protected:
+public:
     Expression *operand1_;
 };
 
@@ -243,7 +241,7 @@ public:
     const VType *probe_type(Entity *ent, ScopeBase *scope) const;
     void visit(ExprVisitor& func);
 
-protected:
+public:
     int elaborate_exprs(Entity *, ScopeBase *, const VType *);
     int emit_operand1(ostream& out, Entity *ent, ScopeBase *scope) const;
     int emit_operand2(ostream& out, Entity *ent, ScopeBase *scope) const;
@@ -261,10 +259,10 @@ protected:
 
     void dump_operands(ostream& out, int indent = 0) const;
 
-private:
+public:
     virtual const VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
 
-protected:
+public:
     Expression *operand1_;
     Expression *operand2_;
 };
@@ -305,14 +303,17 @@ public:
         void write_to_stream(std::ostream& fd);
         void dump(ostream& out, int indent) const;
 
-        // FM. MA TODO
-        SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+        // FM. MA| TODO: Implement
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+            return empty_simple_tree();
+        };
 
-    private:
+    public:           // not implemented
+        choice_t& operator =(const choice_t&);
+
+    public:
         std::auto_ptr<Expression> expr_;
         std::auto_ptr<ExpRange>   range_;
-    private:           // not implemented
-        choice_t& operator =(const choice_t&);
     };
 
     struct choice_element {
@@ -358,13 +359,16 @@ public:
         void dump(ostream& out, int indent) const;
 
         // FM. MA TODO
-        SimpleTree<map<string, string>> *emit_strinfo_tree() const { return NULL; };
+        SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+            return empty_simple_tree();
+        };
 
-    private:
+    public:           // not implemented
+        element_t& operator =(const element_t&);
+
+    public:
         std::vector<choice_t *> fields_;
         Expression              *val_;
-    private:           // not implemented
-        element_t& operator =(const element_t&);
     };
 
 public:
@@ -374,7 +378,8 @@ public:
 
     Expression *clone() const;
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    const VType *fit_type(Entity *ent, ScopeBase *scope,
+                          const VTypeArray *atype) const;
     int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
     void write_to_stream(std::ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
@@ -384,13 +389,23 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
-    int elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *ltype);
-    int elaborate_expr_record_(Entity *ent, ScopeBase *scope, const VTypeRecord *ltype);
-    int emit_array_(ostream& out, Entity *ent, ScopeBase *scope, const VTypeArray *ltype) const;
-    int emit_record_(ostream& out, Entity *ent, ScopeBase *scope, const VTypeRecord *ltype) const;
+public:
+    int elaborate_expr_array_(Entity *ent,
+                              ScopeBase *scope,
+                              const VTypeArray *ltype);
+    int elaborate_expr_record_(Entity *ent,
+                               ScopeBase *scope,
+                               const VTypeRecord *ltype);
+    int emit_array_(ostream& out,
+                    Entity *ent,
+                    ScopeBase *scope,
+                    const VTypeArray *ltype) const;
+    int emit_record_(ostream& out,
+                     Entity *ent,
+                     ScopeBase *scope,
+                     const VTypeRecord *ltype) const;
 
-private:
+public:
     // This is the elements as directly parsed.
     std::vector<element_t *> elements_;
 
@@ -414,7 +429,9 @@ public:
     ~ExpArithmetic();
 
     Expression *clone() const {
-        return new ExpArithmetic(fun_, peek_operand1()->clone(), peek_operand2()->clone());
+        return new ExpArithmetic(fun_,
+                                 peek_operand1()->clone(),
+                                 peek_operand2()->clone());
     }
 
     int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
@@ -426,10 +443,10 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     const VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
 
-private:
+public:
     fun_t fun_;
 };
 
@@ -451,13 +468,16 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-protected:
+public:
     int elaborate_args(Entity *ent, ScopeBase *scope, const VType *ltype);
     void visit_args(ExprVisitor& func);
 
     std::list<Expression *> *clone_args() const;
 
-    bool evaluate_type_attr(const VType *type, Entity *ent, ScopeBase *scope, int64_t& val) const;
+    bool evaluate_type_attr(const VType *type,
+                            Entity *ent,
+                            ScopeBase *scope,
+                            int64_t& val) const;
     bool test_array_type(const VType *type) const;
 
     perm_string             name_;
@@ -489,7 +509,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     ExpName *base_;
 };
 
@@ -519,7 +539,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     const VType *base_;
 };
 
@@ -547,7 +567,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     std::vector<char> value_;
 };
 
@@ -580,11 +600,11 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     int emit_primitive_bit_(ostream& out, Entity *ent, ScopeBase *scope,
                             const VTypePrimitive *etype) const;
 
-private:
+public:
     char value_;
 };
 
@@ -611,10 +631,10 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     int elaborate_expr_array_(Entity *ent, ScopeBase *scope, const VTypeArray *ltype);
 
-private:
+public:
     Expression *operand1_;
     Expression *operand2_;
 };
@@ -662,7 +682,7 @@ public:
                 true_clause_);
         }
 
-    private:
+    public:
         Expression              *cond_;
         std::list<Expression *> true_clause_;
     };
@@ -684,7 +704,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-protected:
+public:
     std::list<case_t *> options_;
 };
 
@@ -704,7 +724,7 @@ public:
             map<string, string>{
                 {"node-type", "dummy"}}); };
 
-private:
+public:
     Expression *selector_;
 };
 
@@ -738,7 +758,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     fun_t fun_;
 };
 
@@ -779,7 +799,7 @@ public:     // Base methods
     void dump(ostream& out, int indent = 0) const;
     void visit(ExprVisitor& func);   // NOTE: does not handle expressions in subprogram
 
-private:
+public:
     perm_string               name_;
     std::vector<Expression *> argv_;
     SubprogramHeader          *def_;
@@ -817,7 +837,7 @@ public:
     void dump(ostream& out, int indent = 0) const;
     virtual ostream& dump_inline(ostream& out) const;
 
-private:
+public:
     int64_t value_;
 };
 
@@ -848,7 +868,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     double value_;
 };
 
@@ -881,7 +901,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     fun_t fun_;
 };
 
@@ -925,7 +945,7 @@ public:
     void add_index(std::list<Expression *> *idx);
     void visit(ExprVisitor& func);
 
-private:
+public:
     class index_t {
     public:
         index_t(Expression *idx, Expression *size, Expression *offset = NULL)
@@ -941,7 +961,7 @@ private:
 
         int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
 
-    private:
+    public:
         Expression *idx_;
         Expression *size_;
         Expression *offset_;
@@ -973,7 +993,7 @@ private:
     int emit_workaround_(ostream& out, Entity *ent, ScopeBase *scope,
                          const list<index_t *>& indices, int field_size) const;
 
-private:
+public:
     Expression *index(unsigned int number) const;
 
     std::auto_ptr<ExpName>  prefix_;
@@ -1021,7 +1041,7 @@ public:
 
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     fun_t fun_;
 };
 
@@ -1087,7 +1107,7 @@ public:
         return empty_simple_tree();
     };
 
-private:
+public:
     // Functions that resolve the origin scope for the name expression
     ScopeBase *get_scope(const ScopeBase *scope);
     ScopeBase *get_scope(const ScopeBase *scope) const;
@@ -1124,7 +1144,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     shift_t shift_;
 };
 
@@ -1161,13 +1181,13 @@ public:
     // counterpart in SystemVerilog (\")
     static std::string escape_quot(const std::string& str);
 
-private:
+public:
     int emit_as_array_(ostream& out,
             Entity *ent,
             ScopeBase *scope,
             const VTypeArray *arr) const;
 
-private:
+public:
     std::string value_;
 };
 
@@ -1232,7 +1252,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     Expression  *base_;
     const VType *type_;
 };
@@ -1260,7 +1280,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     Expression *size_;
 };
 
@@ -1289,7 +1309,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     // Returns the time value expressed in femtoseconds
     double to_fs() const;
 
@@ -1336,7 +1356,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     // Regular range related fields
     Expression  *left_, *right_;
     range_dir_t direction_;
@@ -1378,7 +1398,7 @@ public:
         return delay_;
     }
 
-private:
+public:
     Expression *expr_;
     Expression *delay_;
 };

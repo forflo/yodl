@@ -31,19 +31,13 @@ const char COPYRIGHT[] =
 #include <iostream>
 #include <math.h>
 
-// mach7 setup
-#define XTL_DEFAULT_SYNTAX 'S'
-
-#include "match.hpp"
-#include "constructor.hpp"
-#include "n+k.hpp"
-
 // code base specific includes
 #include "vhdlpp_config.h"
 #include "generate_graph.h"
 #include "version_base.h"
 #include "simple_tree.h"
 #include "StringHeap.h"
+#include "entity.h"
 #include "compiler.h"
 #include "sequential.h"
 #include "library.h"
@@ -51,6 +45,7 @@ const char COPYRIGHT[] =
 #include "std_types.h"
 #include "architec.h"
 #include "parse_api.h"
+#include "traverse_all.h"
 #include "vtype.h"
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -62,22 +57,6 @@ const char COPYRIGHT[] =
 # include <io.h>
 # define mkdir(path, mode)    mkdir(path)
 #endif
-
-using namespace std;
-using namespace mch;
-
-// test for mach7
-int fac(int n){
-    unsigned short m;
-
-    Match (n){
-        When(0) return 1;
-        When(1) return 1;
-        When(m) return m * fac(m - 1);
-        When(_) return 0;
-    }
-    EndMatch
-}
 
 extern map<perm_string, Entity *> design_entities;
 
@@ -214,14 +193,18 @@ int main(int argc, char *argv[]) {
 
     ////
     // WARNING: CHECK ENTITY NAME!!
-    Entity *ent = design_entities[perm_string::literal("adder")];
+    Entity *ent = design_entities[perm_string::literal("ent")];
     cout << "Entity found!\n";
+
+    Entity *copy = ent->clone();
+    cout << "Entity copied!\n";
 
     //emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
     emit_dotgraph(std::cout, "g", ent->arch_[perm_string::literal("beh")]->emit_strinfo_tree());
 
-    cout << '\n';
-    cout << fac(10) << endl;
+//    cout << endl << "Traverse outputs: \n";
+//    traverse(*ent);
+//    cout << endl;
 
     /* End Playground */
 

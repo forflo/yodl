@@ -38,9 +38,30 @@ Architecture::Architecture(perm_string name,
     statements_.splice(statements_.end(), s);
 }
 
+Architecture::Architecture(perm_string name)
+    : Scope(4711)
+    , name_(name) {}
+
 Architecture::~Architecture() {
     delete_all(statements_);
     ScopeBase::cleanup();
+}
+
+Architecture *Architecture::clone() const {
+    list<Architecture::Statement*> copy_stmts;
+
+    auto result = new Architecture(name_);
+
+    for (auto &i : statements_)
+        copy_stmts.push_back(i->clone());
+
+
+    result->statements_ = copy_stmts;
+
+    result->cur_process_ = cur_process_->clone();
+    result->cur_component_ = cur_component_->clone();
+
+    return result;
 }
 
 bool Architecture::find_constant(perm_string by_name,
@@ -233,11 +254,11 @@ ComponentInstantiation::ComponentInstantiation(perm_string i,
     : iname_(i)
     , cname_(c) {
 
-    for (auto &i : generic_map)
-        generic_map_[i.first] = i.second->clone();
+    for (auto &j : generic_map)
+        generic_map_[j.first] = j.second->clone();
 
-    for (auto &i : port_map)
-        port_map_[i.first] = i.second->clone();
+    for (auto &j : port_map)
+        port_map_[j.first] = j.second->clone();
 }
 
 ComponentInstantiation::ComponentInstantiation(perm_string i,

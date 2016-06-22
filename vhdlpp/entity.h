@@ -20,6 +20,9 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+
+// FM. MA| TODO: Clone methoden auslagern!
+
 # include <map>
 # include <list>
 # include <vector>
@@ -75,6 +78,7 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    InterfacePort *clone() const;
 
     // Port direction from the source code.
     port_mode_t mode;
@@ -123,6 +127,7 @@ public:
 
     // FM. MA
     virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    virtual ComponentBase *clone() const;
 
 public:
     perm_string name_;
@@ -161,17 +166,18 @@ public:
 
     void dump(ostream& out, int indent = 0) const;
 
-    // FM. MA
+    int elaborate_generic_exprs_();
+    int elaborate_ports_();
+
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    // FM. MA | TODO: test this!
+    Entity *clone() const;
 
 public:
     std::map<perm_string, Architecture *> arch_;
+    std::map<perm_string, VType::decl_t> declarations_;
+
     Architecture *bind_arch_;
-
-    map<perm_string, VType::decl_t> declarations_;
-
-    int elaborate_generic_exprs_();
-    int elaborate_ports_();
 };
 
 #endif /* IVL_entity_H */

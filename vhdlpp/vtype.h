@@ -141,11 +141,19 @@ public:
 
         int         emit(std::ostream& out, perm_string name) const;
 
+        // FM. MA
+        decl_t *clone() const {
+            auto result = new decl_t();
+            result->type = (type ? type->clone() : NULL);
+            result->reg_flag = reg_flag;
+            return result;
+        }
+
         const VType *type;
         bool        reg_flag;
     };
 
-public:
+protected:
     inline void emit_name(std::ostream& out, perm_string name) const {
         if (name != empty_perm_string) {
             out << " \\" << name << " ";
@@ -357,7 +365,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+protected:
     const VType *base_;
 };
 
@@ -549,7 +557,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+protected:
     perm_string name_;
     const VType *type_;
 };

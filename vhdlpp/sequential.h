@@ -428,7 +428,18 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
     // TODO: Auslagern
-    ForLoopStatement *clone() const;
+    ForLoopStatement *clone() const {
+        list<SequentialStmt *> *copy_statements = new list<SequentialStmt*>();
+
+        for (auto &i : stmts_)
+            copy_statements->push_back(i->clone());
+
+        return new ForLoopStatement(
+            name_,
+            it_,
+            static_cast<ExpRange*>(range_->clone()),
+            copy_statements);
+    };
 
 public:
     // Emits for-loop which direction is determined at run-time.
@@ -581,9 +592,18 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
     WaitStmt *clone() const {
-        return new WaitStmt(
+        std::set<ExpName *> copy_senslist;
+
+        for (auto &i : sens_list_)
+            copy_senslist.insert(static_cast<ExpName*>(i->clone()));
+
+        auto result = new WaitStmt(
             type_,
             expr_->clone());
+
+        result->sens_list_ = copy_senslist;
+
+        return result;
     }
 
 public:

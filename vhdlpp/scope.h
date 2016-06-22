@@ -216,6 +216,8 @@ public:
     explicit Scope(const ActiveScope& ref)
         : ScopeBase(ref) {}
 
+    Scope(int i){i++;}
+
     virtual ~Scope() {}
 
     ComponentBase *find_component(perm_string by_name);

@@ -50,6 +50,7 @@ O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
     simple_tree/simple_tree.o \
     enum_overloads.o \
     generate_graph.o \
+	traverse_all.o \
     vtype_match.o \
     architec_elaborate.o entity_elaborate.o expression_elaborate.o \
     expression_evaluate.o \

@@ -70,6 +70,8 @@ public:
             const ActiveScope& ref,
             std::list<Architecture::Statement *>& s);
 
+    Architecture(perm_string name); //FM. MA| empty constructor for better clone()
+
     ~Architecture();
 
     perm_string get_name() const {
@@ -118,6 +120,7 @@ public:
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
+    Architecture *clone() const;
 
     // The dump method writes a debug display to the given output.
     void dump(ostream& out, perm_string of_entity, int indent = 0) const;
@@ -132,7 +135,7 @@ public:
         const VType *vtype;
     };
 
-    // FM. TODO?
+    // FM. TODO: Proper clone!
     std::list<genvar_type_t> genvar_type_stack_;
 
     struct genvar_emit_t {
@@ -140,7 +143,7 @@ public:
         const GenerateStatement *gen;
     };
 
-    // FM. TODO?
+    // FM. TODO: Proper clone!
     std::list<genvar_emit_t> genvar_emit_stack_;
 
     // Currently processed component (or NULL if none).
@@ -342,7 +345,7 @@ public:
             port_map_);
     }
 
-public
+public:
     perm_string iname_;
     perm_string cname_;
 

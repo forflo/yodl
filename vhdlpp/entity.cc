@@ -16,18 +16,17 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+#include <cassert>
 
-# include  "entity.h"
-# include  "architec.h"
-# include  <cassert>
+#include "entity.h"
+#include "architec.h"
 
 using namespace std;
 
-std::map<perm_string, Entity *> design_entities;
+map<perm_string, Entity *> design_entities;
 
 ComponentBase::ComponentBase(perm_string name)
-    : name_(name)
-{}
+    : name_(name) {}
 
 
 ComponentBase::~ComponentBase() {
@@ -35,6 +34,22 @@ ComponentBase::~ComponentBase() {
          ; it != ports_.end(); ++it) {
         delete *it;
     }
+}
+
+// FM. MA
+ComponentBase *ComponentBase::clone() const {
+        auto result = new ComponentBase(name_);
+
+        list<InterfacePort*> pa, po;
+        for (auto &i : parms_)
+            pa.push_back(i->clone());
+
+        for (auto &i : ports_)
+            po.push_back(i->clone());
+
+        result->set_interface(&pa, &po);
+
+        return result;
 }
 
 
@@ -91,6 +106,35 @@ Entity::~Entity() {
     }
 }
 
+// FM. MA
+Entity *Entity::clone() const {
+        list<InterfacePort*> pa, po;
+        map<perm_string, Architecture*> copy_arch;
+        map<perm_string, VType::decl_t> copy_decls;
+        Entity *result = new Entity(name_);
+        Architecture *copy_bind_arch;
+
+        for (auto &i : parms_)
+            pa.push_back(i->clone());
+
+        for (auto &i : ports_)
+            po.push_back(i->clone());
+
+        for (auto &i : arch_)
+            copy_arch[i.first] = i.second->clone();
+
+        for (auto &i : declarations_)
+            copy_decls[i.first] = *(i.second.clone());
+
+        copy_bind_arch = bind_arch_->clone();
+
+        result->set_interface(&pa, &po);
+        result->arch_ = copy_arch;
+        result->declarations_ = copy_decls;
+        result->bind_arch_ = copy_bind_arch;
+
+        return result;
+}
 
 Architecture *Entity::add_architecture(Architecture *that) {
     if (Architecture *tmp = arch_ [that->get_name()]) {
@@ -105,4 +149,9 @@ void Entity::set_declaration_l_value(perm_string nam, bool flag) {
     map<perm_string, VType::decl_t>::iterator cur = declarations_.find(nam);
     assert(cur != declarations_.end());
     cur->second.reg_flag = flag;
+}
+
+// FM. MA
+InterfacePort *InterfacePort::clone() const {
+    return new InterfacePort(mode, name, type->clone(), expr->clone());
 }
