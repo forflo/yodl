@@ -33,7 +33,7 @@ LEX = flex
 YACC = bison
 
 # FM. MA| Added new include paths
-INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns
+INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Icatch
 
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
@@ -50,7 +50,6 @@ O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
     simple_tree/simple_tree.o \
     enum_overloads.o \
     generate_graph.o \
-	traverse_all.o \
     vtype_match.o \
     architec_elaborate.o entity_elaborate.o expression_elaborate.o \
     expression_evaluate.o \
@@ -66,6 +65,9 @@ O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
     $M
 
 all: dep vhdlpp
+
+test: $0
+	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $0 test.cc $(LIBS)
 
 check: all
 

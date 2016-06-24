@@ -47,6 +47,10 @@ const char COPYRIGHT[] =
 #include "parse_api.h"
 #include "traverse_all.h"
 #include "vtype.h"
+
+// tests
+#include "test.h"
+
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
 #endif
