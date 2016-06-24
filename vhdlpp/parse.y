@@ -23,7 +23,7 @@
 %parse-param {yyscan_t yyscanner}
 %parse-param {const char*file_path}
 %parse-param {perm_string parse_library_name}
-%parse-param {ParserContext *context} //FM. MA trying to make parser reentrant
+%parse-param {ParserContext *yy_parse_context} //FM. MA trying to make parser reentrant
 
 // FM. MA
 // so that parse_context.h get's included in parse.h
@@ -61,10 +61,6 @@
 #include "parse_types.h"
 #include "parse_context.h"
 
-inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where) {
-    tmp->set_lineno(where.first_line);
-    tmp->set_file(filename_strings.make(where.text));
-}
 
 /* Recent version of bison expect that the user supply a
    YYLLOC_DEFAULT macro that makes up a yylloc value from existing
@@ -74,19 +70,21 @@ inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where) {
   (Current).first_line   = (Rhs)[1].first_line;      \
   (Current).text         = file_path; /* (Rhs)[1].text; */ } while (0)
 
-static void yyerror(YYLTYPE*yyllocp,
+static void yyerror(YYLTYPE *yyllocp,
                     yyscan_t yyscanner,
-                    const char*file_path,
+                    const char *file_path,
                     perm_string p,
                     ParserContext *context,
-                    const char*msg);
+                    const char *msg);
 
 int parse_errors = 0;
 int parse_sorrys = 0;
 
 /* The parser calls yylex to get the next lexical token. It is only
  * called by the bison-generated parser.  */
-extern int yylex(union YYSTYPE*yylvalp, YYLTYPE*yyllocp, yyscan_t yyscanner);
+extern int yylex(union YYSTYPE *yylvalp,
+                 YYLTYPE *yyllocp,
+                 yyscan_t yyscanner);
 
 /* Create an initial scope that collects all the global
  * declarations. Also save a stack of previous scopes, as a way to
@@ -167,14 +165,14 @@ const VType*parse_type_by_name(perm_string name) {
 static Expression*aggregate_or_primary(const YYLTYPE&loc, std::list<ExpAggregate::element_t*>*el) {
     if (el->size() != 1) {
         ExpAggregate*tmp = new ExpAggregate(el);
-        FILE_NAME(tmp,loc);
+        ParserUtil::add_location(tmp,loc);
         return tmp;
     }
 
     ExpAggregate::element_t*el1 = el->front();
     if (el1->count_choices() > 0) {
         ExpAggregate*tmp = new ExpAggregate(el);
-        FILE_NAME(tmp,loc);
+        ParserUtil::add_location(tmp,loc);
         return tmp;
     }
 
@@ -418,7 +416,7 @@ K_end  K_architecture_opt  identifier_opt ';'
 {
     Architecture *tmp = new Architecture(lex_strings.make($1),
                                          *active_scope, *$8);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     bind_architecture_to_entity($3, tmp);
     if ($11 && tmp->get_name() != $11)
         errormsg(@1, "Architecture name doesn't match closing name.\n");
@@ -478,13 +476,13 @@ assertion_statement
     assert(report);
     AssertStmt*tmp = new AssertStmt($2, report->message(), report->severity());
     delete report;
-    FILE_NAME(tmp,@2);
+    ParserUtil::add_location(tmp,@2);
     $$ = tmp;
 }
 | K_assert expression severity_opt ';'
 {
     AssertStmt*tmp = new AssertStmt($2, NULL, $3);
-    FILE_NAME(tmp,@2);
+    ParserUtil::add_location(tmp,@2);
     $$ = tmp;
 }
 ;
@@ -560,7 +558,7 @@ signal_declaration_assign_opt ';'
     for (std::list<perm_string>::iterator cur = $2->begin()
              ; cur != $2->end() ; ++cur) {
         Signal*sig = new Signal(*cur, $4, $5 ? $5->clone() : 0);
-        FILE_NAME(sig, @1);
+        ParserUtil::add_location(sig, @1);
         active_scope->bind_name(*cur, sig);
     }
     delete $2;
@@ -599,7 +597,7 @@ case_statement
     case_statement_alternative_list
     K_end K_case ';'
       { CaseSeqStmt* tmp = new CaseSeqStmt($2, $4);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	delete $4;
 	$$ = tmp;
       }
@@ -655,7 +653,7 @@ case_statement_alternative
         } else {
             tmp = new CaseSeqStmt::CaseStmtAlternative(exp_list, $4);
         }
-        if (tmp) FILE_NAME(tmp, @1);
+        if (tmp) ParserUtil::add_location(tmp, @1);
 
         delete choices;
         delete $4;
@@ -742,7 +740,7 @@ component_instantiation_statement
 	ComponentInstantiation*tmp = new ComponentInstantiation(iname, cname, $4, $5);
 	delete $4;
 	delete $5;
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	delete[]$1;
 	delete[]$3;
 	$$ = tmp;
@@ -778,7 +776,7 @@ composite_type_definition
 	// NULL boundaries indicate unbounded array type
 	ExpRange*tmp = new ExpRange(NULL, NULL, ExpRange::DOWNTO);
 	r.push_back(tmp);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	VTypeArray*arr = new VTypeArray($6, &r);
 	$$ = arr;
       }
@@ -798,7 +796,7 @@ concurrent_assertion_statement
         ProcessStatement*tmp = new ProcessStatement(empty_perm_string, *active_scope,
                                                     NULL, &stmts);
         pop_scope();
-        FILE_NAME(tmp, @1);
+        ParserUtil::add_location(tmp, @1);
         $$ = tmp;
       }
   ;
@@ -817,7 +815,7 @@ concurrent_conditional_signal_assignment /* IEEE 1076-2008 P11.6 */
         assert(name);
         CondSignalAssignment*tmp = new CondSignalAssignment(name, *options);
 
-        FILE_NAME(tmp, @1);
+        ParserUtil::add_location(tmp, @1);
         delete options;
         $$ = tmp;
       }
@@ -827,13 +825,13 @@ concurrent_conditional_signal_assignment /* IEEE 1076-2008 P11.6 */
   | name LEQ error K_when expression else_when_waveforms ';'
       { errormsg(@3, "Syntax error in waveform of conditional signal assignment.\n");
 	ExpConditional*tmp = new ExpConditional($5, 0, $6);
-	FILE_NAME(tmp, @3);
+	ParserUtil::add_location(tmp, @3);
 	delete $6;
 
         ExpName*name = dynamic_cast<ExpName*> ($1);
 	assert(name);
 	SignalAssignment*tmpa = new SignalAssignment(name, tmp);
-	FILE_NAME(tmpa, @1);
+	ParserUtil::add_location(tmpa, @1);
 
 	$$ = tmpa;
       }
@@ -844,7 +842,7 @@ concurrent_simple_signal_assignment
       { ExpName*name = dynamic_cast<ExpName*> ($1);
 	assert(name);
 	SignalAssignment*tmp = new SignalAssignment(name, *$3);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 
 	$$ = tmp;
 	delete $3;
@@ -872,12 +870,12 @@ else_when_waveforms_opt
 else_when_waveform
   : K_else waveform K_when expression
       { ExpConditional::case_t*tmp = new ExpConditional::case_t($4, $2);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | K_else waveform
       { ExpConditional::case_t*tmp = new ExpConditional::case_t(0,  $2);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   ;
@@ -1110,7 +1108,7 @@ entity_declaration
     K_is generic_clause_opt port_clause_opt
     K_end K_entity_opt identifier_opt';'
       { Entity*tmp = new Entity(lex_strings.make($2));
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	  // Transfer the ports
 	tmp->set_interface($4, $5);
 	delete $4;
@@ -1202,32 +1200,32 @@ expression_logical
   : relation { $$ = $1; }
   | relation K_and expression_logical_and
       { ExpLogical*tmp = new ExpLogical(ExpLogical::AND, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | relation K_or expression_logical_or
       { ExpLogical*tmp = new ExpLogical(ExpLogical::OR, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | relation K_xor expression_logical_xor
       { ExpLogical*tmp = new ExpLogical(ExpLogical::XOR, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | relation K_nand relation
       { ExpLogical*tmp = new ExpLogical(ExpLogical::NAND, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | relation K_nor relation
       { ExpLogical*tmp = new ExpLogical(ExpLogical::NOR, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | relation K_xnor expression_logical_xnor
       { ExpLogical*tmp = new ExpLogical(ExpLogical::XNOR, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   ;
@@ -1237,7 +1235,7 @@ expression_logical_and
       { $$ = $1; }
   | expression_logical_and K_and relation
       { ExpLogical*tmp = new ExpLogical(ExpLogical::AND, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   ;
@@ -1247,7 +1245,7 @@ expression_logical_or
       { $$ = $1; }
   | expression_logical_or K_or relation
       { ExpLogical*tmp = new ExpLogical(ExpLogical::OR, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   ;
@@ -1257,7 +1255,7 @@ expression_logical_xnor
       { $$ = $1; }
   | expression_logical_xnor K_xnor relation
       { ExpLogical*tmp = new ExpLogical(ExpLogical::XNOR, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   ;
@@ -1267,7 +1265,7 @@ expression_logical_xor
       { $$ = $1; }
   | expression_logical_xor K_xor relation
       { ExpLogical*tmp = new ExpLogical(ExpLogical::XOR, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   ;
@@ -1277,17 +1275,17 @@ factor
       { $$ = $1; }
   | primary EXP primary
       { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::POW, $1, $3);
-	FILE_NAME(tmp, @2);
+	ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | K_abs primary
       { ExpUAbs*tmp = new ExpUAbs($2);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | K_not primary
       { ExpUNot*tmp = new ExpUNot($2);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   ;
@@ -1301,7 +1299,7 @@ file_declaration
 	for (std::list<perm_string>::iterator cur = $2->begin()
 		   ; cur != $2->end() ; ++cur) {
 	      Variable*var = new Variable(*cur, &primitive_INTEGER);
-	      FILE_NAME(var, @1);
+	      ParserUtil::add_location(var, @1);
 	      active_scope->bind_name(*cur, var);
 
 	      // there was a file name specified, so it needs an implicit call
@@ -1341,7 +1339,7 @@ file_open_information
      {
         ExpName*mode = new ExpName(lex_strings.make($2));
         delete[]$2;
-        FILE_NAME(mode, @1);
+        ParserUtil::add_location(mode, @1);
         $$ = new file_open_info_t(new ExpString($4), mode);
      }
   | K_is STRING_LITERAL
@@ -1372,9 +1370,7 @@ K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
     arc_scope->bind_scope(tmp->peek_name(), tmp);
     pop_scope();
 
-    context->output_fnord();
-
-    //FILE_NAME(tmp, @1);
+    //ParserUtil::add_location(tmp, @1);
 
     delete[] $1;
     if ($12)
@@ -1387,7 +1383,7 @@ K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
 block_header :
 block_header_generic_opt   block_header_port_opt
 {
-    // TODO: Error messages? FILE_NAME
+    // TODO: Error messages? ParserUtil::add_location
     BlockStatement::BlockHeader *tmp = new BlockStatement::BlockHeader(
         ($1 ? ($1)->first : NULL),
         ($1 ? ($1)->second : NULL),
@@ -1433,7 +1429,7 @@ K_generate   generate_statement_body   K_end   K_generate identifier_opt   ';'
     perm_string name = lex_strings.make($1);
     perm_string gvar = lex_strings.make($4);
     ForGenerate *tmp = new ForGenerate(name, gvar, $6, *$8);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
 
     if ($11 && name != $11) {
         errormsg(@1, "for-generate name %s does not match closing name %s\n",
@@ -1455,7 +1451,7 @@ function_specification /* IEEE 1076-2008 P4.2.1 */
     const VType*type_mark = active_scope->find_type(type_name);
     touchup_interface_for_functions($3);
     SubprogramHeader*tmp = new SubprogramHeader(name, $3, type_mark);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     delete[]$2;
     delete[]$5;
     $$ = tmp;
@@ -1533,7 +1529,7 @@ K_end K_generate identifier_opt ';'
 {
     perm_string name = lex_strings.make($1);
     IfGenerate*tmp = new IfGenerate(name, $4, *$6);
-    FILE_NAME(tmp, @3);
+    ParserUtil::add_location(tmp, @3);
 
     if ($9 && name != $9) {
         errormsg(@1, "if-generate name %s does not match closing name %s\n",
@@ -1552,7 +1548,7 @@ if_statement_elsif_list_opt if_statement_else
 K_end K_if ';'
 {
     IfSequential*tmp = new IfSequential($2, $4, $5, $6);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     delete $4;
     delete $5;
     delete $6;
@@ -1605,7 +1601,7 @@ if_statement_elsif
 : K_elsif expression K_then sequence_of_statements
 {
     IfSequential::Elsif*tmp = new IfSequential::Elsif($2, $4);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     delete $4;
     $$ = tmp;
 }
@@ -1674,7 +1670,7 @@ interface_element
     for (std::list<perm_string>::iterator cur = $1->begin()
              ; cur != $1->end() ; ++cur) {
         InterfacePort*port = new InterfacePort;
-        FILE_NAME(port, @1);
+        ParserUtil::add_location(port, @1);
         port->mode = $3;
         port->name = *(cur);
         port->type = $4;
@@ -1758,7 +1754,7 @@ K_end K_loop identifier_opt ';'
     if($8) delete[]$8;
 
     WhileLoopStatement* tmp = new WhileLoopStatement(loop_name, $3, $5);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     $$ = tmp;
 }
 | identifier_colon_opt
@@ -1777,7 +1773,7 @@ K_loop sequence_of_statements K_end K_loop identifier_opt ';'
     if($10) delete[] $10;
 
     ForLoopStatement* tmp = new ForLoopStatement(loop_name, index_name, $5, $7);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     $$ = tmp;
 }
 
@@ -1794,7 +1790,7 @@ K_loop sequence_of_statements K_end K_loop identifier_opt ';'
     if($6) delete[]$6;
 
     BasicLoopStatement* tmp = new BasicLoopStatement(loop_name, $3);
-    FILE_NAME(tmp, @2);
+    ParserUtil::add_location(tmp, @2);
 
     $$ = tmp;
 };
@@ -1821,7 +1817,7 @@ name /* IEEE 1076-2008 P8.1 */
         else
             tmp = new ExpName(name);
     }
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     delete[]$1;
     $$ = tmp;
 }
@@ -1850,7 +1846,7 @@ indexed_name
         tmp = new ExpName(name, $3);
     else
         tmp = new ExpFunc(name, $3);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     $$ = tmp;
 }
 | indexed_name '(' expression_list ')'
@@ -1886,7 +1882,7 @@ package_declaration
 		       $6, name.str());
         }
 	Package*tmp = new Package(name, *active_scope);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	delete[]$1;
         if ($6) delete[]$6;
 	pop_scope();
@@ -2041,35 +2037,35 @@ primary
 	    tmp = new ExpObjAttribute(base, attr, $4);
 	}
 
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	delete[]$3;
 	$$ = tmp;
       }
   | CHARACTER_LITERAL
       { ExpCharacter*tmp = new ExpCharacter($1[0]);
-	FILE_NAME(tmp,@1);
+	ParserUtil::add_location(tmp,@1);
 	delete[]$1;
 	$$ = tmp;
       }
   | INT_LITERAL
       { ExpInteger*tmp = new ExpInteger($1);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | REAL_LITERAL
       { ExpReal*tmp = new ExpReal($1);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | STRING_LITERAL
       { ExpString*tmp = new ExpString($1);
-	FILE_NAME(tmp,@1);
+	ParserUtil::add_location(tmp,@1);
 	delete[]$1;
 	$$ = tmp;
       }
   | BITSTRING_LITERAL
       { ExpBitstring*tmp = new ExpBitstring($1);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	delete[]$1;
 	$$ = tmp;
       }
@@ -2095,7 +2091,7 @@ primary
             errormsg(@1, "Time cannot be negative.\n");
 
         ExpTime*tmp = new ExpTime($1, unit);
-        FILE_NAME(tmp, @1);
+        ParserUtil::add_location(tmp, @1);
         delete[] $2;
         $$ = tmp;
       }
@@ -2132,21 +2128,21 @@ procedure_call
   : IDENTIFIER ';'
       {
     ProcedureCall* tmp = new ProcedureCall(lex_strings.make($1));
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     delete[] $1;
     $$ = tmp;
       }
   | IDENTIFIER '(' association_list ')' ';'
       {
     ProcedureCall* tmp = new ProcedureCall(lex_strings.make($1), $3);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     delete[] $1;
     $$ = tmp;
       }
   | IDENTIFIER argument_list ';'
       {
     ProcedureCall* tmp = new ProcedureCall(lex_strings.make($1), $2);
-    FILE_NAME(tmp, @1);
+    ParserUtil::add_location(tmp, @1);
     delete[] $1;
     delete $2; // parameters are copied in this variant
     $$ = tmp;
@@ -2172,7 +2168,7 @@ procedure_specification /* IEEE 1076-2008 P4.2.1 */
       { perm_string name = lex_strings.make($2);
 	touchup_interface_for_functions($3);
 	SubprogramHeader*tmp = new SubprogramHeader(name, $3, NULL);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	delete[]$2;
 	$$ = tmp;
       }
@@ -2220,7 +2216,7 @@ process_statement
 	ProcessStatement*tmp = new ProcessStatement(iname, *active_scope, $2, $6);
         arc_scope->bind_scope(tmp->peek_name(), tmp);
         pop_scope();
-	FILE_NAME(tmp, @3);
+	ParserUtil::add_location(tmp, @3);
 	delete $2;
 	delete $6;
 	$$ = tmp;
@@ -2255,7 +2251,7 @@ process_sensitivity_list
   : K_all
       { std::list<Expression*>*tmp = new std::list<Expression*>;
 	ExpName*all = new ExpNameALL;
-	FILE_NAME(all, @1);
+	ParserUtil::add_location(all, @1);
 	tmp->push_back(all);
 	$$ = tmp;
       }
@@ -2267,7 +2263,7 @@ range
   : simple_expression direction simple_expression
       { ExpRange* tmp = new ExpRange($1, $3, $2);
 
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | name '\'' K_range
@@ -2276,7 +2272,7 @@ range
         ExpName*name = NULL;
         if((name = dynamic_cast<ExpName*>($1))) {
             tmp = new ExpRange(name, false);
-            FILE_NAME(tmp, @1);
+            ParserUtil::add_location(tmp, @1);
         } else {
 	    errormsg(@1, "'range attribute can be used with named expressions only");
         }
@@ -2288,7 +2284,7 @@ range
         ExpName*name = NULL;
         if((name = dynamic_cast<ExpName*>($1))) {
             tmp = new ExpRange(name, true);
-            FILE_NAME(tmp, @1);
+            ParserUtil::add_location(tmp, @1);
         } else {
 	    errormsg(@1, "'reverse_range attribute can be used with named expressions only");
         }
@@ -2321,32 +2317,32 @@ relation
       { $$ = $1; }
   | shift_expression '=' shift_expression
       { ExpRelation*tmp = new ExpRelation(ExpRelation::EQ, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | shift_expression '<' shift_expression
       { ExpRelation*tmp = new ExpRelation(ExpRelation::LT, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | shift_expression '>' shift_expression
       { ExpRelation*tmp = new ExpRelation(ExpRelation::GT, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | shift_expression LEQ shift_expression
       { ExpRelation*tmp = new ExpRelation(ExpRelation::LE, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | shift_expression GEQ shift_expression
       { ExpRelation*tmp = new ExpRelation(ExpRelation::GE, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   | shift_expression NE shift_expression
       { ExpRelation*tmp = new ExpRelation(ExpRelation::NEQ, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
 	$$ = tmp;
       }
   ;
@@ -2354,24 +2350,24 @@ relation
 report_statement
   : K_report expression severity_opt ';'
       { ReportStmt*tmp = new ReportStmt($2, $3);
-	FILE_NAME(tmp,@2);
+	ParserUtil::add_location(tmp,@2);
 	$$ = tmp;
       }
 
 return_statement
   : K_return expression ';'
       { ReturnStmt*tmp = new ReturnStmt($2);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | K_return ';'
       { ReturnStmt*tmp = new ReturnStmt(0);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | K_return error ';'
       { ReturnStmt*tmp = new ReturnStmt(0);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
 	errormsg(@2, "Error in expression in return statement.\n");
 	yyerrok;
@@ -2390,14 +2386,14 @@ selected_name /* IEEE 1076-2008 P8.3 */
 	assert(pfx1);
 	perm_string tmp = lex_strings.make($3);
 	$$ = new ExpName(pfx1, tmp);
-	FILE_NAME($$, @3);
+	ParserUtil::add_location($$, @3);
 	delete[]$3;
       }
   | error '.' suffix
       { errormsg(@1, "Syntax error in prefix in front of \"%s\".\n", $3);
         yyerrok;
 	$$ = new ExpName(lex_strings.make($3));
-	FILE_NAME($$, @3);
+	ParserUtil::add_location($$, @3);
 	delete[]$3;
       }
   ;
@@ -2444,14 +2440,14 @@ selected_names_lib
 selected_signal_assignment
   : K_with expression K_select name LEQ selected_waveform_list ';'
       { ExpSelected*tmp = new ExpSelected($2, $6);
-	FILE_NAME(tmp, @3);
+	ParserUtil::add_location(tmp, @3);
         delete $2;
 	delete $6;
 
 	ExpName*name = dynamic_cast<ExpName*>($4);
 	assert(name);
 	SignalAssignment*tmpa = new SignalAssignment(name, tmp);
-	FILE_NAME(tmpa, @1);
+	ParserUtil::add_location(tmpa, @1);
 
 	$$ = tmpa;
       }
@@ -2460,12 +2456,12 @@ selected_signal_assignment
 selected_waveform
   : waveform K_when expression
       { ExpConditional::case_t*tmp = new ExpConditional::case_t($3, $1);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | waveform K_when K_others
       { ExpConditional::case_t*tmp = new ExpConditional::case_t(0,  $1);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   ;
@@ -2547,34 +2543,34 @@ shift_expression
   : simple_expression
   | simple_expression K_srl simple_expression
       { ExpShift*tmp = new ExpShift(ExpShift::SRL, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
         $$ = tmp;
       }
   | simple_expression K_sll simple_expression
       { ExpShift*tmp = new ExpShift(ExpShift::SLL, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
         $$ = tmp;
       }
   | simple_expression K_sra simple_expression
       { ExpShift*tmp = new ExpShift(ExpShift::SRA, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
         $$ = tmp;
       }
   | simple_expression K_sla simple_expression
       { ExpShift*tmp = new ExpShift(ExpShift::SLA, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
         $$ = tmp;
       }
   | simple_expression K_ror simple_expression
       { sorrymsg(@2, "ROR is not supported.\n");
         ExpShift*tmp = new ExpShift(ExpShift::ROR, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
         $$ = tmp;
       }
   | simple_expression K_rol simple_expression
       { sorrymsg(@2, "ROL is not supported.\n");
         ExpShift*tmp = new ExpShift(ExpShift::ROL, $1, $3);
-        FILE_NAME(tmp, @2);
+        ParserUtil::add_location(tmp, @2);
         $$ = tmp;
       }
   ;
@@ -2632,7 +2628,7 @@ simple_expression_2
 		    tmp = new ExpArithmetic(item.op, tmp, item.term);
 	}
 	delete lst;
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   ;
@@ -2659,13 +2655,13 @@ simple_expression_terms
 signal_assignment
   : name LEQ waveform ';'
       { SignalSeqAssignment*tmp = new SignalSeqAssignment($1, $3);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	delete $3;
 	$$ = tmp;
       }
   | name LEQ waveform K_when expression K_else waveform ';'
       { SignalSeqAssignment*tmp = new SignalSeqAssignment($1, $3);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	sorrymsg(@4, "Conditional signal assignment not supported.\n");
 	$$ = tmp;
       }
@@ -2685,9 +2681,8 @@ subprogram_body_start
         $$ = $1; }
   ;
 
-  /* This is a function/task body. This may have a matching subprogram
-     declaration, and if so it will be in the active scope. */
-
+/* This is a function/task body. This may have a matching subprogram
+   declaration, and if so it will be in the active scope. */
 subprogram_body /* IEEE 1076-2008 P4.3 */
   : subprogram_body_start subprogram_declarative_part
     K_begin subprogram_statement_part K_end
@@ -2827,22 +2822,22 @@ term
 : factor { $$ = $1; }
 | factor '*' factor
 { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::MULT, $1, $3);
-    FILE_NAME(tmp, @2);
+    ParserUtil::add_location(tmp, @2);
     $$ = tmp;
 }
 | factor '/' factor
 { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::DIV, $1, $3);
-    FILE_NAME(tmp, @2);
+    ParserUtil::add_location(tmp, @2);
     $$ = tmp;
 }
 | factor K_mod factor
 { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::MOD, $1, $3);
-    FILE_NAME(tmp, @2);
+    ParserUtil::add_location(tmp, @2);
     $$ = tmp;
 }
 | factor K_rem factor
 { ExpArithmetic*tmp = new ExpArithmetic(ExpArithmetic::REM, $1, $3);
-    FILE_NAME(tmp, @2);
+    ParserUtil::add_location(tmp, @2);
     $$ = tmp;
 }
 ;
@@ -2929,7 +2924,7 @@ variable_assignment_statement /* IEEE 1076-2008 P10.6.1 */
 variable_assignment
   : name VASSIGN expression ';'
       { VariableSeqAssignment*tmp = new VariableSeqAssignment($1, $3);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | name VASSIGN error ';'
@@ -2953,7 +2948,7 @@ variable_declaration /* IEEE 1076-2008 P6.4.2.4 */
 	for (std::list<perm_string>::iterator cur = $3->begin()
 		   ; cur != $3->end() ; ++cur) {
 	      Variable*sig = new Variable(*cur, $5, $6);
-	      FILE_NAME(sig, @2);
+	      ParserUtil::add_location(sig, @2);
 	      active_scope->bind_name(*cur, sig);
 	}
 	delete $3;
@@ -2972,22 +2967,22 @@ variable_declaration_assign_opt
 wait_statement
   : K_wait K_for expression ';'
       { WaitForStmt*tmp = new WaitForStmt($3);
-	FILE_NAME(tmp, @1);
+	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
       }
   | K_wait K_on expression ';'
       { WaitStmt*tmp = new WaitStmt(WaitStmt::ON, $3);
-        FILE_NAME(tmp, @1);
+        ParserUtil::add_location(tmp, @1);
         $$ = tmp;
       }
   | K_wait K_until expression ';'
       { WaitStmt*tmp = new WaitStmt(WaitStmt::UNTIL, $3);
-        FILE_NAME(tmp, @1);
+        ParserUtil::add_location(tmp, @1);
         $$ = tmp;
       }
   | K_wait ';'
       { WaitStmt*tmp = new WaitStmt(WaitStmt::FINAL, NULL);
-        FILE_NAME(tmp, @1);
+        ParserUtil::add_location(tmp, @1);
         $$ = tmp;
       }
   ;
@@ -3017,7 +3012,7 @@ waveform_element
       { $$ = $1; }
   | expression K_after expression
       { ExpDelay*tmp = new ExpDelay($1, $3);
-        FILE_NAME(tmp, @1);
+        ParserUtil::add_location(tmp, @1);
         $$ = tmp; }
   | K_null
       { $$ = 0; }
