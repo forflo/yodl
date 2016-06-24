@@ -54,7 +54,7 @@ O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
     architec_elaborate.o entity_elaborate.o expression_elaborate.o \
     expression_evaluate.o \
     sequential_elaborate.o \
-	sequential_clone.o \
+    sequential_clone.o \
     vtype_elaborate.o \
     entity_stream.o expression_stream.o vtype_stream.o \
     lexor.o lexor_keyword.o parse.o \

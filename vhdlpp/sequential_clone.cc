@@ -23,6 +23,7 @@ IfSequential::Elsif *IfSequential::Elsif::clone() const {
     return new IfSequential::Elsif(cond_->clone(), copy_elsif);
 }
 
+/*
 ForLoopStatement *ForLoopStatement::clone() const {
     list<SequentialStmt *> *copy = new list<SequentialStmt *>();
 
@@ -35,3 +36,5 @@ ForLoopStatement *ForLoopStatement::clone() const {
         static_cast<ExpRange*>(range_->clone()),
         copy);
 }
+
+*/

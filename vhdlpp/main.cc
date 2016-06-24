@@ -48,9 +48,6 @@ const char COPYRIGHT[] =
 #include "traverse_all.h"
 #include "vtype.h"
 
-// tests
-#include "test.h"
-
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
 #endif
@@ -200,8 +197,8 @@ int main(int argc, char *argv[]) {
     Entity *ent = design_entities[perm_string::literal("ent")];
     cout << "Entity found!\n";
 
-    Entity *copy = ent->clone();
-    cout << "Entity copied!\n";
+//    Entity *copy = ent->clone();
+//    cout << "Entity copied!\n";
 
     //emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
     emit_dotgraph(std::cout, "g", ent->arch_[perm_string::literal("beh")]->emit_strinfo_tree());

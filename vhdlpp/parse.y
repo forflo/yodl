@@ -18,11 +18,19 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-%pure-parser
+%define api.pure
 %lex-param   {yyscan_t yyscanner}
 %parse-param {yyscan_t yyscanner}
 %parse-param {const char*file_path}
 %parse-param {perm_string parse_library_name}
+%parse-param {ParserContext *context} //FM. MA trying to make parser reentrant
+
+// FM. MA
+// so that parse_context.h get's included in parse.h
+%code requires {
+    #include "parse_context.h"
+}
+
 %{
 
 #include <cstdarg>
@@ -51,6 +59,7 @@
 #include "std_funcs.h"
 #include "std_types.h"
 #include "parse_types.h"
+#include "parse_context.h"
 
 inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where) {
     tmp->set_lineno(where.first_line);
@@ -66,10 +75,11 @@ inline void FILE_NAME(LineInfo*tmp, const struct yyltype&where) {
   (Current).text         = file_path; /* (Rhs)[1].text; */ } while (0)
 
 static void yyerror(YYLTYPE*yyllocp,
-        yyscan_t yyscanner,
-        const char*file_path,
-        bool,
-        const char*msg);
+                    yyscan_t yyscanner,
+                    const char*file_path,
+                    perm_string p,
+                    ParserContext *context,
+                    const char*msg);
 
 int parse_errors = 0;
 int parse_sorrys = 0;
@@ -1361,6 +1371,8 @@ K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
     BlockStatement *tmp = new BlockStatement($6, label, *active_scope, $9);
     arc_scope->bind_scope(tmp->peek_name(), tmp);
     pop_scope();
+
+    context->output_fnord();
 
     //FILE_NAME(tmp, @1);
 
@@ -3022,7 +3034,8 @@ K_postponed_opt    : K_postponed    | ;
 K_shared_opt       : K_shared       | ;
 %%
 
-static void yyerror(YYLTYPE*loc, yyscan_t, const char*, bool, const char*msg) {
+static void yyerror(YYLTYPE *loc, yyscan_t, const char*,
+                    perm_string p, ParserContext *context, const char*msg) {
     fprintf(stderr, "%s:%u: %s\n", loc->text, loc->first_line, msg);
     parse_errors += 1;
 }
@@ -3047,7 +3060,6 @@ void sorrymsg(const YYLTYPE&loc, const char*fmt, ...) {
     parse_sorrys += 1;
 }
 
-
 /*
  * The reset_lexor function takes the fd and makes it the input file
  * for the lexor. The path argument is used in lexor/parser error messages.
@@ -3064,7 +3076,7 @@ int parse_source_file(const char*file_path, perm_string parse_library_name) {
 
     yyscan_t scanner = prepare_lexor(fd);
 
-    int rc = yyparse(scanner, file_path, parse_library_name);
+    int rc = yyparse(scanner, file_path, parse_library_name, new ParserContext());
     fclose(fd);
     destroy_lexor(scanner);
 

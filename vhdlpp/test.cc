@@ -44,3 +44,4 @@ TEST_CASE("Factorials are computed", "[Fac]"){
     REQUIRE(Fac(3) == 6);
     REQUIRE(Fac(10) == 3628800);
 }
+
