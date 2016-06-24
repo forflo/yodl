@@ -18,59 +18,24 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *    Picture Elements, Inc., 777 Panoramic Way, Berkeley, CA 94704.
  */
+#include <iostream>
+#include <cassert>
+#include <cstring>
 
-# include  "parse_misc.h"
-# include  "parse_types.h"
-# include  "parse_api.h"
-# include  "entity.h"
-# include  "architec.h"
-# include  "expression.h"
-# include  "vtype.h"
-# include  "compiler.h"
-# include  <iostream>
-# include  <cassert>
-# include  <cstring>
+#include "parse_context.h"
+#include "parse_misc.h"
+#include "parse_types.h"
+#include "parse_api.h"
+#include "entity.h"
+#include "architec.h"
+#include "expression.h"
+#include "vtype.h"
+#include "compiler.h"
 
 using namespace std;
 
-void bind_entity_to_active_scope(const char *ename, ActiveScope *scope) {
-    perm_string ekey = lex_strings.make(ename);
-    std::map<perm_string, Entity *>::const_iterator idx = design_entities.find(ekey);
-
-    if (idx == design_entities.end()) {
-        return;
-    }
-
-    scope->bind(idx->second);
-}
-
-
-void bind_architecture_to_entity(const char *ename, Architecture *arch) {
-    perm_string ekey = lex_strings.make(ename);
-    std::map<perm_string, Entity *>::const_iterator idx = design_entities.find(ekey);
-
-    if (idx == design_entities.end()) {
-        cerr << arch->get_fileline() << ": error: No entity " << ekey
-             << " for architecture " << arch->get_name()
-             << "." << endl;
-        parse_errors += 1;
-        return;
-    }
-
-    /* FIXME: entities can have multiple architectures attached to them
-     * This is to be configured by VHDL's configurations (not yet implemented) */
-    Architecture *old_arch = idx->second->add_architecture(arch);
-    if (old_arch != arch) {
-        cerr << arch->get_fileline() << ": warning: "
-             << "Architecture " << arch->get_name()
-             << " for entity " << idx->first
-             << " is already defined here: " << old_arch->get_fileline() << endl;
-        parse_errors += 1;
-    }
-}
-
-
-static const VType *calculate_subtype_array(const YYLTYPE& loc,
+static const VType *calculate_subtype_array(ParserContext *c,
+                                            const YYLTYPE& loc,
                                             const char *base_name,
                                             ScopeBase * /* scope */,
                                             Expression *array_left,
@@ -79,7 +44,7 @@ static const VType *calculate_subtype_array(const YYLTYPE& loc,
     const VType *base_type = parse_type_by_name(lex_strings.make(base_name));
 
     if (base_type == 0) {
-        errormsg(loc, "Unable to find base type %s of array.\n", base_name);
+        ParserUtil::errormsg(c, loc, "Unable to find base type %s of array.\n", base_name);
         return NULL;
     }
 
@@ -119,7 +84,8 @@ static const VType *calculate_subtype_array(const YYLTYPE& loc,
 }
 
 
-const VType *calculate_subtype_array(const YYLTYPE& loc,
+const VType *calculate_subtype_array(ParserContext *c,
+                                     const YYLTYPE& loc,
                                      const char *base_name,
                                      ScopeBase *scope,
                                      list<ExpRange *> *ranges) {
@@ -128,7 +94,7 @@ const VType *calculate_subtype_array(const YYLTYPE& loc,
         Expression *lef  = tmpr->left();
         Expression *rig  = tmpr->right();
         // FM. MA| Fixed bug tmpr->direction() is 0 if downto
-        return calculate_subtype_array(loc,
+        return calculate_subtype_array(c, loc,
                                        base_name,
                                        scope,
                                        lef,
@@ -138,20 +104,19 @@ const VType *calculate_subtype_array(const YYLTYPE& loc,
                                        rig);
     }
 
-    sorrymsg(loc, "Don't know how to handle multiple ranges here.\n");
+    ParserUtil::sorrymsg(c, loc, "Don't know how to handle multiple ranges here.\n");
     return NULL;
 }
 
 
-const VType *calculate_subtype_range(const YYLTYPE& loc, const char *base_name,
-                                     ScopeBase *scope,
-                                     Expression *range_left,
-                                     int direction,
-                                     Expression *range_right) {
+const VType *calculate_subtype_range(ParserContext *c,
+                                     const YYLTYPE& loc, const char *base_name,
+                                     ScopeBase *scope, Expression *range_left,
+                                     int direction, Expression *range_right) {
     const VType *base_type = parse_type_by_name(lex_strings.make(base_name));
 
     if (base_type == 0) {
-        errormsg(loc, "Unable to find base type %s of range.\n", base_name);
+        ParserUtil::errormsg(c, loc, "Unable to find base type %s of range.\n", base_name);
         return 0;
     }
 

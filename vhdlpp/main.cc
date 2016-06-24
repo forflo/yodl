@@ -47,6 +47,7 @@ const char COPYRIGHT[] =
 #include "parse_api.h"
 #include "traverse_all.h"
 #include "vtype.h"
+#include "parse_context.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -158,10 +159,9 @@ int main(int argc, char *argv[]) {
     preload_std_funcs();
 
     int errors = 0;
+    ParserContext *cont = new ParserContext();
 
     for (int idx = optind; idx < argc; idx += 1) {
-        parse_errors = 0;
-        parse_sorrys = 0;
         rc           = parse_source_file(argv[idx], perm_string());
         if (rc < 0) {
             return 1;
@@ -170,21 +170,21 @@ int main(int argc, char *argv[]) {
         if (verbose_flag) {
             fprintf(stderr, "parse_source_file() returns %d"
                     ", parse_errors=%d, parse_sorrys=%d\n",
-                    rc, parse_errors, parse_sorrys);
+                    rc, cont->parse_errors, cont->parse_sorrys);
         }
 
-        if (parse_errors > 0) {
+        if (cont->parse_errors > 0) {
             fprintf(stderr, "Encountered %d errors parsing %s\n",
-                    parse_errors, argv[idx]);
+                    cont->parse_errors, argv[idx]);
         }
-        if (parse_sorrys > 0) {
+        if (cont->parse_sorrys > 0) {
             fprintf(stderr, "Encountered %d unsupported constructs parsing %s\n", 
-                    parse_sorrys, argv[idx]);
+                    cont->parse_sorrys, argv[idx]);
         }
 
-        if (parse_errors || parse_sorrys) {
-            errors += parse_errors;
-            errors += parse_sorrys;
+        if (cont->parse_errors || cont->parse_sorrys) {
+            errors += cont->parse_errors;
+            errors += cont->parse_sorrys;
             break;
         }
     }

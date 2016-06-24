@@ -21,7 +21,8 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "parse_api.h"
+# include "parse_api.h"
+# include "parse_context.h"
 
 class ActiveScope;
 class Architecture;
@@ -32,13 +33,14 @@ class ExpString;
 class ScopeBase;
 class VType;
 
-extern void bind_entity_to_active_scope(const char *ename, ActiveScope *scope);
-extern void bind_architecture_to_entity(const char *ename, Architecture *arch);
-
-extern const VType *calculate_subtype_array(const YYLTYPE& loc, const char *base_name,
+extern const VType *calculate_subtype_array(ParserContext *c,
+                                            const YYLTYPE &loc,
+                                            const char *base_name,
                                             ScopeBase *scope,
                                             std::list<ExpRange *> *ranges);
-extern const VType *calculate_subtype_range(const YYLTYPE& loc, const char *base_name,
+extern const VType *calculate_subtype_range(ParserContext *c,
+                                            const YYLTYPE& loc,
+                                            const char *base_name,
                                             ScopeBase *scope,
                                             Expression *range_left,
                                             int direction,
@@ -61,9 +63,12 @@ extern void library_save_package(perm_string library_parse_name, Package *pack);
 
 extern Package *library_recall_package(perm_string library_parse_name, perm_string name);
 
-extern void library_import(const YYLTYPE& loc, const std::list<perm_string> *names);
+extern void library_import(ParserContext *c,
+                           const YYLTYPE& loc, const std::list<perm_string> *names);
 
-extern void library_use(const YYLTYPE& loc, ActiveScope *res, const char *libname, const char *pack, const char *ident);
+extern void library_use(ParserContext *c,
+                        const YYLTYPE& loc, ActiveScope *res,
+                        const char *libname, const char *pack, const char *ident);
 
 /*
  * Converts CHARACTER enums to an ExpString* if applicable.

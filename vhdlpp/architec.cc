@@ -276,7 +276,8 @@ ComponentInstantiation::ComponentInstantiation(perm_string i,
         if (!rc.second) {
             cerr << "?:?: error: Duplicate map of generic " << cur->name()
                  << " ignored." << endl;
-            parse_errors += 1;
+            // TODO: encapsulate
+            //parse_errors += 1;
         }
     }
 
@@ -287,7 +288,8 @@ ComponentInstantiation::ComponentInstantiation(perm_string i,
         if (!rc.second) {
             cerr << "?:?: error: Duplicate map of port " << cur->name()
                  << " ignored." << endl;
-            parse_errors += 1;
+            // TODO: encapsulate
+            //parse_errors += 1;
         }
     }
 }

@@ -20,18 +20,21 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# define __STDC_LIMIT_MACROS
-# include  "parse_misc.h"
-# include  "compiler.h"
-# include  "package.h"
-# include  "std_types.h"
-# include  <fstream>
-# include  <list>
-# include  <map>
-# include  <string>
-# include  <stdint.h>
-# include  <sys/stat.h>
-# include  <cassert>
+#define __STDC_LIMIT_MACROS
+
+#include <fstream>
+#include <list>
+#include <map>
+#include <string>
+#include <stdint.h>
+#include <sys/stat.h>
+#include <cassert>
+
+#include "parse_misc.h"
+#include "compiler.h"
+#include "package.h"
+#include "std_types.h"
+#include "parse_context.h"
 
 using namespace std;
 
@@ -118,9 +121,12 @@ static string make_library_package_path(perm_string lib_name, perm_string name) 
 
 static void import_ieee(void);
 static void import_ieee_use(ActiveScope *res, perm_string package, perm_string name);
-static void import_std_use(const YYLTYPE& loc, ActiveScope *res, perm_string package, perm_string name);
+static void import_std_use(ParserContext *c,
+                           const YYLTYPE& loc, ActiveScope *res,
+                           perm_string package, perm_string name);
 
-static void dump_library_package(ostream& file, perm_string lname, perm_string pname, Package *pack) {
+static void dump_library_package(ostream& file, perm_string lname,
+                                 perm_string pname, Package *pack) {
     file << "package " << lname << "." << pname << endl;
     if (pack) {
         pack->dump_scope(file);
@@ -131,7 +137,8 @@ static void dump_library_package(ostream& file, perm_string lname, perm_string p
 }
 
 
-static void dump_library_packages(ostream& file, perm_string lname, map<perm_string, Package *> packages) {
+static void dump_library_packages(ostream& file, perm_string lname,
+                                  map<perm_string, Package *> packages) {
     for (map<perm_string, Package *>::iterator cur = packages.begin()
          ; cur != packages.end(); ++cur) {
         dump_library_package(file, lname, cur->first, cur->second);
@@ -174,7 +181,8 @@ void library_save_package(perm_string parse_library_name, Package *pack) {
  * The parser uses this function in the package body rule to recall
  * the package that was declared earlier.
  */
-Package *library_recall_package(perm_string parse_library_name, perm_string package_name) {
+Package *library_recall_package(perm_string parse_library_name,
+                                perm_string package_name) {
     perm_string use_libname = parse_library_name.str()
                               ? parse_library_name
                               : perm_string::literal("work");
@@ -192,8 +200,9 @@ Package *library_recall_package(perm_string parse_library_name, perm_string pack
     return pkg->second;
 }
 
-
-static void import_library_name(const YYLTYPE& loc, perm_string name) {
+static void import_library_name(ParserContext *c,
+                                const YYLTYPE& loc,
+                                perm_string name) {
     if (library_dir[name] != string()) {
         return;
     }
@@ -216,11 +225,13 @@ static void import_library_name(const YYLTYPE& loc, perm_string name) {
         return;
     }
 
-    errormsg(loc, "library import cannot find library %s\n", name.str());
+    ParserUtil::errormsg(c, loc, "library import cannot find library %s\n", name.str());
 }
 
 
-void library_import(const YYLTYPE& loc, const std::list<perm_string> *names) {
+void library_import(ParserContext *c,
+                    const YYLTYPE& loc,
+                    const std::list<perm_string> *names) {
     for (std::list<perm_string>::const_iterator cur = names->begin()
          ; cur != names->end(); ++cur) {
         if (*cur == "ieee") {
@@ -233,16 +244,18 @@ void library_import(const YYLTYPE& loc, const std::list<perm_string> *names) {
             // The work library is always implicitly imported.
         }else  {
             // Otherwise, do a generic library import
-            import_library_name(loc, *cur);
+            import_library_name(c, loc, *cur);
         }
     }
 }
 
 
-void library_use(const YYLTYPE& loc, ActiveScope *res,
-                 const char *libname, const char *package, const char *name) {
+void library_use(ParserContext *c, const YYLTYPE& loc,
+                 ActiveScope *res, const char *libname,
+                 const char *package, const char *name) {
     if (libname == 0) {
-        errormsg(loc, "error: No library name for this use clause?\n");
+        ParserUtil::errormsg(c, loc,
+                             "error: No library name for this use clause?\n");
         return;
     }
 
@@ -257,7 +270,7 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
     }
     // Special case handling for the STD library.
     if (use_library == "std") {
-        import_std_use(loc, res, use_package, use_name);
+        import_std_use(c, loc, res, use_package, use_name);
         return;
     }
 
@@ -272,14 +285,17 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
     }else if ((use_library != "ieee") && (pack == 0))  {
         string path = make_library_package_path(use_library, use_package);
         if (path == "") {
-            errormsg(loc, "Unable to find library %s\n", use_library.str());
+            ParserUtil::errormsg(c, loc, "Unable to find library %s\n",
+                                 use_library.str());
             return;
         }
         int rc = parse_source_file(path.c_str(), use_library);
         if (rc < 0) {
-            errormsg(loc, "Unable to open library file %s\n", path.c_str());
+            ParserUtil::errormsg(c, loc, "Unable to open library file %s\n",
+                                 path.c_str());
         }else if (rc > 0)  {
-            errormsg(loc, "Errors in library file %s\n", path.c_str());
+            ParserUtil::errormsg(c, loc, "Errors in library file %s\n",
+                                 path.c_str());
         }else  {
             pack = lib.packages[use_package];
         }
@@ -287,8 +303,8 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
 
     // If the package is still not found, then error.
     if (pack == 0) {
-        errormsg(loc, "No package %s in library %s\n",
-                 use_package.str(), use_library.str());
+        ParserUtil::errormsg(c, loc, "No package %s in library %s\n",
+                             use_package.str(), use_library.str());
         return;
     }
 
@@ -306,13 +322,12 @@ void library_use(const YYLTYPE& loc, ActiveScope *res,
         return;
     }
 
-    errormsg(loc, "No such name %s in package %s\n",
-             use_name.str(), pack->name().str());
+    ParserUtil::errormsg(c, loc, "No such name %s in package %s\n",
+                         use_name.str(), pack->name().str());
 }
 
 
-static void import_ieee(void)
-{}
+static void import_ieee(void) {}
 
 
 static void import_ieee_use_std_logic_1164(ActiveScope *res, perm_string name) {
@@ -375,18 +390,21 @@ static void import_ieee_use(ActiveScope *res, perm_string package, perm_string n
 }
 
 
-static void import_std_use(const YYLTYPE& loc, ActiveScope *res, perm_string package, perm_string name) {
+static void import_std_use(ParserContext *c,
+                           const YYLTYPE& loc, ActiveScope *res,
+                           perm_string package, perm_string name) {
     if (package == "standard") {
         // do nothing
         return;
-    }else if (package == "textio")  {
+    } else if (package == "textio")  {
         res->use_name(perm_string::literal("text"), &primitive_INTEGER);
         res->use_name(perm_string::literal("line"), &primitive_STRING);
         res->use_name(type_FILE_OPEN_KIND.peek_name(), &type_FILE_OPEN_KIND);
         res->use_name(type_FILE_OPEN_STATUS.peek_name(), &type_FILE_OPEN_STATUS);
         return;
-    }else  {
-        sorrymsg(loc, "package %s of library %s not yet supported", package.str(), name.str());
+    } else {
+        ParserUtil::sorrymsg(c, loc, "package %s of library %s not yet supported",
+                             package.str(), name.str());
         return;
     }
 }

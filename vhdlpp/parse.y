@@ -77,9 +77,6 @@ static void yyerror(YYLTYPE *yyllocp,
                     ParserContext *context,
                     const char *msg);
 
-int parse_errors = 0;
-int parse_sorrys = 0;
-
 /* The parser calls yylex to get the next lexical token. It is only
  * called by the bison-generated parser.  */
 extern int yylex(union YYSTYPE *yylvalp,
@@ -409,7 +406,7 @@ adding_operator
 architecture_body
 : architecture_body_start
 K_of   IDENTIFIER
-{ bind_entity_to_active_scope($3, active_scope); }
+{ ParserUtil::bind_entity_to_active_scope(yy_parse_context, $3, active_scope); }
 K_is   block_declarative_items_opt
 K_begin   architecture_statement_part
 K_end  K_architecture_opt  identifier_opt ';'
@@ -417,9 +414,11 @@ K_end  K_architecture_opt  identifier_opt ';'
     Architecture *tmp = new Architecture(lex_strings.make($1),
                                          *active_scope, *$8);
     ParserUtil::add_location(tmp, @1);
-    bind_architecture_to_entity($3, tmp);
+    ParserUtil::bind_architecture_to_entity(yy_parse_context, $3, tmp);
+
     if ($11 && tmp->get_name() != $11)
-        errormsg(@1, "Architecture name doesn't match closing name.\n");
+        ParserUtil::errormsg(yy_parse_context, @1,
+                             "Architecture name doesn't match closing name.\n");
     delete[]$1;
     delete[]$3;
     delete $8;
@@ -457,7 +456,7 @@ architecture_statement_part
 
 | error ';'
 { $$ = 0;
-    errormsg(@1, "Syntax error in architecture statement.\n");
+    ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in architecture statement.\n");
     yyerrok;
 }
 ;
@@ -502,7 +501,7 @@ association_element
 }
 | IDENTIFIER ARROW error
 {
-    errormsg(@3, "Invalid target for port map association.\n");
+    ParserUtil::errormsg(yy_parse_context, @3, "Invalid target for port map association.\n");
     yyerrok;
     $$ = 0;
 }
@@ -527,8 +526,8 @@ binding_indication
 : K_use entity_aspect_opt port_map_aspect_opt generic_map_aspect_opt
 {
     $$ = $2;
-    if ($3) sorrymsg(@3, "Port map aspect not supported here. (binding_indication)\n");
-    if ($4) sorrymsg(@4, "Generic map aspect not supported here. (binding_indication)\n");
+    if ($3) ParserUtil::sorrymsg(yy_parse_context, @3, "Port map aspect not supported here. (binding_indication)\n");
+    if ($4) ParserUtil::sorrymsg(yy_parse_context, @4, "Generic map aspect not supported here. (binding_indication)\n");
     delete $3;
     delete $4;
 }
@@ -574,9 +573,9 @@ signal_declaration_assign_opt ';'
 
   /* Various error handling rules for block_declarative_item... */
 | K_signal error ';'
-{ errormsg(@2, "Syntax error declaring signals.\n"); yyerrok; }
+{ ParserUtil::errormsg(yy_parse_context, @2, "Syntax error declaring signals.\n"); yyerrok; }
 | error ';'
-{ errormsg(@1, "Syntax error in block declarations.\n"); yyerrok; }
+{ ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in block declarations.\n"); yyerrok; }
 ;
 
 /* The block_declarative_items rule matches "{ block_declarative_item }"
@@ -689,13 +688,13 @@ component_configuration
     block_configuration_opt
     K_end K_for ';'
       {
-    sorrymsg(@1, "Component configuration in not yet supported\n");
+    ParserUtil::sorrymsg(yy_parse_context, @1, "Component configuration in not yet supported\n");
     if($3) delete $3;
     delete $2;
       }
   | K_for component_specification error K_end K_for
       {
-    errormsg(@1, "Error in component configuration statement.\n");
+    ParserUtil::errormsg(yy_parse_context, @1, "Error in component configuration statement.\n");
     delete $2;
       }
   ;
@@ -706,7 +705,7 @@ component_declaration
     K_end K_component identifier_opt ';'
       { perm_string name = lex_strings.make($2);
 	if($8 && name != $8) {
-	      errormsg(@8, "Identifier %s doesn't match component name %s.\n",
+	      ParserUtil::errormsg(yy_parse_context, @8, "Identifier %s doesn't match component name %s.\n",
 		       $8, name.str());
 	}
 
@@ -721,7 +720,7 @@ component_declaration
       }
 
   | K_component IDENTIFIER K_is_opt error K_end K_component identifier_opt ';'
-      { errormsg(@4, "Syntax error in component declaration.\n");
+      { ParserUtil::errormsg(yy_parse_context, @4, "Syntax error in component declaration.\n");
 	delete[] $2;
 	if($7) delete[] $7;
 	yyerrok;
@@ -746,7 +745,7 @@ component_instantiation_statement
 	$$ = tmp;
       }
   | IDENTIFIER ':' instantiated_unit error ';'
-      { errormsg(@4, "Errors in component instantiation.\n");
+      { ParserUtil::errormsg(yy_parse_context, @4, "Errors in component instantiation.\n");
 	delete[]$1;
 	delete[]$3;
 	$$ = 0;
@@ -823,7 +822,7 @@ concurrent_conditional_signal_assignment /* IEEE 1076-2008 P11.6 */
   /* Error recovery rules. */
 
   | name LEQ error K_when expression else_when_waveforms ';'
-      { errormsg(@3, "Syntax error in waveform of conditional signal assignment.\n");
+      { ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in waveform of conditional signal assignment.\n");
 	ExpConditional*tmp = new ExpConditional($5, 0, $6);
 	ParserUtil::add_location(tmp, @3);
 	delete $6;
@@ -900,13 +899,13 @@ concurrent_signal_assignment_statement /* IEEE 1076-2008 P11.6 */
   | IDENTIFIER ':' selected_signal_assignment { $$ = $3; }
 
   | name LEQ error ';'
-      { errormsg(@2, "Syntax error in signal assignment waveform.\n");
+      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in signal assignment waveform.\n");
 	delete $1;
 	$$ = 0;
 	yyerrok;
       }
   | error LEQ waveform ';'
-      { errormsg(@1, "Syntax error in l-value of signal assignment.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in l-value of signal assignment.\n");
 	yyerrok;
 	delete $3;
 	$$ = 0;
@@ -929,12 +928,12 @@ configuration_declaration
   K_end K_configuration_opt identifier_opt ';'
      {
   if(design_entities.find(lex_strings.make($4)) == design_entities.end())
-      errormsg(@4, "Couldn't find entity %s used in configuration declaration\n", $4);
+      ParserUtil::errormsg(yy_parse_context, @4, "Couldn't find entity %s used in configuration declaration\n", $4);
   //choose_architecture_for_entity();
-  sorrymsg(@1, "Configuration declaration is not yet supported.\n");
+  ParserUtil::sorrymsg(yy_parse_context, @1, "Configuration declaration is not yet supported.\n");
      }
   | K_configuration error K_end K_configuration_opt identifier_opt ';'
-      { errormsg(@2, "Too many errors, giving up on configuration declaration.\n");
+      { ParserUtil::errormsg(yy_parse_context, @2, "Too many errors, giving up on configuration declaration.\n");
     if($5) delete $5;
     yyerrok;
       }
@@ -979,7 +978,7 @@ constant_declaration
 	delete $2;
       }
   | K_constant identifier_list ':' subtype_indication ';'
-      { sorrymsg(@1, "Deferred constant declarations not supported\n");
+      { ParserUtil::sorrymsg(yy_parse_context, @1, "Deferred constant declarations not supported\n");
 	delete $2;
       }
 
@@ -987,7 +986,7 @@ constant_declaration
 
   | K_constant identifier_list ':' subtype_indication VASSIGN error ';'
       { // The syntax allows multiple names to have the same type/value.
-	errormsg(@6, "Error in value expression for constants.\n");
+	ParserUtil::errormsg(yy_parse_context, @6, "Error in value expression for constants.\n");
 	yyerrok;
 	for (std::list<perm_string>::iterator cur = $2->begin()
 		   ; cur != $2->end() ; ++cur) {
@@ -996,12 +995,12 @@ constant_declaration
 	delete $2;
       }
   | K_constant identifier_list ':' error ';'
-      { errormsg(@4, "Syntax error in constant declaration type.\n");
+      { ParserUtil::errormsg(yy_parse_context, @4, "Syntax error in constant declaration type.\n");
 	yyerrok;
 	delete $2;
       }
   | K_constant error ';'
-      { errormsg(@2, "Syntax error in constant declaration.\n");
+      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in constant declaration.\n");
 	yyerrok;
       }
 
@@ -1022,7 +1021,7 @@ context_items
 
 design_unit
   : context_clause library_unit
-  | error { errormsg(@1, "Invalid design_unit\n"); }
+  | error { ParserUtil::errormsg(yy_parse_context, @1, "Invalid design_unit\n"); }
   ;
 
 design_units
@@ -1117,12 +1116,12 @@ entity_declaration
 	design_entities[tmp->get_name()] = tmp;
 	delete[]$2;
 	if($8 && tmp->get_name() != $8) {
-	      errormsg(@1, "Syntax error in entity clause. Closing name doesn't match.\n");
+	      ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in entity clause. Closing name doesn't match.\n");
         }
         delete[]$8;
       }
   | K_entity error K_end K_entity_opt identifier_opt ';'
-      { errormsg(@1, "Too many errors, giving up on entity declaration.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Too many errors, giving up on entity declaration.\n");
 	yyerrok;
 	if ($5) delete[]$5;
       }
@@ -1294,7 +1293,7 @@ file_declaration
   : K_file identifier_list ':' IDENTIFIER file_open_information_opt ';'
       {
 	if (strcasecmp($4, "TEXT"))
-	      sorrymsg(@1, "file declaration currently handles only TEXT type.\n");
+	      ParserUtil::sorrymsg(yy_parse_context, @1, "file declaration currently handles only TEXT type.\n");
 
 	for (std::list<perm_string>::iterator cur = $2->begin()
 		   ; cur != $2->end() ; ++cur) {
@@ -1329,7 +1328,7 @@ file_declaration
 	delete $2;
       }
   | K_file error ';'
-      { errormsg(@2, "Syntax error in file declaration.\n");
+      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in file declaration.\n");
 	yyerrok;
       }
   ;
@@ -1363,7 +1362,7 @@ K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
     perm_string label = lex_strings.make($1);
 
     if ($12 && label != $12)
-        errormsg(@1, "block_statement label %s does not "
+        ParserUtil::errormsg(yy_parse_context, @1, "block_statement label %s does not "
                  "match closing name %s\n", label.str(), $12);
 
     BlockStatement *tmp = new BlockStatement($6, label, *active_scope, $9);
@@ -1432,7 +1431,7 @@ K_generate   generate_statement_body   K_end   K_generate identifier_opt   ';'
     ParserUtil::add_location(tmp, @1);
 
     if ($11 && name != $11) {
-        errormsg(@1, "for-generate name %s does not match closing name %s\n",
+        ParserUtil::errormsg(yy_parse_context, @1, "for-generate name %s does not match closing name %s\n",
                  name.str(), $11);
     }
     delete[]$1;
@@ -1476,7 +1475,7 @@ generic_clause
 : K_generic parameter_list ';' { $$ = $2; }
 | K_generic '(' error ')' ';'
 {
-    errormsg(@3, "Error in interface list for generic.\n");
+    ParserUtil::errormsg(yy_parse_context, @3, "Error in interface list for generic.\n");
     yyerrok;
     $$ = 0;
 }
@@ -1491,7 +1490,7 @@ generic_map_aspect
 : K_generic K_map '(' association_list ')' { $$ = $4; }
 | K_generic K_map '(' error ')'
 {
-    errormsg(@4, "Error in association list for generic map.\n");
+    ParserUtil::errormsg(yy_parse_context, @4, "Error in association list for generic map.\n");
     yyerrok;
     $$ = 0;
 }
@@ -1532,7 +1531,7 @@ K_end K_generate identifier_opt ';'
     ParserUtil::add_location(tmp, @3);
 
     if ($9 && name != $9) {
-        errormsg(@1, "if-generate name %s does not match closing name %s\n",
+        ParserUtil::errormsg(yy_parse_context, @1, "if-generate name %s does not match closing name %s\n",
                  name.str(), $9);
     }
     delete[]$1;
@@ -1558,20 +1557,20 @@ K_end K_if ';'
 if_statement_elsif_list_opt if_statement_else
 K_end K_if ';'
 {
-    errormsg(@2, "Error in if_statement condition expression.\n");
+    ParserUtil::errormsg(yy_parse_context, @2, "Error in if_statement condition expression.\n");
     yyerrok;
     $$ = 0;
     delete $4;
 }
 | K_if expression K_then error K_end K_if ';'
 {
-    errormsg(@4, "Too many errors in sequence within if_statement.\n");
+    ParserUtil::errormsg(yy_parse_context, @4, "Too many errors in sequence within if_statement.\n");
     yyerrok;
     $$ = 0;
 }
 | K_if error K_end K_if ';'
 {
-    errormsg(@2, "Too many errors in if_statement.\n");
+    ParserUtil::errormsg(yy_parse_context, @2, "Too many errors in if_statement.\n");
     yyerrok;
     $$ = 0;
 }
@@ -1607,7 +1606,7 @@ if_statement_elsif
 }
 | K_elsif expression K_then error
 {
-    errormsg(@4, "Too many errors in elsif sub-statements.\n");
+    ParserUtil::errormsg(yy_parse_context, @4, "Too many errors in elsif sub-statements.\n");
     yyerrok;
     $$ = 0;
 }
@@ -1617,7 +1616,7 @@ if_statement_else
 : K_else sequence_of_statements { $$ = $2; }
 | K_else error
 {
-    errormsg(@2, "Too many errors in else sub-statements.\n");
+    ParserUtil::errormsg(yy_parse_context, @2, "Too many errors in else sub-statements.\n");
     yyerrok;
     $$ = 0;
 }
@@ -1628,7 +1627,7 @@ index_constraint
 : '(' range_list ')' { $$ = $2; }
 | '(' error ')'
 {
-    errormsg(@2, "Errors in the index constraint.\n");
+    ParserUtil::errormsg(yy_parse_context, @2, "Errors in the index constraint.\n");
     yyerrok;
     $$ = new list<ExpRange*>;
 }
@@ -1705,11 +1704,11 @@ interface_list
 library_clause
 : K_library logical_name_list ';'
 {
-    library_import(@1, $2);
+    library_import(yy_parse_context, @1, $2);
     delete $2;
 }
 | K_library error ';'
-{ errormsg(@1, "Syntax error in library clause.\n"); yyerrok; }
+{ ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in library clause.\n"); yyerrok; }
 ;
 
 /* Collapse the primary_unit and secondary_unit of the library_unit
@@ -1746,9 +1745,9 @@ K_end K_loop identifier_opt ';'
 {
     perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
     if ($8 && !$1) {
-        errormsg(@8, "Loop statement closing name %s for un-named statement\n", $8);
+        ParserUtil::errormsg(yy_parse_context, @8, "Loop statement closing name %s for un-named statement\n", $8);
     } else if($8 && loop_name != $8) {
-        errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $8);
+        ParserUtil::errormsg(yy_parse_context, @1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $8);
     }
     if($1) delete[]$1;
     if($8) delete[]$8;
@@ -1764,9 +1763,9 @@ K_loop sequence_of_statements K_end K_loop identifier_opt ';'
     perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
     perm_string index_name = lex_strings.make($3);
     if ($10 && !$1) {
-        errormsg(@10, "Loop statement closing name %s for un-named statement\n", $10);
+        ParserUtil::errormsg(yy_parse_context, @10, "Loop statement closing name %s for un-named statement\n", $10);
     } else if($10 && loop_name != $10) {
-        errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $10);
+        ParserUtil::errormsg(yy_parse_context, @1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $10);
     }
     if($1)  delete[] $1;
     delete[] $3;
@@ -1782,9 +1781,9 @@ K_loop sequence_of_statements K_end K_loop identifier_opt ';'
 {
     perm_string loop_name = $1? lex_strings.make($1) : perm_string() ;
     if ($6 && !$1) {
-        errormsg(@6, "Loop statement closing name %s for un-named statement\n", $6);
+        ParserUtil::errormsg(yy_parse_context, @6, "Loop statement closing name %s for un-named statement\n", $6);
     } else if($6 && loop_name != $6) {
-        errormsg(@1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $6);
+        ParserUtil::errormsg(yy_parse_context, @1, "Loop statement name %s doesn't match closing name %s.\n", loop_name.str(), $6);
     }
     if($1) delete[]$1;
     if($6) delete[]$6;
@@ -1878,7 +1877,7 @@ package_declaration
     K_end K_package_opt identifier_opt ';'
       { perm_string name = lex_strings.make($1);
 	if($6 && name != $6) {
-	      errormsg(@1, "Identifier %s doesn't match package name %s.\n",
+	      ParserUtil::errormsg(yy_parse_context, @1, "Identifier %s doesn't match package name %s.\n",
 		       $6, name.str());
         }
 	Package*tmp = new Package(name, *active_scope);
@@ -1892,7 +1891,7 @@ package_declaration
 	library_save_package(parse_library_name, tmp);
       }
   | package_declaration_start K_is error K_end K_package_opt identifier_opt ';'
-    { errormsg(@3, "Syntax error in package clause.\n");
+    { ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in package clause.\n");
       yyerrok;
       pop_scope();
     }
@@ -1929,7 +1928,7 @@ package_declarative_item
   | type_declaration
   | use_clause
   | error ';'
-      { errormsg(@1, "Syntax error in package declarative item.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in package declarative item.\n");
 	yyerrok;
       }
   ;
@@ -1950,14 +1949,14 @@ package_body /* IEEE 1076-2008 P4.8 */
     K_end K_package_opt identifier_opt ';'
       { perm_string name = lex_strings.make($1);
 	if ($6 && name != $6)
-	      errormsg(@6, "Package name (%s) doesn't match closing name (%s).\n", $1, $6);
+	      ParserUtil::errormsg(yy_parse_context, @6, "Package name (%s) doesn't match closing name (%s).\n", $1, $6);
 	delete[] $1;
 	if($6) delete[]$6;
 	pop_scope();
       }
 
   | package_body_start K_is error K_end K_package_opt identifier_opt ';'
-      { errormsg(@1, "Errors in package %s body.\n", $1);
+      { ParserUtil::errormsg(yy_parse_context, @1, "Errors in package %s body.\n", $1);
 	yyerrok;
 	pop_scope();
       }
@@ -1975,7 +1974,7 @@ package_body_start
 	if (pkg != 0) {
 	      active_scope->set_package_header(pkg);
 	} else {
-	      errormsg(@1, "Package body for %s has no matching header.\n", $3);
+	      ParserUtil::errormsg(yy_parse_context, @1, "Package body for %s has no matching header.\n", $3);
 	}
 	$$ = $3;
       }
@@ -1994,7 +1993,7 @@ port_clause
   : K_port parameter_list ';'
       { $$ = $2; }
   | K_port '(' error ')' ';'
-      { errormsg(@1, "Syntax error in port list.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in port list.\n");
 	yyerrok;
 	$$ = 0;
       }
@@ -2006,7 +2005,7 @@ port_map_aspect
   : K_port K_map '(' association_list ')'
       { $$ = $4; }
   | K_port K_map '(' error ')'
-      { errormsg(@1, "Syntax error in port map aspect.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in port map aspect.\n");
 	yyerrok;
       }
   ;
@@ -2085,10 +2084,10 @@ primary
         else if(!strcasecmp($2, "fs"))
             unit = ExpTime::FS;
         else
-            errormsg(@2, "Invalid time unit (accepted are fs, ps, ns, us, ms, s).\n");
+            ParserUtil::errormsg(yy_parse_context, @2, "Invalid time unit (accepted are fs, ps, ns, us, ms, s).\n");
 
         if($1 < 0)
-            errormsg(@1, "Time cannot be negative.\n");
+            ParserUtil::errormsg(yy_parse_context, @1, "Time cannot be negative.\n");
 
         ExpTime*tmp = new ExpTime($1, unit);
         ParserUtil::add_location(tmp, @1);
@@ -2105,7 +2104,7 @@ primary
      and must be discovered by elaboration (thanks to the ambiguity of
      VHDL syntax). */
   | IDENTIFIER '(' association_list ')'
-      { sorrymsg(@1, "Function calls not supported\n");
+      { ParserUtil::sorrymsg(yy_parse_context, @1, "Function calls not supported\n");
 	delete[] $1;
 	$$ = 0;
       }
@@ -2148,7 +2147,7 @@ procedure_call
     $$ = tmp;
       }
   | IDENTIFIER '(' error ')' ';'
-      { errormsg(@1, "Errors in procedure call.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Errors in procedure call.\n");
 	yyerrok;
 	delete[]$1;
 	$$ = 0;
@@ -2205,9 +2204,9 @@ process_statement
 	if ($1) delete[]$1;
 	if ($10) {
 	      if (iname.nil()) {
-		    errormsg(@10, "Process end name %s for un-named processes.\n", $10);
+		    ParserUtil::errormsg(yy_parse_context, @10, "Process end name %s for un-named processes.\n", $10);
 	      } else if (iname != $10) {
-		    errormsg(@10, "Process name %s does not match opening name %s.\n",
+		    ParserUtil::errormsg(yy_parse_context, @10, "Process name %s does not match opening name %s.\n",
 			     $10, $1);
 	      }
 	      delete[]$10;
@@ -2226,7 +2225,7 @@ process_statement
     process_declarative_part_opt
     K_begin error
     K_end K_postponed_opt K_process identifier_opt ';'
-      { errormsg(@7, "Too many errors in process sequential statements.\n");
+      { ParserUtil::errormsg(yy_parse_context, @7, "Too many errors in process sequential statements.\n");
 	yyerrok;
 	$$ = 0;
       }
@@ -2239,7 +2238,7 @@ process_sensitivity_list_opt
   : '(' process_sensitivity_list ')'
       { $$ = $2; }
   | '(' error ')'
-      { errormsg(@2, "Error in process sensitivity list\n");
+      { ParserUtil::errormsg(yy_parse_context, @2, "Error in process sensitivity list\n");
 	yyerrok;
 	$$ = 0;
       }
@@ -2274,7 +2273,7 @@ range
             tmp = new ExpRange(name, false);
             ParserUtil::add_location(tmp, @1);
         } else {
-	    errormsg(@1, "'range attribute can be used with named expressions only");
+	    ParserUtil::errormsg(yy_parse_context, @1, "'range attribute can be used with named expressions only");
         }
         $$ = tmp;
       }
@@ -2286,7 +2285,7 @@ range
             tmp = new ExpRange(name, true);
             ParserUtil::add_location(tmp, @1);
         } else {
-	    errormsg(@1, "'reverse_range attribute can be used with named expressions only");
+	    ParserUtil::errormsg(yy_parse_context, @1, "'reverse_range attribute can be used with named expressions only");
         }
         $$ = tmp;
       }
@@ -2369,7 +2368,7 @@ return_statement
       { ReturnStmt*tmp = new ReturnStmt(0);
 	ParserUtil::add_location(tmp, @1);
 	$$ = tmp;
-	errormsg(@2, "Error in expression in return statement.\n");
+	ParserUtil::errormsg(yy_parse_context, @2, "Error in expression in return statement.\n");
 	yyerrok;
       }
   ;
@@ -2390,7 +2389,7 @@ selected_name /* IEEE 1076-2008 P8.3 */
 	delete[]$3;
       }
   | error '.' suffix
-      { errormsg(@1, "Syntax error in prefix in front of \"%s\".\n", $3);
+      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in prefix in front of \"%s\".\n", $3);
         yyerrok;
 	$$ = new ExpName(lex_strings.make($3));
 	ParserUtil::add_location($$, @3);
@@ -2415,22 +2414,25 @@ selected_names
      clause. It is syntactically identical to other selected_name
      rules, but is a convenient place to attach use_clause actions. */
 selected_name_lib
-  : IDENTIFIER '.' K_all
-      { library_use(@1, active_scope, 0, $1, 0);
-	delete[]$1;
-      }
-  | IDENTIFIER '.' IDENTIFIER '.' K_all
-      { library_use(@1, active_scope, $1, $3, 0);
-	delete[]$1;
-	delete[]$3;
-      }
-  | IDENTIFIER '.' IDENTIFIER '.' IDENTIFIER
-      { library_use(@1, active_scope, $1, $3, $5);
-	delete[]$1;
-	delete[]$3;
-	delete[]$5;
-      }
-  ;
+: IDENTIFIER '.' K_all
+{
+    library_use(yy_parse_context, @1, active_scope, 0, $1, 0);
+    delete[]$1;
+}
+| IDENTIFIER '.' IDENTIFIER '.' K_all
+{
+    library_use(yy_parse_context, @1, active_scope, $1, $3, 0);
+    delete[]$1;
+    delete[]$3;
+}
+| IDENTIFIER '.' IDENTIFIER '.' IDENTIFIER
+{
+    library_use(yy_parse_context, @1, active_scope, $1, $3, $5);
+    delete[]$1;
+    delete[]$3;
+    delete[]$5;
+}
+;
 
 selected_names_lib
   : selected_names_lib ',' selected_name_lib
@@ -2512,7 +2514,7 @@ sequential_statement
   | wait_statement { $$ = $1; }
   | K_null ';' { $$ = 0; }
   | error ';'
-      { errormsg(@1, "Syntax error in sequential statement.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in sequential statement.\n");
 	$$ = 0;
 	yyerrok;
       }
@@ -2529,7 +2531,7 @@ severity
     else if(!strcasecmp($2, "FAILURE"))
         $$ = ReportStmt::FAILURE;
     else {
-        errormsg(@1, "Invalid severity level (possible values: NOTE, WARNING, ERROR, FAILURE).\n");
+        ParserUtil::errormsg(yy_parse_context, @1, "Invalid severity level (possible values: NOTE, WARNING, ERROR, FAILURE).\n");
         $$ = ReportStmt::UNSPECIFIED;
     }
     delete[] $2;
@@ -2562,13 +2564,13 @@ shift_expression
         $$ = tmp;
       }
   | simple_expression K_ror simple_expression
-      { sorrymsg(@2, "ROR is not supported.\n");
+      { ParserUtil::sorrymsg(yy_parse_context, @2, "ROR is not supported.\n");
         ExpShift*tmp = new ExpShift(ExpShift::ROR, $1, $3);
         ParserUtil::add_location(tmp, @2);
         $$ = tmp;
       }
   | simple_expression K_rol simple_expression
-      { sorrymsg(@2, "ROL is not supported.\n");
+      { ParserUtil::sorrymsg(yy_parse_context, @2, "ROL is not supported.\n");
         ExpShift*tmp = new ExpShift(ExpShift::ROL, $1, $3);
         ParserUtil::add_location(tmp, @2);
         $$ = tmp;
@@ -2606,7 +2608,7 @@ signal_declaration_assign_opt
  */
 simple_expression
   : sign simple_expression_2
-      { sorrymsg(@1, "Unary expression +- not supported.\n");
+      { ParserUtil::sorrymsg(yy_parse_context, @1, "Unary expression +- not supported.\n");
 	$$ = $2;
       }
   | simple_expression_2
@@ -2662,7 +2664,7 @@ signal_assignment
   | name LEQ waveform K_when expression K_else waveform ';'
       { SignalSeqAssignment*tmp = new SignalSeqAssignment($1, $3);
 	ParserUtil::add_location(tmp, @1);
-	sorrymsg(@4, "Conditional signal assignment not supported.\n");
+	ParserUtil::sorrymsg(yy_parse_context, @4, "Conditional signal assignment not supported.\n");
 	$$ = tmp;
       }
   ;
@@ -2707,7 +2709,7 @@ subprogram_body /* IEEE 1076-2008 P4.3 */
     subprogram_declarative_part
     K_begin error K_end
     subprogram_kind_opt identifier_opt ';'
-      { errormsg(@2, "Syntax errors in subprogram body.\n");
+      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax errors in subprogram body.\n");
 	yyerrok;
 	active_sub = NULL;
 	if ($1) delete $1;
@@ -2760,7 +2762,7 @@ subtype_declaration
 {
     perm_string name = lex_strings.make($2);
     if ($4 == 0) {
-        errormsg(@1, "Failed to declare type name %s.\n", name.str());
+        ParserUtil::errormsg(yy_parse_context, @1, "Failed to declare type name %s.\n", name.str());
     } else {
         VTypeDef*tmp;
         map<perm_string,VTypeDef*>::iterator cur = active_scope->incomplete_types.find(name);
@@ -2782,7 +2784,8 @@ subtype_indication
 {
     const VType*tmp = parse_type_by_name(lex_strings.make($1));
     if (tmp == 0) {
-        errormsg(@1, "Can't find type name `%s'\n", $1);
+        ParserUtil::errormsg(yy_parse_context, @1,
+                             "Can't find type name `%s'\n", $1);
         tmp = new VTypeERROR;
     }
     delete[]$1;
@@ -2790,9 +2793,11 @@ subtype_indication
 }
 | IDENTIFIER index_constraint
 {
-    const VType*tmp = calculate_subtype_array(@1, $1, active_scope, $2);
+    const VType*tmp = calculate_subtype_array(yy_parse_context, @1, $1,
+                                              active_scope, $2);
     if (tmp == 0) {
-        errormsg(@1, "Unable to calculate bounds for array of %s.\n", $1);
+        ParserUtil::errormsg(yy_parse_context, @1,
+                             "Unable to calculate bounds for array of %s.\n", $1);
     }
     delete[]$1;
     delete  $2;
@@ -2800,9 +2805,11 @@ subtype_indication
 }
 | IDENTIFIER K_range simple_expression direction simple_expression
 {
-    const VType*tmp = calculate_subtype_range(@1, $1, active_scope, $3, $4, $5);
+    const VType*tmp = calculate_subtype_range(yy_parse_context, @1, $1,
+                                              active_scope, $3, $4, $5);
     if (tmp == 0) {
-        errormsg(@1, "Unable to calculate bounds for range of %s.\n", $1);
+        ParserUtil::errormsg(yy_parse_context, @1,
+                             "Unable to calculate bounds for range of %s.\n", $1);
     }
     delete[]$1;
     $$ = tmp;
@@ -2846,7 +2853,7 @@ type_declaration
   : K_type IDENTIFIER K_is type_definition ';'
       { perm_string name = lex_strings.make($2);
 	if ($4 == 0) {
-	      errormsg(@1, "Failed to declare type name %s.\n", name.str());
+	      ParserUtil::errormsg(yy_parse_context, @1, "Failed to declare type name %s.\n", name.str());
 	} else {
 	      VTypeDef*tmp;
 	      map<perm_string,VTypeDef*>::iterator cur = active_scope->incomplete_types.find(name);
@@ -2869,12 +2876,12 @@ type_declaration
 	delete[]$2;
       }
   | K_type IDENTIFIER K_is error ';'
-      { errormsg(@4, "Error in type definition for %s\n", $2);
+      { ParserUtil::errormsg(yy_parse_context, @4, "Error in type definition for %s\n", $2);
 	yyerrok;
 	delete[]$2;
       }
   | K_type error ';'
-      { errormsg(@1, "Error in type definition\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Error in type definition\n");
 	yyerrok;
       }
   ;
@@ -2895,13 +2902,13 @@ use_clause
   : K_use selected_names ';'
      { $$ = $2; }
   | K_use error ';'
-     { errormsg(@1, "Syntax error in use clause.\n"); yyerrok; }
+     { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in use clause.\n"); yyerrok; }
   ;
 
 use_clause_lib
   : K_use selected_names_lib ';'
   | K_use error ';'
-     { errormsg(@1, "Syntax error in use clause.\n"); yyerrok; }
+     { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in use clause.\n"); yyerrok; }
   ;
 
 use_clauses_lib
@@ -2928,13 +2935,13 @@ variable_assignment
 	$$ = tmp;
       }
   | name VASSIGN error ';'
-      { errormsg(@3, "Syntax error in r-value expression of assignment.\n");
+      { ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in r-value expression of assignment.\n");
 	yyerrok;
 	delete $1;
 	$$ = 0;
       }
   | error VASSIGN expression ';'
-      { errormsg(@1, "Syntax error in l-value expression of assignment.\n");
+      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in l-value expression of assignment.\n");
 	yyerrok;
 	delete $3;
 	$$ = 0;
@@ -2954,7 +2961,7 @@ variable_declaration /* IEEE 1076-2008 P6.4.2.4 */
 	delete $3;
       }
   | K_shared_opt K_variable error ';'
-      { errormsg(@2, "Syntax error in variable declaration.\n");
+      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in variable declaration.\n");
 	yyerrok;
       }
   ;
@@ -3032,33 +3039,11 @@ K_shared_opt       : K_shared       | ;
 static void yyerror(YYLTYPE *loc, yyscan_t, const char*,
                     perm_string p, ParserContext *context, const char*msg) {
     fprintf(stderr, "%s:%u: %s\n", loc->text, loc->first_line, msg);
-    parse_errors += 1;
+    context->parse_errors += 1;
 }
 
-void errormsg(const YYLTYPE&loc, const char*fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-
-    fprintf(stderr, "%s:%u: error: ", loc.text, loc.first_line);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    parse_errors += 1;
-}
-
-void sorrymsg(const YYLTYPE&loc, const char*fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-
-    fprintf(stderr, "%s:%u: sorry: ", loc.text, loc.first_line);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    parse_sorrys += 1;
-}
-
-/*
- * The reset_lexor function takes the fd and makes it the input file
- * for the lexor. The path argument is used in lexor/parser error messages.
- */
+/* The reset_lexor function takes the fd and makes it the input file
+ * for the lexor. The path argument is used in lexor/parser error messages. */
 extern yyscan_t prepare_lexor(FILE*fd);
 extern void destroy_lexor(yyscan_t scanner);
 
