@@ -21,35 +21,14 @@
 #include "std_types.h"
 #include "scope.h"
 
-static map<perm_string, VTypeDef *> std_types;
-// this list contains enums used by typedefs in the std_types map
-static list<const VTypeEnum *> std_enums;
+#include <map>
 
-const VTypePrimitive primitive_BIT(VTypePrimitive::BIT, true);
-const VTypePrimitive primitive_INTEGER(VTypePrimitive::INTEGER);
-const VTypePrimitive primitive_NATURAL(VTypePrimitive::NATURAL);
-const VTypePrimitive primitive_REAL(VTypePrimitive::REAL);
 
-const VTypePrimitive primitive_STDLOGIC(VTypePrimitive::STDLOGIC, true);
-const VTypePrimitive primitive_TIME(VTypePrimitive::TIME, true);
-
-VTypeDef type_BOOLEAN(perm_string::literal("boolean"));
-VTypeDef type_FILE_OPEN_KIND(perm_string::literal("file_open_kind"));
-VTypeDef type_FILE_OPEN_STATUS(perm_string::literal("file_open_status"));
-
-const VTypeArray primitive_CHARACTER(&primitive_BIT, 7, 0);
-const VTypeArray primitive_BIT_VECTOR(&primitive_BIT, vector<VTypeArray::range_t> (1));
-const VTypeArray primitive_BOOL_VECTOR(&type_BOOLEAN, vector<VTypeArray::range_t> (1));
-const VTypeArray primitive_STDLOGIC_VECTOR(&primitive_STDLOGIC, vector<VTypeArray::range_t> (1));
-const VTypeArray primitive_STRING(&primitive_CHARACTER, vector<VTypeArray::range_t> (1));
-const VTypeArray primitive_SIGNED(&primitive_STDLOGIC, vector<VTypeArray::range_t> (1), true);
-const VTypeArray primitive_UNSIGNED(&primitive_STDLOGIC, vector<VTypeArray::range_t> (1), false);
-
-// FM. MA| Refactored out global function assignment for active scope 
-void add_global_types_to(ActiveScope *scope){
+void StandardTypes::add_global_types_to(ActiveScope *scope){
     scope->use_name(type_BOOLEAN.peek_name(), &type_BOOLEAN);
     scope->use_name(perm_string::literal("bit"), &primitive_BIT);
-//    scope->use_name(perm_string::literal("std_logic_vector"), &primitive_STDLOGIC_VECTOR);
+    // TODO: why doesn't this work
+    //scope->use_name(perm_string::literal("std_logic_vector"), &primitive_STDLOGIC_VECTOR);
     scope->use_name(perm_string::literal("bit_vector"), &primitive_BIT_VECTOR);
     scope->use_name(perm_string::literal("integer"), &primitive_INTEGER);
     scope->use_name(perm_string::literal("real"), &primitive_REAL);
@@ -60,7 +39,7 @@ void add_global_types_to(ActiveScope *scope){
     scope->use_name(perm_string::literal("time"), &primitive_TIME);
 }
 
-void generate_global_types() {
+void StandardTypes::generate_global_types() {
     // boolean
     list<perm_string> enum_BOOLEAN_vals;
     enum_BOOLEAN_vals.push_back(perm_string::literal("false"));
@@ -95,22 +74,19 @@ void generate_global_types() {
     std_enums.push_back(enum_FILE_OPEN_STATUS);
 }
 
-
-void delete_global_types() {
+void StandardTypes::delete_global_types() {
     typedef_context_t typedef_ctx;
 
-    for (map<perm_string, VTypeDef *>::iterator cur = std_types.begin();
-         cur != std_types.end(); ++cur) {
-        delete cur->second->peek_definition();
-
-        delete cur->second;
+    // FM. MA| changed to c++11 looping syntax
+    for (auto &i : std_types){
+        i.second->peek_definition();
+        delete i.second;
     }
 
     // std_enums are destroyed above
 }
 
-
-const VTypeEnum *find_std_enum_name(perm_string name) {
+const VTypeEnum *StandardTypes::find_std_enum_name(perm_string name) {
     for (list<const VTypeEnum *>::const_iterator it = std_enums.begin();
          it != std_enums.end(); ++it) {
         if ((*it)->has_name(name)) {
@@ -121,20 +97,19 @@ const VTypeEnum *find_std_enum_name(perm_string name) {
     return NULL;
 }
 
-
-void emit_std_types(ostream& fd) {
+void StandardType::semit_std_types(ostream& fd) const {
     fd << "`ifndef __VHDL_STD_TYPES" << endl;
     fd << "`define __VHDL_STD_TYPES" << endl;
     typedef_context_t typedef_ctx;
-    for (map<perm_string, VTypeDef *>::iterator cur = std_types.begin();
-         cur != std_types.end(); ++cur) {
-        cur->second->emit_typedef(fd, typedef_ctx);
-    }
+
+    for (auto &i : std_types)
+        i.second->emit_typedef(fd, typedef_cts);
+
     fd << "`endif" << endl;
 }
 
-
-bool is_global_type(perm_string name) {
+// FM. MA TODO: TMP?
+static bool StandardTypes::is_global_type(perm_string name) {
     if (name == "boolean") {
         return true;
     }

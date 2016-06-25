@@ -41,7 +41,7 @@ static const VType *calculate_subtype_array(ParserContext *c,
                                             Expression *array_left,
                                             bool downto,
                                             Expression *array_right) {
-    const VType *base_type = parse_type_by_name(lex_strings.make(base_name));
+    const VType *base_type = c->parse_type_by_name(lex_strings.make(base_name));
 
     if (base_type == 0) {
         ParserUtil::errormsg(c, loc, "Unable to find base type %s of array.\n", base_name);
@@ -113,7 +113,7 @@ const VType *calculate_subtype_range(ParserContext *c,
                                      const YYLTYPE& loc, const char *base_name,
                                      ScopeBase *scope, Expression *range_left,
                                      int direction, Expression *range_right) {
-    const VType *base_type = parse_type_by_name(lex_strings.make(base_name));
+    const VType *base_type = c->parse_type_by_name(lex_strings.make(base_name));
 
     if (base_type == 0) {
         ParserUtil::errormsg(c, loc, "Unable to find base type %s of range.\n", base_name);
@@ -125,9 +125,10 @@ const VType *calculate_subtype_range(ParserContext *c,
     int64_t    left_val, right_val;
     VTypeRange *subtype;
 
-    if (range_left->evaluate(scope, left_val) && range_right->evaluate(scope, right_val)) {
+    if (range_left->evaluate(scope, left_val) &&
+        range_right->evaluate(scope, right_val)) {
         subtype = new VTypeRangeConst(base_type, left_val, right_val);
-    }else  {
+    } else {
         subtype = new VTypeRangeExpr(base_type, range_left, range_right, direction);
     }
 

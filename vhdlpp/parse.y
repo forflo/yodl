@@ -18,15 +18,22 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
+/* FM. MA | Adhoc changelog:
+   (1) adjusted formatting
+   (2) localized parser structures
+   (3) added syntax for block statements */
+
 %define api.pure
 %lex-param   {yyscan_t yyscanner}
 %parse-param {yyscan_t yyscanner}
 %parse-param {const char*file_path}
 %parse-param {perm_string parse_library_name}
-%parse-param {ParserContext *yy_parse_context} //FM. MA trying to make parser reentrant
+//FM. MA trying to make parser reentrant
+%parse-param {ParserContext *yy_parse_context}
 
 // FM. MA
-// so that parse_context.h get's included in parse.h
+// so that parse_context.h get's included in generated parse.h
 %code requires {
     #include "parse_context.h"
 }
@@ -61,93 +68,35 @@
 #include "parse_types.h"
 #include "parse_context.h"
 
-
 /* Recent version of bison expect that the user supply a
    YYLLOC_DEFAULT macro that makes up a yylloc value from existing
    values. I need to supply an explicit version to account for the
    text field, that otherwise won't be copied. */
-# define YYLLOC_DEFAULT(Current, Rhs, N)  do {       \
+#define YYLLOC_DEFAULT(Current, Rhs, N)  do {       \
   (Current).first_line   = (Rhs)[1].first_line;      \
   (Current).text         = file_path; /* (Rhs)[1].text; */ } while (0)
 
-static void yyerror(YYLTYPE *yyllocp,
-                    yyscan_t yyscanner,
-                    const char *file_path,
-                    perm_string p,
-                    ParserContext *context,
-                    const char *msg);
+static void yyerror(YYLTYPE *, yyscan_t , const char *_path,
+                    perm_string , ParserContext *, const char *);
+
+static void yyerror(YYLTYPE *loc, yyscan_t, const char*,
+                    perm_string, ParserContext *context, const char*msg) {
+    fprintf(stderr, "%s:%u: %s\n", loc->text, loc->first_line, msg);
+    context->parse_errors += 1;
+}
 
 /* The parser calls yylex to get the next lexical token. It is only
  * called by the bison-generated parser.  */
-extern int yylex(union YYSTYPE *yylvalp,
-                 YYLTYPE *yyllocp,
-                 yyscan_t yyscanner);
+extern int yylex(union YYSTYPE *yylvalp, YYLTYPE *yyllocp, yyscan_t yyscanner);
 
-/* Create an initial scope that collects all the global
- * declarations. Also save a stack of previous scopes, as a way to
- * manage lexical scopes. */
-static ActiveScope*active_scope = new ActiveScope;
-static stack<ActiveScope*> scope_stack;
-static SubprogramHeader*active_sub = NULL;
-static ActiveScope*arc_scope = NULL;
+/* The reset_lexor function takes the fd and makes it the input file
+ * for the lexor. The path argument is used in lexor/parser error messages. */
+extern yyscan_t prepare_lexor(FILE*fd);
+extern void destroy_lexor(yyscan_t scanner);
 
-/* When a scope boundary starts, call the push_scope function to push
- * a scope context. Preload this scope context with the contents of
- * the parent scope, then make this the current scope. When the scope
- * is done, the pop_scope function pops the scope off the stack and
- * resumes the scope that was the parent. */
-static void push_scope(void) {
-    assert(active_scope);
-    scope_stack.push(active_scope);
-    active_scope = new ActiveScope (active_scope);
-}
-
-static void pop_scope(void) {
-    delete active_scope;
-    assert(! scope_stack.empty());
-    active_scope = scope_stack.top();
-    scope_stack.pop();
-}
-
-static bool is_subprogram_param(perm_string name) {
-    if(!active_sub)
-        return false;
-
-    return (active_sub->find_param(name) != NULL);
-}
-
-void preload_global_types(void) {
-    generate_global_types();
-    add_global_types_to(active_scope);
-}
 
 //Remove the scope created at the beginning of parser's work.
-//After the parsing active_scope should keep it's address
-
-static void delete_global_scope(void) {
-    active_scope->destroy_global_scope();
-    delete active_scope;
-}
-
-//delete global entities that were gathered over the parsing process
-static void delete_design_entities(void) {
-    for(map<perm_string,Entity*>::iterator cur = design_entities.begin()
-            ; cur != design_entities.end();
-            ++cur)
-        delete cur->second;
-}
-
-//clean the mess caused by the parser
-void parser_cleanup(void) {
-    delete_design_entities();
-    delete_global_scope();
-    delete_std_funcs();
-    lex_strings.cleanup();
-}
-
-const VType*parse_type_by_name(perm_string name) {
-    return active_scope->find_type(name);
-}
+//After the parsing yy_parse_context->active_scope should keep it's address
 
 // This function is called when an aggregate expression is detected by
 // the parser. It makes the ExpAggregate. It also tries to detect the
@@ -159,7 +108,8 @@ const VType*parse_type_by_name(perm_string name) {
 // so try to assume that a single expression in parentheses is a
 // primary and fix the parse by returning an Expression instead of an
 // ExpAggregate.
-static Expression*aggregate_or_primary(const YYLTYPE&loc, std::list<ExpAggregate::element_t*>*el) {
+static Expression *aggregate_or_primary(const YYLTYPE&loc,
+                                        std::list<ExpAggregate::element_t*>*el) {
     if (el->size() != 1) {
         ExpAggregate*tmp = new ExpAggregate(el);
         ParserUtil::add_location(tmp,loc);
@@ -201,6 +151,7 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 }
 
 %}
+
 %union {
     port_mode_t port_mode;
 
@@ -406,13 +357,17 @@ adding_operator
 architecture_body
 : architecture_body_start
 K_of   IDENTIFIER
-{ ParserUtil::bind_entity_to_active_scope(yy_parse_context, $3, active_scope); }
+{
+    ParserUtil::bind_entity_to_active_scope(yy_parse_context,
+                                            $3,
+                                            yy_parse_context->active_scope);
+}
 K_is   block_declarative_items_opt
 K_begin   architecture_statement_part
 K_end  K_architecture_opt  identifier_opt ';'
 {
     Architecture *tmp = new Architecture(lex_strings.make($1),
-                                         *active_scope, *$8);
+                                         *yy_parse_context->active_scope, *$8);
     ParserUtil::add_location(tmp, @1);
     ParserUtil::bind_architecture_to_entity(yy_parse_context, $3, tmp);
 
@@ -422,9 +377,9 @@ K_end  K_architecture_opt  identifier_opt ';'
     delete[]$1;
     delete[]$3;
     delete $8;
-    pop_scope();
-    assert(arc_scope);
-    arc_scope = NULL;
+    yy_parse_context->pop_scope();
+    assert(yy_parse_context->arc_scope);
+    yy_parse_context->arc_scope = NULL;
     if ($11) delete[]$11;
 }
 ;
@@ -433,9 +388,9 @@ architecture_body_start
 : K_architecture IDENTIFIER
 {
     $$ = $2;
-    push_scope();
-    assert(!arc_scope);
-    arc_scope = active_scope;
+    yy_parse_context->push_scope();
+    assert(!yy_parse_context->arc_scope);
+    yy_parse_context->arc_scope = yy_parse_context->active_scope;
 }
 ;
 
@@ -558,7 +513,7 @@ signal_declaration_assign_opt ';'
              ; cur != $2->end() ; ++cur) {
         Signal*sig = new Signal(*cur, $4, $5 ? $5->clone() : 0);
         ParserUtil::add_location(sig, @1);
-        active_scope->bind_name(*cur, sig);
+        yy_parse_context->active_scope->bind_name(*cur, sig);
     }
     delete $2;
 }
@@ -714,7 +669,7 @@ component_declaration
 	if ($4) delete $4;
 	if ($5) delete $5;
 
-	active_scope->bind_name(name, comp);
+	yy_parse_context->active_scope->bind_name(name, comp);
 	delete[]$2;
 	if ($8) delete[] $8;
       }
@@ -791,10 +746,10 @@ concurrent_assertion_statement
         std::list<SequentialStmt*> stmts;
         stmts.push_back($1);
         stmts.push_back(new WaitStmt(WaitStmt::FINAL, NULL));
-        push_scope();
-        ProcessStatement*tmp = new ProcessStatement(empty_perm_string, *active_scope,
+        yy_parse_context->push_scope();
+        ProcessStatement*tmp = new ProcessStatement(empty_perm_string, *yy_parse_context->active_scope,
                                                     NULL, &stmts);
-        pop_scope();
+        yy_parse_context->pop_scope();
         ParserUtil::add_location(tmp, @1);
         $$ = tmp;
       }
@@ -973,7 +928,7 @@ constant_declaration
       { // The syntax allows multiple names to have the same type/value.
 	for (std::list<perm_string>::iterator cur = $2->begin()
 		   ; cur != $2->end() ; ++cur) {
-	      active_scope->bind_name(*cur, $4, $6);
+	      yy_parse_context->active_scope->bind_name(*cur, $4, $6);
 	}
 	delete $2;
       }
@@ -990,7 +945,7 @@ constant_declaration
 	yyerrok;
 	for (std::list<perm_string>::iterator cur = $2->begin()
 		   ; cur != $2->end() ; ++cur) {
-	      active_scope->bind_name(*cur, $4, 0);
+	      yy_parse_context->active_scope->bind_name(*cur, $4, 0);
 	}
 	delete $2;
       }
@@ -1299,7 +1254,7 @@ file_declaration
 		   ; cur != $2->end() ; ++cur) {
 	      Variable*var = new Variable(*cur, &primitive_INTEGER);
 	      ParserUtil::add_location(var, @1);
-	      active_scope->bind_name(*cur, var);
+	      yy_parse_context->active_scope->bind_name(*cur, var);
 
 	      // there was a file name specified, so it needs an implicit call
 	      // to open it at the beginning of simulation and close it at the end
@@ -1307,19 +1262,19 @@ file_declaration
 		std::list<Expression*> params;
 
 		// add file_open() call in 'initial' block
-		params.push_back(new ExpScopedName(active_scope->peek_name(), new ExpName(*cur)));
+		params.push_back(new ExpScopedName(yy_parse_context->active_scope->peek_name(), new ExpName(*cur)));
 		params.push_back($5->filename()->clone());
 		params.push_back($5->kind()->clone());
 		ProcedureCall*fopen_call = new ProcedureCall(
                                     perm_string::literal("file_open"), &params);
-		arc_scope->add_initializer(fopen_call);
+		yy_parse_context->arc_scope->add_initializer(fopen_call);
 
 		// add file_close() call in 'final' block
 		params.clear();
-		params.push_back(new ExpScopedName(active_scope->peek_name(), new ExpName(*cur)));
+		params.push_back(new ExpScopedName(yy_parse_context->active_scope->peek_name(), new ExpName(*cur)));
 		ProcedureCall*fclose_call = new ProcedureCall(
                                     perm_string::literal("file_close"), &params);
-		arc_scope->add_finalizer(fclose_call);
+		yy_parse_context->arc_scope->add_finalizer(fclose_call);
 
 		delete $5;
 	      }
@@ -1353,7 +1308,7 @@ file_open_information_opt
 
 // FM. MA| TODO: IEEE 1076-2008 P11.2 requires guard condition
 block_statement :
-IDENTIFIER   ':'   K_block   { push_scope(); }
+IDENTIFIER   ':'   K_block   { yy_parse_context->push_scope(); }
 K_is_opt   block_header   block_declarative_items_opt
 //NOTE: block_declarative_items_opt  is equal to block_declarative_part
 K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
@@ -1365,9 +1320,9 @@ K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
         ParserUtil::errormsg(yy_parse_context, @1, "block_statement label %s does not "
                  "match closing name %s\n", label.str(), $12);
 
-    BlockStatement *tmp = new BlockStatement($6, label, *active_scope, $9);
-    arc_scope->bind_scope(tmp->peek_name(), tmp);
-    pop_scope();
+    BlockStatement *tmp = new BlockStatement($6, label, *yy_parse_context->active_scope, $9);
+    yy_parse_context->arc_scope->bind_scope(tmp->peek_name(), tmp);
+    yy_parse_context->pop_scope();
 
     //ParserUtil::add_location(tmp, @1);
 
@@ -1447,7 +1402,7 @@ function_specification /* IEEE 1076-2008 P4.2.1 */
 {
     perm_string type_name = lex_strings.make($5);
     perm_string name = lex_strings.make($2);
-    const VType*type_mark = active_scope->find_type(type_name);
+    const VType*type_mark = yy_parse_context->active_scope->find_type(type_name);
     touchup_interface_for_functions($3);
     SubprogramHeader*tmp = new SubprogramHeader(name, $3, type_mark);
     ParserUtil::add_location(tmp, @1);
@@ -1811,7 +1766,8 @@ name /* IEEE 1076-2008 P8.1 */
     if(!tmp) {
         perm_string name = lex_strings.make($1);
         /* There are functions that have the same name types, e.g. integer */
-        if(!active_scope->find_subprogram(name).empty() && !parse_type_by_name(name))
+        if(!yy_parse_context->active_scope->find_subprogram(name).empty() &&
+           !yy_parse_context->parse_type_by_name(name))
             tmp = new ExpFunc(name);
         else
             tmp = new ExpName(name);
@@ -1841,7 +1797,8 @@ indexed_name
     Expression*tmp;
     perm_string name = lex_strings.make($1);
     delete[]$1;
-    if (active_scope->is_vector_name(name) || is_subprogram_param(name))
+    if (yy_parse_context->active_scope->is_vector_name(name) ||
+        yy_parse_context->is_subprogram_param(name))
         tmp = new ExpName(name, $3);
     else
         tmp = new ExpFunc(name, $3);
@@ -1880,11 +1837,11 @@ package_declaration
 	      ParserUtil::errormsg(yy_parse_context, @1, "Identifier %s doesn't match package name %s.\n",
 		       $6, name.str());
         }
-	Package*tmp = new Package(name, *active_scope);
+	Package*tmp = new Package(name, *yy_parse_context->active_scope);
 	ParserUtil::add_location(tmp, @1);
 	delete[]$1;
         if ($6) delete[]$6;
-	pop_scope();
+	yy_parse_context->pop_scope();
 	  /* Put this package into the work library, or the currently
 	     parsed library. Note that parse_library_name is an
 	     argument to the parser. */
@@ -1893,13 +1850,13 @@ package_declaration
   | package_declaration_start K_is error K_end K_package_opt identifier_opt ';'
     { ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in package clause.\n");
       yyerrok;
-      pop_scope();
+      yy_parse_context->pop_scope();
     }
   ;
 
 package_declaration_start
   : K_package IDENTIFIER
-      { push_scope();
+      { yy_parse_context->push_scope();
 	$$ = $2;
       }
   ;
@@ -1944,156 +1901,176 @@ package_declarative_part_opt
   ;
 
 package_body /* IEEE 1076-2008 P4.8 */
-  : package_body_start K_is
-    package_body_declarative_part_opt
-    K_end K_package_opt identifier_opt ';'
-      { perm_string name = lex_strings.make($1);
-	if ($6 && name != $6)
-	      ParserUtil::errormsg(yy_parse_context, @6, "Package name (%s) doesn't match closing name (%s).\n", $1, $6);
-	delete[] $1;
-	if($6) delete[]$6;
-	pop_scope();
-      }
+: package_body_start K_is
+package_body_declarative_part_opt
+K_end K_package_opt identifier_opt ';'
+{
+    perm_string name = lex_strings.make($1);
+    if ($6 && name != $6){
+        ParserUtil::errormsg(yy_parse_context, @6, "Package name (%s) "
+                             "doesn't match closing name (%s).\n", $1, $6);
+    }
+    delete[] $1;
 
-  | package_body_start K_is error K_end K_package_opt identifier_opt ';'
-      { ParserUtil::errormsg(yy_parse_context, @1, "Errors in package %s body.\n", $1);
-	yyerrok;
-	pop_scope();
-      }
-  ;
+    if($6)
+        delete[]$6;
+    yy_parse_context->pop_scope();
+}
+
+| package_body_start K_is error K_end K_package_opt identifier_opt ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @1,
+                         "Errors in package %s body.\n", $1);
+    yyerrok;
+    yy_parse_context->pop_scope();
+}
+;
 
 /*
  * This is a portion of the package_body rule that we factor out so
  * that we can use this rule to start the scope.
  */
 package_body_start
-  : K_package K_body IDENTIFIER
-      { perm_string name = lex_strings.make($3);
-	push_scope();
-	Package*pkg = library_recall_package(parse_library_name, name);
-	if (pkg != 0) {
-	      active_scope->set_package_header(pkg);
-	} else {
-	      ParserUtil::errormsg(yy_parse_context, @1, "Package body for %s has no matching header.\n", $3);
-	}
-	$$ = $3;
-      }
-  ;
+: K_package K_body IDENTIFIER
+{
+    perm_string name = lex_strings.make($3);
+    yy_parse_context->push_scope();
+    Package*pkg = library_recall_package(parse_library_name, name);
+
+    if (pkg != 0) {
+        yy_parse_context->active_scope->set_package_header(pkg);
+    } else {
+        ParserUtil::errormsg(yy_parse_context, @1, "Package body for %s has "
+                             "no matching header.\n", $3);
+    }
+    $$ = $3;
+}
+;
 
 parameter_list
-  : '(' interface_list ')' { $$ = $2; }
-  ;
+: '(' interface_list ')' { $$ = $2; }
+;
 
 parameter_list_opt
-  : parameter_list  { $$ = $1; }
-  |                 { $$ = 0; }
-  ;
+: parameter_list  { $$ = $1; }
+|                 { $$ = 0; }
+;
 
 port_clause
-  : K_port parameter_list ';'
-      { $$ = $2; }
-  | K_port '(' error ')' ';'
-      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in port list.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  ;
+: K_port parameter_list ';'
+{ $$ = $2; }
+| K_port '(' error ')' ';'
+{ ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in port list.\n");
+    yyerrok;
+    $$ = 0;
+}
+;
 
 port_clause_opt : port_clause {$$ = $1;} | {$$ = 0;} ;
 
 port_map_aspect
-  : K_port K_map '(' association_list ')'
-      { $$ = $4; }
-  | K_port K_map '(' error ')'
-      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in port map aspect.\n");
-	yyerrok;
-      }
-  ;
+: K_port K_map '(' association_list ')' { $$ = $4; }
+| K_port K_map '(' error ')'
+{
+    ParserUtil::errormsg(yy_parse_context, @1,
+                         "Syntax error in port map aspect.\n");
+    yyerrok;
+}
+;
 
 port_map_aspect_opt
-  : port_map_aspect  { $$ = $1; }
-  |                  { $$ = 0; }
-  ;
+: port_map_aspect  { $$ = $1; }
+|                  { $$ = 0; }
+;
 
 
 prefix /* IEEE 1076-2008 P8.1 */
-  : name
-      { $$ = $1; }
-  ;
+: name { $$ = $1; }
+;
 
 primary
-  : name
-      { $$ = $1; }
-  | name '\'' IDENTIFIER argument_list_opt
-      { ExpAttribute*tmp = NULL;
-	perm_string attr = lex_strings.make($3);
-	ExpName*base = dynamic_cast<ExpName*>($1);
-	const VType*type = parse_type_by_name(base->peek_name());
+: name { $$ = $1; }
+| name '\'' IDENTIFIER argument_list_opt
+{
+    ExpAttribute*tmp = NULL;
+    perm_string attr = lex_strings.make($3);
+    ExpName*base = dynamic_cast<ExpName*>($1);
+    const VType*type = yy_parse_context->parse_type_by_name(base->peek_name());
 
-	if(type) {
-	    tmp = new ExpTypeAttribute(type, attr, $4);
-	} else {
-	    tmp = new ExpObjAttribute(base, attr, $4);
-	}
+    if(type) {
+        tmp = new ExpTypeAttribute(type, attr, $4);
+    } else {
+        tmp = new ExpObjAttribute(base, attr, $4);
+    }
 
-	ParserUtil::add_location(tmp, @1);
-	delete[]$3;
-	$$ = tmp;
-      }
-  | CHARACTER_LITERAL
-      { ExpCharacter*tmp = new ExpCharacter($1[0]);
-	ParserUtil::add_location(tmp,@1);
-	delete[]$1;
-	$$ = tmp;
-      }
-  | INT_LITERAL
-      { ExpInteger*tmp = new ExpInteger($1);
-	ParserUtil::add_location(tmp, @1);
-	$$ = tmp;
-      }
-  | REAL_LITERAL
-      { ExpReal*tmp = new ExpReal($1);
-	ParserUtil::add_location(tmp, @1);
-	$$ = tmp;
-      }
-  | STRING_LITERAL
-      { ExpString*tmp = new ExpString($1);
-	ParserUtil::add_location(tmp,@1);
-	delete[]$1;
-	$$ = tmp;
-      }
-  | BITSTRING_LITERAL
-      { ExpBitstring*tmp = new ExpBitstring($1);
-	ParserUtil::add_location(tmp, @1);
-	delete[]$1;
-	$$ = tmp;
-      }
-  | INT_LITERAL IDENTIFIER
-      { ExpTime::timeunit_t unit = ExpTime::FS;
+    ParserUtil::add_location(tmp, @1);
+    delete[]$3;
+    $$ = tmp;
+}
+| CHARACTER_LITERAL
+{
+    ExpCharacter*tmp = new ExpCharacter($1[0]);
+    ParserUtil::add_location(tmp,@1);
+    delete[]$1;
+    $$ = tmp;
+}
+| INT_LITERAL
+{
+    ExpInteger*tmp = new ExpInteger($1);
+    ParserUtil::add_location(tmp, @1);
+    $$ = tmp;
+}
+| REAL_LITERAL
+{
+    ExpReal*tmp = new ExpReal($1);
+    ParserUtil::add_location(tmp, @1);
+    $$ = tmp;
+}
+| STRING_LITERAL
+{
+    ExpString*tmp = new ExpString($1);
+    ParserUtil::add_location(tmp,@1);
+    delete[]$1;
+    $$ = tmp;
+}
+| BITSTRING_LITERAL
+{
+    ExpBitstring*tmp = new ExpBitstring($1);
+    ParserUtil::add_location(tmp, @1);
+    delete[]$1;
+    $$ = tmp;
+}
+| INT_LITERAL IDENTIFIER
+{
+    ExpTime::timeunit_t unit = ExpTime::FS;
 
-        if(!strcasecmp($2, "us"))
-            unit = ExpTime::US;
-        else if(!strcasecmp($2, "ms"))
-            unit = ExpTime::MS;
-        else if(!strcasecmp($2, "ns"))
-            unit = ExpTime::NS;
-        else if(!strcasecmp($2, "s"))
-            unit = ExpTime::S;
-        else if(!strcasecmp($2, "ps"))
-            unit = ExpTime::PS;
-        else if(!strcasecmp($2, "fs"))
-            unit = ExpTime::FS;
-        else
-            ParserUtil::errormsg(yy_parse_context, @2, "Invalid time unit (accepted are fs, ps, ns, us, ms, s).\n");
+    if(!strcasecmp($2, "us"))
+        unit = ExpTime::US;
+    else if(!strcasecmp($2, "ms"))
+        unit = ExpTime::MS;
+    else if(!strcasecmp($2, "ns"))
+        unit = ExpTime::NS;
+    else if(!strcasecmp($2, "s"))
+        unit = ExpTime::S;
+    else if(!strcasecmp($2, "ps"))
+        unit = ExpTime::PS;
+    else if(!strcasecmp($2, "fs"))
+        unit = ExpTime::FS;
+    else
+        ParserUtil::errormsg(yy_parse_context, @2,
+                             "Invalid time unit (accepted are fs, "
+                             "ps, ns, us, ms, s).\n");
 
-        if($1 < 0)
-            ParserUtil::errormsg(yy_parse_context, @1, "Time cannot be negative.\n");
+    if($1 < 0){
+        ParserUtil::errormsg(yy_parse_context, @1,
+                             "Time cannot be negative.\n");
+    }
 
-        ExpTime*tmp = new ExpTime($1, unit);
-        ParserUtil::add_location(tmp, @1);
-        delete[] $2;
-        $$ = tmp;
-      }
+    ExpTime*tmp = new ExpTime($1, unit);
+    ParserUtil::add_location(tmp, @1);
+    delete[] $2;
+    $$ = tmp;
+}
 
 /*XXXX Caught up in element_association_list?
   | '(' expression ')'
@@ -2103,19 +2080,21 @@ primary
      argument list. The position argument list is discovered elsewhere
      and must be discovered by elaboration (thanks to the ambiguity of
      VHDL syntax). */
-  | IDENTIFIER '(' association_list ')'
-      { ParserUtil::sorrymsg(yy_parse_context, @1, "Function calls not supported\n");
-	delete[] $1;
-	$$ = 0;
-      }
+| IDENTIFIER '(' association_list ')'
+{
+    ParserUtil::sorrymsg(yy_parse_context, @1, "Function calls not supported\n");
+    delete[] $1;
+    $$ = 0;
+}
 
-  /* Aggregates */
+/* Aggregates */
 
-  | '(' element_association_list ')'
-      { Expression*tmp = aggregate_or_primary(@1, $2);
-	$$ = tmp;
-      }
-  ;
+| '(' element_association_list ')'
+{
+    Expression*tmp = aggregate_or_primary(@1, $2);
+    $$ = tmp;
+}
+;
 
 primary_unit
   : entity_declaration
@@ -2124,112 +2103,123 @@ primary_unit
   ;
 
 procedure_call
-  : IDENTIFIER ';'
-      {
+: IDENTIFIER ';'
+{
     ProcedureCall* tmp = new ProcedureCall(lex_strings.make($1));
     ParserUtil::add_location(tmp, @1);
     delete[] $1;
     $$ = tmp;
-      }
-  | IDENTIFIER '(' association_list ')' ';'
-      {
+}
+| IDENTIFIER '(' association_list ')' ';'
+{
     ProcedureCall* tmp = new ProcedureCall(lex_strings.make($1), $3);
     ParserUtil::add_location(tmp, @1);
     delete[] $1;
     $$ = tmp;
-      }
-  | IDENTIFIER argument_list ';'
-      {
+}
+| IDENTIFIER argument_list ';'
+{
     ProcedureCall* tmp = new ProcedureCall(lex_strings.make($1), $2);
     ParserUtil::add_location(tmp, @1);
     delete[] $1;
     delete $2; // parameters are copied in this variant
     $$ = tmp;
-      }
-  | IDENTIFIER '(' error ')' ';'
-      { ParserUtil::errormsg(yy_parse_context, @1, "Errors in procedure call.\n");
-	yyerrok;
-	delete[]$1;
-	$$ = 0;
-      }
-  ;
+}
+| IDENTIFIER '(' error ')' ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @1, "Errors in procedure call.\n");
+    yyerrok;
+    delete[]$1;
+    $$ = 0;
+}
+;
 
 procedure_call_statement
-  : IDENTIFIER ':' procedure_call
-      { delete[] $1;
-	$$ = $3;
-      }
-  | procedure_call { $$ = $1; }
-  ;
+: IDENTIFIER ':' procedure_call
+{
+    delete[] $1;
+    $$ = $3;
+}
+| procedure_call { $$ = $1; }
+;
 
 procedure_specification /* IEEE 1076-2008 P4.2.1 */
-  : K_procedure IDENTIFIER parameter_list_opt
-      { perm_string name = lex_strings.make($2);
-	touchup_interface_for_functions($3);
-	SubprogramHeader*tmp = new SubprogramHeader(name, $3, NULL);
-	ParserUtil::add_location(tmp, @1);
-	delete[]$2;
-	$$ = tmp;
-      }
-  ;
+: K_procedure IDENTIFIER parameter_list_opt
+{
+    perm_string name = lex_strings.make($2);
+    touchup_interface_for_functions($3);
+    SubprogramHeader*tmp = new SubprogramHeader(name, $3, NULL);
+    ParserUtil::add_location(tmp, @1);
+    delete[]$2;
+    $$ = tmp;
+}
+;
 
 process_declarative_item
-  : variable_declaration
-  | file_declaration
-  ;
+: variable_declaration
+| file_declaration
+;
 
 process_declarative_part
-  : process_declarative_part process_declarative_item
-  | process_declarative_item
-  ;
+: process_declarative_part process_declarative_item
+| process_declarative_item
+;
 
 process_declarative_part_opt
-  : process_declarative_part
-  |
-  ;
+: process_declarative_part
+|
+;
 
 process_start
-  : identifier_colon_opt K_postponed_opt K_process
-       { push_scope();
-         $$ = $1;
-       }
-  ;
+: identifier_colon_opt K_postponed_opt K_process
+{
+    yy_parse_context->push_scope();
+    $$ = $1;
+}
+;
 
 process_statement
-  : process_start process_sensitivity_list_opt K_is_opt
-    process_declarative_part_opt
-    K_begin sequence_of_statements
-    K_end K_postponed_opt K_process identifier_opt ';'
-      { perm_string iname = $1 ? lex_strings.make($1) : empty_perm_string;
-	if ($1) delete[]$1;
-	if ($10) {
-	      if (iname.nil()) {
-		    ParserUtil::errormsg(yy_parse_context, @10, "Process end name %s for un-named processes.\n", $10);
-	      } else if (iname != $10) {
-		    ParserUtil::errormsg(yy_parse_context, @10, "Process name %s does not match opening name %s.\n",
-			     $10, $1);
-	      }
-	      delete[]$10;
-	}
+: process_start process_sensitivity_list_opt K_is_opt
+process_declarative_part_opt
+K_begin sequence_of_statements
+K_end K_postponed_opt K_process identifier_opt ';'
+{
+    perm_string iname = $1 ? lex_strings.make($1) : empty_perm_string;
+    if ($1) delete[]$1;
+    if ($10) {
+        if (iname.nil()) {
+            ParserUtil::errormsg(yy_parse_context, @10, "Process end "
+                                 "name %s for un-named processes.\n", $10);
+        } else if (iname != $10) {
+            ParserUtil::errormsg(yy_parse_context, @10, "Process name "
+                                 "%s does not match opening name %s.\n",
+                                 $10, $1);
+        }
+        delete[]$10;
+    }
 
-	ProcessStatement*tmp = new ProcessStatement(iname, *active_scope, $2, $6);
-        arc_scope->bind_scope(tmp->peek_name(), tmp);
-        pop_scope();
-	ParserUtil::add_location(tmp, @3);
-	delete $2;
-	delete $6;
-	$$ = tmp;
-      }
+    ProcessStatement *tmp = new ProcessStatement(iname,
+                                                *yy_parse_context->active_scope,
+                                                $2, $6);
+    yy_parse_context->arc_scope->bind_scope(tmp->peek_name(), tmp);
+    yy_parse_context->pop_scope();
+    ParserUtil::add_location(tmp, @3);
+    delete $2;
+    delete $6;
+    $$ = tmp;
+}
 
-  | process_start process_sensitivity_list_opt K_is_opt
-    process_declarative_part_opt
-    K_begin error
-    K_end K_postponed_opt K_process identifier_opt ';'
-      { ParserUtil::errormsg(yy_parse_context, @7, "Too many errors in process sequential statements.\n");
-	yyerrok;
-	$$ = 0;
-      }
-  ;
+| process_start process_sensitivity_list_opt K_is_opt
+process_declarative_part_opt
+K_begin error
+K_end K_postponed_opt K_process identifier_opt ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @7,
+                         "Too many errors in process sequential statements.\n");
+    yyerrok;
+    $$ = 0;
+}
+;
 
 /* A process_sensitivity_list is:
  *     <nil>  if the list is not present, or
@@ -2416,18 +2406,18 @@ selected_names
 selected_name_lib
 : IDENTIFIER '.' K_all
 {
-    library_use(yy_parse_context, @1, active_scope, 0, $1, 0);
+    library_use(yy_parse_context, @1, yy_parse_context->active_scope, 0, $1, 0);
     delete[]$1;
 }
 | IDENTIFIER '.' IDENTIFIER '.' K_all
 {
-    library_use(yy_parse_context, @1, active_scope, $1, $3, 0);
+    library_use(yy_parse_context, @1, yy_parse_context->active_scope, $1, $3, 0);
     delete[]$1;
     delete[]$3;
 }
 | IDENTIFIER '.' IDENTIFIER '.' IDENTIFIER
 {
-    library_use(yy_parse_context, @1, active_scope, $1, $3, $5);
+    library_use(yy_parse_context, @1, yy_parse_context->active_scope, $1, $3, $5);
     delete[]$1;
     delete[]$3;
     delete[]$5;
@@ -2670,56 +2660,61 @@ signal_assignment
   ;
 
 signal_assignment_statement
-  : signal_assignment
-  | IDENTIFIER ':' signal_assignment
-      { delete[] $1;
-	$$ = $3;
-      }
+: signal_assignment
+| IDENTIFIER ':' signal_assignment
+{
+    delete[] $1;
+    $$ = $3;
+}
 
 subprogram_body_start
-  : subprogram_specification K_is
-      { assert(!active_sub);
-        active_sub = $1;
-        $$ = $1; }
-  ;
+: subprogram_specification K_is
+{
+    assert(!yy_parse_context->active_sub);
+    yy_parse_context->active_sub = $1;
+    $$ = $1; }
+;
 
 /* This is a function/task body. This may have a matching subprogram
    declaration, and if so it will be in the active scope. */
 subprogram_body /* IEEE 1076-2008 P4.3 */
-  : subprogram_body_start subprogram_declarative_part
-    K_begin subprogram_statement_part K_end
-    subprogram_kind_opt identifier_opt ';'
-      { SubprogramHeader*prog = $1;
-	SubprogramHeader*tmp = active_scope->recall_subprogram(prog);
-	if (tmp) {
-	      delete prog;
-	      prog = tmp;
-	}
+: subprogram_body_start subprogram_declarative_part
+K_begin subprogram_statement_part K_end
+subprogram_kind_opt identifier_opt ';'
+{
+    SubprogramHeader *prog = $1;
+    SubprogramHeader *tmp = yy_parse_context->active_scope->recall_subprogram(prog);
+    if (tmp) {
+        delete prog;
+        prog = tmp;
+    }
 
-	SubprogramBody*body = new SubprogramBody();
-	body->transfer_from(*active_scope, ScopeBase::VARIABLES);
-	body->set_statements($4);
+    SubprogramBody *body = new SubprogramBody();
+    body->transfer_from(*yy_parse_context->active_scope, ScopeBase::VARIABLES);
+    body->set_statements($4);
 
-	prog->set_body(body);
-	active_scope->bind_subprogram(prog->name(), prog);
-	active_sub = NULL;
-      }
+    prog->set_body(body);
+    yy_parse_context->active_scope->bind_subprogram(prog->name(), prog);
+    yy_parse_context->active_sub = NULL;
+}
+| subprogram_body_start
+subprogram_declarative_part
+K_begin error K_end
+subprogram_kind_opt identifier_opt ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @2, "Syntax errors "
+                         "in subprogram body.\n");
+    yyerrok;
 
-  | subprogram_body_start
-    subprogram_declarative_part
-    K_begin error K_end
-    subprogram_kind_opt identifier_opt ';'
-      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax errors in subprogram body.\n");
-	yyerrok;
-	active_sub = NULL;
-	if ($1) delete $1;
-	if ($7) delete[]$7;
-      }
-  ;
+    yy_parse_context->active_sub = NULL;
+    if ($1) delete $1;
+    if ($7) delete[]$7;
+}
+;
 
 subprogram_declaration
   : subprogram_specification ';'
-      { if ($1) active_scope->bind_subprogram($1->name(), $1); }
+      { if ($1) yy_parse_context->active_scope->bind_subprogram($1->name(), $1); }
   ;
 
 subprogram_declarative_item /* IEEE 1079-2008 P4.3 */
@@ -2765,14 +2760,14 @@ subtype_declaration
         ParserUtil::errormsg(yy_parse_context, @1, "Failed to declare type name %s.\n", name.str());
     } else {
         VTypeDef*tmp;
-        map<perm_string,VTypeDef*>::iterator cur = active_scope->incomplete_types.find(name);
-        if (cur == active_scope->incomplete_types.end()) {
+        map<perm_string,VTypeDef*>::iterator cur = yy_parse_context->active_scope->incomplete_types.find(name);
+        if (cur == yy_parse_context->active_scope->incomplete_types.end()) {
             tmp = new VSubTypeDef(name, $4);
-            active_scope->bind_name(name, tmp);
+            yy_parse_context->active_scope->bind_name(name, tmp);
         } else {
             tmp = cur->second;
             tmp->set_definition($4);
-            active_scope->incomplete_types.erase(cur);
+            yy_parse_context->active_scope->incomplete_types.erase(cur);
         }
     }
     delete[]$2;
@@ -2782,7 +2777,7 @@ subtype_declaration
 subtype_indication
 : IDENTIFIER
 {
-    const VType*tmp = parse_type_by_name(lex_strings.make($1));
+    const VType*tmp = yy_parse_context->parse_type_by_name(lex_strings.make($1));
     if (tmp == 0) {
         ParserUtil::errormsg(yy_parse_context, @1,
                              "Can't find type name `%s'\n", $1);
@@ -2794,7 +2789,7 @@ subtype_indication
 | IDENTIFIER index_constraint
 {
     const VType*tmp = calculate_subtype_array(yy_parse_context, @1, $1,
-                                              active_scope, $2);
+                                              yy_parse_context->active_scope, $2);
     if (tmp == 0) {
         ParserUtil::errormsg(yy_parse_context, @1,
                              "Unable to calculate bounds for array of %s.\n", $1);
@@ -2806,7 +2801,7 @@ subtype_indication
 | IDENTIFIER K_range simple_expression direction simple_expression
 {
     const VType*tmp = calculate_subtype_range(yy_parse_context, @1, $1,
-                                              active_scope, $3, $4, $5);
+                                              yy_parse_context->active_scope, $3, $4, $5);
     if (tmp == 0) {
         ParserUtil::errormsg(yy_parse_context, @1,
                              "Unable to calculate bounds for range of %s.\n", $1);
@@ -2856,14 +2851,14 @@ type_declaration
 	      ParserUtil::errormsg(yy_parse_context, @1, "Failed to declare type name %s.\n", name.str());
 	} else {
 	      VTypeDef*tmp;
-	      map<perm_string,VTypeDef*>::iterator cur = active_scope->incomplete_types.find(name);
-	      if (cur == active_scope->incomplete_types.end()) {
+	      map<perm_string,VTypeDef*>::iterator cur = yy_parse_context->active_scope->incomplete_types.find(name);
+	      if (cur == yy_parse_context->active_scope->incomplete_types.end()) {
 		    tmp = new VTypeDef(name, $4);
-		    active_scope->bind_name(name, tmp);
+		    yy_parse_context->active_scope->bind_name(name, tmp);
 	      } else {
 		    tmp = cur->second;
 		    tmp->set_definition($4);
-		    active_scope->incomplete_types.erase(cur);
+		    yy_parse_context->active_scope->incomplete_types.erase(cur);
 	      }
 	}
 	delete[]$2;
@@ -2871,8 +2866,8 @@ type_declaration
   | K_type IDENTIFIER ';'
       { perm_string name = lex_strings.make($2);
 	VTypeDef*tmp = new VTypeDef(name);
-	active_scope->incomplete_types[name] = tmp;
-	active_scope->bind_name(name, tmp);
+	yy_parse_context->active_scope->incomplete_types[name] = tmp;
+	yy_parse_context->active_scope->bind_name(name, tmp);
 	delete[]$2;
       }
   | K_type IDENTIFIER K_is error ';'
@@ -2889,7 +2884,7 @@ type_declaration
 type_definition
   : '(' enumeration_literal_list ')'
       { VTypeEnum*tmp = new VTypeEnum($2);
-	active_scope->use_enum(tmp);
+	yy_parse_context->active_scope->use_enum(tmp);
 	delete $2;
 	$$ = tmp;
       }
@@ -2956,7 +2951,7 @@ variable_declaration /* IEEE 1076-2008 P6.4.2.4 */
 		   ; cur != $3->end() ; ++cur) {
 	      Variable*sig = new Variable(*cur, $5, $6);
 	      ParserUtil::add_location(sig, @2);
-	      active_scope->bind_name(*cur, sig);
+	      yy_parse_context->active_scope->bind_name(*cur, sig);
 	}
 	delete $3;
       }
@@ -3036,16 +3031,7 @@ K_postponed_opt    : K_postponed    | ;
 K_shared_opt       : K_shared       | ;
 %%
 
-static void yyerror(YYLTYPE *loc, yyscan_t, const char*,
-                    perm_string p, ParserContext *context, const char*msg) {
-    fprintf(stderr, "%s:%u: %s\n", loc->text, loc->first_line, msg);
-    context->parse_errors += 1;
-}
 
-/* The reset_lexor function takes the fd and makes it the input file
- * for the lexor. The path argument is used in lexor/parser error messages. */
-extern yyscan_t prepare_lexor(FILE*fd);
-extern void destroy_lexor(yyscan_t scanner);
 
 int parse_source_file(const char*file_path, perm_string parse_library_name) {
     FILE *fd = fopen(file_path, "r");

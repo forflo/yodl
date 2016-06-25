@@ -17,35 +17,61 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+// FM. MA| Encapsulated every standard type inside a new class StandardTypes
 
 #include "vtype.h"
 
 class ActiveScope;
 
-void emit_std_types(ostream& out);
-void generate_global_types();
-void add_global_types_to(ActiveScope *scope);
-bool is_global_type(perm_string type_name);
-void delete_global_types();
-const VTypeEnum *find_std_enum_name(perm_string name);
 
-extern const VTypePrimitive primitive_BIT;
-extern const VTypePrimitive primitive_INTEGER;
-extern const VTypePrimitive primitive_NATURAL;
-extern const VTypePrimitive primitive_REAL;
-extern const VTypePrimitive primitive_STDLOGIC;
-extern const VTypePrimitive primitive_TIME;
-extern const VTypePrimitive primitive_TEXT;
-extern const VTypePrimitive primitive_LINE;
 
-extern VTypeDef type_BOOLEAN;
-extern VTypeDef type_FILE_OPEN_KIND;
-extern VTypeDef type_FILE_OPEN_STATUS;
+class StandardTypes {
+public:
+    StandardTypes() {};
+    ~StandardTypes() {};
 
-extern const VTypeArray primitive_CHARACTER;
-extern const VTypeArray primitive_BIT_VECTOR;
-extern const VTypeArray primitive_BOOL_VECTOR;
-extern const VTypeArray primitive_STDLOGIC_VECTOR;
-extern const VTypeArray primitive_STRING;
-extern const VTypeArray primitive_SIGNED;
-extern const VTypeArray primitive_UNSIGNED;
+    // this list contains enums used by typedefs in the std_types map
+    list<const VTypeEnum *> std_enums;
+    map<perm_string, VTypeDef *> std_types;
+
+public:
+    VTypeDef type_BOOLEAN(perm_string::literal("boolean"));
+    VTypeDef type_FILE_OPEN_KIND(perm_string::literal("file_open_kind"));
+    VTypeDef type_FILE_OPEN_STATUS(perm_string::literal("file_open_status"));
+
+    const VTypePrimitive primitive_BIT(VTypePrimitive::BIT, true);
+    const VTypePrimitive primitive_INTEGER(VTypePrimitive::INTEGER);
+    const VTypePrimitive primitive_NATURAL(VTypePrimitive::NATURAL);
+    const VTypePrimitive primitive_REAL(VTypePrimitive::REAL);
+
+    const VTypePrimitive primitive_STDLOGIC(VTypePrimitive::STDLOGIC, true);
+    const VTypePrimitive primitive_TIME(VTypePrimitive::TIME, true);
+
+    const VTypeArray primitive_CHARACTER(
+        &primitive_BIT, 7, 0);
+    const VTypeArray primitive_BIT_VECTOR(
+        &primitive_BIT, vector<VTypeArray::range_t> (1));
+    const VTypeArray primitive_BOOL_VECTOR(
+        &type_BOOLEAN, vector<VTypeArray::range_t> (1));
+    const VTypeArray primitive_STDLOGIC_VECTOR(
+        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1));
+    const VTypeArray primitive_STRING(
+        &primitive_CHARACTER, vector<VTypeArray::range_t> (1));
+    const VTypeArray primitive_SIGNED(
+        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), true);
+    const VTypeArray primitive_UNSIGNED(
+        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), false);
+
+public:
+    void add_global_types_to(ActiveScope *scope);
+
+    void generate_global_types();
+
+    void delete_global_types();
+
+    const VTypeEnum *find_std_enum_name(perm_string name);
+
+    void emit_std_types(ostream& fd) const;
+
+    static bool is_global_type(perm_string name);
+};

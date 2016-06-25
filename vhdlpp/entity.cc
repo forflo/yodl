@@ -23,7 +23,6 @@
 
 using namespace std;
 
-map<perm_string, Entity *> design_entities;
 
 ComponentBase::ComponentBase(perm_string name)
     : name_(name) {}

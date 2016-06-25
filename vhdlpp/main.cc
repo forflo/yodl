@@ -60,8 +60,6 @@ const char COPYRIGHT[] =
 # define mkdir(path, mode)    mkdir(path)
 #endif
 
-extern map<perm_string, Entity *> design_entities;
-
 bool verbose_flag = false;
 // Where to dump design entities
 const char *dump_design_entities_path = 0;
@@ -89,7 +87,6 @@ static void process_debug_token(const char *word) {
         debug_elaboration = true;
     }
 }
-
 
 #define VERSION_TAG    "VERSION_TAG"
 #define NOTICE         "NOTICE\n"
@@ -154,12 +151,12 @@ int main(int argc, char *argv[]) {
     std::cout.precision(std::numeric_limits<double>::digits10);
     library_set_work_path(work_path);
 
-    preload_global_types();
+    ParserContext *cont = new ParserContext();
+    cont->preload_global_types();
     //generate_global_types();
     preload_std_funcs();
 
     int errors = 0;
-    ParserContext *cont = new ParserContext();
 
     for (int idx = optind; idx < argc; idx += 1) {
         rc           = parse_source_file(argv[idx], perm_string());
@@ -190,11 +187,11 @@ int main(int argc, char *argv[]) {
     }
 
     /* Playground */
-    cout << "There are " <<  design_entities.size() << " entities\n";
+    cout << "There are " <<  cont->design_entities.size() << " entities\n";
 
     ////
     // WARNING: CHECK ENTITY NAME!!
-    Entity *ent = design_entities[perm_string::literal("ent")];
+    Entity *ent = cont->design_entities[perm_string::literal("ent")];
     cout << "Entity found!\n";
 
 //    Entity *copy = ent->clone();
@@ -218,25 +215,25 @@ int main(int argc, char *argv[]) {
     if (dump_design_entities_path) {
         ofstream file(dump_design_entities_path);
 
-        dump_design_entities(file);
+        cont->dump_design_entities(file);
     }
 
     if (errors > 0) {
-        parser_cleanup();
+        delete cont;
         return 2;
     }
 
     errors = elaborate_entities();
     if (errors > 0) {
         fprintf(stderr, "%d errors elaborating design.\n", errors);
-        parser_cleanup();
+        delete cont;
         return 3;
     }
 
     errors = elaborate_libraries();
     if (errors > 0) {
         fprintf(stderr, "%d errors elaborating libraries.\n", errors);
-        parser_cleanup();
+        delete cont;
         return 4;
     }
 
@@ -245,18 +242,18 @@ int main(int argc, char *argv[]) {
     errors = emit_packages();
     if (errors > 0) {
         fprintf(stderr, "%d errors emitting packages.\n", errors);
-        parser_cleanup();
+        delete cont;
         return 5;
     }
 
     errors = emit_entities();
     if (errors > 0) {
         fprintf(stderr, "%d errors emitting design.\n", errors);
-        parser_cleanup();
+        delete cont;
         return 6;
     }
 
 
-    parser_cleanup();
+    delete cont;
     return 0;
 }
