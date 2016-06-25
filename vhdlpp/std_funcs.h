@@ -22,6 +22,7 @@
  */
 
 # include "subprogram.h"
+# include "std_types.h"
 
 class StandardFunctions {
 public:
@@ -29,6 +30,7 @@ public:
     ~StandardFunctions(){}
 
     std::map<perm_string, SubHeaderList> std_subprograms;
+    StandardTypes *std_types = new StandardTypes();
 
     void register_std_subprogram(SubprogramHeader *header);
 

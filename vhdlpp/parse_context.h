@@ -20,7 +20,6 @@
 #include "vhdlreal.h"
 #include "compiler.h"
 #include "parse_api.h"
-#include "parse.h"
 #include "architec.h"
 #include "expression.h"
 #include "sequential.h"
@@ -31,6 +30,11 @@
 #include "std_funcs.h"
 #include "std_types.h"
 #include "parse_types.h"
+#include "StringHeap.h"
+
+//TODO: This is ugly, find another way
+class ParserContext;
+extern int yyparse(yyscan_t, const char *, perm_string, ParserContext *);
 
 class ParserContext {
 public:
@@ -221,7 +225,7 @@ public:
 
         int rc = yyparse(scanner, file_path, parse_library_name, c);
         fclose(fd);
-        LexterUtil::destroy_lexor(scanner);
+        LexerUtil::destroy_lexor(scanner);
 
         return rc;
     }
