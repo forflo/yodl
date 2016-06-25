@@ -23,12 +23,12 @@
 
 class ActiveScope;
 
-
-
 class StandardTypes {
 public:
     StandardTypes() {};
-    ~StandardTypes() {};
+    ~StandardTypes() {
+        delete_types();
+    };
 
     // this list contains enums used by typedefs in the std_types map
     list<const VTypeEnum *> std_enums;
@@ -65,9 +65,9 @@ public:
 public:
     void add_global_types_to(ActiveScope *scope);
 
-    void generate_global_types();
+    void generate_types();
 
-    void delete_global_types();
+    void delete_types();
 
     const VTypeEnum *find_std_enum_name(perm_string name);
 

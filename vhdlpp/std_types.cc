@@ -17,15 +17,14 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+#include <map>
+#include <list>
 
 #include "std_types.h"
 #include "scope.h"
 
-#include <map>
-
-
 void StandardTypes::add_global_types_to(ActiveScope *scope){
-    scope->use_name(type_BOOLEAN.peek_name(), &type_BOOLEAN);
+    scope->use_name(perm_string::literal("boolean"), &type_BOOLEAN);
     scope->use_name(perm_string::literal("bit"), &primitive_BIT);
     // TODO: why doesn't this work
     //scope->use_name(perm_string::literal("std_logic_vector"), &primitive_STDLOGIC_VECTOR);
@@ -39,7 +38,7 @@ void StandardTypes::add_global_types_to(ActiveScope *scope){
     scope->use_name(perm_string::literal("time"), &primitive_TIME);
 }
 
-void StandardTypes::generate_global_types() {
+void StandardTypes::generate_types() {
     // boolean
     list<perm_string> enum_BOOLEAN_vals;
     enum_BOOLEAN_vals.push_back(perm_string::literal("false"));
@@ -74,10 +73,11 @@ void StandardTypes::generate_global_types() {
     std_enums.push_back(enum_FILE_OPEN_STATUS);
 }
 
-void StandardTypes::delete_global_types() {
+//TODO: rename
+void StandardTypes::delete_types() {
     typedef_context_t typedef_ctx;
 
-    // FM. MA| changed to c++11 looping syntax
+    // FM. MA changed to c++11 looping syntax
     for (auto &i : std_types){
         i.second->peek_definition();
         delete i.second;
@@ -86,13 +86,11 @@ void StandardTypes::delete_global_types() {
     // std_enums are destroyed above
 }
 
+//FM. MA changed to new c++11 iteration syntax
 const VTypeEnum *StandardTypes::find_std_enum_name(perm_string name) {
-    for (list<const VTypeEnum *>::const_iterator it = std_enums.begin();
-         it != std_enums.end(); ++it) {
-        if ((*it)->has_name(name)) {
-            return *it;
-        }
-    }
+    for (auto &i : std_enums)
+        if (it->has_name(name))
+            return it;
 
     return NULL;
 }

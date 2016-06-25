@@ -62,6 +62,7 @@ const char COPYRIGHT[] =
 
 bool verbose_flag = false;
 // Where to dump design entities
+const char *work_path = "ivl_vhdl_work";
 const char *dump_design_entities_path = 0;
 const char *dump_libraries_path       = 0;
 const char *debug_log_path            = 0;
@@ -88,15 +89,8 @@ static void process_debug_token(const char *word) {
     }
 }
 
-#define VERSION_TAG    "VERSION_TAG"
-#define NOTICE         "NOTICE\n"
 
-int main(int argc, char *argv[]) {
-    int        opt;
-    int        rc;
-    const char *work_path = "ivl_vhdl_work";
-
-
+void main_parse_arguments(int argc, char *argv[]){
     while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF) {
         switch (opt) {
         case 'D':
@@ -127,6 +121,17 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
+}
+
+#define VERSION_TAG    "VERSION_TAG"
+#define NOTICE         "NOTICE\n"
+
+int main(int argc, char *argv[]) {
+    int errors = 0;
+    int opt;
+    int rc;
+
+    main_parse_arguments(argc, argv);
 
     if (debug_log_path) {
         debug_log_file.open(debug_log_path);
@@ -152,14 +157,10 @@ int main(int argc, char *argv[]) {
     library_set_work_path(work_path);
 
     ParserContext *cont = new ParserContext();
-    cont->preload_global_types();
-    //generate_global_types();
-    preload_std_funcs();
+    cont->init();
 
-    int errors = 0;
-
-    for (int idx = optind; idx < argc; idx += 1) {
-        rc           = parse_source_file(argv[idx], perm_string());
+    for (int i = optind; i < argc; i += 1) {
+        rc = ParserUtil::parse_source_file(argv[i], perm_string(), cont);
         if (rc < 0) {
             return 1;
         }
@@ -172,11 +173,12 @@ int main(int argc, char *argv[]) {
 
         if (cont->parse_errors > 0) {
             fprintf(stderr, "Encountered %d errors parsing %s\n",
-                    cont->parse_errors, argv[idx]);
+                    cont->parse_errors, argv[i]);
         }
+
         if (cont->parse_sorrys > 0) {
             fprintf(stderr, "Encountered %d unsupported constructs parsing %s\n", 
-                    cont->parse_sorrys, argv[idx]);
+                    cont->parse_sorrys, argv[i]);
         }
 
         if (cont->parse_errors || cont->parse_sorrys) {
@@ -198,7 +200,9 @@ int main(int argc, char *argv[]) {
 //    cout << "Entity copied!\n";
 
     //emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
-    emit_dotgraph(std::cout, "g", ent->arch_[perm_string::literal("beh")]->emit_strinfo_tree());
+    emit_dotgraph(std::cout, "g",
+                  ent->arch_[perm_string::literal("beh")]
+                  ->emit_strinfo_tree());
 
 //    cout << endl << "Traverse outputs: \n";
 //    traverse(*ent);
@@ -252,7 +256,6 @@ int main(int argc, char *argv[]) {
         delete cont;
         return 6;
     }
-
 
     delete cont;
     return 0;

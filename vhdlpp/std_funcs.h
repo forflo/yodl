@@ -21,15 +21,22 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "subprogram.h"
+# include "subprogram.h"
 
-// Generates subprogram headers for standard VHDL library functions.
-void preload_std_funcs();
+class StandardFunctions {
+    StandardFunctions(){}
+    ~StandardFunctions(){}
 
-// Destroys subprogram headers for standard VHDL library functions.
-void delete_std_funcs();
+    std::map<perm_string, SubHeaderList> std_subprograms;
 
-// Returns subprogram header for a requested function or NULL if it does not exist.
-SubHeaderList find_std_subprogram(perm_string name);
+    void register_std_subprogram(SubprogramHeader *header);
+
+    void delete_std_funcs();
+
+    SubHeaderList find_std_subprogram(perm_string name);
+
+    // Generates subprogram headers for standard VHDL library functions.
+    void preload_std_funcs(void);
+};
 
 #endif /* IVL_std_funcs_H */

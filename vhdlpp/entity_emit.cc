@@ -25,16 +25,6 @@
 #include "entity.h"
 #include "architec.h"
 
-int emit_entities(void) {
-    int errors = 0;
-
-    for (map<perm_string, Entity *>::iterator cur = design_entities.begin()
-         ; cur != design_entities.end(); ++cur) {
-        errors += cur->second->emit(cout);
-    }
-
-    return errors;
-}
 
 
 int Entity::emit(ostream& out) {

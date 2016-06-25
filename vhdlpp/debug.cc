@@ -53,15 +53,6 @@ static ostream& operator <<(ostream& out, port_mode_t that) {
     return out;
 }
 
-
-void dump_design_entities(ostream& file) {
-    for (map<perm_string, Entity *>::iterator cur = design_entities.begin()
-         ; cur != design_entities.end(); ++cur) {
-        cur->second->dump(file);
-    }
-}
-
-
 void ComponentBase::dump_generics(ostream& out, int indent) const {
     if (parms_.empty()) {
         out << setw(indent) << "" << "No generics" << endl;
