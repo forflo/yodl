@@ -28,6 +28,7 @@
 # include <vector>
 # include <climits>
 # include <inttypes.h>
+
 # include "StringHeap.h"
 # include "simple_tree.h"
 
@@ -45,7 +46,8 @@ typedef enum typedef_topo_e {
     MARKED
 } typedef_topo_t;
 
-extern void preload_global_types(void);
+//TODO: needed?
+//extern void preload_global_types(void);
 
 typedef std::map<const VTypeDef *, typedef_topo_t> typedef_context_t;
 

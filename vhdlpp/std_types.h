@@ -1,3 +1,6 @@
+#ifndef IVL_STD_TYPES_GUARD
+#define IVL_STD_TYPES_GUARD
+
 /*
  * Copyright CERN 2015
  * @author Maciej Suminski (maciej.suminski@cern.ch)
@@ -20,8 +23,14 @@
 // FM. MA| Encapsulated every standard type inside a new class StandardTypes
 
 #include "vtype.h"
+#include "scope.h"
+#include "StringHeap.h"
+
+#include <map>
 
 class ActiveScope;
+
+using namespace std;
 
 class StandardTypes {
 public:
@@ -34,33 +43,33 @@ public:
     list<const VTypeEnum *> std_enums;
     map<perm_string, VTypeDef *> std_types;
 
-public:
-    VTypeDef type_BOOLEAN(perm_string::literal("boolean"));
-    VTypeDef type_FILE_OPEN_KIND(perm_string::literal("file_open_kind"));
-    VTypeDef type_FILE_OPEN_STATUS(perm_string::literal("file_open_status"));
 
-    const VTypePrimitive primitive_BIT(VTypePrimitive::BIT, true);
-    const VTypePrimitive primitive_INTEGER(VTypePrimitive::INTEGER);
-    const VTypePrimitive primitive_NATURAL(VTypePrimitive::NATURAL);
-    const VTypePrimitive primitive_REAL(VTypePrimitive::REAL);
+    VTypeDef type_BOOLEAN{perm_string::literal("boolean")};
+    VTypeDef type_FILE_OPEN_KIND{perm_string::literal("file_open_kind")};
+    VTypeDef type_FILE_OPEN_STATUS{perm_string::literal("file_open_status")};
 
-    const VTypePrimitive primitive_STDLOGIC(VTypePrimitive::STDLOGIC, true);
-    const VTypePrimitive primitive_TIME(VTypePrimitive::TIME, true);
+    const VTypePrimitive primitive_BIT{VTypePrimitive::BIT, true};
+    const VTypePrimitive primitive_INTEGER{VTypePrimitive::INTEGER};
+    const VTypePrimitive primitive_NATURAL{VTypePrimitive::NATURAL};
+    const VTypePrimitive primitive_REAL{VTypePrimitive::REAL};
 
-    const VTypeArray primitive_CHARACTER(
-        &primitive_BIT, 7, 0);
-    const VTypeArray primitive_BIT_VECTOR(
-        &primitive_BIT, vector<VTypeArray::range_t> (1));
-    const VTypeArray primitive_BOOL_VECTOR(
-        &type_BOOLEAN, vector<VTypeArray::range_t> (1));
-    const VTypeArray primitive_STDLOGIC_VECTOR(
-        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1));
-    const VTypeArray primitive_STRING(
-        &primitive_CHARACTER, vector<VTypeArray::range_t> (1));
-    const VTypeArray primitive_SIGNED(
-        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), true);
-    const VTypeArray primitive_UNSIGNED(
-        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), false);
+    const VTypePrimitive primitive_STDLOGIC{VTypePrimitive::STDLOGIC, true};
+    const VTypePrimitive primitive_TIME{VTypePrimitive::TIME, true};
+
+    const VTypeArray primitive_CHARACTER{
+        &primitive_BIT, 7, 0};
+    const VTypeArray primitive_BIT_VECTOR{
+        &primitive_BIT, vector<VTypeArray::range_t> (1)};
+    const VTypeArray primitive_BOOL_VECTOR{
+        &type_BOOLEAN, vector<VTypeArray::range_t> (1)};
+    const VTypeArray primitive_STDLOGIC_VECTOR{
+        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1)};
+    const VTypeArray primitive_STRING{
+        &primitive_CHARACTER, vector<VTypeArray::range_t> (1)};
+    const VTypeArray primitive_SIGNED{
+        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), true};
+    const VTypeArray primitive_UNSIGNED{
+        &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), false};
 
 public:
     void add_global_types_to(ActiveScope *scope);
@@ -75,3 +84,5 @@ public:
 
     static bool is_global_type(perm_string name);
 };
+
+#endif /* IVL_STD_TYPES_GUARD */

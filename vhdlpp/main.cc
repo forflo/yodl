@@ -89,7 +89,6 @@ static void process_debug_token(const char *word) {
     }
 }
 
-
 void main_parse_arguments(int argc, char *argv[]){
     while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF) {
         switch (opt) {
@@ -156,7 +155,7 @@ int main(int argc, char *argv[]) {
     std::cout.precision(std::numeric_limits<double>::digits10);
     library_set_work_path(work_path);
 
-    ParserContext *cont = new ParserContext();
+    ParserContext *cont = (new ParserContext()).init();
     cont->init();
 
     for (int i = optind; i < argc; i += 1) {

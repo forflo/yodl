@@ -89,25 +89,25 @@ void StandardTypes::delete_types() {
 //FM. MA changed to new c++11 iteration syntax
 const VTypeEnum *StandardTypes::find_std_enum_name(perm_string name) {
     for (auto &i : std_enums)
-        if (it->has_name(name))
-            return it;
+        if (i->has_name(name))
+            return i;
 
     return NULL;
 }
 
-void StandardType::semit_std_types(ostream& fd) const {
+void StandardTypes::emit_std_types(ostream& fd) const {
     fd << "`ifndef __VHDL_STD_TYPES" << endl;
     fd << "`define __VHDL_STD_TYPES" << endl;
     typedef_context_t typedef_ctx;
 
     for (auto &i : std_types)
-        i.second->emit_typedef(fd, typedef_cts);
+        i.second->emit_typedef(fd, typedef_ctx);
 
     fd << "`endif" << endl;
 }
 
 // FM. MA TODO: TMP?
-static bool StandardTypes::is_global_type(perm_string name) {
+bool StandardTypes::is_global_type(perm_string name) {
     if (name == "boolean") {
         return true;
     }
@@ -148,5 +148,5 @@ static bool StandardTypes::is_global_type(perm_string name) {
         return true;
     }
 
-    return std_types.count(name) > 0;
+    return false;
 }

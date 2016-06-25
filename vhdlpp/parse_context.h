@@ -3,7 +3,6 @@
 #ifndef IVL_IG_PARSE_CONTEXT
 #define IVL_IG_PARSE_CONTEXT
 
-// TODO incorporate parser_cleanup
 #include <cstdarg>
 #include <iostream>
 #include <cstring>
@@ -13,12 +12,15 @@
 #include <vector>
 #include <ivl_assert.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "vhdlpp_config.h"
+#include "lexor_util.h"
 #include "vhdlint.h"
 #include "vhdlreal.h"
 #include "compiler.h"
 #include "parse_api.h"
+#include "parse.h"
 #include "architec.h"
 #include "expression.h"
 #include "sequential.h"
@@ -29,8 +31,6 @@
 #include "std_funcs.h"
 #include "std_types.h"
 #include "parse_types.h"
-
-#include <stdio.h>
 
 class ParserContext {
 public:
@@ -92,11 +92,6 @@ public:
         scope_stack.pop();
     }
 
-    void delete_global_scope(void) {
-        active_scope->destroy_global_scope();
-        delete active_scope;
-    }
-
     //delete global entities that were gathered over the parsing process
     void delete_design_entities(void) {
         for(map<perm_string,Entity*>::iterator cur = design_entities.begin()
@@ -117,21 +112,11 @@ public:
     }
 
     void init(void){
-        preload_global_types();
-        global_functions->preload_std_funcs();
-    }
-
     //Remove the scope created at the beginning of parser's work.
     //After the parsing active_scope should keep it's address
-    void preload_global_types(void) {
         global_types->generate_types();
         global_types->add_global_types_to(active_scope);
-    }
-
-    //delete global entities that were gathered over the parsing process
-    void delete_design_entities(void) {
-        for(auto &i : design_entities)
-            delete i.second;
+        global_functions->preload_std_funcs();
     }
 
     void dump_design_entities(ostream& file) {
@@ -142,7 +127,10 @@ public:
     //used to delete this object
     void parser_cleanup(void) {
         delete_design_entities();
-        delete_global_scope();
+
+        active_scope->destroy_global_scope();
+        delete active_scope;
+
         global_functions->delete_std_funcs();
         lex_strings.cleanup();
     }
@@ -151,8 +139,8 @@ public:
 class ParserUtil {
 public:
     static void bind_entity_to_active_scope(ParserContext *c,
-                                     const char *ename,
-                                     ActiveScope *scope) {
+                                            const char *ename,
+                                            ActiveScope *scope) {
         perm_string ekey = lex_strings.make(ename);
         std::map<perm_string, Entity *>::const_iterator idx =
             design_entities.find(ekey);
@@ -220,7 +208,7 @@ public:
         }
     }
 
-    static int parse_source_file(const char*file_path,
+    static int parse_source_file(const char *file_path,
                                  perm_string parse_library_name,
                                  ParserContext *c) {
         FILE *fd = fopen(file_path, "r");
@@ -229,11 +217,11 @@ public:
             return -1;
         }
 
-        yyscan_t scanner = prepare_lexor(fd);
+        yyscan_t scanner = LexerUtil::prepare_lexor(fd);
 
         int rc = yyparse(scanner, file_path, parse_library_name, c);
         fclose(fd);
-        destroy_lexor(scanner);
+        LexterUtil::destroy_lexor(scanner);
 
         return rc;
     }

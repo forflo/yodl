@@ -35,13 +35,15 @@
 #include "StringHeap.h"
 #include "entity.h"
 #include "expression.h"
+#include "parse_context.h"
 
+// FM. MA NOTE: This is currently unused
 // Special case: to_integer function
 class SubprogramToInteger : public SubprogramStdHeader {
 public:
-    SubprogramToInteger()
+    SubprogramToInteger(StandardTypes *s)
         : SubprogramStdHeader(perm_string::literal("to_integer"),
-                              NULL, &primitive_REAL) {
+                              NULL, &s->primitive_REAL) {
         ports_ = new list<InterfacePort *> ();
         ports_->push_back(new InterfacePort(&primitive_INTEGER));
     }
@@ -69,6 +71,7 @@ public:
     }
 };
 
+// FM. MA NOTE: This is currently unused
 // Special case: size casting (e.g. conv_std_logic_vector() / resize()).
 class SubprogramSizeCast : public SubprogramStdHeader {
 public:
@@ -100,6 +103,7 @@ public:
     }
 };
 
+// FM. MA NOTE: this is currently not used
 class SubprogramReadWrite : public SubprogramBuiltin {
 public:
     SubprogramReadWrite(perm_string nam, perm_string newnam, bool hex = false)

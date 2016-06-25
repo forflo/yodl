@@ -24,6 +24,7 @@
 # include "subprogram.h"
 
 class StandardFunctions {
+public:
     StandardFunctions(){}
     ~StandardFunctions(){}
 
