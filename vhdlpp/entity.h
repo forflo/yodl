@@ -38,16 +38,13 @@ typedef enum {
     PORT_OUT, PORT_INOUT
 } port_mode_t;
 
+class ParserContext;
 class Architecture;
 class Expression;
 
-/* As the parser parses entities, it puts them into this map. It uses
- * a map because sometimes it needs to look back at an entity by name.  */
-extern std::map<perm_string, Entity *> design_entities;
-
 /* Elaborate the collected entities, and return the number of
  * elaboration errors.  */
-extern int elaborate_entities(void);
+extern int elaborate_entities(ParserContext *);
 extern int emit_entities(void);
 
 /* Use this function to dump a description of the design entities to a

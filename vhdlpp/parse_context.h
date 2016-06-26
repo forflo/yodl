@@ -46,7 +46,8 @@ public:
         parser_cleanup();
     }
 
-    // holds all entities of a design
+    /* As the parser parses entities, it puts them into this map. It uses
+     * a map because sometimes it needs to look back at an entity by name.  */
     map<perm_string, Entity *> design_entities;
 
     /* Create an initial scope that collects all the global
@@ -115,12 +116,14 @@ public:
         return active_scope->find_type(name);
     }
 
-    void init(void){
+    ParserContext *init(void){
     //Remove the scope created at the beginning of parser's work.
     //After the parsing active_scope should keep it's address
         global_types->generate_types();
         global_types->add_global_types_to(active_scope);
         global_functions->preload_std_funcs();
+
+        return this;
     }
 
     void dump_design_entities(ostream& file) {
@@ -147,9 +150,9 @@ public:
                                             ActiveScope *scope) {
         perm_string ekey = lex_strings.make(ename);
         std::map<perm_string, Entity *>::const_iterator idx =
-            design_entities.find(ekey);
+            c->design_entities.find(ekey);
 
-        if (idx == design_entities.end()) {
+        if (idx == c->design_entities.end()) {
             return;
         }
 
@@ -189,9 +192,9 @@ public:
                                             Architecture *arch) {
         perm_string ekey = lex_strings.make(ename);
         std::map<perm_string, Entity *>::const_iterator idx =
-            design_entities.find(ekey);
+            c->design_entities.find(ekey);
 
-        if (idx == design_entities.end()) {
+        if (idx == c->design_entities.end()) {
             cerr << arch->get_fileline() << ": error: No entity " << ekey
                  << " for architecture " << arch->get_name()
                  << "." << endl;

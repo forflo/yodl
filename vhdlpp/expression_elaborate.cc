@@ -21,18 +21,20 @@
  *    Picture Elements, Inc., 777 Panoramic Way, Berkeley, CA 94704.
  */
 
-# include  "expression.h"
-# include  "architec.h"
-# include  "entity.h"
-# include  "vsignal.h"
-# include  "subprogram.h"
-# include  "library.h"
-# include  "std_types.h"
-# include  <iostream>
-# include  <typeinfo>
-# include  "parse_types.h"
-# include  "compiler.h"
-# include  "ivl_assert.h"
+#include "expression.h"
+#include "architec.h"
+#include "entity.h"
+#include "vsignal.h"
+#include "subprogram.h"
+#include "library.h"
+#include "std_types.h"
+#include "parse_types.h"
+#include "compiler.h"
+#include "ivl_assert.h"
+#include "parse_context.h"
+
+#include <iostream>
+#include <typeinfo>
 
 using namespace std;
 
@@ -278,7 +280,8 @@ int ExpName::elaborate_lval(Entity *ent, ScopeBase *scope, bool is_sequ) {
 }
 
 
-int ExpName::elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *lval) {
+int ExpName::elaborate_rval(ParserContext *context, Entity *ent,
+                            ScopeBase *scope, const InterfacePort *lval) {
     int errors = 0;
 
     if (prefix_.get()) {
@@ -313,15 +316,15 @@ int ExpName::elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *
         default:
             break;
         }
-    }else if (scope->find_signal(name_))  {
+    } else if (scope->find_signal(name_))  {
         /* OK */
-    }else if (ent->find_generic(name_))  {
+    } else if (ent->find_generic(name_))  {
         /* OK */
-    }else if (scope->find_constant(name_, dummy_type, dummy_expr))  {
+    } else if (scope->find_constant(name_, dummy_type, dummy_expr))  {
         /* OK */
-    }else if (scope->is_enum_name(name_))  {
+    } else if (scope->is_enum_name(context->global_functions, name_))  {
         /* OK */
-    }else  {
+    } else  {
         cerr << get_fileline() << ": error: No port, signal or constant " << name_
              << " to be used as r-value." << endl;
         errors += 1;

@@ -32,19 +32,18 @@
 
 using namespace std;
 
-int elaborate_entities(void) {
+int elaborate_entities(ParserContext *context) {
     int errors = 0;
 
-    for (map<perm_string, Entity *>::iterator cur = design_entities.begin()
-         ; cur != design_entities.end(); ++cur) {
-        errors += cur->second->elaborate();
+    for (map<perm_string, Entity *>::iterator cur = c->design_entities.begin()
+         ; cur != c->design_entities.end(); ++cur) {
+        errors += cur->second->elaborate(context);
     }
 
     return errors;
 }
 
-
-int Entity::elaborate() {
+int Entity::elaborate(ParserContext *context) {
     int errors = 0;
 
     if (verbose_flag) {
@@ -72,6 +71,7 @@ int Entity::elaborate() {
 
         //errors += 1;
     }
+
     /* FIXME: here we should look at configuration block */
     bind_arch_ = arch_.begin()->second;
     if (verbose_flag) {
@@ -83,7 +83,7 @@ int Entity::elaborate() {
     errors += elaborate_generic_exprs_();
     errors += elaborate_ports_();
 
-    errors += bind_arch_->elaborate(this);
+    errors += bind_arch_->elaborate(context, this);
 
     return errors;
 }

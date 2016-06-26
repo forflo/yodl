@@ -75,7 +75,7 @@ void Package::write_to_stream(ostream& fd) const {
     for (map<perm_string, const VType *>::const_iterator cur = use_types_.begin()
          ; cur != use_types_.end(); ++cur) {
         // Do not include global types in types dump
-        if (is_global_type(cur->first)) {
+        if (StandardTypes::is_global_type(cur->first)) {
             continue;
         }
 
@@ -84,7 +84,7 @@ void Package::write_to_stream(ostream& fd) const {
     for (map<perm_string, const VType *>::const_iterator cur = cur_types_.begin()
          ; cur != cur_types_.end(); ++cur) {
         // Do not include global types in types dump
-        if (is_global_type(cur->first)) {
+        if (StandardTypes::is_global_type(cur->first)) {
             continue;
         }
 

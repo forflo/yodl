@@ -90,6 +90,10 @@ static void process_debug_token(const char *word) {
 }
 
 void main_parse_arguments(int argc, char *argv[]){
+#   define VERSION_TAG    "VERSION_TAG"
+#   define NOTICE         "NOTICE\n"
+
+    int opt;
     while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF) {
         switch (opt) {
         case 'D':
@@ -122,12 +126,8 @@ void main_parse_arguments(int argc, char *argv[]){
     }
 }
 
-#define VERSION_TAG    "VERSION_TAG"
-#define NOTICE         "NOTICE\n"
-
 int main(int argc, char *argv[]) {
     int errors = 0;
-    int opt;
     int rc;
 
     main_parse_arguments(argc, argv);
@@ -155,8 +155,9 @@ int main(int argc, char *argv[]) {
     std::cout.precision(std::numeric_limits<double>::digits10);
     library_set_work_path(work_path);
 
-    ParserContext *cont = (new ParserContext()).init();
-    cont->init();
+    StandardTypes *std_types = new StandardTypes();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *cont = (new ParserContext(std_types, std_funcs))->init();
 
     for (int i = optind; i < argc; i += 1) {
         rc = ParserUtil::parse_source_file(argv[i], perm_string(), cont);
@@ -240,7 +241,7 @@ int main(int argc, char *argv[]) {
         return 4;
     }
 
-    emit_std_types(cout);
+    std_types->emit_std_types(cout);
 
     errors = emit_packages();
     if (errors > 0) {

@@ -30,6 +30,8 @@
 # include "entity.h"
 # include "expression.h"
 # include "vsignal.h"
+# include "std_funcs.h"
+# include "std_types.h"
 
 class ActiveScope;
 class Architecture;
@@ -38,6 +40,8 @@ class Package;
 class SubprogramHeader;
 class VType;
 class SequentialStmt;
+class StandardFunctions;
+class StandardTypes;
 
 typedef list<SubprogramHeader *> SubHeaderList;
 
@@ -72,11 +76,13 @@ public:
     virtual Variable *find_variable(perm_string by_name) const;
     virtual const InterfacePort *find_param(perm_string by_name) const;
     const InterfacePort *find_param_all(perm_string by_name) const;
-    SubHeaderList find_subprogram(perm_string by_name) const;
+    SubHeaderList find_subprogram(StandardFunctions *, // FM. MA
+                                  perm_string by_name) const;
 
     // Checks if a string is one of possible enum values. If so, the enum
     // type is returned, otherwise NULL.
-    const VTypeEnum *is_enum_name(perm_string name) const;
+    const VTypeEnum *is_enum_name(StandardFunctions *, //FM. MA
+                                  perm_string name) const;
 
     // Moves signals, variables and components from another scope to
     // this one. After the transfer new_* maps are cleared in the source scope.

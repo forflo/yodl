@@ -178,7 +178,8 @@ const InterfacePort *ScopeBase::find_param_all(perm_string by_name) const {
 }
 
 
-SubHeaderList ScopeBase::find_subprogram(perm_string name) const {
+SubHeaderList ScopeBase::find_subprogram(StandardFunctions *std_funcs,
+                                         perm_string name) const {
     map<perm_string, SubHeaderList>::const_iterator cur;
 
     cur = cur_subprograms_.find(name);
@@ -191,11 +192,12 @@ SubHeaderList ScopeBase::find_subprogram(perm_string name) const {
         return cur->second;
     }
 
-    return find_std_subprogram(name);
+    return std_funcs->find_std_subprogram(name);
 }
 
 
-const VTypeEnum *ScopeBase::is_enum_name(perm_string name) const {
+const VTypeEnum *ScopeBase::is_enum_name(StandardFunctions *std_funcs,
+                                         perm_string name) const {
     for (list<const VTypeEnum *>::const_iterator it = use_enums_.begin();
          it != use_enums_.end(); ++it) {
         if ((*it)->has_name(name)) {
@@ -203,7 +205,7 @@ const VTypeEnum *ScopeBase::is_enum_name(perm_string name) const {
         }
     }
 
-    return find_std_enum_name(name);
+    return std_funcs->find_std_enum_name(name);
 }
 
 

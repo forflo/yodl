@@ -21,8 +21,17 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include "subprogram.h"
+# include <list>
+# include <map>
+
+# include "std_funcs.h"
 # include "std_types.h"
+# include "StringHeap.h"
+
+class StandardTypes;
+class SubprogramHeader;
+
+typedef std::list<SubprogramHeader *> SubHeaderList;
 
 class StandardFunctions {
 public:
@@ -30,11 +39,13 @@ public:
     ~StandardFunctions(){}
 
     std::map<perm_string, SubHeaderList> std_subprograms;
-    StandardTypes *std_types = new StandardTypes();
+    StandardTypes *std_types;
 
     void register_std_subprogram(SubprogramHeader *header);
 
     void delete_std_funcs();
+
+    StandardFunctions *init();
 
     SubHeaderList find_std_subprogram(perm_string name);
 

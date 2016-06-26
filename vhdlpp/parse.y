@@ -1804,7 +1804,9 @@ name /* IEEE 1076-2008 P8.1 */
     if(!tmp) {
         perm_string name = lex_strings.make($1);
         /* There are functions that have the same name types, e.g. integer */
-        if(!yy_parse_context->active_scope->find_subprogram(name).empty() &&
+        if(!yy_parse_context->active_scope->find_subprogram(
+               yy_parse_context->global_functions,
+               name).empty() &&
            !yy_parse_context->parse_type_by_name(name))
             tmp = new ExpFunc(name);
         else

@@ -21,6 +21,7 @@
 #include <list>
 
 #include "std_types.h"
+#include "StringHeap.h"
 #include "scope.h"
 
 void StandardTypes::add_global_types_to(ActiveScope *scope){

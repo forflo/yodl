@@ -179,6 +179,13 @@ void StandardFunctions::register_std_subprogram(SubprogramHeader *header) {
     std_subprograms[header->name()].push_back(header);
 }
 
+StandardFunctions *StandardFunctions::init(){
+        preload_std_funcs();
+        std_types = new StandardTypes();
+
+        return this;
+}
+
 void StandardFunctions::delete_std_funcs() {
     for (std::map<perm_string, SubHeaderList>::iterator cur =
              std_subprograms.begin();

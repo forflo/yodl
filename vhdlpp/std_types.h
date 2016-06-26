@@ -21,12 +21,11 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 // FM. MA| Encapsulated every standard type inside a new class StandardTypes
+#include <map>
 
 #include "vtype.h"
 #include "scope.h"
 #include "StringHeap.h"
-
-#include <map>
 
 class ActiveScope;
 

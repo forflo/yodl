@@ -29,6 +29,7 @@
 # include "scope.h"
 # include "simple_tree.h"
 
+class ParserContext;
 class ComponentInstantiation;
 class Entity;
 class Expression;
@@ -94,7 +95,7 @@ public:
     }
 
     // Elaborate this architecture in the context of the given entity.
-    int elaborate(Entity *entity);
+    int elaborate(ParserContext *c, Entity *entity);
 
     // These methods are used while in the scope of a generate
     // block to mark that a name is a genvar at this point.
