@@ -99,7 +99,7 @@ int Architecture::emit(ostream& out, Entity *entity) {
 
     for (map<perm_string, const VType *>::iterator cur = use_types_.begin()
          ; cur != use_types_.end(); ++cur) {
-        if (is_global_type(cur->first)) {
+        if (StandardTypes::is_global_type(cur->first)) {
             continue;
         }
 

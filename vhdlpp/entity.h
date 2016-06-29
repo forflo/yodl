@@ -44,7 +44,6 @@ class Expression;
 
 /* Elaborate the collected entities, and return the number of
  * elaboration errors.  */
-extern int elaborate_entities(ParserContext *);
 extern int emit_entities(void);
 
 /* Use this function to dump a description of the design entities to a
@@ -136,7 +135,7 @@ protected:
 // Entities are fully declared components.
 class Entity : public ComponentBase {
 public:
-    explicit Entity(perm_string name);
+    explicit Entity(perm_string name, ParserContext *context);
 
     ~Entity();
 
@@ -171,6 +170,8 @@ public:
     Entity *clone() const;
 
 public:
+    ParserContext *context_; //FM. MA
+
     std::map<perm_string, Architecture *> arch_;
     std::map<perm_string, VType::decl_t> declarations_;
 

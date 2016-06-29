@@ -151,3 +151,8 @@ bool StandardTypes::is_global_type(perm_string name) {
 
     return false;
 }
+
+StandardTypes *StandardTypes::init() {
+    return this;
+    //NOTE: only for completeness!
+}

@@ -280,16 +280,16 @@ void library_use(ParserContext *c, const YYLTYPE& loc,
     // parsed, then see if it exists unparsed.
     if ((use_library == "work") && (pack == 0)) {
         string path = make_work_package_path(use_package.str());
-        parse_source_file(path.c_str(), use_library);
+        ParserUtil::parse_source_file(path.c_str(), use_library, c);
         pack = lib.packages[use_package];
-    }else if ((use_library != "ieee") && (pack == 0))  {
+    } else if ((use_library != "ieee") && (pack == 0))  {
         string path = make_library_package_path(use_library, use_package);
         if (path == "") {
             ParserUtil::errormsg(c, loc, "Unable to find library %s\n",
                                  use_library.str());
             return;
         }
-        int rc = parse_source_file(path.c_str(), use_library);
+        int rc = ParserUtil::parse_source_file(path.c_str(), use_library, c);
         if (rc < 0) {
             ParserUtil::errormsg(c, loc, "Unable to open library file %s\n",
                                  path.c_str());
@@ -334,7 +334,8 @@ static void import_ieee_use_std_logic_1164(ActiveScope *res, perm_string name) {
     bool all_flag = name == "all";
 
     if (all_flag || (name == "std_logic_vector")) {
-        res->use_name(perm_string::literal("std_logic_vector"), &primitive_STDLOGIC_VECTOR);
+        res->use_name(perm_string::literal("std_logic_vector"),
+                      &res->context_->global_types->primitive_STDLOGIC_VECTOR);
     }
 }
 
@@ -347,10 +348,12 @@ static void import_ieee_use_numeric_bit(ActiveScope *res, perm_string name) {
     bool all_flag = name == "all";
 
     if (all_flag || (name == "signed")) {
-        res->use_name(perm_string::literal("signed"), &primitive_SIGNED);
+        res->use_name(perm_string::literal("signed"),
+                      &res->context_->global_types->primitive_SIGNED);
     }
     if (all_flag || (name == "unsigned")) {
-        res->use_name(perm_string::literal("unsigned"), &primitive_UNSIGNED);
+        res->use_name(perm_string::literal("unsigned"),
+                      &res->context_->global_types->primitive_UNSIGNED);
     }
 }
 
@@ -359,10 +362,12 @@ static void import_ieee_use_numeric_std(ActiveScope *res, perm_string name) {
     bool all_flag = name == "all";
 
     if (all_flag || (name == "signed")) {
-        res->use_name(perm_string::literal("signed"), &primitive_SIGNED);
+        res->use_name(perm_string::literal("signed"),
+                      &res->context_->global_types->primitive_SIGNED);
     }
     if (all_flag || (name == "unsigned")) {
-        res->use_name(perm_string::literal("unsigned"), &primitive_UNSIGNED);
+        res->use_name(perm_string::literal("unsigned"),
+                      &res->context_->global_types->primitive_UNSIGNED);
     }
 }
 
@@ -397,10 +402,14 @@ static void import_std_use(ParserContext *c,
         // do nothing
         return;
     } else if (package == "textio")  {
-        res->use_name(perm_string::literal("text"), &primitive_INTEGER);
-        res->use_name(perm_string::literal("line"), &primitive_STRING);
-        res->use_name(type_FILE_OPEN_KIND.peek_name(), &type_FILE_OPEN_KIND);
-        res->use_name(type_FILE_OPEN_STATUS.peek_name(), &type_FILE_OPEN_STATUS);
+        res->use_name(perm_string::literal("text"),
+                      &c->global_types->primitive_INTEGER);
+        res->use_name(perm_string::literal("line"),
+                      &c->global_types->primitive_STRING);
+        res->use_name(c->global_types->type_FILE_OPEN_KIND.peek_name(),
+                      &c->global_types->type_FILE_OPEN_KIND);
+        res->use_name(c->global_types->type_FILE_OPEN_STATUS.peek_name(),
+                      &c->global_types->type_FILE_OPEN_STATUS);
         return;
     } else {
         ParserUtil::sorrymsg(c, loc, "package %s of library %s not yet supported",

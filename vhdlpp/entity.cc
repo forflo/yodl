@@ -20,9 +20,9 @@
 
 #include "entity.h"
 #include "architec.h"
+#include "parse_context.h"
 
 using namespace std;
-
 
 ComponentBase::ComponentBase(perm_string name)
     : name_(name) {}
@@ -92,8 +92,9 @@ const InterfacePort *ComponentBase::find_generic(perm_string my_name) const {
 }
 
 
-Entity::Entity(perm_string name)
-    : ComponentBase(name) {
+Entity::Entity(perm_string name, ParserContext *context)
+    : ComponentBase(name)
+    , context_(context) {
     bind_arch_ = 0;
 }
 
@@ -110,7 +111,7 @@ Entity *Entity::clone() const {
         list<InterfacePort*> pa, po;
         map<perm_string, Architecture*> copy_arch;
         map<perm_string, VType::decl_t> copy_decls;
-        Entity *result = new Entity(name_);
+        Entity *result = new Entity(name_, context_);
         Architecture *copy_bind_arch;
 
         for (auto &i : parms_)

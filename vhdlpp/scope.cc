@@ -18,13 +18,6 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "scope.h"
-#include "package.h"
-#include "subprogram.h"
-#include "entity.h"
-#include "std_funcs.h"
-#include "std_types.h"
-#include "compiler.h"
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -33,12 +26,22 @@
 #include <cassert>
 #include <StringHeap.h>
 
+#include "parse_context.h"
+#include "scope.h"
+#include "package.h"
+#include "subprogram.h"
+#include "entity.h"
+#include "std_funcs.h"
+#include "std_types.h"
+#include "compiler.h"
+
 using namespace std;
 
 static int scope_counter = 0;
 
 ScopeBase::ScopeBase(const ActiveScope& ref)
-    : old_signals_(ref.old_signals_)
+    : context_(ref.context_) //FM. MA Adjustet initializer list
+    , old_signals_(ref.old_signals_)
     , new_signals_(ref.new_signals_)
     , old_variables_(ref.old_variables_)
     , new_variables_(ref.new_variables_)
@@ -178,8 +181,7 @@ const InterfacePort *ScopeBase::find_param_all(perm_string by_name) const {
 }
 
 
-SubHeaderList ScopeBase::find_subprogram(StandardFunctions *std_funcs,
-                                         perm_string name) const {
+SubHeaderList ScopeBase::find_subprogram(perm_string name) const {
     map<perm_string, SubHeaderList>::const_iterator cur;
 
     cur = cur_subprograms_.find(name);
@@ -192,12 +194,11 @@ SubHeaderList ScopeBase::find_subprogram(StandardFunctions *std_funcs,
         return cur->second;
     }
 
-    return std_funcs->find_std_subprogram(name);
+    return context_->global_functions->find_std_subprogram(name);
 }
 
 
-const VTypeEnum *ScopeBase::is_enum_name(StandardFunctions *std_funcs,
-                                         perm_string name) const {
+const VTypeEnum *ScopeBase::is_enum_name(perm_string name) const {
     for (list<const VTypeEnum *>::const_iterator it = use_enums_.begin();
          it != use_enums_.end(); ++it) {
         if ((*it)->has_name(name)) {
@@ -205,7 +206,7 @@ const VTypeEnum *ScopeBase::is_enum_name(StandardFunctions *std_funcs,
         }
     }
 
-    return std_funcs->find_std_enum_name(name);
+    return context_->global_types->find_std_enum_name(name);
 }
 
 
@@ -281,12 +282,12 @@ void ScopeBase::transfer_from(ScopeBase& ref, transfer_type_t what) {
 }
 
 
-SubprogramHeader *ScopeBase::match_subprogram(perm_string               name,
+SubprogramHeader *ScopeBase::match_subprogram(perm_string name,
                                               const list<const VType *> *params) const {
     int req_param_count = params ? params->size() : 0;
 
     // Find all subprograms with matching name
-    SubHeaderList l = find_std_subprogram(name);
+    SubHeaderList l = context_->global_functions->find_std_subprogram(name);
 
     map<perm_string, SubHeaderList>::const_iterator cur;
 
@@ -400,10 +401,10 @@ ComponentBase *Scope::find_component(perm_string by_name) {
         cur = old_components_.find(by_name);
         if (cur == old_components_.end()) {
             return 0;
-        }else  {
+        } else {
             return cur->second;
         }
-    }else  {
+    } else {
         return cur->second;
     }
 }

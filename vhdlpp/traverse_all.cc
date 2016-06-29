@@ -43,7 +43,7 @@
 # define mkdir(path, mode)    mkdir(path)
 #endif
 
-/*
+
 // tag: [DESIGN HIERARCHY]
 // template specializiation for desing hierarchies
 namespace mch {
@@ -327,4 +327,3 @@ void traverse(const Architecture::Statement &s){
         }
     } EndMatch
 }
-*/

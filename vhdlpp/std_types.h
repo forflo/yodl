@@ -71,6 +71,8 @@ public:
         &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), false};
 
 public:
+    StandardTypes *init();
+
     void add_global_types_to(ActiveScope *scope);
 
     void generate_types();

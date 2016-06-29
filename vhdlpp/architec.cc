@@ -38,6 +38,9 @@ Architecture::Architecture(perm_string name,
     statements_.splice(statements_.end(), s);
 }
 
+//FM. MA
+//TODO: If an Architecture is constructed with this ctor
+//      the member of ScopeBase, being context_, is still NULL!
 Architecture::Architecture(perm_string name)
     : Scope(4711)
     , name_(name) {}

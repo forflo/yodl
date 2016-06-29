@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
     std::cout.precision(std::numeric_limits<double>::digits10);
     library_set_work_path(work_path);
 
-    StandardTypes *std_types = new StandardTypes();
+    StandardTypes *std_types = (new StandardTypes())->init();
     StandardFunctions *std_funcs = (new StandardFunctions())->init();
     ParserContext *cont = (new ParserContext(std_types, std_funcs))->init();
 
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
         return 2;
     }
 
-    errors = elaborate_entities();
+    errors = ParserUtil::elaborate_entities(cont);
     if (errors > 0) {
         fprintf(stderr, "%d errors elaborating design.\n", errors);
         delete cont;
@@ -250,7 +250,7 @@ int main(int argc, char *argv[]) {
         return 5;
     }
 
-    errors = emit_entities();
+    errors = cont->emit_entities();
     if (errors > 0) {
         fprintf(stderr, "%d errors emitting design.\n", errors);
         delete cont;

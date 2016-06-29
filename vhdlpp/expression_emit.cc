@@ -19,6 +19,12 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <typeinfo>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <cassert>
+
 #include "expression.h"
 #include "vtype.h"
 #include "architec.h"
@@ -26,12 +32,8 @@
 #include "std_funcs.h"
 #include "std_types.h"
 #include "parse_types.h"
-#include <typeinfo>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
 #include "ivl_assert.h"
-#include <cassert>
+#include "parse_context.h"
 
 using namespace std;
 
@@ -403,13 +405,17 @@ int ExpTypeAttribute::emit(ostream& out, Entity *ent, ScopeBase *scope) const {
         }else  {
             out << "$sformatf(\"";
 
-            if (base_->type_match(&primitive_INTEGER)) {
+            if (base_->type_match(
+                    &scope->context_->global_types->primitive_INTEGER)) {
                 out << "%0d";
-            }else if (base_->type_match(&primitive_REAL))  {
+            } else if (base_->type_match(
+                           &scope->context_->global_types->primitive_REAL)) {
                 out << "%f";
-            }else if (base_->type_match(&primitive_CHARACTER))  {
+            } else if (base_->type_match(
+                           &scope->context_->global_types->primitive_CHARACTER)) {
                 out << "'%c'";
-            }else if (base_->type_match(&primitive_TIME))  {
+            } else if (base_->type_match(
+                           &scope->context_->global_types->primitive_TIME)) {
                 out << "%+0t";
             }
 
@@ -520,11 +526,13 @@ int ExpCharacter::emit(ostream& out, Entity *ent, ScopeBase *scope) const {
     const VType      *etype = peek_type();
     const VTypeArray *array;
 
-    if ((etype != &primitive_CHARACTER) && (array = dynamic_cast<const VTypeArray *> (etype))) {
+    if ((etype != &scope->context_->global_types->primitive_CHARACTER) &&
+        (array = dynamic_cast<const VTypeArray *> (etype))) {
         etype = array->element_type();
     }
 
-    if (const VTypePrimitive *use_type = dynamic_cast<const VTypePrimitive *> (etype)) {
+    if (const VTypePrimitive *use_type =
+        dynamic_cast<const VTypePrimitive *> (etype)) {
         return emit_primitive_bit_(out, ent, scope, use_type);
     }
 
@@ -933,18 +941,24 @@ bool ExpName::is_primary(void) const {
 
 int ExpRelation::emit(ostream& out, Entity *ent, ScopeBase *scope) const {
     int errors = 0;
-
     errors += emit_operand1(out, ent, scope);
 
-    const VType *type1          = peek_operand1()->probe_type(ent, scope);
-    const VType *type2          = peek_operand2()->probe_type(ent, scope);
-    bool        logical_compare = false;
+    const VType *type1 = peek_operand1()->probe_type(ent, scope);
+    const VType *type2 = peek_operand2()->probe_type(ent, scope);
+    bool logical_compare = false;
 
     // Apply case equality operator if any of the operands is of logic type
-    if (((type1 && (type1->type_match(&primitive_STDLOGIC) ||
-                    type1->type_match(&primitive_STDLOGIC_VECTOR))) ||
-         (type2 && (type2->type_match(&primitive_STDLOGIC) ||
-                    type2->type_match(&primitive_STDLOGIC_VECTOR))))) {
+    if (((type1 &&
+          (type1->type_match(
+              &scope->context_->global_types->primitive_STDLOGIC) ||
+           type1->type_match(
+               &scope->context_->global_types->primitive_STDLOGIC_VECTOR))) ||
+         (type2 &&
+          (type2->type_match(
+              &scope->context_->global_types->primitive_STDLOGIC) ||
+           type2->type_match(
+               &scope->context_->global_types->primitive_STDLOGIC_VECTOR))))) {
+
         logical_compare = true;
     }
 
@@ -1024,7 +1038,8 @@ int ExpString::emit(ostream& out, Entity *ent, ScopeBase *scope) const {
 
     assert(type != 0);
 
-    if ((type != &primitive_STRING) && (arr = dynamic_cast<const VTypeArray *> (type))) {
+    if ((type != &scope->context_->global_types->primitive_STRING) &&
+        (arr = dynamic_cast<const VTypeArray *> (type))) {
         return emit_as_array_(out, ent, scope, arr);
     }
 
@@ -1034,17 +1049,21 @@ int ExpString::emit(ostream& out, Entity *ent, ScopeBase *scope) const {
 }
 
 
-int ExpString::emit_as_array_(ostream& out, Entity *, ScopeBase *, const VTypeArray *arr) const {
+int ExpString::emit_as_array_(ostream& out, Entity *,
+                              ScopeBase *scope, const VTypeArray *arr) const {
     int errors = 0;
 
     assert(arr->dimensions() == 1);
 
-    const VTypePrimitive *etype = dynamic_cast<const VTypePrimitive *> (arr->basic_type());
+    const VTypePrimitive *etype =
+        dynamic_cast<const VTypePrimitive *> (arr->basic_type());
     assert(etype);
 
     // Detect the special case that this is an array of
     // CHARACTER. In this case, emit at a Verilog string.
-    if (arr->element_type() == &primitive_CHARACTER) {
+    if (arr->element_type() ==
+        &scope->context_->global_types->primitive_CHARACTER) {
+
         vector<char> tmp(value_.size() + 3);
         tmp[0] = '"';
         memcpy(&tmp[1], &value_[0], value_.size());
@@ -1100,9 +1119,11 @@ int ExpUNot::emit(ostream& out, Entity *ent, ScopeBase *scope) const {
 
     const VType *op_type = peek_operand()->probe_type(ent, scope);
 
-    if (op_type && op_type->type_match(&type_BOOLEAN)) {
+    if (op_type &&
+        op_type->type_match(&scope->context_->global_types->type_BOOLEAN)) {
+
         out << "!(";
-    }else  {
+    } else  {
         out << "~(";
     }
 

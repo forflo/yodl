@@ -19,21 +19,24 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "vsignal.h"
-# include  "expression.h"
-# include  "vtype.h"
-# include  "std_types.h"
-# include  <iostream>
+#include "vsignal.h"
+#include "expression.h"
+#include "vtype.h"
+#include "std_types.h"
+#include "parse_context.h"
+
+#include <iostream>
 
 using namespace std;
 
 SigVarBase::SigVarBase(perm_string nam, const VType *typ, Expression *exp)
-    : name_(nam), type_(typ), init_expr_(exp), refcnt_sequ_(0)
-{}
+    : name_(nam)
+    , type_(typ)
+    , init_expr_(exp)
+    , refcnt_sequ_(0) {}
 
 
-SigVarBase::~SigVarBase()
-{}
+SigVarBase::~SigVarBase() {}
 
 
 void SigVarBase::elaborate(Entity *ent, ScopeBase *scope) {
@@ -67,7 +70,11 @@ int Signal::emit(ostream& out, Entity *ent, ScopeBase *scope) {
     Expression *init_expr = peek_init_expr();
     if (init_expr) {
         /* Emit initialization value for wires as a weak assignment */
-        if (!decl.reg_flag && !type->type_match(&primitive_REAL)) {
+        // HACK: scope has valid pointer to ParserContext object so we can
+        //       use the scope base to get to the initialized
+        //       StandardTypes object
+        if (!decl.reg_flag &&
+            !type->type_match(&scope->context_->global_types->primitive_REAL)) {
             out << ";" << endl << "/*init*/ assign (weak1, weak0) " << peek_name();
         }
 

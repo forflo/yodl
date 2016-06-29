@@ -280,8 +280,9 @@ int ExpName::elaborate_lval(Entity *ent, ScopeBase *scope, bool is_sequ) {
 }
 
 
-int ExpName::elaborate_rval(ParserContext *context, Entity *ent,
-                            ScopeBase *scope, const InterfacePort *lval) {
+int ExpName::elaborate_rval(Entity *ent,
+                            ScopeBase *scope,
+                            const InterfacePort *lval) {
     int errors = 0;
 
     if (prefix_.get()) {
@@ -322,7 +323,7 @@ int ExpName::elaborate_rval(ParserContext *context, Entity *ent,
         /* OK */
     } else if (scope->find_constant(name_, dummy_type, dummy_expr))  {
         /* OK */
-    } else if (scope->is_enum_name(context->global_functions, name_))  {
+    } else if (scope->is_enum_name(name_))  {
         /* OK */
     } else  {
         cerr << get_fileline() << ": error: No port, signal or constant " << name_
@@ -626,9 +627,9 @@ int ExpObjAttribute::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *
 }
 
 
-const VType *ExpObjAttribute::probe_type(Entity *, ScopeBase *) const {
+const VType *ExpObjAttribute::probe_type(Entity *, ScopeBase *s) const {
     if ((name_ == "length") || (name_ == "left") || (name_ == "right")) {
-        return &primitive_NATURAL;
+        return &s->context_->global_types->primitive_NATURAL;
     }
 
     return NULL;
@@ -640,9 +641,9 @@ int ExpTypeAttribute::elaborate_expr(Entity *ent, ScopeBase *scope, const VType 
 }
 
 
-const VType *ExpTypeAttribute::probe_type(Entity *, ScopeBase *) const {
+const VType *ExpTypeAttribute::probe_type(Entity *, ScopeBase *scope) const {
     if (name_ == "image") {
-        return &primitive_STRING;
+        return &scope->context_->global_types->primitive_STRING;
     }
 
     return NULL;
@@ -656,9 +657,11 @@ const VType *ExpBitstring::fit_type(Entity *, ScopeBase *, const VTypeArray *aty
 }
 
 
-int ExpBitstring::elaborate_expr(Entity *, ScopeBase *, const VType *) {
-    int              errors = 0;
-    const VTypeArray *type  = new VTypeArray(&primitive_STDLOGIC, value_.size() - 1, 0);
+int ExpBitstring::elaborate_expr(Entity *, ScopeBase *scope, const VType *) {
+    int errors = 0;
+    const VTypeArray *type =
+        new VTypeArray(&scope->context_->global_types->primitive_STDLOGIC,
+                       value_.size() - 1, 0);
 
     set_type(type);
     return errors;
@@ -881,11 +884,11 @@ const VType *ExpFunc::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *
 }
 
 
-const VType *ExpInteger::probe_type(Entity *, ScopeBase *) const {
+const VType *ExpInteger::probe_type(Entity *, ScopeBase *scope) const {
     if (value_ >= 0) {
-        return &primitive_NATURAL;
+        return &scope->context_->global_types->primitive_NATURAL;
     }else  {
-        return &primitive_INTEGER;
+        return &scope->context_->global_types->primitive_INTEGER;
     }
 }
 
@@ -903,8 +906,8 @@ int ExpInteger::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype
 }
 
 
-const VType *ExpReal::probe_type(Entity *, ScopeBase *) const {
-    return &primitive_REAL;
+const VType *ExpReal::probe_type(Entity *, ScopeBase *scope) const {
+    return &scope->context_->global_types->primitive_REAL;
 }
 
 
@@ -1074,7 +1077,8 @@ int ExpName::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
     if (indices_) {
         for (list<Expression *>::const_iterator it = indices_->begin();
              it != indices_->end(); ++it) {
-            (*it)->elaborate_expr(ent, scope, &primitive_INTEGER);
+            (*it)->elaborate_expr(ent, scope,
+                                  &scope->context_->global_types->primitive_INTEGER);
         }
     }
 
@@ -1087,8 +1091,8 @@ const VType *ExpNameALL::probe_type(Entity *, ScopeBase *) const {
 }
 
 
-const VType *ExpRelation::probe_type(Entity *, ScopeBase *) const {
-    return &type_BOOLEAN;
+const VType *ExpRelation::probe_type(Entity *, ScopeBase *scope) const {
+    return &scope->context_->global_types->type_BOOLEAN;
 }
 
 
@@ -1148,8 +1152,8 @@ int ExpString::elaborate_expr(Entity *, ScopeBase *, const VType *ltype) {
 }
 
 
-int ExpTime::elaborate_expr(Entity *, ScopeBase *, const VType *) {
-    set_type(&primitive_INTEGER);
+int ExpTime::elaborate_expr(Entity *, ScopeBase *scope, const VType *) {
+    set_type(&scope->context_->global_types->primitive_INTEGER);
     return 0;
 }
 
@@ -1158,11 +1162,13 @@ int ExpRange::elaborate_expr(Entity *ent, ScopeBase *scope, const VType *) {
     int errors = 0;
 
     if (left_) {
-        errors += left_->elaborate_expr(ent, scope, &primitive_INTEGER);
+        errors += left_->elaborate_expr(
+            ent, scope, &scope->context_->global_types->primitive_INTEGER);
     }
 
     if (right_) {
-        errors += right_->elaborate_expr(ent, scope, &primitive_INTEGER);
+        errors += right_->elaborate_expr(
+            ent, scope, &scope->context_->global_types->primitive_INTEGER);
     }
 
     return errors;

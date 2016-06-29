@@ -33,6 +33,7 @@
 # include "std_funcs.h"
 # include "std_types.h"
 
+class ParserContext;
 class ActiveScope;
 class Architecture;
 class ComponentBase;
@@ -40,8 +41,6 @@ class Package;
 class SubprogramHeader;
 class VType;
 class SequentialStmt;
-class StandardFunctions;
-class StandardTypes;
 
 typedef list<SubprogramHeader *> SubHeaderList;
 
@@ -63,6 +62,11 @@ class ScopeBase {
 public:
     ScopeBase() : package_header_(0) {}
 
+    // FM. MA
+    ScopeBase(ParserContext *context)
+        : context_(context)
+        , package_header_(0) {}
+
     explicit ScopeBase(const ActiveScope& ref);
 
     virtual ~ScopeBase() = 0;
@@ -76,13 +80,11 @@ public:
     virtual Variable *find_variable(perm_string by_name) const;
     virtual const InterfacePort *find_param(perm_string by_name) const;
     const InterfacePort *find_param_all(perm_string by_name) const;
-    SubHeaderList find_subprogram(StandardFunctions *, // FM. MA
-                                  perm_string by_name) const;
+    SubHeaderList find_subprogram(perm_string by_name) const;
 
     // Checks if a string is one of possible enum values. If so, the enum
     // type is returned, otherwise NULL.
-    const VTypeEnum *is_enum_name(StandardFunctions *, //FM. MA
-                                  perm_string name) const;
+    const VTypeEnum *is_enum_name(perm_string name) const;
 
     // Moves signals, variables and components from another scope to
     // this one. After the transfer new_* maps are cleared in the source scope.
@@ -118,7 +120,7 @@ public:
     void dump_scope(ostream& out) const;
 
     // Looks for a subprogram with specified name and parameter types.
-    SubprogramHeader *match_subprogram(perm_string               name,
+    SubprogramHeader *match_subprogram(perm_string name,
                                        const list<const VType *> *params) const;
 
     perm_string peek_name() const {
@@ -130,7 +132,7 @@ public:
         package_header_ = pkg;
     }
 
-protected:
+public:
     void cleanup();
 
     //containers' cleaning helper functions
@@ -147,6 +149,9 @@ protected:
      * ActiveScope, the new_*_ and old_*_ maps are merged and
      * installed into the old_*_ maps. Thus, all other derived
      * classes should only use the old_*_ maps. */
+
+    //FM. MA Added ParserContext to members
+    ParserContext *context_;
 
     // Signal declarations...
     std::map<perm_string, Signal *> old_signals_;              //previous scopes
@@ -222,7 +227,7 @@ public:
     explicit Scope(const ActiveScope& ref)
         : ScopeBase(ref) {}
 
-    Scope(int i){i++;}
+    Scope(int i){ i++; }
 
     virtual ~Scope() {}
 
@@ -241,8 +246,9 @@ protected:
  * used by the parser to build up scopes. */
 class ActiveScope : public ScopeBase {
 public:
-    ActiveScope()
-        : context_entity_(0) {}
+    ActiveScope(ParserContext *context)
+        : ScopeBase(context)
+        , context_entity_(0) {}
 
     explicit ActiveScope(const ActiveScope *par);
 

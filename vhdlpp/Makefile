@@ -43,12 +43,13 @@ LIBS = -lm -lbz2 -lz -lhistory -lreadline
 
 M = StringHeap.o LineInfo.o
 
-O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
+O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     expression.o package.o scope.o sequential.o subprogram.o vsignal.o vtype.o \
     expression_gendot.o architec_gendot.o sequential_gendot.o entity_gendot.o \
     vtype_gendot.o vsignal_gendot.o\
     simple_tree/simple_tree.o \
     enum_overloads.o \
+    parse_context.o \
     generate_graph.o \
     vtype_match.o \
     architec_elaborate.o entity_elaborate.o expression_elaborate.o \
@@ -66,8 +67,8 @@ O = main.o architec.o compiler.o entity.o std_funcs.o std_types.o \
 
 all: dep vhdlpp
 
-test: $0
-	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $0 test.cc $(LIBS)
+test: $O
+	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $O test.cc $(LIBS)
 
 check: all
 
@@ -96,8 +97,8 @@ dep:
 rtags:
 	$(MAKE) --dry-run | grep "clang++ -I" | sed -e "s/ -o .*$$//"
 
-vhdlpp: $O
-	$(CXX) -o vhdlpp $(LDFLAGS) $O $(LIBS)
+vhdlpp: $O main.o
+	$(CXX) -o vhdlpp $(LDFLAGS) $O main.o $(LIBS)
 
 %.o: $(srcdir)/../libmisc/%.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $*.o

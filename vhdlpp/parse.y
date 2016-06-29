@@ -916,7 +916,8 @@ configuration_declarative_part
 block_configuration
 K_end K_configuration_opt identifier_opt ';'
 {
-    if(design_entities.find(lex_strings.make($4)) == design_entities.end())
+    if(yy_parse_context->design_entities.find(lex_strings.make($4)) ==
+       yy_parse_context->design_entities.end())
         ParserUtil::errormsg(yy_parse_context, @4, "Couldn't find entity "
                              "%s used in configuration declaration\n", $4);
     //choose_architecture_for_entity();
@@ -947,223 +948,246 @@ configuration_declarative_part
 ;
 
 configuration_item
-  : block_configuration
-  | component_configuration
-  ;
+: block_configuration
+| component_configuration
+;
 
 configuration_items
-  : configuration_items configuration_item
-  | configuration_item
-  ;
+: configuration_items configuration_item
+| configuration_item
+;
 
 configuration_items_opt
-  : configuration_items
-  |
-  ;
+: configuration_items
+|
+;
 
 constant_declaration
-  : K_constant identifier_list ':' subtype_indication VASSIGN expression ';'
-      { // The syntax allows multiple names to have the same type/value.
-	for (std::list<perm_string>::iterator cur = $2->begin()
-		   ; cur != $2->end() ; ++cur) {
-	      yy_parse_context->active_scope->bind_name(*cur, $4, $6);
-	}
-	delete $2;
-      }
-  | K_constant identifier_list ':' subtype_indication ';'
-      { ParserUtil::sorrymsg(yy_parse_context, @1, "Deferred constant declarations not supported\n");
-	delete $2;
-      }
-
-  /* Some error handling... */
-
-  | K_constant identifier_list ':' subtype_indication VASSIGN error ';'
-      { // The syntax allows multiple names to have the same type/value.
-	ParserUtil::errormsg(yy_parse_context, @6, "Error in value expression for constants.\n");
-	yyerrok;
-	for (std::list<perm_string>::iterator cur = $2->begin()
-		   ; cur != $2->end() ; ++cur) {
-	      yy_parse_context->active_scope->bind_name(*cur, $4, 0);
-	}
-	delete $2;
-      }
-  | K_constant identifier_list ':' error ';'
-      { ParserUtil::errormsg(yy_parse_context, @4, "Syntax error in constant declaration type.\n");
-	yyerrok;
-	delete $2;
-      }
-  | K_constant error ';'
-      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in constant declaration.\n");
-	yyerrok;
-      }
-
-  ;
+: K_constant identifier_list ':' subtype_indication VASSIGN expression ';'
+{
+    // The syntax allows multiple names to have the same type/value.
+    for (std::list<perm_string>::iterator cur = $2->begin()
+             ; cur != $2->end() ; ++cur) {
+        yy_parse_context->active_scope->bind_name(*cur, $4, $6);
+    }
+    delete $2;
+}
+| K_constant identifier_list ':' subtype_indication ';'
+{
+    ParserUtil::sorrymsg(yy_parse_context, @1, "Deferred constant "
+                         "declarations not supported\n");
+    delete $2;
+}
+/* Some error handling... */
+| K_constant identifier_list ':' subtype_indication VASSIGN error ';'
+{
+    // The syntax allows multiple names to have the same type/value.
+    ParserUtil::errormsg(yy_parse_context, @6, "Error in value expression "
+                         "for constants.\n");
+    yyerrok;
+    for (std::list<perm_string>::iterator cur = $2->begin()
+             ; cur != $2->end() ; ++cur) {
+        yy_parse_context->active_scope->bind_name(*cur, $4, 0);
+    }
+    delete $2;
+}
+| K_constant identifier_list ':' error ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @4, "Syntax error in constant "
+                         "declaration type.\n");
+    yyerrok;
+    delete $2;
+}
+| K_constant error ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in constant "
+                       "declaration.\n");
+    yyerrok;
+}
+;
 
 context_clause : context_items | ;
 
 context_item
-  : library_clause
-  | use_clause_lib
-  ;
+: library_clause
+| use_clause_lib
+;
 
 context_items
-  : context_items context_item
-  | context_item
-  ;
+: context_items context_item
+| context_item
+;
 
 
 design_unit
-  : context_clause library_unit
-  | error { ParserUtil::errormsg(yy_parse_context, @1, "Invalid design_unit\n"); }
-  ;
+: context_clause library_unit
+| error { ParserUtil::errormsg(yy_parse_context, @1, "Invalid design_unit\n"); }
+;
 
 design_units
-  : design_units design_unit
-  | design_unit
-  ;
+: design_units design_unit
+| design_unit
+;
 
 direction
-  : K_to { $$ = ExpRange::TO; }
-  | K_downto { $$ = ExpRange::DOWNTO; }
-  ;
+: K_to { $$ = ExpRange::TO; }
+| K_downto { $$ = ExpRange::DOWNTO; }
+;
 
 element_association
-  : choices ARROW expression
-      { ExpAggregate::element_t*tmp = new ExpAggregate::element_t($1, $3);
-	delete $1;
-	$$ = tmp;
-      }
-  | expression
-      { ExpAggregate::element_t*tmp = new ExpAggregate::element_t(0, $1);
-	$$ = tmp;
-      }
-  ;
+: choices ARROW expression
+{
+    ExpAggregate::element_t*tmp = new ExpAggregate::element_t($1, $3);
+    delete $1;
+    $$ = tmp;
+}
+| expression
+{
+    ExpAggregate::element_t*tmp = new ExpAggregate::element_t(0, $1);
+    $$ = tmp;
+}
+;
 
 element_association_list
-  : element_association_list ',' element_association
-      { std::list<ExpAggregate::element_t*>*tmp = $1;
-	tmp->push_back($3);
-	$$ = tmp;
-      }
-  | element_association
-      { std::list<ExpAggregate::element_t*>*tmp = new std::list<ExpAggregate::element_t*>;
-	tmp->push_back($1);
-	$$ = tmp;
-      }
-  ;
+: element_association_list ',' element_association
+{
+    std::list<ExpAggregate::element_t*>*tmp = $1;
+    tmp->push_back($3);
+    $$ = tmp;
+}
+| element_association
+{
+    std::list<ExpAggregate::element_t*>*tmp =
+        new std::list<ExpAggregate::element_t*>;
+    tmp->push_back($1);
+    $$ = tmp;
+}
+;
 
 element_declaration
-  : identifier_list ':' subtype_indication ';'
-      { $$ = record_elements($1, $3);
-        delete $1;
-      }
-  ;
+: identifier_list ':' subtype_indication ';'
+{
+    $$ = record_elements($1, $3);
+    delete $1;
+}
+;
 
 element_declaration_list
-  : element_declaration_list element_declaration
-      { $$ = $1;
-	$$->splice($$->end(), *$2);
-	delete $2;
-      }
-  | element_declaration
-      { $$ = $1; }
-  ;
+: element_declaration_list element_declaration
+{
+    $$ = $1;
+    $$->splice($$->end(), *$2);
+    delete $2;
+}
+| element_declaration
+{ $$ = $1; }
+;
 
-  /* As an entity is declared, add it to the map of design entities. */
+/* As an entity is declared, add it to the map of design entities. */
 entity_aspect
-  : K_entity name
-      {
+: K_entity name
+{
     ExpName* name = dynamic_cast<ExpName*>($2);
     entity_aspect_t* tmp = new entity_aspect_t(entity_aspect_t::ENTITY, name);
     $$ = tmp;
-      }
-  | K_configuration name
-      {
+}
+| K_configuration name
+{
     ExpName* name = dynamic_cast<ExpName*>($2);
-    entity_aspect_t* tmp = new entity_aspect_t(entity_aspect_t::CONFIGURATION, name);
+    entity_aspect_t* tmp = new entity_aspect_t(entity_aspect_t::CONFIGURATION,
+                                               name);
     $$ = tmp;
-      }
-  | K_open
-      {
+}
+| K_open
+{
     entity_aspect_t* tmp = new entity_aspect_t(entity_aspect_t::OPEN, 0);
     $$ = tmp;
-      }
-  ;
+}
+;
 
 entity_aspect_opt
-  : entity_aspect { $$ = $1; }
-  | { $$ = 0; }
-  ;
+: entity_aspect { $$ = $1; }
+| { $$ = 0; }
+;
 
 entity_declaration
-  : K_entity IDENTIFIER
-    K_is generic_clause_opt port_clause_opt
-    K_end K_entity_opt identifier_opt';'
-      { Entity*tmp = new Entity(lex_strings.make($2));
-	ParserUtil::add_location(tmp, @1);
-	  // Transfer the ports
-	tmp->set_interface($4, $5);
-	delete $4;
-	delete $5;
-	  // Save the entity in the entity map.
-	design_entities[tmp->get_name()] = tmp;
-	delete[]$2;
-	if($8 && tmp->get_name() != $8) {
-	      ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in entity clause. Closing name doesn't match.\n");
-        }
-        delete[]$8;
-      }
-  | K_entity error K_end K_entity_opt identifier_opt ';'
-      { ParserUtil::errormsg(yy_parse_context, @1, "Too many errors, giving up on entity declaration.\n");
-	yyerrok;
-	if ($5) delete[]$5;
-      }
-  ;
+: K_entity IDENTIFIER
+K_is generic_clause_opt port_clause_opt
+K_end K_entity_opt identifier_opt';'
+{
+    Entity*tmp = new Entity(lex_strings.make($2), yy_parse_context);
+    ParserUtil::add_location(tmp, @1);
+    // Transfer the ports
+    tmp->set_interface($4, $5);
+    delete $4;
+    delete $5;
+    // Save the entity in the entity map.
+    yy_parse_context->design_entities[tmp->get_name()] = tmp;
+    delete[]$2;
+    if($8 && tmp->get_name() != $8) {
+        ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in "
+                             "entity clause. Closing name doesn't match.\n");
+    }
+    delete[]$8;
+}
+| K_entity error K_end K_entity_opt identifier_opt ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @1, "Too many errors, giving "
+                       "up on entity declaration.\n");
+    yyerrok;
+    if ($5) delete[]$5;
+}
+;
 
 enumeration_literal
-  : IDENTIFIER
-      { list<perm_string>*tmp = new list<perm_string>;
-	tmp->push_back(lex_strings.make($1));
-	delete[]$1;
-	$$ = tmp;
-      }
-  ;
+: IDENTIFIER
+{
+    list<perm_string>*tmp = new list<perm_string>;
+    tmp->push_back(lex_strings.make($1));
+    delete[]$1;
+    $$ = tmp;
+}
+;
 
 enumeration_literal_list
-  : enumeration_literal_list ',' enumeration_literal
-      { list<perm_string>*tmp = $1;
-	list<perm_string>*tmp3 = $3;
-	if (tmp3) {
-	      tmp->splice(tmp->end(), *tmp3);
-	      delete tmp3;
-	}
-	$$ = tmp;
-      }
-  | enumeration_literal
-      { list<perm_string>*tmp = $1;
-	$$ = tmp;
-      }
-  ;
+: enumeration_literal_list ',' enumeration_literal
+{
+    list<perm_string>*tmp = $1;
+    list<perm_string>*tmp3 = $3;
+    if (tmp3) {
+        tmp->splice(tmp->end(), *tmp3);
+        delete tmp3;
+    }
+    $$ = tmp;
+}
+| enumeration_literal
+{
+    list<perm_string>*tmp = $1;
+    $$ = tmp;
+}
+;
 
 expression_list
-  : expression_list ',' expression
-      { list<Expression*>*tmp = $1;
-	tmp->push_back($3);
-	$$ = tmp;
-      }
-  | expression
-      { list<Expression*>*tmp = new list<Expression*>;
-	tmp->push_back($1);
-	$$ = tmp;
-      }
-  ;
+: expression_list ',' expression
+{
+    list<Expression*>*tmp = $1;
+    tmp->push_back($3);
+    $$ = tmp;
+}
+| expression
+{
+    list<Expression*>*tmp = new list<Expression*>;
+    tmp->push_back($1);
+    $$ = tmp;
+}
+;
 
 expression
-  : expression_logical
-      { $$ = $1; }
-  | range
-      { $$ = $1; }
-  ;
+: expression_logical
+{ $$ = $1; }
+| range
+{ $$ = $1; }
+;
 
 /*
  * The expression_logical matches the logical_expression from the
@@ -1283,70 +1307,89 @@ factor
   ;
 
 file_declaration
-  : K_file identifier_list ':' IDENTIFIER file_open_information_opt ';'
-      {
-	if (strcasecmp($4, "TEXT"))
-	      ParserUtil::sorrymsg(yy_parse_context, @1, "file declaration currently handles only TEXT type.\n");
+: K_file identifier_list ':' IDENTIFIER file_open_information_opt ';'
+{
+    if (strcasecmp($4, "TEXT"))
+        ParserUtil::sorrymsg(yy_parse_context, @1, "file declaration "
+                             "currently handles only TEXT type.\n");
 
-	for (std::list<perm_string>::iterator cur = $2->begin()
-		   ; cur != $2->end() ; ++cur) {
-	      Variable*var = new Variable(*cur, &primitive_INTEGER);
-	      ParserUtil::add_location(var, @1);
-	      yy_parse_context->active_scope->bind_name(*cur, var);
+    for (std::list<perm_string>::iterator cur = $2->begin()
+             ; cur != $2->end() ; ++cur) {
 
-	      // there was a file name specified, so it needs an implicit call
-	      // to open it at the beginning of simulation and close it at the end
-	      if($5) {
-		std::list<Expression*> params;
+        Variable*var = new Variable(*cur,
+                                    &yy_parse_context
+                                     ->global_types
+                                     ->primitive_INTEGER);
 
-		// add file_open() call in 'initial' block
-		params.push_back(new ExpScopedName(yy_parse_context->active_scope->peek_name(), new ExpName(*cur)));
-		params.push_back($5->filename()->clone());
-		params.push_back($5->kind()->clone());
-		ProcedureCall*fopen_call = new ProcedureCall(
-                                    perm_string::literal("file_open"), &params);
-		yy_parse_context->arc_scope->add_initializer(fopen_call);
+        ParserUtil::add_location(var, @1);
+        yy_parse_context->active_scope->bind_name(*cur, var);
 
-		// add file_close() call in 'final' block
-		params.clear();
-		params.push_back(new ExpScopedName(yy_parse_context->active_scope->peek_name(), new ExpName(*cur)));
-		ProcedureCall*fclose_call = new ProcedureCall(
-                                    perm_string::literal("file_close"), &params);
-		yy_parse_context->arc_scope->add_finalizer(fclose_call);
+        // there was a file name specified, so it needs an implicit call
+        // to open it at the beginning of simulation and close it at the end
+        if($5) {
+            std::list<Expression*> params;
 
-		delete $5;
-	      }
-	}
+            // add file_open() call in 'initial' block
+            params.push_back(new ExpScopedName(yy_parse_context
+                                               ->active_scope
+                                               ->peek_name(),
+                                               new ExpName(*cur)));
+            params.push_back($5->filename()->clone());
+            params.push_back($5->kind()->clone());
+            ProcedureCall*fopen_call = new ProcedureCall(
+                perm_string::literal("file_open"), &params);
+            yy_parse_context->arc_scope->add_initializer(fopen_call);
 
-	delete $2;
-      }
-  | K_file error ';'
-      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in file declaration.\n");
-	yyerrok;
-      }
-  ;
+            // add file_close() call in 'final' block
+            params.clear();
+            params.push_back(new ExpScopedName(yy_parse_context
+                                               ->active_scope
+                                               ->peek_name(),
+                                               new ExpName(*cur)));
+
+            ProcedureCall*fclose_call = new ProcedureCall(
+                perm_string::literal("file_close"), &params);
+
+            yy_parse_context->arc_scope->add_finalizer(fclose_call);
+
+            delete $5;
+        }
+    }
+
+    delete $2;
+}
+| K_file error ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in file "
+                         "declaration.\n");
+    yyerrok;
+}
+;
 
 file_open_information
-  : K_open IDENTIFIER K_is STRING_LITERAL
-     {
-        ExpName*mode = new ExpName(lex_strings.make($2));
-        delete[]$2;
-        ParserUtil::add_location(mode, @1);
-        $$ = new file_open_info_t(new ExpString($4), mode);
-     }
-  | K_is STRING_LITERAL
-     {
-        $$ = new file_open_info_t(new ExpString($2));
-     }
+: K_open IDENTIFIER K_is STRING_LITERAL
+{
+    ExpName*mode = new ExpName(lex_strings.make($2));
+    delete[]$2;
+    ParserUtil::add_location(mode, @1);
+    $$ = new file_open_info_t(new ExpString($4), mode);
+}
+| K_is STRING_LITERAL
+{
+    $$ = new file_open_info_t(new ExpString($2));
+}
 
 file_open_information_opt
-  : file_open_information { $$ = $1; }
-  | { $$ = 0; }
-  ;
+: file_open_information { $$ = $1; }
+| { $$ = 0; }
+;
 
 // FM. MA| TODO: IEEE 1076-2008 P11.2 requires guard condition
 block_statement :
-IDENTIFIER   ':'   K_block   { yy_parse_context->push_scope(); }
+IDENTIFIER   ':'   K_block
+{
+    yy_parse_context->push_scope();
+}
 K_is_opt   block_header   block_declarative_items_opt
 //NOTE: block_declarative_items_opt  is equal to block_declarative_part
 K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
@@ -1355,10 +1398,13 @@ K_begin   architecture_statement_part   K_end   K_block   identifier_opt ';'
     perm_string label = lex_strings.make($1);
 
     if ($12 && label != $12)
-        ParserUtil::errormsg(yy_parse_context, @1, "block_statement label %s does not "
-                 "match closing name %s\n", label.str(), $12);
+        ParserUtil::errormsg(yy_parse_context, @1, "block_statement "
+                             "label %s does not "
+                             "match closing name %s\n", label.str(), $12);
 
-    BlockStatement *tmp = new BlockStatement($6, label, *yy_parse_context->active_scope, $9);
+    BlockStatement *tmp =
+        new BlockStatement($6, label, *yy_parse_context->active_scope, $9);
+
     yy_parse_context->arc_scope->bind_scope(tmp->peek_name(), tmp);
     yy_parse_context->pop_scope();
 
@@ -1781,7 +1827,7 @@ K_loop sequence_of_statements K_end K_loop identifier_opt ';'
     if($1) delete[]$1;
     if($6) delete[]$6;
 
-    BasicLoopStatement* tmp = new BasicLoopStatement(loop_name, $3);
+    BasicLoopStatement *tmp = new BasicLoopStatement(loop_name, $3);
     ParserUtil::add_location(tmp, @2);
 
     $$ = tmp;
@@ -1804,9 +1850,7 @@ name /* IEEE 1076-2008 P8.1 */
     if(!tmp) {
         perm_string name = lex_strings.make($1);
         /* There are functions that have the same name types, e.g. integer */
-        if(!yy_parse_context->active_scope->find_subprogram(
-               yy_parse_context->global_functions,
-               name).empty() &&
+        if(!yy_parse_context->active_scope->find_subprogram(name).empty() &&
            !yy_parse_context->parse_type_by_name(name))
             tmp = new ExpFunc(name);
         else

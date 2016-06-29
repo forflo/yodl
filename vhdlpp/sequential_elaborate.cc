@@ -17,12 +17,13 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# include  "sequential.h"
-# include  "expression.h"
-# include  "scope.h"
-# include  "library.h"
-# include  "subprogram.h"
-# include  "std_types.h"
+# include "sequential.h"
+# include "expression.h"
+# include "scope.h"
+# include "library.h"
+# include "subprogram.h"
+# include "std_types.h"
+# include "parse_context.h"
 
 int SequentialStmt::elaborate(Entity *, ScopeBase *) {
     return 0;
@@ -101,7 +102,8 @@ int ForLoopStatement::elaborate(Entity *ent, ScopeBase *scope) {
 int IfSequential::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    errors += cond_->elaborate_expr(ent, scope, &type_BOOLEAN);
+    errors += cond_->elaborate_expr(
+        ent, scope, &scope->context_->global_types->type_BOOLEAN);
 
     for (list<SequentialStmt *>::iterator cur = if_.begin()
          ; cur != if_.end(); ++cur) {
@@ -125,7 +127,8 @@ int IfSequential::elaborate(Entity *ent, ScopeBase *scope) {
 int IfSequential::Elsif::elaborate(Entity *ent, ScopeBase *scope) {
     int errors = 0;
 
-    errors += cond_->elaborate_expr(ent, scope, &type_BOOLEAN);
+    errors += cond_->elaborate_expr(
+        ent, scope, &scope->context_->global_types->type_BOOLEAN);
 
     for (list<SequentialStmt *>::iterator cur = if_.begin()
          ; cur != if_.end(); ++cur) {
@@ -261,7 +264,8 @@ int BasicLoopStatement::elaborate(Entity *ent, ScopeBase *scope) {
 
 
 int ReportStmt::elaborate(Entity *ent, ScopeBase *scope) {
-    return msg_->elaborate_expr(ent, scope, &primitive_STRING);
+    return msg_->elaborate_expr(
+        ent, scope, &scope->context_->global_types->primitive_STRING);
 }
 
 
@@ -275,7 +279,8 @@ int AssertStmt::elaborate(Entity *ent, ScopeBase *scope) {
 
 
 int WaitForStmt::elaborate(Entity *ent, ScopeBase *scope) {
-    return delay_->elaborate_expr(ent, scope, &primitive_TIME);
+    return delay_->elaborate_expr(
+        ent, scope, &scope->context_->global_types->primitive_TIME);
 }
 
 

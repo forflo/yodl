@@ -17,12 +17,13 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-# define __STDC_LIMIT_MACROS
-# include  "std_types.h"
-# include  "expression.h"
-# include  <typeinfo>
-# include  <stdint.h>
-# include  <cassert>
+#define __STDC_LIMIT_MACROS
+#include <typeinfo>
+#include <stdint.h>
+#include <cassert>
+
+#include "std_types.h"
+#include "expression.h"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ void VType::write_type_to_stream(ostream& fd) const {
 
 
 void VType::write_typedef_to_stream(ostream& fd, perm_string name) const {
-    if (is_global_type(name)) {
+    if (StandardTypes::is_global_type(name)) {
         return;
     }
 
@@ -56,7 +57,7 @@ void VTypeArray::write_to_stream(ostream& fd) const {
     if (const VTypeDef *tdef = dynamic_cast<const VTypeDef *> (etype_)) {
         tdef->write_to_stream(fd);
         typedefed = true;
-    }else  {
+    } else {
         fd << "array ";
     }
 
@@ -83,7 +84,7 @@ void VTypeArray::write_range_to_stream_(std::ostream& fd) const {
     fd << "(";
     if (ranges_[0].msb()) {
         ranges_[0].msb()->write_to_stream(fd);
-    }else  {
+    } else {
         fd << "<>";
     }
 
@@ -91,25 +92,28 @@ void VTypeArray::write_range_to_stream_(std::ostream& fd) const {
 
     if (ranges_[0].lsb()) {
         ranges_[0].lsb()->write_to_stream(fd);
-    }else  {
+    } else {
         fd << "<>";
     }
+
     fd << ") ";
 }
 
 
 bool VTypeArray::write_special_case(std::ostream& fd) const {
-    if (this == &primitive_SIGNED) {
+    StandardTypes *temp = new StandardTypes();
+
+    if (this == &temp->primitive_SIGNED) {
         fd << "signed";
-    }else if (this == &primitive_UNSIGNED)  {
+    } else if (this == &temp->primitive_UNSIGNED) {
         fd << "unsigned";
-    }else if (etype_ == &primitive_STDLOGIC)  {
+    } else if (etype_ == &temp->primitive_STDLOGIC) {
         fd << "std_logic_vector";
-    }else if (etype_ == &primitive_BIT)  {
+    } else if (etype_ == &temp->primitive_BIT) {
         fd << "bit_vector";
-    }else if (etype_ == &primitive_CHARACTER)  {
+    } else if (etype_ == &temp->primitive_CHARACTER) {
         fd << "string";
-    }else  {
+    } else  {
         return false;
     }
 
@@ -262,7 +266,7 @@ void VTypeEnum::write_to_stream(std::ostream& fd) const {
 
 
 void VSubTypeDef::write_typedef_to_stream(ostream& fd, perm_string name) const {
-    if (is_global_type(name)) {
+    if (StandardTypes::is_global_type(name)) {
         return;
     }
 

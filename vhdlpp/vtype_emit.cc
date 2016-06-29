@@ -64,12 +64,15 @@ int VTypeArray::emit_def(ostream& out, perm_string name) const {
     const VType          *raw_base = basic_type();
     const VTypePrimitive *base     = dynamic_cast<const VTypePrimitive *> (raw_base);
 
+    //FM. MA HACK: Just to quickly fix compilation
+    StandardTypes *types = new StandardTypes();
+
     if (base) {
         assert(dimensions() == 1);
 
         // If this is a string type without any boundaries specified, then
         // there is a direct counterpart in SV called.. 'string'
-        if (this == &primitive_STRING) {
+        if (this == &types->primitive_STRING) {
             out << "string";
             emit_name(out, name);
             return errors;
@@ -79,11 +82,13 @@ int VTypeArray::emit_def(ostream& out, perm_string name) const {
         if (signed_flag_) {
             out << " signed";
         }
-    }else  {
+    } else {
         raw_base->emit_def(out, empty_perm_string);
     }
 
     errors += emit_with_dims_(out, raw_base->can_be_packed(), name);
+
+    delete types; // FM. MA see above
 
     return errors;
 }

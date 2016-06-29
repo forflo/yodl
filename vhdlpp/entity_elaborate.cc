@@ -29,21 +29,11 @@
 #include "compiler.h"
 #include "architec.h"
 #include "vtype.h"
+#include "parse_context.h"
 
 using namespace std;
 
-int elaborate_entities(ParserContext *context) {
-    int errors = 0;
-
-    for (map<perm_string, Entity *>::iterator cur = c->design_entities.begin()
-         ; cur != c->design_entities.end(); ++cur) {
-        errors += cur->second->elaborate(context);
-    }
-
-    return errors;
-}
-
-int Entity::elaborate(ParserContext *context) {
+int Entity::elaborate() {
     int errors = 0;
 
     if (verbose_flag) {
@@ -83,7 +73,7 @@ int Entity::elaborate(ParserContext *context) {
     errors += elaborate_generic_exprs_();
     errors += elaborate_ports_();
 
-    errors += bind_arch_->elaborate(context, this);
+    errors += bind_arch_->elaborate(this);
 
     return errors;
 }

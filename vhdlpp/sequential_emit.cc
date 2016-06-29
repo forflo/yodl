@@ -559,26 +559,32 @@ int ReportStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
 
                 if (dynamic_cast<ExpAttribute *> (s)) {
                     level_lock_ = level();
-                }else  {
+                } else {
                     level_lock_ = numeric_limits<int>::max();
                 }
 
                 const VType *type = s->probe_type(ent_, scope_);
+                // FM. MA HACK: Just to fix compilation after refactoring again
+                StandardTypes *types = new StandardTypes();
 
-                if ((dynamic_cast<ExpName *> (s)) && type &&
-                    type->type_match(&primitive_STRING)) {
+                if ((dynamic_cast<ExpName *> (s)) &&
+                    type &&
+                    type->type_match(&types ->primitive_STRING)) {
+
                     out_ << "$sformatf(\"%s\", (";
                     s->emit(out_, ent_, scope_);
                     out_ << "))";
-                }else  {
+                } else {
                     s->emit(out_, ent_, scope_);
                 }
 
                 out_ << ", ";
+
+                delete types; // FM. MA HACK: See above
             }
         }
 
-private:
+    private:
         ostream&  out_;
         Entity    *ent_;
         ScopeBase *scope_;
