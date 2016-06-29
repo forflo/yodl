@@ -59,3 +59,25 @@ TEST_CASE("Simple block", "[AST generation]"){
     REQUIRE(context->parse_errors == 0);
     REQUIRE(context->parse_sorrys == 0);
 }
+
+TEST_CASE("Multiple parses", "[AST generation]"){
+    int rc1, rc2;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    StandardTypes *std_types1 = (new StandardTypes())->init();
+    StandardFunctions *std_funcs1 = (new StandardFunctions())->init();
+    ParserContext *context1 = (new ParserContext(std_types1, std_funcs1))->init();
+
+    rc1 = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd", perm_string(), context);
+    rc2 = ParserUtil::parse_source_file("vhdl_testfiles/adder.vhd", perm_string(), context1);
+
+    REQUIRE(rc1 == 0);
+    REQUIRE(rc2 == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context1->parse_sorrys == 0);
+    REQUIRE(context1->parse_sorrys == 0);
+}
