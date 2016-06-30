@@ -196,8 +196,8 @@ int main(int argc, char *argv[]) {
     Entity *ent = cont->design_entities[perm_string::literal("ent")];
     cout << "Entity found!\n";
 
-//    Entity *copy = ent->clone();
-//    cout << "Entity copied!\n";
+    Entity *copy = ent->clone();
+    cout << "Entity copied!\n";
 
     //emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
     emit_dotgraph(std::cout, "g",

@@ -1,5 +1,7 @@
 // FM. MA
 
+#include <cstdarg>
+
 #include "parse_context.h"
 
 /* Implementation for class ParserContext */

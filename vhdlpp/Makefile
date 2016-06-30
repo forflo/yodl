@@ -28,7 +28,7 @@ vpath %.cc $(srcdir)/../libmisc
 vpath %.cc $(srcdir)
 
 CC = gcc
-CXX = clang++
+CXX = g++
 LEX = flex
 YACC = bison
 
@@ -38,8 +38,8 @@ INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Ica
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
 CXXFLAGS = -Wall -Wextra -Wshadow   -g -O2 --std=c++11 $(CUSTOM)
-LDFLAGS =  
-LIBS = -lm -lbz2 -lz -lhistory -lreadline 
+LDFLAGS =
+LIBS = -lm -lbz2 -lz -lhistory -lreadline
 
 M = StringHeap.o LineInfo.o
 

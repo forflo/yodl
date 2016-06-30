@@ -61,8 +61,8 @@ Architecture *Architecture::clone() const {
 
     result->statements_ = copy_stmts;
 
-    result->cur_process_ = cur_process_->clone();
-    result->cur_component_ = cur_component_->clone();
+    result->cur_process_ = (cur_process_ ? cur_process_->clone() : NULL);
+    result->cur_component_ = (cur_component_ ? cur_component_->clone() : NULL);
 
     return result;
 }

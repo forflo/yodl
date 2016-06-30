@@ -30,6 +30,7 @@ class ParserContext;
 extern int yyparse(yyscan_t, const char *,
                    perm_string, ParserContext *);
 
+
 class ParserContext {
 public:
     ParserContext(StandardTypes *types, StandardFunctions *funcs)
@@ -95,7 +96,7 @@ public:
                                             ActiveScope *scope);
 
     static void add_location(LineInfo *tmp,
-                                    const struct yyltype &where);
+                             const struct yyltype &where);
 
     static void sorrymsg(ParserContext *c,
                          const YYLTYPE&loc,

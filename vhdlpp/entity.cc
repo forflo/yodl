@@ -108,32 +108,32 @@ Entity::~Entity() {
 
 // FM. MA
 Entity *Entity::clone() const {
-        list<InterfacePort*> pa, po;
-        map<perm_string, Architecture*> copy_arch;
-        map<perm_string, VType::decl_t> copy_decls;
-        Entity *result = new Entity(name_, context_);
-        Architecture *copy_bind_arch;
+    list<InterfacePort*> pa, po;
+    map<perm_string, Architecture*> copy_arch;
+    map<perm_string, VType::decl_t> copy_decls;
+    Entity *result = new Entity(name_, context_);
+    Architecture *copy_bind_arch;
 
-        for (auto &i : parms_)
-            pa.push_back(i->clone());
+    for (auto &i : parms_)
+        pa.push_back(i->clone());
 
-        for (auto &i : ports_)
-            po.push_back(i->clone());
+    for (auto &i : ports_)
+        po.push_back(i->clone());
 
-        for (auto &i : arch_)
-            copy_arch[i.first] = i.second->clone();
+    for (auto &i : arch_)
+        copy_arch[i.first] = i.second->clone();
 
-        for (auto &i : declarations_)
-            copy_decls[i.first] = *(i.second.clone());
+    for (auto &i : declarations_)
+        copy_decls[i.first] = *(i.second.clone());
 
-        copy_bind_arch = bind_arch_->clone();
+    copy_bind_arch = (bind_arch_ ? bind_arch_->clone() : NULL);
 
-        result->set_interface(&pa, &po);
-        result->arch_ = copy_arch;
-        result->declarations_ = copy_decls;
-        result->bind_arch_ = copy_bind_arch;
+    result->set_interface(&pa, &po);
+    result->arch_ = copy_arch;
+    result->declarations_ = copy_decls;
+    result->bind_arch_ = copy_bind_arch;
 
-        return result;
+    return result;
 }
 
 Architecture *Entity::add_architecture(Architecture *that) {
@@ -153,5 +153,7 @@ void Entity::set_declaration_l_value(perm_string nam, bool flag) {
 
 // FM. MA
 InterfacePort *InterfacePort::clone() const {
-    return new InterfacePort(mode, name, type->clone(), expr->clone());
+    return new InterfacePort(mode, name,
+                             (type ? type->clone() : NULL),
+                             (expr ? expr->clone() : NULL));
 }

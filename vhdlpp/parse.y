@@ -43,7 +43,6 @@
 
 %{
 
-#include <cstdarg>
 #include <iostream>
 #include <cstring>
 #include <list>
@@ -1704,10 +1703,11 @@ instantiation_list
 interface_element
 : identifier_list ':' mode_opt subtype_indication interface_element_expression
 {
-    std::list<InterfacePort*>*tmp = new std::list<InterfacePort*>;
+    std::list<InterfacePort*> *tmp = new std::list<InterfacePort*>;
     for (std::list<perm_string>::iterator cur = $1->begin()
              ; cur != $1->end() ; ++cur) {
-        InterfacePort*port = new InterfacePort;
+
+        InterfacePort *port = new InterfacePort;
         ParserUtil::add_location(port, @1);
         port->mode = $3;
         port->name = *(cur);

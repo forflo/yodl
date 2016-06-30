@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <cerrno>
 #include <limits>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <iostream>
@@ -46,7 +47,7 @@ const char *debug_log_path            = 0;
 bool     debug_elaboration = false;
 ofstream debug_log_file;
 
-TEST_CASE("Simple block", "[AST generation]"){
+TEST_CASE("Simple block", "[ast]"){
     int rc;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -60,7 +61,7 @@ TEST_CASE("Simple block", "[AST generation]"){
     REQUIRE(context->parse_sorrys == 0);
 }
 
-TEST_CASE("Multiple parses", "[AST generation]"){
+TEST_CASE("Multiple parses", "[ast]"){
     int rc1, rc2;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -71,8 +72,10 @@ TEST_CASE("Multiple parses", "[AST generation]"){
     StandardFunctions *std_funcs1 = (new StandardFunctions())->init();
     ParserContext *context1 = (new ParserContext(std_types1, std_funcs1))->init();
 
-    rc1 = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd", perm_string(), context);
-    rc2 = ParserUtil::parse_source_file("vhdl_testfiles/adder.vhd", perm_string(), context1);
+    rc1 = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
+                                        perm_string(), context);
+    rc2 = ParserUtil::parse_source_file("vhdl_testfiles/adder.vhd",
+                                        perm_string(), context1);
 
     REQUIRE(rc1 == 0);
     REQUIRE(rc2 == 0);
@@ -80,4 +83,58 @@ TEST_CASE("Multiple parses", "[AST generation]"){
     REQUIRE(context->parse_errors  == 0);
     REQUIRE(context1->parse_sorrys == 0);
     REQUIRE(context1->parse_sorrys == 0);
+}
+
+TEST_CASE("Simple clone test", "[clone]"){
+    int rc;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
+                                       perm_string(), context);
+
+    REQUIRE(rc == 0);
+    REQUIRE(rc == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+
+    REQUIRE(context->design_entities.size() == 1);
+
+    auto iterator = context->design_entities.begin();
+    REQUIRE(iterator->second != NULL);
+
+    auto cloned_entity = iterator->second->clone();
+    REQUIRE(cloned_entity != NULL);
+}
+
+TEST_CASE("Simple clone test with dot generation", "[clone]"){
+    int rc;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
+                                       perm_string(), context);
+
+    REQUIRE(rc == 0);
+    REQUIRE(rc == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+
+    REQUIRE(context->design_entities.size() == 1);
+
+    auto iterator = context->design_entities.begin();
+    auto entity1 = iterator->second;
+    REQUIRE(entity1 != NULL);
+
+    auto entity2 = iterator->second->clone();
+    REQUIRE(entity2 != NULL);
+
+    stringstream a();
+    stringstream b();
+
+    entity1.emit_strinfo_tree(a, "tree", );
 }
