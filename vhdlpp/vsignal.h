@@ -60,7 +60,7 @@ public:
     // FM. MA
     virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
 
-protected:
+public:
     unsigned peek_refcnt_sequ_() const {
         return refcnt_sequ_;
     }

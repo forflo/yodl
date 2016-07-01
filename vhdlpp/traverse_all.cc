@@ -361,6 +361,20 @@ namespace mch {
     template <> struct bindings<VSubTypeDef> {};
 };
 
+// tag: [VSignal]
+// template specializations for the Signal class tree (and for Variable)
+namespace mch {
+    template <> struct bindings<SigVarBase> {
+        Members(SigVarBase::name_, //perm_string
+                SigVarBase::type_, //const VType *t
+                SigVarBase::init_expr_, //Expression *
+                SigVarBase::refcnt_sequ_); // unsigned
+    };
+
+    template <> struct bindings<Signal> {};
+    template <> struct bindings<Variable> {};
+};
+
 // tag: [SEQUENTIAL STATEMENT]
 // template specializations for the Sequential class tree
 namespace mch {
