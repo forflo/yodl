@@ -10,13 +10,16 @@
 #include <iostream>
 #include <math.h>
 
+////
 // mach7 setup
-#include <type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
+// Support for N-ary Match statement on patterns
+#include <type_switchN-patterns.hpp>
 #include <address.hpp>      // Address and dereference combinators
 #include <bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
 #include <constructor.hpp>  // Support for constructor patterns
 #include <equivalence.hpp>  // Equivalence combinator +
 
+////
 // code base specific includes
 #include "vhdlpp_config.h"
 #include "generate_graph.h"
@@ -48,12 +51,21 @@
 // template specializiation for desing hierarchies
 namespace mch {
     template <> struct bindings<Architecture> {
-        Members(Architecture::statements_,
+        Members(Architecture::statements_, // list<Architecture::Statement*>
+                Architecture::cur_component, // ComponentInstanciation *
+                Architecture::cur_process_, // ProcessStatement *
                 Architecture::name_);
     };
 
     template <> struct bindings<Entity> {
-        Members(Entity::arch_, Entity::name_);
+        Members(Entity::arch_, // map<perm_string, Architecture*>
+                Entity::bind_arch_, //Architecture *
+                Entity::declarations_, //map <perm_string, VType::decl_t>
+                Entity::name_); // perm_string
+    };
+
+    template <> struct bindings<ScopeBase> {
+        Members(ScopeBase::)
     };
 }
 
@@ -255,9 +267,10 @@ namespace mch {
 };
 
 using namespace mch;
+using namespace std;
 
 void traverse(const Entity &top){
-    var<std::map<perm_string, Architecture *>> archs;
+    var<map<perm_string, Architecture *>> archs;
     var<perm_string> name;
 
     Match(top){
@@ -275,7 +288,7 @@ void traverse(const Entity &top){
 }
 
 void traverse(const Architecture &arch){
-    var<std::list<Architecture::Statement *>> stmts;
+    var<list<Architecture::Statement *>> stmts;
     var<perm_string> name;
 
     Match(arch){

@@ -20,9 +20,6 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-
-// FM. MA| TODO: Clone methoden auslagern!
-
 # include <map>
 # include <list>
 # include <vector>
@@ -33,14 +30,14 @@
 # include "StringHeap.h"
 # include "LineInfo.h"
 
+class ParserContext;
+class Architecture;
+class Expression;
+
 typedef enum {
     PORT_NONE = 0, PORT_IN,
     PORT_OUT, PORT_INOUT
 } port_mode_t;
-
-class ParserContext;
-class Architecture;
-class Expression;
 
 /* Elaborate the collected entities, and return the number of
  * elaboration errors.  */

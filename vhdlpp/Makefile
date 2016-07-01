@@ -28,7 +28,7 @@ vpath %.cc $(srcdir)/../libmisc
 vpath %.cc $(srcdir)
 
 CC = gcc
-CXX = g++
+CXX = clang++
 LEX = flex
 YACC = bison
 
@@ -38,8 +38,8 @@ INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Ica
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
 CXXFLAGS = -Wall -Wextra -Wshadow   -g -O2 --std=c++11 $(CUSTOM)
-LDFLAGS =
-LIBS = -lm -lbz2 -lz -lhistory -lreadline
+LDFLAGS =  
+LIBS = -lm -lbz2 -lz -lhistory -lreadline 
 
 M = StringHeap.o LineInfo.o
 
@@ -49,7 +49,8 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     vtype_gendot.o vsignal_gendot.o\
     simple_tree/simple_tree.o \
     enum_overloads.o \
-    parse_context.o \
+    traverse_all.o   \
+    parse_context.o  \
     generate_graph.o \
     vtype_match.o \
     architec_elaborate.o entity_elaborate.o expression_elaborate.o \
@@ -98,7 +99,7 @@ rtags:
 	$(MAKE) --dry-run | grep "clang++ -I" | sed -e "s/ -o .*$$//"
 
 vhdlpp: $O main.o
-	$(CXX) -o vhdlpp $(LDFLAGS) $O main.o $(LIBS)
+	$(CXX) -o vhdlpp $(LDFLAGS) main.o $O $(LIBS)
 
 %.o: $(srcdir)/../libmisc/%.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $*.o

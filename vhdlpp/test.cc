@@ -1,22 +1,15 @@
 // FM. MA
 
 #include <fstream>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <sys/stat.h>
-#include <cerrno>
-#include <limits>
 #include <sstream>
 #include <vector>
 #include <map>
 #include <iostream>
-#include <math.h>
+
+#include "test.h"
 
 // code base specific includes
-#include "vhdlpp_config.h"
 #include "generate_graph.h"
-#include "version_base.h"
 #include "simple_tree.h"
 #include "StringHeap.h"
 #include "entity.h"
@@ -32,10 +25,6 @@
 #include "std_types.h"
 #include "std_funcs.h"
 #include "parse_context.h"
-
-// testing library
-#define CATCH_CONFIG_MAIN
-#include "catch.h"
 
 bool verbose_flag = false;
 // Where to dump design entities
@@ -54,7 +43,8 @@ TEST_CASE("Simple block", "[ast]"){
     StandardFunctions *std_funcs = (new StandardFunctions())->init();
     ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
 
-    rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd", perm_string(), context);
+    rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
+                                       perm_string(), context);
 
     REQUIRE(rc == 0);
     REQUIRE(context->parse_errors == 0);
@@ -121,8 +111,8 @@ TEST_CASE("Simple clone test with dot generation", "[clone]"){
 
     REQUIRE(rc == 0);
     REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors == 0);
+    REQUIRE(context->parse_errors == 0);
 
     REQUIRE(context->design_entities.size() == 1);
 
@@ -133,8 +123,11 @@ TEST_CASE("Simple clone test with dot generation", "[clone]"){
     auto entity2 = iterator->second->clone();
     REQUIRE(entity2 != NULL);
 
-    stringstream a();
-    stringstream b();
+    stringstream a{};
+    stringstream b{};
 
-    entity1.emit_strinfo_tree(a, "tree", );
+    emit_dotgraph(a, "foo", entity1->emit_strinfo_tree());
+    emit_dotgraph(b, "foo", entity1->emit_strinfo_tree());
+
+    REQUIRE(a.str() == b.str());
 }
