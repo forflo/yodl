@@ -221,7 +221,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     type_t type_;
     bool   packed_;
 };
@@ -262,7 +262,7 @@ public:
         // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-    private:
+    public:
         Expression *msb_;
         Expression *lsb_;
         bool       direction_;
@@ -336,7 +336,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     int emit_with_dims_(std::ostream& out, bool packed, perm_string name) const;
 
     // Handles a few special types of array (*_vector, string types).
@@ -392,7 +392,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     const int64_t start_, end_;
 };
 
@@ -409,7 +409,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     // Boundaries
     Expression *start_, *end_;
 
@@ -444,7 +444,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     std::vector<perm_string> names_;
 };
 
@@ -468,11 +468,11 @@ public:
         // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-    private:
+    public:
         perm_string name_;
         const VType *type_;
 
-    private:          // Not implement
+    public:          // Not implement
         element_t(const element_t&);
         element_t& operator =(const element_t);
     };
@@ -504,7 +504,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-private:
+public:
     std::vector<element_t *> elements_;
 };
 
