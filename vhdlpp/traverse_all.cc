@@ -343,6 +343,22 @@ namespace mch {
     template <> struct bindings<VTypeEnum> {
         Members(VTypeEnum::names_); //vector<perm_string>
     };
+
+    template <> struct bindings<VTypeRecord::element_t> {
+        Members(VTypeRecord::element_t::name_, //perm_string
+                VTypeRecord::element_t::type_); //const VType *
+    };
+
+    template <> struct bindings<VTypeRecord> {
+        Members(VTypeRecord::elements_); //vector<element_t*>
+    };
+
+    template <> struct bindings<VTypeDef> {
+        Members(VTypeRecord::name_, //perm_string
+                VTypeRecord::type_); //const VType *
+    };
+
+    template <> struct bindings<VSubTypeDef> {};
 };
 
 // tag: [SEQUENTIAL STATEMENT]
