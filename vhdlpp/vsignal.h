@@ -31,6 +31,8 @@ class ScopeBase;
 class Entity;
 class Expression;
 
+using namespace std;
+
 class SigVarBase : public LineInfo {
 public:
     SigVarBase(perm_string name,
@@ -76,14 +78,15 @@ protected:
 
     unsigned refcnt_sequ_;
 
-private:     // Not implemented
+public:     // Not implemented
     SigVarBase(const SigVarBase&);
     SigVarBase& operator =(const SigVarBase&);
 };
 
 class Signal : public SigVarBase {
 public:
-    Signal(perm_string name, const VType *type, Expression *init_expr);
+    Signal(perm_string name, const VType *type,
+           Expression *init_expr);
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -93,10 +96,11 @@ public:
 
 class Variable : public SigVarBase {
 public:
-    Variable(perm_string name, const VType *type, Expression *init_expr = NULL);
+    Variable(perm_string name, const VType *type,
+             Expression *init_expr = NULL);
 
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
