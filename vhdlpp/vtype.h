@@ -31,6 +31,7 @@
 
 # include "StringHeap.h"
 # include "simple_tree.h"
+# include "root_class.h"
 
 class Architecture;
 class ScopeBase;
@@ -56,7 +57,7 @@ typedef map<const VTypeDef *, typedef_topo_t> typedef_context_t;
 /* A description of a VHDL type consists of a graph of VType
  * objects. Derived types are specific kinds of types, and those that
  * are compound may in turn reference other types.  */
-class VType {
+class VType : public AstRoot { // FM. MA | Added common parent
 public:
     VType() {}
 

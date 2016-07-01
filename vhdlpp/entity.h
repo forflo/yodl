@@ -29,6 +29,7 @@
 # include "vtype.h"
 # include "StringHeap.h"
 # include "LineInfo.h"
+# include "root_class.h"
 
 class ParserContext;
 class Architecture;
@@ -48,7 +49,7 @@ extern int emit_entities(void);
 extern void dump_design_entities(ostream& file);
 
 // DOT OK
-class InterfacePort : public LineInfo {
+class InterfacePort : public LineInfo, public AstRoot {
 public:
     InterfacePort(port_mode_t mod = PORT_NONE,
             perm_string nam = empty_perm_string,
@@ -87,7 +88,7 @@ public:
  * declaration. When used as is, then this represents a forward
  * declaration of an entity. Elaboration will match it to a proper
  * entity. Or this can be the base class for a full-out Entity. */
-class ComponentBase : public LineInfo {
+class ComponentBase : public LineInfo, AstRoot {
 public:
     explicit ComponentBase(perm_string name);
 

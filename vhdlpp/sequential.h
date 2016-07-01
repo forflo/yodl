@@ -27,6 +27,7 @@
 
 # include "LineInfo.h"
 # include "parse_types.h"
+# include "root_class.h"
 
 class ScopeBase;
 class Entity;
@@ -42,7 +43,7 @@ struct SeqStmtVisitor {
 };
 
 // --OK DOT
-class SequentialStmt : public LineInfo {
+class SequentialStmt : public LineInfo, public AstRoot {
 public:
     SequentialStmt();
     virtual ~SequentialStmt() = 0;
@@ -275,12 +276,13 @@ public:
             return new CaseStmtAlternative(copy_exp, copy_stmts);
         };
 
-    public:
-        list<Expression *>     *exp_;
-        list<SequentialStmt *> stmts_;
     public:         // not implemented
         CaseStmtAlternative(const CaseStmtAlternative&);
         CaseStmtAlternative& operator =(const CaseStmtAlternative&);
+
+    public:
+        list<Expression *>     *exp_;
+        list<SequentialStmt *> stmts_;
     };
 
 public:

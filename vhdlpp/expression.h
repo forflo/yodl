@@ -35,6 +35,7 @@
 # include "LineInfo.h"
 # include "entity.h"
 # include "simple_tree.h"
+# include "root_class.h"
 
 class ExpRange;
 class ScopeBase;
@@ -74,7 +75,7 @@ public:
 /* The Expression class represents parsed expressions from the parsed
  * VHDL input. The Expression class is a virtual class that holds more
  * specific derived expression types. */
-class Expression : public LineInfo {
+class Expression : public LineInfo, public AstRoot {
 public:
     Expression();
     virtual ~Expression() = 0;

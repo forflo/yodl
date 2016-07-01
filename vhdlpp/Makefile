@@ -49,7 +49,6 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     vtype_gendot.o vsignal_gendot.o\
     simple_tree/simple_tree.o \
     enum_overloads.o \
-    traverse_all.o   \
     parse_context.o  \
     generate_graph.o \
     vtype_match.o \
@@ -123,7 +122,10 @@ parse.h: parse.cc
 lexor_keyword.o: lexor_keyword.cc parse.h
 
 lexor_keyword.cc: $(srcdir)/lexor_keyword.gperf
-	gperf -o -i 7 --ignore-case -C -k 1-4,6,9,$$ -H keyword_hash -N check_identifier -t $(srcdir)/lexor_keyword.gperf > lexor_keyword.cc || (rm -f lexor_keyword.cc ; false)
+	gperf -o -i 7 --ignore-case -C -k 1-4,6,9,$$ \
+		-H keyword_hash -N check_identifier -t \
+		$(srcdir)/lexor_keyword.gperf > \
+		lexor_keyword.cc || (rm -f lexor_keyword.cc ; false)
 
 
 stamp-vhdlpp_config-h: $(srcdir)/vhdlpp_config.h.in ../config.status

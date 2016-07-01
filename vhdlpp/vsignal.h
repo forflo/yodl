@@ -25,6 +25,7 @@
 # include "LineInfo.h"
 # include "vtype.h"
 # include "simple_tree.h"
+# include "root_class.h"
 
 class Architecture;
 class ScopeBase;
@@ -33,7 +34,7 @@ class Expression;
 
 using namespace std;
 
-class SigVarBase : public LineInfo {
+class SigVarBase : public LineInfo, public AstRoot {
 public:
     SigVarBase(perm_string name,
                const VType *type,
