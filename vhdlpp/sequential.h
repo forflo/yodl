@@ -203,7 +203,7 @@ public:
         return new ReturnStmt(val_->clone());
     };
 
-private:
+public:
     Expression *val_;
 };
 
@@ -516,7 +516,7 @@ public:
             severity_);
     };
 
-protected:
+public:
     void dump_sev_msg(ostream& out, int indent) const;
 
     Expression *msg_;

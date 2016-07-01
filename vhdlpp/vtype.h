@@ -158,7 +158,7 @@ public:
         bool        reg_flag;
     };
 
-protected:
+public:
     inline void emit_name(ostream& out, perm_string name) const {
         if (name != empty_perm_string) {
             out << " \\" << name << " ";
@@ -347,7 +347,7 @@ public:
     void write_range_to_stream_(ostream& fd) const;
 
     const VType          *etype_;
-    vector<range_t> ranges_;
+    vector<range_t>      ranges_;
     bool                 signed_flag_;
     const VTypeArray     *parent_;
 };
@@ -370,7 +370,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-protected:
+public:
     const VType *base_;
 };
 
@@ -562,7 +562,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
-protected:
+public:
     perm_string name_;
     const VType *type_;
 };

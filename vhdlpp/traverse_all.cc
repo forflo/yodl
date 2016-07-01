@@ -25,6 +25,7 @@
 #include "generate_graph.h"
 #include "version_base.h"
 #include "simple_tree.h"
+#include "scope.h"
 #include "StringHeap.h"
 #include "compiler.h"
 #include "sequential.h"
@@ -74,16 +75,19 @@ namespace mch {
                 ScopeBase::use_types_, //map<perm_string, const VType*>
                 ScopeBase::cur_types_, //same
                 ScopeBase::use_constants_, //map<perm_string, struct const_t*>
-                ScopeBase::cur_constants_, //same
-                ScopeBase::use_subprograms_, //map<perm_string, SubHeaderList>
-                ScopeBase::cur_subprograms_, //same
-                ScopeBase::scopes_, //map<perm_string, ScopeBase*>
-                ScopeBase::use_enums_, //list<const VTypeEnum*>
-                ScopeBase::finalizers_, //list<SequentialStmt*>
-                ScopeBase::initializers_, //same
-                ScopeBase::package_header) //Package *
+                ScopeBase::cur_constants_,
+                ScopeBase::use_subprograms_);//same
+
+//        Members(//ScopeBase::use_subprograms_, //map<perm_string, SubHeaderList>
+//                ScopeBase::cur_subprograms_, //same
+//                ScopeBase::scopes_, //map<perm_string, ScopeBase*>
+//                ScopeBase::use_enums_, //list<const VTypeEnum*>
+//                ScopeBase::finalizers_, //list<SequentialStmt*>
+//                ScopeBase::initializers_, //same
+//                ScopeBase::package_header,//Package *
+//                ScopeBase::name_); // perm_string
     };
-}
+};
 
 // tag: [CONCURRENT STATEMENT]
 // template specializations for the Architecture::Statemet class tree
@@ -319,10 +323,10 @@ namespace mch {
     };
 
     template <> struct bindings<VTypeArray> {
-        Members(VTypePrimitive::etype_, //const VType *
-                VTypePrimitive::ranges_, //vector<range_t>
-                VTypePrimitive::signed_flag_, //bool
-                VTypePrimitive::parent_); //const VTypeArray *
+        Members(VTypeArray::etype_, //const VType *
+                VTypeArray::ranges_, //vector<range_t>
+                VTypeArray::signed_flag_, //bool
+                VTypeArray::parent_); //const VTypeArray *
     };
 
     template <> struct bindings<VTypeRange> {
@@ -354,8 +358,8 @@ namespace mch {
     };
 
     template <> struct bindings<VTypeDef> {
-        Members(VTypeRecord::name_, //perm_string
-                VTypeRecord::type_); //const VType *
+        Members(VTypeDef::name_, //perm_string
+                VTypeDef::type_); //const VType *
     };
 
     template <> struct bindings<VSubTypeDef> {};
@@ -386,12 +390,12 @@ namespace mch {
     };
 
     template <> struct bindings<WhileLoopStatement> {
-        Members(LoopStatement::cond_); //Expression *
+        Members(WhileLoopStatement::cond_); //Expression *
     };
 
     template <> struct bindings<ForLoopStatement> {
-        Members(LoopStatement::it_, //perm_string
-                LoopStatement::range); //ExpRange *
+        Members(ForLoopStatement::it_, //perm_string
+                ForLoopStatement::range_); //ExpRange *
     };
 
     template <> struct bindings<BasicLoopStatement> {};
@@ -408,22 +412,22 @@ namespace mch {
     };
 
     template <> struct bindings<ReportStmt> {
-        Members(ReturnStmt::msg_, //Expression *
-                ReturnStmt::severity_); //severity_t (an enum from class Report Stmt)
+        Members(ReportStmt::msg_, //Expression *
+                ReportStmt::severity_); //severity_t (an enum from class Report Stmt)
     };
 
     template <> struct bindings<AssertStmt> {
-        Members(AssertStmt::cond_, //Expression *
-                AssertStmt::default_msg_); //const char *
+        Members(AssertStmt::cond_);//Expression *
+                //AssertStmt::default_msg_); //const char * // somehow does not compile
     };
 
     template <> struct bindings<WaitStmt> {
-        Members(AssertStmt::type_, //typedef enum {...} wait_type_t
-                AssertStmt::expr_, //Expression*
-                AssertStmt::sens_list_); //set<ExpName*>
+        Members(WaitStmt::type_, //typedef enum {...} wait_type_t
+                WaitStmt::expr_, //Expression*
+                WaitStmt::sens_list_); //set<ExpName*>
     };
 
-    template <> struct bindings<SequentialStmt> {
+    template <> struct bindings<SignalSeqAssignment> {
         Members(SignalSeqAssignment::lval_, //Expression *
                 SignalSeqAssignment::waveform_); //list<Expression *>
     };
@@ -440,9 +444,9 @@ namespace mch {
 
 
     template <> struct bindings<ProcedureCall> {
-        Members(ProceduraCall::name_, //perm_string
-                ProceduraCall::alt_, //list<named_expr_t*> *
-                ProcedureCall::def); //SubprogramHeader *
+        Members(ProcedureCall::name_, //perm_string
+                ProcedureCall::param_list_, //list<named_expr_t*> *
+                ProcedureCall::def_); //SubprogramHeader *
     };
 
     template <> struct bindings<VariableSeqAssignment> {
@@ -454,76 +458,75 @@ namespace mch {
 using namespace mch;
 using namespace std;
 
-void traverse(const Entity &top){
-    var<map<perm_string, Architecture *>> archs;
-    var<perm_string> name;
+//void traverse(const Entity &top){
+//    var<map<perm_string, Architecture *>> archs;
+//    var<perm_string> name;
+//
+//    Match(top){
+//        Case(C<Entity>(archs, name)){
+//            cout << "Entity detected: " << name << endl;
+//            for (auto &i : archs)
+//                traverse(*(i.second));
+//            return;
+//        }
+//        Otherwise() {
+//            cout << "No Entity!" << endl;
+//            return;
+//        }
+//    } EndMatch
+//}
+//
+//void traverse(const Architecture &arch){
+//    var<list<Architecture::Statement *>> stmts;
+//    var<perm_string> name;
+//
+//    Match(arch){
+//        Case(C<Architecture>(stmts, name)){
+//            cout << "Architecture detected: " << name << endl;
+//            for (auto &i : stmts)
+//                traverse(*i);
+//            return;
+//        }
+//        Otherwise(){
+//            cout << "No Architecture!" << endl;
+//            return;
+//        }
+//    } EndMatch
+//}
+//
+//void traverse(const Architecture::Statement &s){
+//    var<perm_string> name, label;
+//    var<list<Architecture::Statement*>> stmts;
+//    var<list<Architecture::Statement*>&> stmts_ptr;
+//    var<BlockStatement::BlockHeader&> header;
+//    var<Expression&> cond;
+//    var<list<Expression*>> rval;
+//    var<ExpName&> lval;
+//
+//    Match(s){
+//        Case(C<BlockStatement>(label, &header, &stmts_ptr)){
+//            cout << "Found Block statement: " << label << "\n";
+//            for (auto &i : (list<Architecture::Statement*>&) stmts_ptr){
+//                traverse(*i);
+//            }
+//        }
+//        Case(C<ForGenerate>(label, stmts)){
+//            cout << "Found for generatate statement: " << label << "\n";
+//            for (auto &i : (list<Architecture::Statement*>) stmts)
+//                traverse(*i);
+//        }
+//        Case(C<IfGenerate>(label, stmts, &cond)){
+//            cout << "found if generate statement: " << name << "\n";
+//            for (auto &i : (list<Architecture::Statement*>) stmts)
+//                traverse(*i);
+//        }
+//        Case(C<SignalAssignment>(&lval, rval)){
+//            cout << "Found SignalAssignment" << endl;
+//        }
+//        Otherwise() {
+//            //cout << "Wildcard pattern for traverse(const Arch::Stmt &s)\n";
+//            return;
+//        }
+//    } EndMatch
+//}
 
-    Match(top){
-        Case(C<Entity>(archs, name)){
-            cout << "Entity detected: " << name << endl;
-            for (auto &i : archs)
-                traverse(*(i.second));
-            return;
-        }
-        Otherwise() {
-            cout << "No Entity!" << endl;
-            return;
-        }
-    } EndMatch
-}
-
-void traverse(const Architecture &arch){
-    var<list<Architecture::Statement *>> stmts;
-    var<perm_string> name;
-
-    Match(arch){
-        Case(C<Architecture>(stmts, name)){
-            cout << "Architecture detected: " << name << endl;
-            for (auto &i : stmts)
-                traverse(*i);
-            return;
-        }
-        Otherwise(){
-            cout << "No Architecture!" << endl;
-            return;
-        }
-    } EndMatch
-}
-
-void traverse(const Architecture::Statement &s){
-    var<perm_string> name, label;
-    var<list<Architecture::Statement*>> stmts;
-    var<list<Architecture::Statement*>&> stmts_ptr;
-    var<BlockStatement::BlockHeader&> header;
-    var<Expression&> cond;
-    var<list<Expression*>> rval;
-    var<ExpName&> lval;
-
-    Match(s){
-        Case(C<BlockStatement>(label, &header, &stmts_ptr)){
-            cout << "Found Block statement: " << label << "\n";
-            for (auto &i : (list<Architecture::Statement*>&) stmts_ptr){
-                traverse(*i);
-            }
-        }
-        Case(C<ForGenerate>(label, stmts)){
-            cout << "Found for generatate statement: " << label << "\n";
-            for (auto &i : (list<Architecture::Statement*>) stmts)
-                traverse(*i);
-        }
-        Case(C<IfGenerate>(label, stmts, &cond)){
-            cout << "found if generate statement: " << name << "\n";
-            for (auto &i : (list<Architecture::Statement*>) stmts)
-                traverse(*i);
-        }
-        Case(C<SignalAssignment>(&lval, rval)){
-            cout << "Found SignalAssignment" << endl;
-        }
-        Otherwise() {
-            //cout << "Wildcard pattern for traverse(const Arch::Stmt &s)\n";
-            return;
-        }
-    } EndMatch
-}
-
-void traverse()
