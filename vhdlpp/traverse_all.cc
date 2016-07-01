@@ -300,6 +300,51 @@ namespace mch {
     };
 };
 
+// tag: [VTYPE]
+// template specializations for Vtype class tree
+namespace mch {
+    template <> struct bindings<VType> {};
+
+    template <> struct bindings<VTypeERROR> {};
+
+    template <> struct bindings<VTypePrimitive> {
+        Members(VTypePrimitive::type_, //type_t (enum of VTypePrimitive)
+                VTypePrimitive::packed_); //bool
+    };
+
+    template <> struct bindings<VTypeArray::range_t> {
+        Members(VTypeArray::range_t::msb_, //Expression*
+                VTypeArray::range_t::lsb_, //Expression*
+                VTypeArray::range_t::direction_); //bool
+    };
+
+    template <> struct bindings<VTypeArray> {
+        Members(VTypePrimitive::etype_, //const VType *
+                VTypePrimitive::ranges_, //vector<range_t>
+                VTypePrimitive::signed_flag_, //bool
+                VTypePrimitive::parent_); //const VTypeArray *
+    };
+
+    template <> struct bindings<VTypeRange> {
+        Members(VTypeRange::base_); //const VType *
+    };
+
+    template <> struct bindings<VTypeRangeConst> {
+        Members(VTypeRangeConst::start_, //const int64_t
+                VTypeRangeConst::end_); //const int64_t
+    };
+
+    template <> struct bindings<VTypeRangeExpr> {
+        Members(VTypeRangeExpr::start_, //Expression *
+                VTypeRangeExpr::end_, //same
+                VTypeRangeExpr::downto_); //bool
+    };
+
+    template <> struct bindings<VTypeEnum> {
+        Members(VTypeEnum::names_); //vector<perm_string>
+    };
+};
+
 // tag: [SEQUENTIAL STATEMENT]
 // template specializations for the Sequential class tree
 namespace mch {

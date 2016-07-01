@@ -40,6 +40,8 @@ class ExpRange;
 class VTypeDef;
 class ScopeBase;
 
+using namespace std;
+
 typedef enum typedef_topo_e {
     NONE = 0,
     PENDING,
@@ -49,7 +51,7 @@ typedef enum typedef_topo_e {
 //TODO: needed?
 //extern void preload_global_types(void);
 
-typedef std::map<const VTypeDef *, typedef_topo_t> typedef_context_t;
+typedef map<const VTypeDef *, typedef_topo_t> typedef_context_t;
 
 /* A description of a VHDL type consists of a graph of VType
  * objects. Derived types are specific kinds of types, and those that
@@ -74,31 +76,31 @@ public:
     // This virtual method writes a VHDL-accurate representation
     // of this type to the designated stream. This is used for
     // writing parsed types to library files.
-    virtual void write_to_stream(std::ostream& fd) const;
+    virtual void write_to_stream(ostream& fd) const;
 
     // This is like the above, but is the root function called
     // directly after the "type <name> is..." when writing type
     // definitions. Most types accept the default definition of this.
-    virtual void write_type_to_stream(std::ostream& fd) const;
+    virtual void write_type_to_stream(ostream& fd) const;
 
     // Emits a type definition. This is used to distinguish types and
     // subtypes.
-    virtual void write_typedef_to_stream(std::ostream& fd, perm_string name) const;
+    virtual void write_typedef_to_stream(ostream& fd, perm_string name) const;
 
     // This virtual method writes a human-readable version of the
     // type to a given file for debug purposes. (Question: is this
     // really necessary given the write_to_stream method?)
-    virtual void show(std::ostream&) const;
+    virtual void show(ostream&) const;
 
     // This virtual method emits a definition for the specific
     // type. It is used to emit typedef's.
-    virtual int emit_def(std::ostream& out, perm_string name) const = 0;
+    virtual int emit_def(ostream& out, perm_string name) const = 0;
 
     // This virtual method causes VTypeDef types to emit typedefs
     // of themselves. The VTypeDef implementation of this method
     // uses this method recursively to do a depth-first emit of
     // all the types that it emits.
-    virtual int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
+    virtual int emit_typedef(ostream& out, typedef_context_t& ctx) const;
 
     // FM. MA
     virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
@@ -131,7 +133,7 @@ public:
 
     // This virtual method is called to emit the declaration. This
     // is used by the decl_t object to emit variable/wire/port declarations.
-    virtual int emit_decl(std::ostream& out, perm_string name, bool reg_flag) const;
+    virtual int emit_decl(ostream& out, perm_string name, bool reg_flag) const;
 
 
 public:
@@ -141,7 +143,7 @@ public:
     struct decl_t {
         decl_t() : type(0), reg_flag(false) {}
 
-        int         emit(std::ostream& out, perm_string name) const;
+        int         emit(ostream& out, perm_string name) const;
 
         // FM. MA
         decl_t *clone() const {
@@ -156,14 +158,14 @@ public:
     };
 
 protected:
-    inline void emit_name(std::ostream& out, perm_string name) const {
+    inline void emit_name(ostream& out, perm_string name) const {
         if (name != empty_perm_string) {
             out << " \\" << name << " ";
         }
     }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const VType& item) {
+inline ostream& operator<<(ostream& out, const VType& item) {
     item.show(out);
     return out;
 }
@@ -181,7 +183,7 @@ class VTypeERROR : public VType {
     };
 
 public:
-    int emit_def(std::ostream& out, perm_string name) const;
+    int emit_def(ostream& out, perm_string name) const;
 };
 
 // DOT OK
@@ -203,16 +205,16 @@ public:
     }
 
     bool type_match(const VType *that) const;
-    void write_to_stream(std::ostream& fd) const;
-    void show(std::ostream&) const;
+    void write_to_stream(ostream& fd) const;
+    void show(ostream&) const;
     int get_width(ScopeBase *scope) const;
 
     type_t type() const {
         return type_;
     }
 
-    int emit_primitive_type(std::ostream& fd) const;
-    int emit_def(std::ostream& out, perm_string name) const;
+    int emit_primitive_type(ostream& fd) const;
+    int emit_def(ostream& out, perm_string name) const;
 
     bool can_be_packed() const {
         return packed_;
@@ -270,10 +272,10 @@ public:
 
 public:
     VTypeArray(const VType *etype,
-               const std::vector<range_t>& r,
+               const vector<range_t>& r,
                bool signed_vector = false);
     VTypeArray(const VType *etype,
-               std::list<ExpRange *> *r,
+               list<ExpRange *> *r,
                bool signed_vector = false);
     VTypeArray(const VType *etype,
                int msb,
@@ -285,9 +287,9 @@ public:
 
     int elaborate(Entity *ent, ScopeBase *scope) const;
     bool type_match(const VType *that) const;
-    void write_to_stream(std::ostream& fd) const;
-    void write_type_to_stream(std::ostream& fd) const;
-    void show(std::ostream&) const;
+    void write_to_stream(ostream& fd) const;
+    void write_type_to_stream(ostream& fd) const;
+    void show(ostream&) const;
     int get_width(ScopeBase *scope) const;
 
     inline size_t dimensions() const {
@@ -313,8 +315,8 @@ public:
     // it be unfolded
     const VType *basic_type(bool typedef_allowed = true) const;
 
-    int emit_def(std::ostream& out, perm_string name) const;
-    int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
+    int emit_def(ostream& out, perm_string name) const;
+    int emit_typedef(ostream& out, typedef_context_t& ctx) const;
 
     bool can_be_packed() const {
         return etype_->can_be_packed();
@@ -337,14 +339,14 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    int emit_with_dims_(std::ostream& out, bool packed, perm_string name) const;
+    int emit_with_dims_(ostream& out, bool packed, perm_string name) const;
 
     // Handles a few special types of array (*_vector, string types).
-    bool write_special_case(std::ostream& out) const;
-    void write_range_to_stream_(std::ostream& fd) const;
+    bool write_special_case(ostream& out) const;
+    void write_range_to_stream_(ostream& fd) const;
 
     const VType          *etype_;
-    std::vector<range_t> ranges_;
+    vector<range_t> ranges_;
     bool                 signed_flag_;
     const VTypeArray     *parent_;
 };
@@ -355,8 +357,8 @@ public:
     VTypeRange(const VType *base);
     virtual ~VTypeRange() = 0;
 
-    bool write_std_types(std::ostream& fd) const;
-    int emit_def(std::ostream& out, perm_string name) const;
+    bool write_std_types(ostream& fd) const;
+    int emit_def(ostream& out, perm_string name) const;
     bool type_match(const VType *that) const;
 
     // Get the type that is limited by the range.
@@ -387,7 +389,7 @@ public:
         return end_;
     }
 
-    void write_to_stream(std::ostream& fd) const;
+    void write_to_stream(ostream& fd) const;
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -404,7 +406,7 @@ public:
     VType *clone() const;
     int elaborate(Entity *end, ScopeBase *scope) const;
 
-    void write_to_stream(std::ostream& fd) const;
+    void write_to_stream(ostream& fd) const;
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -420,7 +422,7 @@ public:
 // DOT OK
 class VTypeEnum : public VType {
 public:
-    explicit VTypeEnum(const std::list<perm_string> *names);
+    explicit VTypeEnum(const list<perm_string> *names);
 
     ~VTypeEnum();
 
@@ -428,15 +430,15 @@ public:
         return new VTypeEnum(*this);
     }
 
-    void write_to_stream(std::ostream& fd) const;
-    void show(std::ostream&) const;
+    void write_to_stream(ostream& fd) const;
+    void show(ostream&) const;
 
     int get_width(ScopeBase *) const {
         return 32;
     }
 
-    int emit_def(std::ostream& out, perm_string name) const;
-    int emit_decl(std::ostream& out, perm_string name, bool reg_flag) const;
+    int emit_def(ostream& out, perm_string name) const;
+    int emit_decl(ostream& out, perm_string name, bool reg_flag) const;
 
     // Checks if the name is stored in the enum.
     bool has_name(perm_string name) const;
@@ -445,7 +447,7 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    std::vector<perm_string> names_;
+    vector<perm_string> names_;
 };
 
 // DOT OK
@@ -455,7 +457,7 @@ public:
     public:
         element_t(perm_string name, const VType *type);
 
-        void write_to_stream(std::ostream&) const;
+        void write_to_stream(ostream&) const;
 
         inline perm_string peek_name() const {
             return name_;
@@ -478,7 +480,7 @@ public:
     };
 
 public:
-    explicit VTypeRecord(std::list<element_t *> *elements);
+    explicit VTypeRecord(list<element_t *> *elements);
 
     ~VTypeRecord();
 
@@ -486,10 +488,10 @@ public:
         return new VTypeRecord(*this);
     }
 
-    void write_to_stream(std::ostream& fd) const;
-    void show(std::ostream&) const;
+    void write_to_stream(ostream& fd) const;
+    void show(ostream&) const;
     int get_width(ScopeBase *scope) const;
-    int emit_def(std::ostream& out, perm_string name) const;
+    int emit_def(ostream& out, perm_string name) const;
 
     bool can_be_packed() const {
         return true;
@@ -497,7 +499,7 @@ public:
 
     const element_t *element_by_name(perm_string name, int *index = NULL) const;
 
-    inline const std::vector<element_t *> get_elements() const {
+    inline const vector<element_t *> get_elements() const {
         return elements_;
     }
 
@@ -505,7 +507,7 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    std::vector<element_t *> elements_;
+    vector<element_t *> elements_;
 };
 
 
@@ -536,17 +538,17 @@ public:
         return type_;
     }
 
-    virtual void write_to_stream(std::ostream& fd) const;
-    void write_type_to_stream(std::ostream& fd) const;
+    virtual void write_to_stream(ostream& fd) const;
+    void write_type_to_stream(ostream& fd) const;
 
     int get_width(ScopeBase *scope) const {
         return type_->get_width(scope);
     }
 
-    int emit_typedef(std::ostream& out, typedef_context_t& ctx) const;
+    int emit_typedef(ostream& out, typedef_context_t& ctx) const;
 
-    int emit_def(std::ostream& out, perm_string name) const;
-    int emit_decl(std::ostream& out, perm_string name, bool reg_flag) const;
+    int emit_def(ostream& out, perm_string name) const;
+    int emit_decl(ostream& out, perm_string name, bool reg_flag) const;
 
     bool can_be_packed() const {
         return type_->can_be_packed();
@@ -572,7 +574,7 @@ public:
     explicit VSubTypeDef(perm_string name, const VType *is)
         : VTypeDef(name, is) {}
 
-    void write_typedef_to_stream(std::ostream& fd, perm_string name) const;
+    void write_typedef_to_stream(ostream& fd, perm_string name) const;
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
