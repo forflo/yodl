@@ -33,6 +33,8 @@ class Entity;
 class Expression;
 class SequentialStmt;
 
+using namespace std;
+
 struct SeqStmtVisitor {
     virtual ~SeqStmtVisitor() {}
 
@@ -49,7 +51,7 @@ public:
     virtual int elaborate(Entity *ent, ScopeBase *scope);
     virtual int emit(ostream& out, Entity *entity, ScopeBase *scope);
     virtual void dump(ostream& out, int indent) const;
-    virtual void write_to_stream(std::ostream& fd);
+    virtual void write_to_stream(ostream& fd);
 
     // FM. MA
     virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const = 0;
@@ -78,12 +80,12 @@ public:
 
 public:
     int elaborate_substatements(Entity *ent, ScopeBase *scope);
-    int emit_substatements(std::ostream& out, Entity *ent, ScopeBase *scope);
+    int emit_substatements(ostream& out, Entity *ent, ScopeBase *scope);
     void write_to_stream_substatements(ostream& fd);
 
 public:
     perm_string                 name_;
-    std::list<SequentialStmt *> stmts_;
+    list<SequentialStmt *> stmts_;
 };
 
 // --OK DOT
@@ -92,7 +94,7 @@ public:
     // --OK DOT
     class Elsif : public LineInfo {
     public:
-        Elsif(Expression *cond, std::list<SequentialStmt *> *tr);
+        Elsif(Expression *cond, list<SequentialStmt *> *tr);
         ~Elsif();
 
         int elaborate(Entity *entity, ScopeBase *scope);
@@ -110,7 +112,7 @@ public:
         Elsif *clone() const;
     public:
         Expression *cond_;
-        std::list<SequentialStmt *> if_;
+        list<SequentialStmt *> if_;
     public:           // not implemented
         Elsif(const Elsif&);
         Elsif& operator =(const Elsif&);
@@ -118,15 +120,15 @@ public:
 
 public:
     IfSequential(Expression *cond,
-        std::list<SequentialStmt *> *tr,
-        std::list<IfSequential::Elsif *> *elsif,
-        std::list<SequentialStmt *> *fa);
+        list<SequentialStmt *> *tr,
+        list<IfSequential::Elsif *> *elsif,
+        list<SequentialStmt *> *fa);
     ~IfSequential();
 
 public:
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void dump(ostream& out, int indent) const;
     void visit(SeqStmtVisitor& func);
 
@@ -140,8 +142,8 @@ public:
 
     /* These method extract (and remove) the sub-statements from
      * the true or false clause. */
-    void extract_true(std::list<SequentialStmt *>& that);
-    void extract_false(std::list<SequentialStmt *>& that);
+    void extract_true(list<SequentialStmt *>& that);
+    void extract_false(list<SequentialStmt *>& that);
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -170,9 +172,9 @@ public:
 
 public:
     Expression *cond_;
-    std::list<SequentialStmt *>      if_;
-    std::list<IfSequential::Elsif *> elsif_;
-    std::list<SequentialStmt *>      else_;
+    list<SequentialStmt *>      if_;
+    list<IfSequential::Elsif *> elsif_;
+    list<SequentialStmt *>      else_;
 };
 
 // --OK DOT
@@ -185,7 +187,7 @@ public:
 public:
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void dump(ostream& out, int indent) const;
 
     const Expression *peek_expr() const {
@@ -208,13 +210,13 @@ private:
 /* Grammar hint: signal_assignment ::= name LEQ waveform ';' */
 class SignalSeqAssignment : public SequentialStmt {
 public:
-    SignalSeqAssignment(Expression *sig, std::list<Expression *> *wav);
+    SignalSeqAssignment(Expression *sig, list<Expression *> *wav);
     ~SignalSeqAssignment();
 
 public:
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void dump(ostream& out, int indent) const;
 
     // FM. MA
@@ -232,7 +234,7 @@ public:
 
 public:
     Expression              *lval_;
-    std::list<Expression *> waveform_;
+    list<Expression *> waveform_;
 };
 
 // --OK DOT
@@ -241,16 +243,16 @@ class CaseSeqStmt : public SequentialStmt {
 public:
     class CaseStmtAlternative : public LineInfo {
     public:
-        CaseStmtAlternative(std::list<Expression *> *exp,
-                std::list<SequentialStmt *> *stmts);
+        CaseStmtAlternative(list<Expression *> *exp,
+                list<SequentialStmt *> *stmts);
         ~CaseStmtAlternative();
-        void dump(std::ostream& out, int indent) const;
+        void dump(ostream& out, int indent) const;
         int elaborate_expr(Entity *ent,
                 ScopeBase *scope,
                 const VType *ltype);
         int elaborate(Entity *ent, ScopeBase *scope);
         int emit(ostream& out, Entity *entity, ScopeBase *scope);
-        void write_to_stream(std::ostream& fd);
+        void write_to_stream(ostream& fd);
         void visit(SeqStmtVisitor& func);
 
         // FM. MA
@@ -274,22 +276,22 @@ public:
         };
 
     public:
-        std::list<Expression *>     *exp_;
-        std::list<SequentialStmt *> stmts_;
+        list<Expression *>     *exp_;
+        list<SequentialStmt *> stmts_;
     public:         // not implemented
         CaseStmtAlternative(const CaseStmtAlternative&);
         CaseStmtAlternative& operator =(const CaseStmtAlternative&);
     };
 
 public:
-    CaseSeqStmt(Expression *cond, std::list<CaseStmtAlternative *> *sp);
+    CaseSeqStmt(Expression *cond, list<CaseStmtAlternative *> *sp);
     ~CaseSeqStmt();
 
 public:
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void visit(SeqStmtVisitor& func);
 
     // FM. MA
@@ -306,7 +308,7 @@ public:
 
 public:
     Expression *cond_;
-    std::list<CaseStmtAlternative *> alt_;
+    list<CaseStmtAlternative *> alt_;
 };
 
 // --OK DOT
@@ -317,8 +319,8 @@ class ProcedureCall : public SequentialStmt {
 public:
     explicit ProcedureCall(perm_string name);
 
-    ProcedureCall(perm_string name, std::list<named_expr_t *> *param_list);
-    ProcedureCall(perm_string name, std::list<Expression *> *param_list);
+    ProcedureCall(perm_string name, list<named_expr_t *> *param_list);
+    ProcedureCall(perm_string name, list<Expression *> *param_list);
     ~ProcedureCall();
 
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -344,7 +346,7 @@ public:
 
 public:
     perm_string               name_;
-    std::list<named_expr_t *> *param_list_;
+    list<named_expr_t *> *param_list_;
     SubprogramHeader          *def_;
 };
 
@@ -358,7 +360,7 @@ public:
 public:
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void dump(ostream& out, int indent) const;
 
     // FM. MA
@@ -385,7 +387,7 @@ public:
 
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void dump(ostream& out, int indent) const;
 
     // FM. MA
@@ -422,7 +424,7 @@ public:
 
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void dump(ostream& out, int indent) const;
 
     // FM. MA
@@ -461,7 +463,7 @@ public:
 
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
     void dump(ostream& out, int indent) const;
 
     // FM. MA
@@ -494,7 +496,7 @@ public:
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
 
     inline Expression *message() const {
         return msg_;
@@ -530,7 +532,7 @@ public:
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -558,7 +560,7 @@ public:
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -583,7 +585,7 @@ public:
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
     int emit(ostream& out, Entity *entity, ScopeBase *scope);
-    void write_to_stream(std::ostream& fd);
+    void write_to_stream(ostream& fd);
 
     inline wait_type_t type() const {
         return type_;
@@ -592,7 +594,7 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
     WaitStmt *clone() const {
-        std::set<ExpName *> copy_senslist;
+        set<ExpName *> copy_senslist;
 
         for (auto &i : sens_list_)
             copy_senslist.insert(static_cast<ExpName*>(i->clone()));
@@ -610,7 +612,7 @@ public:
     wait_type_t type_;
     Expression  *expr_;
     // Sensitivity list for 'wait until' statement
-    std::set<ExpName *> sens_list_;
+    set<ExpName *> sens_list_;
 };
 
 #endif /* IVL_sequential_H */

@@ -29,12 +29,13 @@
 using namespace std;
 
 Architecture::Architecture(perm_string name,
-        const ActiveScope& ref,
-        list<Architecture::Statement *>& s)
-        : Scope(ref)
-        , name_(name)
-        , cur_component_(NULL)
-        , cur_process_(NULL) {
+                           const ActiveScope& ref,
+                           list<Architecture::Statement *>& s)
+    : Scope(ref)
+    , name_(name)
+    , cur_component_(NULL)
+    , cur_process_(NULL) {
+
     statements_.splice(statements_.end(), s);
 }
 
@@ -76,7 +77,7 @@ bool Architecture::find_constant(perm_string by_name,
 
     // Check generics in components
     if (cur_component_) {
-        std::map<perm_string, ComponentBase *>::const_iterator c =
+        map<perm_string, ComponentBase *>::const_iterator c =
             new_components_.find(cur_component_->component_name());
 
         if (c == new_components_.end()) {
@@ -125,7 +126,7 @@ void Architecture::pop_genvar_type(void) {
 
 
 const VType *Architecture::probe_genvar_type(perm_string gname) {
-    for (std::list<genvar_type_t>::reverse_iterator cur = genvar_type_stack_.rbegin()
+    for (list<genvar_type_t>::reverse_iterator cur = genvar_type_stack_.rbegin()
          ; cur != genvar_type_stack_.rend(); ++cur) {
         if (cur->name == gname) {
             return cur->vtype;
@@ -151,7 +152,7 @@ void Architecture::pop_genvar_emit(void) {
 
 
 const GenerateStatement *Architecture::probe_genvar_emit(perm_string gname) {
-    for (std::list<genvar_emit_t>::reverse_iterator cur = genvar_emit_stack_.rbegin()
+    for (list<genvar_emit_t>::reverse_iterator cur = genvar_emit_stack_.rbegin()
          ; cur != genvar_emit_stack_.rend(); ++cur) {
         if (cur->name == gname) {
             return cur->gen;
@@ -168,7 +169,7 @@ Architecture::Statement::~Statement() {}
 
 
 GenerateStatement::GenerateStatement(perm_string gname,
-                                     std::list<Architecture::Statement *>& s)
+                                     list<Architecture::Statement *>& s)
     : name_(gname) {
     statements_.splice(statements_.end(), s);
 }
@@ -183,7 +184,7 @@ GenerateStatement::~GenerateStatement() {
 ForGenerate::ForGenerate(perm_string gname,
         perm_string genvar,
         ExpRange *rang,
-        std::list<Architecture::Statement *>& s)
+        list<Architecture::Statement *>& s)
     : GenerateStatement(gname, s)
     , genvar_(genvar)
     , lsb_(rang->lsb())
@@ -194,7 +195,7 @@ ForGenerate::ForGenerate(perm_string gname,
                          perm_string genvar,
                          Expression *lsb,
                          Expression *msb,
-        std::list<Architecture::Statement *>& s)
+        list<Architecture::Statement *>& s)
     : GenerateStatement(gname, s)
     , genvar_(genvar)
     , lsb_(lsb)
@@ -205,7 +206,7 @@ ForGenerate::~ForGenerate() {}
 
 IfGenerate::IfGenerate(perm_string gname,
         Expression *cond,
-        std::list<Architecture::Statement *>& s)
+        list<Architecture::Statement *>& s)
     : GenerateStatement(gname, s)
     , cond_(cond) {}
 
@@ -234,7 +235,7 @@ SignalAssignment::~SignalAssignment() {
 }
 
 CondSignalAssignment::CondSignalAssignment(ExpName *target,
-        std::list<ExpConditional::case_t *>& options)
+        list<ExpConditional::case_t *>& options)
     : lval_(target) {
     options_.splice(options_.end(), options);
 }
@@ -321,12 +322,12 @@ Expression *ComponentInstantiation::find_generic_map(perm_string by_name) const 
 }
 
 // FM. More performance for clone() operation
-StatementList::StatementList(const std::list<SequentialStmt*> &statement_list) {
+StatementList::StatementList(const list<SequentialStmt*> &statement_list) {
     for (auto &i : statement_list)
         statements_.push_back(i->clone());
 }
 
-StatementList::StatementList(std::list<SequentialStmt *> *statement_list) {
+StatementList::StatementList(list<SequentialStmt *> *statement_list) {
     if (statement_list) {
         statements_.splice(statements_.end(), *statement_list);
     }
@@ -334,7 +335,7 @@ StatementList::StatementList(std::list<SequentialStmt *> *statement_list) {
 
 
 StatementList::~StatementList() {
-    for (std::list<SequentialStmt *>::iterator it = statements_.begin();
+    for (list<SequentialStmt *>::iterator it = statements_.begin();
          it != statements_.end(); ++it) {
         delete *it;
     }
@@ -343,8 +344,8 @@ StatementList::~StatementList() {
 
 ProcessStatement::ProcessStatement(perm_string                 iname,
                                    const ActiveScope&          ref,
-                                   std::list<Expression *>     *sensitivity_list,
-                                   std::list<SequentialStmt *> *statements_list)
+                                   list<Expression *>     *sensitivity_list,
+                                   list<SequentialStmt *> *statements_list)
     : StatementList(statements_list), Scope(ref), iname_(iname) {
     if (sensitivity_list) {
         sensitivity_list_.splice(sensitivity_list_.end(), *sensitivity_list);
@@ -353,8 +354,76 @@ ProcessStatement::ProcessStatement(perm_string                 iname,
 
 
 ProcessStatement::~ProcessStatement() {
-    for (std::list<Expression *>::iterator it = sensitivity_list_.begin();
+    for (list<Expression *>::iterator it = sensitivity_list_.begin();
          it != sensitivity_list_.end(); ++it) {
         delete *it;
     }
 }
+
+
+SimpleTree<map<string, string>> *BlockStatement::BlockHeader::emit_strinfo_tree()
+    const {
+    return empty_simple_tree();
+}
+
+BlockStatement::BlockHeader::BlockHeader(list<InterfacePort*> *generic_clause,
+                         list<named_expr_t*> *generic_map_aspect,
+                         list<InterfacePort*> *port_clause,
+                         list<named_expr_t*> *port_map_aspect)
+    : generic_clause_(generic_clause)
+    , generic_map_aspect_(generic_map_aspect)
+    , port_clause_(port_clause)
+    , port_map_aspect_(port_map_aspect)
+{ }
+
+BlockStatement::BlockHeader *BlockStatement::BlockHeader::clone() const {
+    return NULL;
+    //TODO: implement
+}
+
+int BlockStatement::elaborate(void) {
+    return 0; // TODO: Implement
+}
+
+BlockStatement *BlockStatement::clone() const {
+    // TODO: Implement
+    return NULL;
+}
+
+BlockStatement::BlockStatement(BlockStatement::BlockHeader *header,
+                               perm_string label,
+                               const ActiveScope &scope,
+                               list<Architecture::Statement*>
+                               *concurrent_stmts)
+    : Scope(scope)
+    , label_(label)
+    , header_(header)
+    , concurrent_stmts_(concurrent_stmts) { }
+
+SimpleTree<map<string, string>> *BlockStatement::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        map<string, string>{
+            {"node-type", "BlockStatement"},
+            {"label", label_.str()}});
+
+    if (header_)
+        result->forest.push_back(header_->emit_strinfo_tree());
+
+    if (concurrent_stmts_)
+        for (auto &i : *concurrent_stmts_)
+            result->forest.push_back(i->emit_strinfo_tree());
+
+    // from base scope
+    for (auto &i : new_signals_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : new_variables_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : new_components_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : cur_types_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+    for (auto &i : cur_constants_)
+        result->forest.push_back(i.second->emit_strinfo_tree());
+
+    return result;
+};

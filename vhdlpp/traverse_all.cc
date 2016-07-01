@@ -65,20 +65,34 @@ namespace mch {
     };
 
     template <> struct bindings<ScopeBase> {
-        Members(ScopeBase::)
+        Members(ScopeBase::old_signals_, //map<perm_string, Signal*>
+                ScopeBase::new_signals_, //same
+                ScopeBase::old_variables_, //map<perm_string, Variable*>
+                ScopeBase::new_variables_, //same
+                ScopeBase::new_components_, //map<perm_string, ComponentBase*>
+                ScopeBase::new_components_, //same
+                ScopeBase::use_types_, //map<perm_string, const VType*>
+                ScopeBase::cur_types_, //same
+                ScopeBase::use_constants_, //map<perm_string, struct const_t*>
+                ScopeBase::cur_constants_, //same
+                ScopeBase::use_subprograms_, //map<perm_string, SubHeaderList>
+                ScopeBase::cur_subprograms_, //same
+                ScopeBase::scopes_, //map<perm_string, ScopeBase*>
+                ScopeBase::use_enums_, //list<const VTypeEnum*>
+                ScopeBase::finalizers_, //list<SequentialStmt*>
+                ScopeBase::initializers_, //same
+                ScopeBase::package_header) //Package *
     };
 }
 
 // tag: [CONCURRENT STATEMENT]
 // template specializations for the Architecture::Statemet class tree
 namespace mch {
-    template <> struct bindings<Architecture::Statement> {
-
-    };
+    //template <> struct bindings<Architecture::Statement> {};
 
     template <> struct bindings<GenerateStatement> {
-        Members(GenerateStatement::name_,
-                GenerateStatement::statements_);
+        Members(GenerateStatement::name_, //perm_string
+                GenerateStatement::statements_); //Statement*
     };
 
     template <> struct bindings<ForGenerate> {
@@ -96,10 +110,36 @@ namespace mch {
                 SignalAssignment::rval_);
     };
 
+    template <> struct bindings<CondSignalAssignment> {
+        Members(CondSignalAssignment::lval_, //ExpName*
+                CondSignalAssignment::options_, //list<ExpConditional::case_t*>
+                CondSignalAssignment::sens_list_); //list<const ExpName*>
+    };
+
+    template <> struct bindings<ComponentInstantiation> {
+        Members(ComponentInstantiation::iname_, //perm_string
+                ComponentInstantiation::cname_, //same
+                ComponentInstantiation::generic_map_, //map<perm_string, Expression*
+                ComponentInstantiation::port_map_); //same
+    };
+
+    template <> struct bindings<StatementList> {
+        Members(StatementList::statements_); //list<SequentialStmt*>
+    };
+
+    template <> struct bindings<FinalStatement> {};
+
+    template <> struct bindings<InitialStatement> {};
+
+    template <> struct bindings<ProcessStatement> {
+        Members(ProcessStatement::iname_, //perm_string
+                ProcessStatement::sensitivity_list_); //list<Expression*>
+    };
+
     template <> struct bindings<BlockStatement> {
-        Members(BlockStatement::label_,
-                BlockStatement::header_,
-                BlockStatement::concurrent_stmts_);
+        Members(BlockStatement::label_, // perm_string
+                BlockStatement::header_, // BlockHeader *
+                BlockStatement::concurrent_stmts_); // list<Statement*>
     };
 };
 
@@ -263,7 +303,77 @@ namespace mch {
 // tag: [SEQUENTIAL STATEMENT]
 // template specializations for the Sequential class tree
 namespace mch {
-    //template <> struct bindings<> {};
+    template <> struct bindings<SequentialStmt> {};
+
+    template <> struct bindings<LoopStatement> {
+        Members(LoopStatement::name_, //perm_string
+                LoopStatement::stmts_); //list<SequentialStmt*>
+    };
+
+    template <> struct bindings<WhileLoopStatement> {
+        Members(LoopStatement::cond_); //Expression *
+    };
+
+    template <> struct bindings<ForLoopStatement> {
+        Members(LoopStatement::it_, //perm_string
+                LoopStatement::range); //ExpRange *
+    };
+
+    template <> struct bindings<BasicLoopStatement> {};
+
+    template <> struct bindings<IfSequential> {
+        Members(IfSequential::cond_, //Expression*
+                IfSequential::if_, //list<SequentialStmt*>
+                IfSequential::elsif_, //list<IfSequential::Elsif *>
+                IfSequential::else_); // list<SequentialStmt*>
+    };
+
+    template <> struct bindings<ReturnStmt> {
+        Members(ReturnStmt::val_); //Expression *
+    };
+
+    template <> struct bindings<ReportStmt> {
+        Members(ReturnStmt::msg_, //Expression *
+                ReturnStmt::severity_); //severity_t (an enum from class Report Stmt)
+    };
+
+    template <> struct bindings<AssertStmt> {
+        Members(AssertStmt::cond_, //Expression *
+                AssertStmt::default_msg_); //const char *
+    };
+
+    template <> struct bindings<WaitStmt> {
+        Members(AssertStmt::type_, //typedef enum {...} wait_type_t
+                AssertStmt::expr_, //Expression*
+                AssertStmt::sens_list_); //set<ExpName*>
+    };
+
+    template <> struct bindings<SequentialStmt> {
+        Members(SignalSeqAssignment::lval_, //Expression *
+                SignalSeqAssignment::waveform_); //list<Expression *>
+    };
+
+    template <> struct bindings<CaseSeqStmt::CaseStmtAlternative> {
+        Members(CaseSeqStmt::CaseStmtAlternative::exp_, //list<Expression*>
+                CaseSeqStmt::CaseStmtAlternative::stmts_); //list<sequentialStmt*>
+    };
+
+    template <> struct bindings<CaseSeqStmt> {
+        Members(CaseSeqStmt::cond_, //Expression*
+                CaseSeqStmt::alt_); //list<CaseStmtAlternative
+    };
+
+
+    template <> struct bindings<ProcedureCall> {
+        Members(ProceduraCall::name_, //perm_string
+                ProceduraCall::alt_, //list<named_expr_t*> *
+                ProcedureCall::def); //SubprogramHeader *
+    };
+
+    template <> struct bindings<VariableSeqAssignment> {
+        Members(VariableSeqAssignment::lval_, //Expression*
+                VariableSeqAssignment::rval_); //same
+    };
 };
 
 using namespace mch;
@@ -340,3 +450,5 @@ void traverse(const Architecture::Statement &s){
         }
     } EndMatch
 }
+
+void traverse()
