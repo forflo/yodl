@@ -52,7 +52,7 @@
 namespace mch {
     template <> struct bindings<Architecture> {
         Members(Architecture::statements_, // list<Architecture::Statement*>
-                Architecture::cur_component, // ComponentInstanciation *
+                Architecture::cur_component_, // ComponentInstanciation *
                 Architecture::cur_process_, // ProcessStatement *
                 Architecture::name_);
     };
