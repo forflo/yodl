@@ -43,7 +43,7 @@
 # define mkdir(path, mode)    mkdir(path)
 #endif
 
-void traverse(AstRoot *root);
+void traverse(AstNode *root);
 void traverse(Architecture::Statement *s);
 void traverse(Architecture *arch);
 void traverse(Entity *top);

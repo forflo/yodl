@@ -48,7 +48,7 @@ using namespace std;
 /* The Architecture class carries the contents (name, statements,
  * etc.) of a parsed VHDL architecture. These objects are ultimately
  * put into entities. */
-class Architecture : public Scope, public LineInfo, public AstRoot {
+class Architecture : public Scope, public LineInfo, public AstNode {
 public:
     // --OK DOT (FM.)
     /* Architectures contain concurrent statements, that are

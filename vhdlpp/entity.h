@@ -49,7 +49,7 @@ extern int emit_entities(void);
 extern void dump_design_entities(ostream& file);
 
 // DOT OK
-class InterfacePort : public LineInfo, public AstRoot {
+class InterfacePort : public LineInfo, public AstNode {
 public:
     InterfacePort(port_mode_t mod = PORT_NONE,
             perm_string nam = empty_perm_string,
@@ -88,7 +88,7 @@ public:
  * declaration. When used as is, then this represents a forward
  * declaration of an entity. Elaboration will match it to a proper
  * entity. Or this can be the base class for a full-out Entity. */
-class ComponentBase : public LineInfo, public AstRoot {
+class ComponentBase : public LineInfo, public AstNode {
 public:
     explicit ComponentBase(perm_string name);
 

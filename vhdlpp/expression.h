@@ -75,7 +75,7 @@ public:
 /* The Expression class represents parsed expressions from the parsed
  * VHDL input. The Expression class is a virtual class that holds more
  * specific derived expression types. */
-class Expression : public LineInfo, public AstRoot {
+class Expression : public LineInfo, public AstNode {
 public:
     Expression();
     virtual ~Expression() = 0;
@@ -735,7 +735,8 @@ public:
 class ExpEdge : public ExpUnary {
 public:
     enum fun_t {
-        NEGEDGE, ANYEDGE,
+        NEGEDGE,
+        ANYEDGE,
         POSEDGE
     };
 

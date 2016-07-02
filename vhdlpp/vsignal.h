@@ -34,7 +34,7 @@ class Expression;
 
 using namespace std;
 
-class SigVarBase : public LineInfo, public AstRoot {
+class SigVarBase : public LineInfo, public AstNode {
 public:
     SigVarBase(perm_string name,
                const VType *type,

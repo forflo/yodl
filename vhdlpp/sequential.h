@@ -43,7 +43,7 @@ struct SeqStmtVisitor {
 };
 
 // --OK DOT
-class SequentialStmt : public LineInfo, public AstRoot {
+class SequentialStmt : public LineInfo, public AstNode {
 public:
     SequentialStmt();
     virtual ~SequentialStmt() = 0;

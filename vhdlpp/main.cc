@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
                   ent->arch_[perm_string::literal("beh")]
                   ->emit_strinfo_tree());
 
-    AstRoot *root = ent;
+    AstNode *root = ent;
     cout << endl << "Traverse outputs: \n";
     traverse(root);
     cout << endl;

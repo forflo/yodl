@@ -8,12 +8,12 @@
 #ifndef IVL_ROOT_CLASS
 #define IVL_ROOT_CLASS
 
-class AstRoot {
+class AstNode {
     // needed to make complete class tree
     // polymorphic (refer to:
     // https://github.com/solodon4/Mach7/issues/62)
 public:
-    virtual ~AstRoot() {};
+    virtual ~AstNode() {};
 };
 
 #endif //IVL_ROOT_CLASS
