@@ -204,9 +204,10 @@ int main(int argc, char *argv[]) {
                   ent->arch_[perm_string::literal("beh")]
                   ->emit_strinfo_tree());
 
-//    cout << endl << "Traverse outputs: \n";
-//    traverse(*ent);
-//    cout << endl;
+    AstRoot *root = ent;
+    cout << endl << "Traverse outputs: \n";
+    traverse(root);
+    cout << endl;
 
     /* End Playground */
 

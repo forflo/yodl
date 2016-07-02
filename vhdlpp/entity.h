@@ -88,7 +88,7 @@ public:
  * declaration. When used as is, then this represents a forward
  * declaration of an entity. Elaboration will match it to a proper
  * entity. Or this can be the base class for a full-out Entity. */
-class ComponentBase : public LineInfo, AstRoot {
+class ComponentBase : public LineInfo, public AstRoot {
 public:
     explicit ComponentBase(perm_string name);
 

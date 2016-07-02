@@ -30,6 +30,7 @@
 #include "std_types.h"
 #include "architec.h"
 #include "parse_api.h"
+#include "root_class.h"
 #include "vtype.h"
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -42,6 +43,7 @@
 # define mkdir(path, mode)    mkdir(path)
 #endif
 
-void traverse(const Architecture::Statement &s);
-void traverse(const Architecture &arch);
-void traverse(const Entity &top);
+void traverse(AstRoot *root);
+void traverse(Architecture::Statement *s);
+void traverse(Architecture *arch);
+void traverse(Entity *top);
