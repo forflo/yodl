@@ -42,6 +42,8 @@ class SubprogramHeader;
 class VType;
 class SequentialStmt;
 
+using namespace std;
+
 typedef list<SubprogramHeader *> SubHeaderList;
 
 template<typename T>
@@ -154,17 +156,17 @@ public:
     ParserContext *context_;
 
     // Signal declarations...
-    std::map<perm_string, Signal *> old_signals_;              //previous scopes
-    std::map<perm_string, Signal *> new_signals_;              //current scope
+    map<perm_string, Signal *> old_signals_;              //previous scopes
+    map<perm_string, Signal *> new_signals_;              //current scope
     // Variable declarations...
-    std::map<perm_string, Variable *> old_variables_;          //previous scopes
-    std::map<perm_string, Variable *> new_variables_;          //current scope
+    map<perm_string, Variable *> old_variables_;          //previous scopes
+    map<perm_string, Variable *> new_variables_;          //current scope
     // Component declarations...
-    std::map<perm_string, ComponentBase *> old_components_;    //previous scopes
-    std::map<perm_string, ComponentBase *> new_components_;    //current scope
+    map<perm_string, ComponentBase *> old_components_;    //previous scopes
+    map<perm_string, ComponentBase *> new_components_;    //current scope
     // Type declarations...
-    std::map<perm_string, const VType *> use_types_;           //imported types
-    std::map<perm_string, const VType *> cur_types_;           //current types
+    map<perm_string, const VType *> use_types_;           //imported types
+    map<perm_string, const VType *> cur_types_;           //current types
     // Constant declarations...
     struct const_t {
         const_t(const VType *t, Expression *v)
@@ -190,22 +192,22 @@ public:
         Expression  *val;
     };
 
-    std::map<perm_string, struct const_t *> use_constants_;    //imported constants
-    std::map<perm_string, struct const_t *> cur_constants_;    //current constants
+    map<perm_string, struct const_t *> use_constants_;    //imported constants
+    map<perm_string, struct const_t *> cur_constants_;    //current constants
 
-    std::map<perm_string, SubHeaderList> use_subprograms_;     //imported
-    std::map<perm_string, SubHeaderList> cur_subprograms_;     //current
+    map<perm_string, SubHeaderList> use_subprograms_;     //imported
+    map<perm_string, SubHeaderList> cur_subprograms_;     //current
 
     // for what? Maybe list of scopes less nested than this one
-    std::map<perm_string, ScopeBase *> scopes_;
+    map<perm_string, ScopeBase *> scopes_;
 
-    std::list<const VTypeEnum *> use_enums_;
+    list<const VTypeEnum *> use_enums_;
 
     // List of statements that should be emitted in a 'initial' block
-    std::list<SequentialStmt *> initializers_;
+    list<SequentialStmt *> initializers_;
 
     // List of statements that should be emitted in a 'final' block
-    std::list<SequentialStmt *> finalizers_;
+    list<SequentialStmt *> finalizers_;
 
     void do_use_from(const ScopeBase *that);
 
@@ -339,7 +341,7 @@ public:
 
     // Keep track of incomplete types until their proper
     // definition shows up.
-    std::map<perm_string, VTypeDef *> incomplete_types;
+    map<perm_string, VTypeDef *> incomplete_types;
 
 private:
     Entity *context_entity_;
