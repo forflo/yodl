@@ -1,7 +1,7 @@
 *.o
 *.so
 vhdlpp/vhdlpp
-vhdlpp/vhdlpp_test
+vhdlpp/vhdlpp_tests
 parse.cc
 lexor.cc
 lexor_keyword.cc

@@ -251,23 +251,74 @@ void traverse(Expression *e){
                 Otherwise() {/*error*/}
             } EndMatch
         }
-        Case(C<ExpAggregate>()){}
-        Case(C<ExpAttribute>()){}
-        Case(C<ExpBitstring>()){}
-        Case(C<ExpCharacter>()){}
-        Case(C<ExpConcat>()){}
-        Case(C<ExpConditional>()){}
-        Case(C<ExpFunc>()){}
-        Case(C<ExpInteger>()){}
-        Case(C<ExpReal>()){}
-        Case(C<ExpName>()){}
-        Case(C<ExpScopedName>()){}
-        Case(C<ExpString>()){}
-        Case(C<ExpCast>()){}
-        Case(C<ExpNew>()){}
-        Case(C<ExpTime>()){}
-        Case(C<ExpRange>()){}
-        Case(C<ExpDelay>()){}
+        Case(C<ExpAggregate>()){
+            //TODO: implement
+            cout << "ExpAggregate" << endl;
+        }
+        Case(C<ExpAttribute>()){
+            //TODO: implement
+            cout << "ExpAttribute" << endl;
+        }
+        Case(C<ExpBitstring>()){
+            //TODO: implement
+            cout << "ExpBitstring" << endl;
+        }
+        Case(C<ExpCharacter>()){
+            //TODO: implement
+            cout << "ExpCharacter" << endl;
+        }
+        Case(C<ExpConcat>()){
+            //TODO: implement
+            cout << "ExpConcat" << endl;
+        }
+        Case(C<ExpConditional>()){
+            //TODO: implement
+            cout << "ExpConditional" << endl;
+        }
+        Case(C<ExpFunc>()){
+            //TODO: implement
+            cout << "ExpFunc" << endl;
+        }
+        Case(C<ExpInteger>()){
+            //TODO: implement
+            cout << "ExpInteger" << endl;
+        }
+        Case(C<ExpReal>()){
+            //TODO: implement
+            cout << "ExpReal" << endl;
+        }
+        Case(C<ExpName>()){
+            //TODO: implement
+            cout << "ExpName" << endl;
+        }
+        Case(C<ExpScopedName>()){
+            //TODO: implement
+            cout << "ExpScopedName" << endl;
+        }
+        Case(C<ExpString>()){
+            //TODO: implement
+            cout << "ExpString" << endl;
+        }
+        Case(C<ExpCast>()){
+            //TODO: implement
+            cout << "ExpCast" << endl;
+        }
+        Case(C<ExpNew>()){
+            //TODO: implement
+            cout << "ExpNew" << endl;
+        }
+        Case(C<ExpTime>()){
+            //TODO: implement
+            cout << "ExpTime" << endl;
+        }
+        Case(C<ExpRange>()){
+            //TODO: implement
+            cout << "ExpRange" << endl;
+        }
+        Case(C<ExpDelay>()){
+            //TODO: implement
+            cout << "ExpDelay" << endl;
+        }
 
         Otherwise(){
             //TODO: error message
