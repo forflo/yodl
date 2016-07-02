@@ -65,7 +65,18 @@ void traverse(AstNode *root){
             traverse(static_cast<Architecture*>(root));
             return;
         }
-        Otherwise() { return; }
+        Case(C<VType>()){
+            traverse(static_cast<VType*>(root));
+            return;
+        }
+        Case(C<VType>(SequentialStmt)){
+            traverse(static_cast<SequentialStmt*>(root));
+            return;
+        }
+        Otherwise() {
+            //TODO: Error Message!
+            return;
+        }
     } EndMatch
 }
 
