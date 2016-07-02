@@ -267,12 +267,13 @@ namespace mch {
 
     template <> struct bindings<ExpFunc> {
         Members(ExpFunc::name_,
-                ExpFunc::argv_,
-                ExpFunc::def_);
+                ExpFunc::def_,
+                ExpFunc::argv_);
     };
 
     template <> struct bindings<ExpName> {
-        Members(ExpName::prefix_,
+        //TODO: add prefix
+        Members(//ExpName::prefix_,
                 ExpName::name_,
                 ExpName::indices_);
     };

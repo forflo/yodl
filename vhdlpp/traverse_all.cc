@@ -251,71 +251,149 @@ void traverse(Expression *e){
                 Otherwise() {/*error*/}
             } EndMatch
         }
-        Case(C<ExpAggregate>()){
+
+        var<vector<element_t*>> elements;
+        var<vector<choice_element>> aggregate;
+        Case(C<ExpAggregate>(elements, aggregate)){
             //TODO: implement
             cout << "ExpAggregate" << endl;
         }
-        Case(C<ExpAttribute>()){
+
+        var<perm_string> attribName;
+        var<list<Expression *> *> arribArgs;
+        Case(C<ExpAttribute>(attribName, attribArgs)){
+            var<ExpName *> attribBase;
+            var<const VType *> attribTypeBase;
+            Match(e){
+                Case(C<ExpObjAttribute>(attribBase)){
+                    //TODO: Implement
+                }
+                Case(C<ExpTypeAttribute>(attribTypeBase)){
+                    //TODO: Implement
+                }
+                Otherwise(){
+                    //TODO: No error. Just base class
+                }
+            } EndMatch
             //TODO: implement
             cout << "ExpAttribute" << endl;
         }
-        Case(C<ExpBitstring>()){
+
+        var<vector<char>> bitString;
+        Case(C<ExpBitstring>(bitString)){
             //TODO: implement
             cout << "ExpBitstring" << endl;
         }
-        Case(C<ExpCharacter>()){
+
+        var<char> charValue;
+        Case(C<ExpCharacter>(charValue)){
             //TODO: implement
             cout << "ExpCharacter" << endl;
         }
-        Case(C<ExpConcat>()){
+
+        var<Expression*> concLeft, concRight;
+        Case(C<ExpConcat>(concLeft, concRight)){
             //TODO: implement
             cout << "ExpConcat" << endl;
         }
-        Case(C<ExpConditional>()){
+
+        var<list<case_t*>> condOptions;
+        var<Expressoin*> selector;
+        Case(C<ExpConditional>(condOptions)){
+            Match(e){
+                Case(C<ExpSelected>(selector)){
+                    //TODO: implement
+                }
+                Otherwise(){
+                    //TODO: Just base class
+                }
+            } EndMatch
             //TODO: implement
             cout << "ExpConditional" << endl;
         }
-        Case(C<ExpFunc>()){
+
+        var<perm_string> funcName;
+        var<SubprogramHeader *> definition;
+        var<vector<Expression*>> argVector;
+        Case(C<ExpFunc>(funcName, definition, argVector)){
             //TODO: implement
             cout << "ExpFunc" << endl;
         }
-        Case(C<ExpInteger>()){
+
+        var<int64_t> intValue;
+        Case(C<ExpInteger>(intValue)){
             //TODO: implement
             cout << "ExpInteger" << endl;
         }
-        Case(C<ExpReal>()){
+
+        var<double> dblValue;
+        Case(C<ExpReal>(dblValue)){
             //TODO: implement
             cout << "ExpReal" << endl;
         }
-        Case(C<ExpName>()){
+
+        var<perm_string> nameName;
+        var<list<Expression*>*> indices;
+        Case(C<ExpName>(nameName, indices)){
+            Match(e){
+                Case(C<ExpNameAll>()){
+                    //TODO: Implement
+                }
+                Otherwise(){
+                    //TODO: Here just the base class
+                }
+            } EndMatch
             //TODO: implement
             cout << "ExpName" << endl;
         }
-        Case(C<ExpScopedName>()){
+
+        var<perm_string> scopeName;
+        var<ScopeBase *> scope;
+        var<ExpName*> nameName;
+        Case(C<ExpScopedName>(scopeName, scope, nameName)){
             //TODO: implement
             cout << "ExpScopedName" << endl;
         }
-        Case(C<ExpString>()){
+
+        var<string> strValue
+        Case(C<ExpString>(strValue)){
             //TODO: implement
             cout << "ExpString" << endl;
         }
-        Case(C<ExpCast>()){
+
+        var<Expression*> castExp;
+        var<const VType *> castType;
+        Case(C<ExpCast>(castExp, castType)){
             //TODO: implement
             cout << "ExpCast" << endl;
         }
-        Case(C<ExpNew>()){
+
+        var<Expression*> newSize;
+        Case(C<ExpNew>(newSize)){
             //TODO: implement
             cout << "ExpNew" << endl;
         }
-        Case(C<ExpTime>()){
+
+        var<uint64_t> timeAmount;
+        var<ExpTime::timeunit_t> timeUnit;
+        Case(C<ExpTime>(timeAmount, timeUnit)){
             //TODO: implement
             cout << "ExpTime" << endl;
         }
-        Case(C<ExpRange>()){
+
+        var<Expression*> rangeLeft, rangeRight;
+        var<ExpRange::range_dir_t> direction;
+        var<bool> rangeExpr, rangeReverse;
+        var<ExpName *> rangeBase;
+        Case(C<ExpRange>(rangeLeft, rangeRight,
+                         direction, rangeExpr,
+                         rangeBase, rangeReverse)){
             //TODO: implement
             cout << "ExpRange" << endl;
         }
-        Case(C<ExpDelay>()){
+
+        var<Expression *> delayExpr, delayDelay;
+        Case(C<ExpDelay>(delayExpr, delayDelay)){
             //TODO: implement
             cout << "ExpDelay" << endl;
         }
@@ -323,6 +401,84 @@ void traverse(Expression *e){
         Otherwise(){
             //TODO: error message
         }
+    } EndMatch
+}
 
+void traverse(SequentialStmt *seq){
+
+    Match(seq){
+        var<> ;
+        Case(C<LoopStatement>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<WhileLoopStatement>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<ForLoopStatement>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<BasicLoopStatement>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<IfSequential>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<ReturnStmt>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<SignalSeqAssignment>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<CaseSeqStmt>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<ProcedureCall>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VariableSeqAssignment>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<ReportStmt>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<AssertStmt>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<WaitForStmt>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<WaitStmt>()){
+            //TODO:
+        }
+
+        Otherwise(){
+            //TODO: error message
+        }
     } EndMatch
 }
