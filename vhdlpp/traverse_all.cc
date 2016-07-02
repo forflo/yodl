@@ -501,3 +501,62 @@ void traverse(SequentialStmt *seq){
         }
     } EndMatch
 }
+
+void traverse(VType *type){
+    Match(type){
+        var<> ;
+        Case(C<VType>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeERROR>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypePrimitive>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeArray>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeRange>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeRangeConst>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeRangeExpr>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeEnum>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeRecord>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VTypeDef>()){
+            //TODO:
+        }
+
+        var<> ;
+        Case(C<VSubTypeDef>()){
+            //TODO:
+        }
+    } EndMatch
+}
