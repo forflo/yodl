@@ -7,3 +7,4 @@ lexor.cc
 lexor_keyword.cc
 parse.h
 parse.output
+vhdlpp/vhdl_testfiles/*.cf
