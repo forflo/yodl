@@ -405,66 +405,83 @@ void traverse(Expression *e){
 }
 
 void traverse(SequentialStmt *seq){
+    var<perm_string> loopName;
+    var<list<SequentialStmt*>> loopStmts;
 
     Match(seq){
-        var<> ;
-        Case(C<LoopStatement>()){
+        Case(C<LoopStatement>(loopName, loopStmts)){
+            var<Expression *> whileCond;
+            var<perm_string> iterVar;
+            var<ExpRange*> iterRange;
+
+            Match(seq){
+                Case(C<WhileLoopStatement>(whileCond)){
+                    //TODO:
+                }
+
+                Case(C<ForLoopStatement>(iterVar, iterRange)){
+                    //TODO:
+                }
+
+                Case(C<BasicLoopStatement>()){
+                    //TODO:
+                }
+
+                Otherwise(){
+                    //TODO: Error!
+                }
+            } EndMatch
+        }
+
+        var<Expression *> ifCond;
+        var<list<SequentialStmt*>> ifPath, elsePath;
+        var<list<IfSequential::Elsif*>> elsifPaths;
+
+        Case(C<IfSequential>(ifCond, ifPath,
+                             elsifPaths, elsePath)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<WhileLoopStatement>()){
+        var<Expression*> retValue;
+        Case(C<ReturnStmt>(retValue)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<ForLoopStatement>()){
+        var<Expression*> assignLval;
+        var<list<Expression *>> waveform;
+        Case(C<SignalSeqAssignment>(assignLval, waveform)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<BasicLoopStatement>()){
+        var<Expression *> caseCond;
+        var<list<CaseStmtAlternative>> caseAlternatives;
+        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<IfSequential>()){
+        var<perm_string> procName;
+        var<list<named_expr_t*> *> procParams;
+        var<SubprogramHeader *> procDef;
+        Case(C<ProcedureCall>(procName, procParams, procDef)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<ReturnStmt>()){
+        var<Expression *> varLval, varRval;
+        Case(C<VariableSeqAssignment>(varLval, varRval)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<SignalSeqAssignment>()){
-            //TODO:
-        }
-
-        var<> ;
-        Case(C<CaseSeqStmt>()){
-            //TODO:
-        }
-
-        var<> ;
-        Case(C<ProcedureCall>()){
-            //TODO:
-        }
-
-        var<> ;
-        Case(C<VariableSeqAssignment>()){
-            //TODO:
-        }
-
-        var<> ;
-        Case(C<ReportStmt>()){
-            //TODO:
-        }
-
-        var<> ;
-        Case(C<AssertStmt>()){
-            //TODO:
+        var<Expression *> reportMsg, assertCond;
+        var<ReportStmt::severity_t> reportSeverity;
+        Case(C<ReportStmt>(reportMsg, reportSeverity)){
+            Match(seq){
+                Case(C<AssertStmt>(assertCond)){
+                    //TODO:
+                }
+                Otherwise(){
+                    //TODO: Just ReportStmt
+                }
+            } EndMatch
         }
 
         var<> ;
@@ -472,8 +489,10 @@ void traverse(SequentialStmt *seq){
             //TODO:
         }
 
-        var<> ;
-        Case(C<WaitStmt>()){
+        var<WaitStmt::wait_type_t> waitType;
+        var<Expression *> waitExpr;
+        var<set<ExpName*>> waitSens;
+        Case(C<WaitStmt>(waitType, waitExpr, waitSens)){
             //TODO:
         }
 
