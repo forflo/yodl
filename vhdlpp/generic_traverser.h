@@ -9,6 +9,7 @@
 #include <map>
 #include <iostream>
 #include <math.h>
+#include <functional>
 
 // mach7 setup
 #include <type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
@@ -43,7 +44,48 @@
 # define mkdir(path, mode)    mkdir(path)
 #endif
 
+using namespace std;
+
 void traverse(AstNode *root);
 void traverse(Architecture::Statement *s);
 void traverse(Architecture *arch);
 void traverse(Entity *top);
+
+class GenericTraverser {
+public:
+    enum recur_t {
+        RECUR,
+        NON-RECUR
+    };
+
+public:
+    GenericTraverser(function predicate,
+                     function visitor,
+                     AstNode *ast,
+                     recur_t recurSpec)
+        : predicate(predicate)
+        , visitor(visitor)
+        , ast(ast)
+        , recurSpec(recurSpec) { }
+
+    ~GenericTraverser() = default;
+
+public:
+    void traverse();
+
+private:
+    void traverse(AstNode *);
+    void traverse(Entity *);
+    void traverse(Architecture *);
+    void traverse(Architecture::Statement *);
+    void traverse(Expression *);
+    void traverse(SequentialStmt *);
+    void traverse(VType *);
+    void traverse(SigVarBase *);
+
+private:
+    function<bool (AstNode *)> predicate;
+    function<int (AstNode *)> visitor;
+    AstNode *ast;
+    recur_t recurSpec;
+};

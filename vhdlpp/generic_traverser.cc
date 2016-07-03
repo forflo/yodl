@@ -35,7 +35,7 @@
 #include "std_types.h"
 #include "architec.h"
 #include "parse_api.h"
-#include "traverse_all.h"
+#include "generic_traverser.h"
 #include "vtype.h"
 #include "root_class.h"
 #include "mach7_bindings.h"
@@ -54,7 +54,7 @@
 using namespace mch;
 using namespace std;
 
-void traverse(AstNode *root){
+void GenericTraverser::traverse(AstNode *root){
     cout << "ast root switch\n";
 
     Match(root){
@@ -93,7 +93,7 @@ void traverse(AstNode *root){
     } EndMatch
 }
 
-void traverse(Entity *top){
+void GenericTraverser::traverse(Entity *top){
     cout << "entity switch\n";
 
     var<map<perm_string, Architecture *>> archs;
@@ -115,7 +115,7 @@ void traverse(Entity *top){
     } EndMatch
 }
 
-void traverse(Architecture *arch){
+void GenericTraverser::traverse(Architecture *arch){
     cout << "arch switch\n";
 
     var<list<Architecture::Statement *>> stmts;
@@ -137,7 +137,7 @@ void traverse(Architecture *arch){
     } EndMatch
 }
 
-void traverse(const Architecture::Statement &s){
+void GenericTraverser::traverse(Architecture::Statement *s){
     var<perm_string> name, label;
     var<list<Architecture::Statement*>> stmts;
     var<list<Architecture::Statement*>*> stmts_ptr;
@@ -234,7 +234,7 @@ void traverse(const Architecture::Statement &s){
     } EndMatch
 }
 
-void traverse(Expression *e){
+void GenericTraverser::traverse(Expression *e){
     var<const VType *> type;
     var<Expression *> op1, op2;
 
@@ -462,7 +462,7 @@ void traverse(Expression *e){
     } EndMatch
 }
 
-void traverse(SequentialStmt *seq){
+void GenericTraverser::traverse(SequentialStmt *seq){
     var<perm_string> loopName;
     var<list<SequentialStmt*>> loopStmts;
 
@@ -573,7 +573,7 @@ void traverse(SequentialStmt *seq){
     } EndMatch
 }
 
-void traverse(VType *type){
+void GenericTraverser::traverse(VType *type){
     // For VTypePrimitive
     var<VTypePrimitive::type_t> primType;
     var<bool> primPacked;
@@ -647,7 +647,7 @@ void traverse(VType *type){
     } EndMatch
 }
 
-void traverse(SigVarBase *signal){
+void GenericTraverser::traverse(SigVarBase *signal){
     Match(signal) {
         Case(C<Signal>()){
             //TODO:
