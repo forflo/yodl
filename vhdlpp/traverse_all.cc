@@ -582,26 +582,26 @@ void traverse(VType *type){
     var<const VType *> arrEtype;
     var<vector<VTypeArray::range_t>> arrRanges;
     var<bool> arrSigFlag;
-    var<const VTypeArray> arrParent;
+    var<const VTypeArray *> arrParent;
 
     // For VTypeRange
     var<const VType *> rangeBase;
 
     // For VTypeRangeConst
-    var<const int64_t> cRangeStart, cRangeEnd;
+    var<int64_t> cRangeStart, cRangeEnd;
 
     // For VTypeRangeExpr
     var<Expression *> eRangeStart, eRangeEnd;
     var<bool> eDownto;
 
     // For VTypeRecord
-    var<vector<VTypeRecord::element_t>> recordElements;
+    var<vector<VTypeRecord::element_t *>> recordElements;
 
     // For VTypeEnum
     var<vector<perm_string>> enumNames;
 
     // For VTypeDef
-    var<permString> typeName;
+    var<perm_string> typeName;
     var<const VType *> typeType;
 
     Match(type){

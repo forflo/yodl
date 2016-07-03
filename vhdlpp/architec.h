@@ -53,7 +53,7 @@ public:
     // --OK DOT (FM.)
     /* Architectures contain concurrent statements, that are
      * derived from this nested class. */
-    class Statement : public LineInfo {
+    class Statement : public LineInfo , public AstNode {
     public:
         Statement();
         virtual ~Statement() = 0;
