@@ -562,58 +562,73 @@ void traverse(SequentialStmt *seq){
 }
 
 void traverse(VType *type){
-    Match(type){
-        var<> ;
-        Case(C<VType>()){
-            //TODO:
-        }
+    // For VTypePrimitive
+    var<VTypePrimitive::type_t> primType;
+    var<bool> primPacked;
 
-        var<> ;
+    // For VTypeArray
+    var<const VType *> arrEtype;
+    var<vector<VTypeArray::range_t>> arrRanges;
+    var<bool> arrSigFlag;
+    var<const VTypeArray> arrParent;
+
+    // For VTypeRange
+    var<const VType *> rangeBase;
+
+    // For VTypeRangeConst
+    var<const int64_t> cRangeStart, cRangeEnd;
+
+    // For VTypeRangeExpr
+    var<Expression *> eRangeStart, eRangeEnd;
+    var<bool> eDownto;
+
+    // For VTypeRecord
+    var<vector<VTypeRecord::element_t>> recordElements;
+
+    // For VTypeEnum
+    var<vector<perm_string>> enumNames;
+
+    // For VTypeDef
+    var<permString> typeName;
+    var<const VType *> typeType;
+
+    Match(type){
         Case(C<VTypeERROR>()){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypePrimitive>()){
+        Case(C<VTypePrimitive>(primType, primPacked)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypeArray>()){
+        Case(C<VTypeArray>(arrEtype, arrRanges, arrSigFlag, arrParent)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypeRange>()){
+        Case(C<VTypeRange>(rangeBase)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypeRangeConst>()){
+        Case(C<VTypeRangeConst>(cRangeStart, cRangeEnd)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypeRangeExpr>()){
+        Case(C<VTypeRangeExpr>(eRangeStart, eRangeEnd, eDownto)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypeEnum>()){
+        Case(C<VTypeEnum>(enumNames)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypeRecord>()){
+        Case(C<VTypeRecord>(recordElements)){
             //TODO:
         }
 
-        var<> ;
-        Case(C<VTypeDef>()){
+        Case(C<VTypeDef>(typeName, typeType)){
             //TODO:
         }
 
-        var<> ;
         Case(C<VSubTypeDef>()){
             //TODO:
         }
