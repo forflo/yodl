@@ -40,6 +40,8 @@
 #include "root_class.h"
 #include "mach7_bindings.h"
 
+#pragma clang diagnostic ignored "-Wshadow"
+
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
 #endif
@@ -659,4 +661,8 @@ void GenericTraverser::traverse(SigVarBase *signal){
             // TODO: Error?
         }
     } EndMatch
+}
+
+void GenericTraverser::traverse(){
+    traverse(ast);
 }

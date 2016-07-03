@@ -34,7 +34,6 @@
 #include "std_types.h"
 #include "architec.h"
 #include "parse_api.h"
-#include "traverse_all.h"
 #include "vtype.h"
 
 // tag: [DESIGN HIERARCHY]

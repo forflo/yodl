@@ -46,27 +46,22 @@
 
 using namespace std;
 
-void traverse(AstNode *root);
-void traverse(Architecture::Statement *s);
-void traverse(Architecture *arch);
-void traverse(Entity *top);
-
 class GenericTraverser {
 public:
     enum recur_t {
         RECUR,
-        NON-RECUR
+        NONRECUR
     };
 
 public:
-    GenericTraverser(function predicate,
-                     function visitor,
-                     AstNode *ast,
-                     recur_t recurSpec)
-        : predicate(predicate)
-        , visitor(visitor)
-        , ast(ast)
-        , recurSpec(recurSpec) { }
+    GenericTraverser(function<bool (AstNode *)>  p,
+                     function<int (AstNode *)> v,
+                     AstNode *a,
+                     recur_t r)
+        : predicate(p)
+        , visitor(v)
+        , ast(a)
+        , recurSpec(r) { }
 
     ~GenericTraverser() = default;
 
