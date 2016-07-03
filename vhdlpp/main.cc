@@ -45,9 +45,10 @@ const char COPYRIGHT[] =
 #include "std_types.h"
 #include "architec.h"
 #include "parse_api.h"
-#include "traverse_all.h"
+#include "generic_traverser.h"
 #include "vtype.h"
 #include "parse_context.h"
+#include "mach7_includes.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -59,6 +60,12 @@ const char COPYRIGHT[] =
 # include <io.h>
 # define mkdir(path, mode)    mkdir(path)
 #endif
+
+#pragma clang diagnostic ignored "-Wshadow"
+
+using namespace std;
+using namespace mch;
+
 
 bool verbose_flag = false;
 // Where to dump design entities
@@ -196,18 +203,42 @@ int main(int argc, char *argv[]) {
     Entity *ent = cont->design_entities[perm_string::literal("ent")];
     cout << "Entity found!\n";
 
-    Entity *copy = ent->clone();
-    cout << "Entity copied!\n";
-
-    //emit_dotgraph(std::cout, "g", arch->emit_strinfo_tree());
-    emit_dotgraph(std::cout, "g",
-                  ent->arch_[perm_string::literal("beh")]
-                  ->emit_strinfo_tree());
+    cout << "\n\n";
 
     AstNode *root = ent;
-    cout << endl << "Traverse outputs: \n";
-    traverse(root);
-    cout << endl;
+    GenericTraverser traverser(
+        [=](AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){
+                    return true;
+                }
+                Otherwise(){
+                    return false;
+                }
+            } EndMatch;
+            return false;
+        },
+        [=](AstNode *node) -> int {
+            cout << "Found node!"  << endl;
+            emit_dotgraph(std::cout,
+                          "blockStatement",
+                          dynamic_cast<BlockStatement*>(node)
+                          ->emit_strinfo_tree());
+            return 0;
+        },
+        root,
+        GenericTraverser::RECUR);
+
+    traverser.traverse();
+    cout << "Traversal Messages:\n";
+    traverser.emitTraversalMessages(cout, "\n");
+
+    if (traverser.wasError()){
+        cout << "\nError Messages:\n";
+        traverser.emitErrorMessages(cout, "\n");
+    }
+
+    cout << "\n\n";
 
     /* End Playground */
 

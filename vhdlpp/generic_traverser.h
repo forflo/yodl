@@ -11,13 +11,6 @@
 #include <math.h>
 #include <functional>
 
-// mach7 setup
-#include <type_switchN-patterns.hpp> // Support for N-ary Match statement on patterns
-#include <address.hpp>      // Address and dereference combinators
-#include <bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
-#include <constructor.hpp>  // Support for constructor patterns
-#include <equivalence.hpp>  // Equivalence combinator +
-
 // code base specific includes
 #include "vhdlpp_config.h"
 #include "generate_graph.h"
@@ -33,6 +26,8 @@
 #include "parse_api.h"
 #include "root_class.h"
 #include "vtype.h"
+#include "mach7_includes.h"
+
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
 #endif
@@ -54,7 +49,7 @@ public:
     };
 
 public:
-    GenericTraverser(function<bool (AstNode *)>  p,
+    GenericTraverser(function<bool (AstNode *)> p,
                      function<int (AstNode *)> v,
                      AstNode *a,
                      recur_t r)
@@ -67,6 +62,10 @@ public:
 
 public:
     void traverse();
+    bool wasError(){ return errorFlag; };
+
+    void emitTraversalMessages(ostream &, const char *);
+    void emitErrorMessages(ostream &, const char*);
 
 private:
     void traverse(AstNode *);
@@ -77,6 +76,11 @@ private:
     void traverse(SequentialStmt *);
     void traverse(VType *);
     void traverse(SigVarBase *);
+
+private:
+    vector<string> traversalMessages;
+    vector<string> traversalErrors;
+    bool errorFlag = false;
 
 private:
     function<bool (AstNode *)> predicate;

@@ -9,16 +9,8 @@
 #include <map>
 #include <inttypes.h>
 #include <iostream>
+#include <typeinfo>
 #include <math.h>
-
-////
-// mach7 setup
-// Support for N-ary Match statement on patterns
-#include <type_switchN-patterns.hpp>
-#include <address.hpp>      // Address and dereference combinators
-#include <bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
-#include <constructor.hpp>  // Support for constructor patterns
-#include <equivalence.hpp>  // Equivalence combinator +
 
 ////
 // code base specific includes
@@ -56,90 +48,117 @@
 using namespace mch;
 using namespace std;
 
+//TODO:
+// ExpAggregate::choice_t
+// ExpAggregate::choice_element
+// ExpAggregate::element_t
+// ExpConditional::case_t
+// ExpName::index_t
+
+// IfSequential::Elsif
+// CaseSeqStmt::CaseStmtAlternative
+// BlockStatement::BlockHeader
+
+// VTypeArray::range_t
+// VTypeRecord::element_t
+
 void GenericTraverser::traverse(AstNode *root){
-    cout << "ast root switch\n";
+    traversalMessages.push_back("Entering AstNode switch");
 
     Match(root){
         Case(C<Entity>()){
             traverse(static_cast<Entity*>(root));
-            return ;
         }
         Case(C<Architecture>()) {
             traverse(static_cast<Architecture*>(root));
-            return;
         }
         Case(C<VType>()){
             traverse(static_cast<VType*>(root));
-            return;
         }
         Case(C<SequentialStmt>()){
             traverse(static_cast<SequentialStmt*>(root));
-            return;
         }
         Case(C<Architecture::Statement>()){
             traverse(static_cast<Architecture::Statement*>(root));
-            return;
         }
         Case(C<Expression>()){
             traverse(static_cast<Expression*>(root));
-            return;
         }
         Case(C<SigVarBase>()){
             traverse(static_cast<SigVarBase*>(root));
-            return;
         }
         Otherwise() {
-            //TODO: Error Message!
-            return;
+            errorFlag = true;
+            traversalErrors.push_back("Unknown type in node switch");
         }
     } EndMatch
 }
 
-void GenericTraverser::traverse(Entity *top){
-    cout << "entity switch\n";
+void GenericTraverser::traverse(ComponentBase *c){
+    traversalMessages.push_back("Entering Entity switch");
 
-    var<map<perm_string, Architecture *>> archs;
-    var<Architecture*> bound_arch;
-    var<map<perm_string, VType::decl_t>> decls;
-    var<perm_string> name;
+    // For Entity
+    var<map<perm_string, Architecture *>> entityArchs;
+    var<Architecture*> entityBound;
+    var<map<perm_string, VType::decl_t>> entityDecls;
 
-    Match(top){
-        Case(C<Entity>(archs, bound_arch, decls, name)){
-            cout << "Entity detected: " << name << endl;
-            for (auto &i : archs)
-                traverse(i.second);
-            return;
+    // For ComponentBase
+    var<perm_string> compName;
+    var<vector<InterfacePort*>> compParams, compPorts;
+
+    Match(c){
+        Case(C<ComponentBase>(compName, compParams, compPorts)) {
+            Match(c){
+                Case(C<Entity>(entityArchs, entityBound, entityDecls)){
+                    traversalMessages.push_back("Entity detected");
+                    for (auto &i : archs)
+                        traverse(i.second);
+                }
+                Otherwise(){
+                    traversalMessages.push_back("ComponentBase detected");
+                }
+            } EndMatch
         }
         Otherwise() {
-            cout << "No Entity!" << endl;
-            return;
+            errorFlag = true;
+            traversalErrors.push_back("Impossible condition in traverse "
+                                      "for Component Base");
         }
     } EndMatch
 }
 
 void GenericTraverser::traverse(Architecture *arch){
-    cout << "arch switch\n";
+    traversalMessages.push_back("Entering Architecture switch");
 
-    var<list<Architecture::Statement *>> stmts;
-    var<ComponentInstantiation *> comps;
-    var<ProcessStatement *> procs;
+    var<list<Architecture::Statement *>> statements;
+    var<ComponentInstantiation *> components;
     var<perm_string> name;
+    // propably not needed
+    //var<ProcessStatement *> currenProcess;
 
     Match(arch){
-        Case(C<Architecture>(stmts, comps, procs, name)){
-            cout << "Architecture detected: " << name << endl;
-            for (auto &i : stmts)
+        Case(C<Architecture>(statements, components, name)){
+            traversalMessages.push_back(string("Architecture ")
+                                        + name.str()
+                                        + string(" detected"));
+
+            for (auto &i : statements)
                 traverse(i);
-            return;
+
+            for (auto &i : components)
+                traverse(i);
         }
         Otherwise(){
-            cout << "No Architecture!" << endl;
-            return;
+            errorFlag = true;
+            traversalErrors.push_back("Impossible condition in "
+                                      "traverse Architecture");
         }
     } EndMatch
 }
 
 void GenericTraverser::traverse(Architecture::Statement *s){
+    traversalMessages.push_back("Entering Statement switch");
+
     var<perm_string> name, label;
     var<list<Architecture::Statement*>> stmts;
     var<list<Architecture::Statement*>*> stmts_ptr;
@@ -178,26 +197,27 @@ void GenericTraverser::traverse(Architecture::Statement *s){
         }
 
         Case(C<SignalAssignment>(lval, rval)){
-            //TODO: traverse(lval);
-            //TODO:
-            //for (auto &i : rval)
-            //    traverse(i);
-            cout << "Found SignalAssignment" << endl;
+            traverse(lval);
+
+            for (auto &i : rval)
+                traverse(i);
+            traversalMessages.push_back("Found SignalAssignment");
         }
 
         Case(C<CondSignalAssignment>(lval, options, senslist)){
-            //TODO: traverse(lval);
-            //TODO:
-            //for (auto &i : options)
-            //    traverse(i);
-            //for (auto &i : senslist)
-            //    traverse(i);
-            cout << "Found CondSignalAssignment" << endl;
+            traverse(lval);
+
+            for (auto &i : options)
+                traverse(i);
+
+//            for (auto &i : senslist)
+//                traverse(i);
+            traversalMessages.push_back("Found CondSignalAssignment");
         }
 
         Case(C<ComponentInstantiation>(iname, cname, genmap, portmap)){
             //TODO: traverse further
-            cout << "Found Component Instantiation" << endl;
+            traversalMessages.push_back("Found Component Instantiation");
         }
 
         Case(C<StatementList>(seqStmts)){
@@ -205,10 +225,10 @@ void GenericTraverser::traverse(Architecture::Statement *s){
             var<list<Expression *>> procSensList;
             Match(s){
                 Case(C<FinalStatement>()) {
-                    cout << "Found final Statement" << endl;
+                    traversalMessages.push_back("Found final Statement");
                 }
                 Case(C<InitialStatement>()) {
-                    cout << "Found initial Statement" << endl;
+                    traversalMessages.push_back("Found initial Statement");
                 }
                 Case(C<ProcessStatement>(name, procSensList)) {
                     //TODO: traverse stmts, procSensList;
@@ -343,7 +363,7 @@ void GenericTraverser::traverse(Expression *e){
 
         Case(C<ExpAggregate>(elements, aggregate)){
             //TODO: implement
-            cout << "ExpAggregate" << endl;
+            traversalMessages.push_back("ExpAggregate");
         }
 
         Case(C<ExpAttribute>(attribName, attribArgs)){
@@ -362,22 +382,22 @@ void GenericTraverser::traverse(Expression *e){
                 }
             } EndMatch
             //TODO: implement
-            cout << "ExpAttribute" << endl;
+            traversalMessages.push_back("ExpAttribute");
         }
 
         Case(C<ExpBitstring>(bitString)){
             //TODO: implement
-            cout << "ExpBitstring" << endl;
+            traversalMessages.push_back("ExpBitstring");
         }
 
         Case(C<ExpCharacter>(charValue)){
             //TODO: implement
-            cout << "ExpCharacter" << endl;
+            traversalMessages.push_back("ExpCharacter");
         }
 
         Case(C<ExpConcat>(concLeft, concRight)){
             //TODO: implement
-            cout << "ExpConcat" << endl;
+            traversalMessages.push_back("ExpConcat");
         }
 
         Case(C<ExpConditional>(condOptions)){
@@ -390,22 +410,22 @@ void GenericTraverser::traverse(Expression *e){
                 }
             } EndMatch
             //TODO: implement
-            cout << "ExpConditional" << endl;
+            traversalMessages.push_back("ExpConditional");
         }
 
         Case(C<ExpFunc>(funcName, definition, argVector)){
             //TODO: implement
-            cout << "ExpFunc" << endl;
+            traversalMessages.push_back("ExpFunc");
         }
 
         Case(C<ExpInteger>(intValue)){
             //TODO: implement
-            cout << "ExpInteger" << endl;
+            traversalMessages.push_back("ExpInteger");
         }
 
         Case(C<ExpReal>(dblValue)){
             //TODO: implement
-            cout << "ExpReal" << endl;
+            traversalMessages.push_back("ExpReal");
         }
 
         Case(C<ExpName>(nameName, indices)){
@@ -418,44 +438,44 @@ void GenericTraverser::traverse(Expression *e){
                 }
             } EndMatch
             //TODO: implement
-            cout << "ExpName" << endl;
+            traversalMessages.push_back("ExpName");
         }
 
         Case(C<ExpScopedName>(scopeName, scope, scopeNameName)){
             //TODO: implement
-            cout << "ExpScopedName" << endl;
+            traversalMessages.push_back("ExpScopedName");
         }
 
         Case(C<ExpString>(strValue)){
             //TODO: implement
-            cout << "ExpString" << endl;
+            traversalMessages.push_back("ExpString");
         }
 
         Case(C<ExpCast>(castExp, castType)){
             //TODO: implement
-            cout << "ExpCast" << endl;
+            traversalMessages.push_back("ExpCast");
         }
 
         Case(C<ExpNew>(newSize)){
             //TODO: implement
-            cout << "ExpNew" << endl;
+            traversalMessages.push_back("ExpNew");
         }
 
         Case(C<ExpTime>(timeAmount, timeUnit)){
             //TODO: implement
-            cout << "ExpTime" << endl;
+            traversalMessages.push_back("ExpTime");
         }
 
         Case(C<ExpRange>(rangeLeft, rangeRight,
                          //direction, rangeExpr,
                          rangeBase, rangeReverse)){
             //TODO: implement
-         //     cout << "ExpRange" << endl;
+         //     traversalMessages.push_back("ExpRange");
         }
 
         Case(C<ExpDelay>(delayExpr, delayDelay)){
             //TODO: implement
-            cout << "ExpDelay" << endl;
+            traversalMessages.push_back("ExpDelay");
         }
 
         Otherwise(){
@@ -665,4 +685,16 @@ void GenericTraverser::traverse(SigVarBase *signal){
 
 void GenericTraverser::traverse(){
     traverse(ast);
+}
+
+void GenericTraverser::emitTraversalMessages(ostream &out, const char* delimit){
+    for (auto &i : traversalMessages){
+        out << i << delimit;
+    }
+}
+
+void GenericTraverser::emitErrorMessages(ostream &out, const char* delimit){
+    for (auto &i : traversalErrors){
+        out << i << delimit;
+    }
 }

@@ -35,6 +35,8 @@ class ParserContext;
 class Architecture;
 class Expression;
 
+using namespace std;
+
 typedef enum {
     PORT_NONE = 0, PORT_IN,
     PORT_OUT, PORT_INOUT
@@ -43,10 +45,10 @@ typedef enum {
 /* Elaborate the collected entities, and return the number of
  * elaboration errors.  */
 extern int emit_entities(void);
-
 /* Use this function to dump a description of the design entities to a
  * file. This is for debug, not for any useful purpose.  */
 extern void dump_design_entities(ostream& file);
+
 
 // DOT OK
 class InterfacePort : public LineInfo, public AstNode {
@@ -102,7 +104,7 @@ public:
     const InterfacePort *find_port(perm_string by_name) const;
     const InterfacePort *find_generic(perm_string by_name) const;
 
-    const std::vector<InterfacePort *>& get_generics() const {
+    const vector<InterfacePort *>& get_generics() const {
         return parms_;
     }
 
@@ -110,14 +112,14 @@ public:
      * method with a list of interface elements that were parsed
      * for the entity. This method collects those entities, and
      * empties the list in the process. */
-    void set_interface(std::list<InterfacePort *> *parms,
-                       std::list<InterfacePort *> *ports);
+    void set_interface(list<InterfacePort *> *parms,
+                       list<InterfacePort *> *ports);
 
 
-    void write_to_stream(std::ostream& fd) const;
+    void write_to_stream(ostream& fd) const;
 
-    void dump_generics(std::ostream& out, int indent = 0) const;
-    void dump_ports(std::ostream& out, int indent = 0) const;
+    void dump_generics(ostream& out, int indent = 0) const;
+    void dump_ports(ostream& out, int indent = 0) const;
 
     // FM. MA
     virtual SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -126,8 +128,8 @@ public:
 public:
     perm_string name_;
 protected:
-    std::vector<InterfacePort *> parms_;
-    std::vector<InterfacePort *> ports_;
+    vector<InterfacePort *> parms_;
+    vector<InterfacePort *> ports_;
 };
 
 // Entities are fully declared components.
@@ -170,8 +172,8 @@ public:
 public:
     ParserContext *context_; //FM. MA
 
-    std::map<perm_string, Architecture *> arch_;
-    std::map<perm_string, VType::decl_t> declarations_;
+    map<perm_string, Architecture *> arch_;
+    map<perm_string, VType::decl_t> declarations_;
 
     Architecture *bind_arch_;
 };

@@ -42,15 +42,20 @@ namespace mch {
     template <> struct bindings<Architecture> {
         Members(Architecture::statements_, // list<Architecture::Statement*>
                 Architecture::cur_component_, // ComponentInstanciation *
-                Architecture::cur_process_, // ProcessStatement *
+                //Architecture::cur_process_, // ProcessStatement *
                 Architecture::name_); //perm_string
     };
 
     template <> struct bindings<Entity> {
         Members(Entity::arch_, // map<perm_string, Architecture*>
                 Entity::bind_arch_, //Architecture *
-                Entity::declarations_, //map <perm_string, VType::decl_t>
-                Entity::name_); // perm_string
+                Entity::declarations_); //map <perm_string, VType::decl_t>
+    };
+
+    template <> struct bindings<ComponentBase> {
+        Members(ComponentBase::name_, // perm_string
+                ComponentBase::parms_, //vector<InterfacePort*>
+                ComponentBase::ports_); //vector<InterfacePort*>
     };
 
     template <> struct bindings<ScopeBase> {
@@ -140,42 +145,42 @@ namespace mch {
 // template specializations for the Expression class tree
 namespace mch {
     template <> struct bindings<Expression> {
-        Members(Expression::type_);
+        Members(Expression::type_); //const VType *
     };
 
     template <> struct bindings<ExpUnary> {
-        Members(ExpUnary::operand1_);
+        Members(ExpUnary::operand1_); //Expression *
     };
 
     template <> struct bindings<ExpBinary> {
-        Members(ExpBinary::operand1_,
-                ExpBinary::operand2_);
+        Members(ExpBinary::operand1_, //Expression *
+                ExpBinary::operand2_); //same
     };
 
     template <> struct bindings<ExpAggregate> {
-        Members(ExpAggregate::elements_, //vector<ExpAggregate::element_t*>
-                ExpAggregate::aggregate_)
+        Members(ExpAggregate::elements_, //vector<ExpAggregate::element_t *>
+                ExpAggregate::aggregate_) //vector<ExpAggregate::choice_element>
     };
 
     template <> struct bindings<ExpAggregate::element_t> {
-        Members(ExpAggregate::element_t::fields_,
-                ExpAggregate::element_t::val_)
+        Members(ExpAggregate::element_t::fields_, //vector<choice_t*>
+                ExpAggregate::element_t::val_) //Expression *
     };
 
     template <> struct bindings<ExpAggregate::choice_element> {
-        Members(ExpAggregate::choice_element::choice,
-                ExpAggregate::choice_element::expr,
-                ExpAggregate::choice_element::alias_flag);
+        Members(ExpAggregate::choice_element::choice, //ExpAggregate::choice_t *
+                ExpAggregate::choice_element::expr, // Expression *
+                ExpAggregate::choice_element::alias_flag); // bool
     };
 
     template <> struct bindings<ExpAggregate::choice_t> {
-        Members(ExpAggregate::choice_t::expr_,
-                ExpAggregate::choice_t::range_);
+        Members(ExpAggregate::choice_t::expr_, // auto_ptr<Expression>
+                ExpAggregate::choice_t::range_); // auto_ptr<ExpRange>
     };
 
     template <> struct bindings<ExpConcat> {
-        Members(ExpConcat::operand1_,
-                ExpConcat::operand2_);
+        Members(ExpConcat::operand1_, //Expression *
+                ExpConcat::operand2_); //same
     };
 
     template <> struct bindings<ExpDelay> {
