@@ -70,8 +70,20 @@ void traverse(AstNode *root){
             traverse(static_cast<VType*>(root));
             return;
         }
-        Case(C<VType>()){
+        Case(C<SequentialStmt>()){
             traverse(static_cast<SequentialStmt*>(root));
+            return;
+        }
+        Case(C<Architecture::Statement>()){
+            traverse(static_cast<Architecture::Statement*>(root));
+            return;
+        }
+        Case(C<Expression>()){
+            traverse(static_cast<Expression*>(root));
+            return;
+        }
+        Case(C<SigVarBase>()){
+            traverse(static_cast<SigVarBase*>(root));
             return;
         }
         Otherwise() {
@@ -631,6 +643,20 @@ void traverse(VType *type){
 
         Case(C<VSubTypeDef>()){
             //TODO:
+        }
+    } EndMatch
+}
+
+void traverse(SigVarBase *signal){
+    Match(signal) {
+        Case(C<Signal>()){
+            //TODO:
+        }
+        Case(C<Variable>()){
+            //TODO:
+        }
+        Otherwise(){
+            // TODO: Error?
         }
     } EndMatch
 }
