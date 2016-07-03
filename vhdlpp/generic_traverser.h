@@ -69,7 +69,7 @@ public:
 
 private:
     void traverse(AstNode *);
-    void traverse(Entity *);
+    void traverse(ComponentBase *);
     void traverse(Architecture *);
     void traverse(Architecture::Statement *);
     void traverse(Expression *);

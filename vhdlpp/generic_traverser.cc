@@ -111,7 +111,12 @@ void GenericTraverser::traverse(ComponentBase *c){
             Match(c){
                 Case(C<Entity>(entityArchs, entityBound, entityDecls)){
                     traversalMessages.push_back("Entity detected");
-                    for (auto &i : archs)
+
+                    if (predicate(c)) {
+                        visitor(c);
+                    }
+
+                    for (auto &i : entityArchs)
                         traverse(i.second);
                 }
                 Otherwise(){
@@ -131,13 +136,13 @@ void GenericTraverser::traverse(Architecture *arch){
     traversalMessages.push_back("Entering Architecture switch");
 
     var<list<Architecture::Statement *>> statements;
-    var<ComponentInstantiation *> components;
+    var<ComponentInstantiation *> componentInst;
     var<perm_string> name;
     // propably not needed
     //var<ProcessStatement *> currenProcess;
 
     Match(arch){
-        Case(C<Architecture>(statements, components, name)){
+        Case(C<Architecture>(statements, componentInst, name)){
             traversalMessages.push_back(string("Architecture ")
                                         + name.str()
                                         + string(" detected"));
@@ -145,8 +150,8 @@ void GenericTraverser::traverse(Architecture *arch){
             for (auto &i : statements)
                 traverse(i);
 
-            for (auto &i : components)
-                traverse(i);
+            if (componentInst)
+                traverse(componentInst);
         }
         Otherwise(){
             errorFlag = true;
@@ -190,7 +195,9 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                 Case(C<IfGenerate>(cond)){
                     //TODO: traverse further
                 }
-                Otherwise(){ return; } //TODO: Error log
+                Otherwise(){
+                    //TODO: Error log
+                }
             } EndMatch
 
             return;
@@ -243,7 +250,7 @@ void GenericTraverser::traverse(Architecture::Statement *s){
 
         Case(C<BlockStatement>(label, header, stmts_ptr)){
             cout << "Found Block statement: " << label << "\n";
-            for (auto &i : * static_cast<list<Architecture::Statement*>*>(stmts_ptr)){
+            for (auto &i : *static_cast<list<Architecture::Statement*>*>(stmts_ptr)){
                 traverse(i);
             }
         }
@@ -338,6 +345,7 @@ void GenericTraverser::traverse(Expression *e){
                 }
             } EndMatch
         }
+
         Case(C<ExpBinary>(op1, op2)){
             var<ExpArithmetic::fun_t> arithOp;
             var<ExpLogical::fun_t> logOp;

@@ -127,7 +127,7 @@ public:
 
 public:
     perm_string name_;
-protected:
+
     vector<InterfacePort *> parms_;
     vector<InterfacePort *> ports_;
 };

@@ -209,20 +209,16 @@ int main(int argc, char *argv[]) {
     GenericTraverser traverser(
         [=](AstNode *node){
             Match(node){
-                Case(C<BlockStatement>()){
-                    return true;
-                }
-                Otherwise(){
-                    return false;
-                }
+                Case(C<Entity>()){ return true; }
+                Otherwise(){ return false; }
             } EndMatch;
-            return false;
+            return false; //without: compiler warning
         },
         [=](AstNode *node) -> int {
-            cout << "Found node!"  << endl;
+            cout << "[VISITOR] Found node!"  << endl;
             emit_dotgraph(std::cout,
-                          "blockStatement",
-                          dynamic_cast<BlockStatement*>(node)
+                          "Entity",
+                          dynamic_cast<Entity*>(node)
                           ->emit_strinfo_tree());
             return 0;
         },

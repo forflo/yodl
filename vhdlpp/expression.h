@@ -47,8 +47,7 @@ class ExpName;
 
 /* Helper class to recursively traverse an expression tree
  * (i.e. complex expressions).  */
-struct ExprVisitor
-{
+struct ExprVisitor {
     ExprVisitor()
         : level_(0) {}
 
@@ -329,7 +328,7 @@ public:
 
         // FM. MA TODO
         SimpleTree<map<string, string>> *emit_strinfo_tree() const {
-            return SimpleTree::empty_simple_tree();
+            return empty_simple_tree();
         };
 
         choice_t   *choice;
