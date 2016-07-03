@@ -20,7 +20,7 @@
 #include "std_types.h"
 #include "architec.h"
 #include "parse_api.h"
-#include "traverse_all.h"
+#include "generic_traverser.h"
 #include "vtype.h"
 #include "std_types.h"
 #include "std_funcs.h"
@@ -127,7 +127,26 @@ TEST_CASE("Simple clone test with dot generation", "[clone]"){
     stringstream b{};
 
     emit_dotgraph(a, "foo", entity1->emit_strinfo_tree());
-    emit_dotgraph(b, "foo", entity1->emit_strinfo_tree());
+    emit_dotgraph(b, "foo", entity2->emit_strinfo_tree());
 
     REQUIRE(a.str() == b.str());
+}
+
+TEST_CASE("Test equality of simple tree", "[simple tree]"){
+    auto tree1 = new SimpleTree<map<string, string>>(
+        map<string, string>({
+                {"foo", "bar"},
+                {"bar", "foo"}}),
+        empty_simple_tree());
+
+    auto tree2 = new SimpleTree<map<string, string>>(
+        map<string, string>({
+                {"foo", "bar"},
+                {"bar", "foo"}}),
+        empty_simple_tree());
+
+    REQUIRE((*tree1 == *tree2) == true);
+
+    tree1->root["bar"] = "fnord";
+    REQUIRE((*tree1 == *tree2) == false);
 }

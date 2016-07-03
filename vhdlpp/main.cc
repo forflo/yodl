@@ -236,6 +236,25 @@ int main(int argc, char *argv[]) {
 
     cout << "\n\n";
 
+    auto tree1 = new SimpleTree<map<string, string>>(
+        map<string, string>({
+                {"foo", "bar"},
+                {"bar", "foo"}}),
+        empty_simple_tree());
+
+    auto tree2 = new SimpleTree<map<string, string>>(
+        map<string, string>({
+                {"foo", "bar"},
+                {"bar", "foo"}}),
+        empty_simple_tree());
+
+    SimpleTree<map<string, string>>::traverse_st(tree1);
+    cout << endl;
+    cout << ((*tree1 == *tree2) ? "true" : "false") << endl;
+    tree1->root["bar"] = "fnord";
+    cout << ((*tree1 == *tree2) ? "true" : "false") << endl;
+    cout << endl;
+
     /* End Playground */
 
     if (dump_libraries_path) {

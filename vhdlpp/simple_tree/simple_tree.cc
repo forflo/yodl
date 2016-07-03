@@ -32,7 +32,7 @@ void SimpleTree<T>::traverse_st(SimpleTree<T> *tree,
 }
 
 template<typename T>
-bool SimpleTree<T>::operator==(const SimpleTree<T> &that){
+bool SimpleTree<T>::operator==(const SimpleTree<T> &that) const {
     return (this->root == that.root &&
             this->forest == that.forest);
 }
