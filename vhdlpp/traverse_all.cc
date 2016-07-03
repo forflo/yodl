@@ -7,6 +7,7 @@
 #include <limits>
 #include <vector>
 #include <map>
+#include <inttypes.h>
 #include <iostream>
 #include <math.h>
 
@@ -69,7 +70,7 @@ void traverse(AstNode *root){
             traverse(static_cast<VType*>(root));
             return;
         }
-        Case(C<VType>(SequentialStmt)){
+        Case(C<VType>()){
             traverse(static_cast<SequentialStmt*>(root));
             return;
         }
@@ -114,7 +115,7 @@ void traverse(Architecture *arch){
         Case(C<Architecture>(stmts, comps, procs, name)){
             cout << "Architecture detected: " << name << endl;
             for (auto &i : stmts)
-                traverse(*i);
+                traverse(i);
             return;
         }
         Otherwise(){
@@ -192,7 +193,7 @@ void traverse(const Architecture::Statement &s){
                 Case(C<FinalStatement>()) {
                     cout << "Found final Statement" << endl;
                 }
-                Case(C<InitialStatement()) {
+                Case(C<InitialStatement>()) {
                     cout << "Found initial Statement" << endl;
                 }
                 Case(C<ProcessStatement>(name, procSensList)) {
@@ -208,12 +209,13 @@ void traverse(const Architecture::Statement &s){
 
         Case(C<BlockStatement>(label, header, stmts_ptr)){
             cout << "Found Block statement: " << label << "\n";
-            for (auto &i : static_cast<list<Architecture::Statement*>*>(stmts_ptr)){
-                traverse(*i);
+            for (auto &i : * static_cast<list<Architecture::Statement*>*>(stmts_ptr)){
+                traverse(i);
             }
         }
 
         Otherwise() {
+            //TODO: Error
             //cout << "Wildcard pattern for traverse(const Arch::Stmt &s)\n";
             return;
         }
@@ -223,6 +225,68 @@ void traverse(const Architecture::Statement &s){
 void traverse(Expression *e){
     var<const VType *> type;
     var<Expression *> op1, op2;
+
+    var<vector<ExpAggregate::element_t*>> elements;
+    var<vector<ExpAggregate::choice_element>> aggregate;
+
+    var<perm_string> attribName;
+    var<list<Expression *> *> attribArgs;
+
+    // for ExpBitstring
+    var<vector<char>> bitString;
+
+    // for ExpCharacter
+    var<char> charValue;
+
+    // For ExpConcat
+    var<Expression*> concLeft, concRight;
+
+    // For ExpConditional
+    var<list<ExpConditional::case_t*>> condOptions;
+    var<Expression*> selector;
+
+    // For ExpFunc
+    var<perm_string> funcName;
+    var<SubprogramHeader *> definition;
+    var<vector<Expression*>> argVector;
+
+    // For ExpInteger
+    var<int64_t> intValue;
+
+    // For ExpReal
+    var<double> dblValue;
+
+    // For ExpName
+    var<perm_string> nameName;
+    var<list<Expression*>*> indices;
+
+    //For ExpScopedName
+    var<perm_string> scopeName;
+    var<ScopeBase *> scope;
+    var<ExpName*> scopeNameName;
+
+    // For ExpCast
+    var<Expression*> castExp;
+    var<const VType *> castType;
+
+    // For ExpRange
+    var<Expression*> rangeLeft, rangeRight;
+    var<ExpRange::range_dir_t> direction;
+    var<bool> rangeExpr, rangeReverse;
+    var<ExpName *> rangeBase;
+
+    // For ExpNew
+    var<Expression*> newSize;
+
+    // For ExpTime
+    var<uint64_t> timeAmount;
+    var<ExpTime::timeunit_t> timeUnit;
+
+    // For ExpString
+    var<string> strValue;
+
+    // For ExpDelay
+    var<Expression *> delayExpr, delayDelay;
 
     Match(e){
         Case(C<ExpUnary>(op1)){
@@ -263,18 +327,15 @@ void traverse(Expression *e){
             } EndMatch
         }
 
-        var<vector<element_t*>> elements;
-        var<vector<choice_element>> aggregate;
         Case(C<ExpAggregate>(elements, aggregate)){
             //TODO: implement
             cout << "ExpAggregate" << endl;
         }
 
-        var<perm_string> attribName;
-        var<list<Expression *> *> arribArgs;
         Case(C<ExpAttribute>(attribName, attribArgs)){
             var<ExpName *> attribBase;
             var<const VType *> attribTypeBase;
+
             Match(e){
                 Case(C<ExpObjAttribute>(attribBase)){
                     //TODO: Implement
@@ -290,26 +351,21 @@ void traverse(Expression *e){
             cout << "ExpAttribute" << endl;
         }
 
-        var<vector<char>> bitString;
         Case(C<ExpBitstring>(bitString)){
             //TODO: implement
             cout << "ExpBitstring" << endl;
         }
 
-        var<char> charValue;
         Case(C<ExpCharacter>(charValue)){
             //TODO: implement
             cout << "ExpCharacter" << endl;
         }
 
-        var<Expression*> concLeft, concRight;
         Case(C<ExpConcat>(concLeft, concRight)){
             //TODO: implement
             cout << "ExpConcat" << endl;
         }
 
-        var<list<case_t*>> condOptions;
-        var<Expressoin*> selector;
         Case(C<ExpConditional>(condOptions)){
             Match(e){
                 Case(C<ExpSelected>(selector)){
@@ -323,31 +379,24 @@ void traverse(Expression *e){
             cout << "ExpConditional" << endl;
         }
 
-        var<perm_string> funcName;
-        var<SubprogramHeader *> definition;
-        var<vector<Expression*>> argVector;
         Case(C<ExpFunc>(funcName, definition, argVector)){
             //TODO: implement
             cout << "ExpFunc" << endl;
         }
 
-        var<int64_t> intValue;
         Case(C<ExpInteger>(intValue)){
             //TODO: implement
             cout << "ExpInteger" << endl;
         }
 
-        var<double> dblValue;
         Case(C<ExpReal>(dblValue)){
             //TODO: implement
             cout << "ExpReal" << endl;
         }
 
-        var<perm_string> nameName;
-        var<list<Expression*>*> indices;
         Case(C<ExpName>(nameName, indices)){
             Match(e){
-                Case(C<ExpNameAll>()){
+                Case(C<ExpNameALL>()){
                     //TODO: Implement
                 }
                 Otherwise(){
@@ -358,52 +407,38 @@ void traverse(Expression *e){
             cout << "ExpName" << endl;
         }
 
-        var<perm_string> scopeName;
-        var<ScopeBase *> scope;
-        var<ExpName*> nameName;
-        Case(C<ExpScopedName>(scopeName, scope, nameName)){
+        Case(C<ExpScopedName>(scopeName, scope, scopeNameName)){
             //TODO: implement
             cout << "ExpScopedName" << endl;
         }
 
-        var<string> strValue
         Case(C<ExpString>(strValue)){
             //TODO: implement
             cout << "ExpString" << endl;
         }
 
-        var<Expression*> castExp;
-        var<const VType *> castType;
         Case(C<ExpCast>(castExp, castType)){
             //TODO: implement
             cout << "ExpCast" << endl;
         }
 
-        var<Expression*> newSize;
         Case(C<ExpNew>(newSize)){
             //TODO: implement
             cout << "ExpNew" << endl;
         }
 
-        var<uint64_t> timeAmount;
-        var<ExpTime::timeunit_t> timeUnit;
         Case(C<ExpTime>(timeAmount, timeUnit)){
             //TODO: implement
             cout << "ExpTime" << endl;
         }
 
-        var<Expression*> rangeLeft, rangeRight;
-        var<ExpRange::range_dir_t> direction;
-        var<bool> rangeExpr, rangeReverse;
-        var<ExpName *> rangeBase;
         Case(C<ExpRange>(rangeLeft, rangeRight,
-                         direction, rangeExpr,
+                         //direction, rangeExpr,
                          rangeBase, rangeReverse)){
             //TODO: implement
-            cout << "ExpRange" << endl;
+         //     cout << "ExpRange" << endl;
         }
 
-        var<Expression *> delayExpr, delayDelay;
         Case(C<ExpDelay>(delayExpr, delayDelay)){
             //TODO: implement
             cout << "ExpDelay" << endl;
@@ -418,6 +453,37 @@ void traverse(Expression *e){
 void traverse(SequentialStmt *seq){
     var<perm_string> loopName;
     var<list<SequentialStmt*>> loopStmts;
+
+    // For IfSequential
+    var<Expression *> ifCond;
+    var<list<SequentialStmt*>> ifPath, elsePath;
+    var<list<IfSequential::Elsif*>> elsifPaths;
+    // For ReturnStmt
+    var<Expression*> retValue;
+
+    // For SignalSeqAssignment
+    var<Expression*> assignLval;
+    var<list<Expression *>> waveform;
+
+    // For CaseStmtAlternative
+    var<Expression *> caseCond;
+    var<list<CaseSeqStmt::CaseStmtAlternative>> caseAlternatives;
+    // For ProcedureCall
+    var<perm_string> procName;
+    var<list<named_expr_t*> *> procParams;
+    var<SubprogramHeader *> procDef;
+
+    // For VariableSeqAssignment
+    var<Expression *> varLval, varRval;
+
+    // For ReportStmt
+    var<Expression *> reportMsg, assertCond;
+    var<ReportStmt::severity_t> reportSeverity;
+
+    // For WaitStmt
+    var<WaitStmt::wait_type_t> waitType;
+    var<Expression *> waitExpr;
+    var<set<ExpName*>> waitSens;
 
     Match(seq){
         Case(C<LoopStatement>(loopName, loopStmts)){
@@ -444,46 +510,32 @@ void traverse(SequentialStmt *seq){
             } EndMatch
         }
 
-        var<Expression *> ifCond;
-        var<list<SequentialStmt*>> ifPath, elsePath;
-        var<list<IfSequential::Elsif*>> elsifPaths;
-
         Case(C<IfSequential>(ifCond, ifPath,
                              elsifPaths, elsePath)){
             //TODO:
         }
 
-        var<Expression*> retValue;
         Case(C<ReturnStmt>(retValue)){
             //TODO:
         }
 
-        var<Expression*> assignLval;
-        var<list<Expression *>> waveform;
         Case(C<SignalSeqAssignment>(assignLval, waveform)){
             //TODO:
         }
 
-        var<Expression *> caseCond;
-        var<list<CaseStmtAlternative>> caseAlternatives;
-        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
-            //TODO:
-        }
+        //FIXME: Runies build. Don't know why
+//        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
+//            //TODO:
+//        }
 
-        var<perm_string> procName;
-        var<list<named_expr_t*> *> procParams;
-        var<SubprogramHeader *> procDef;
         Case(C<ProcedureCall>(procName, procParams, procDef)){
             //TODO:
         }
 
-        var<Expression *> varLval, varRval;
         Case(C<VariableSeqAssignment>(varLval, varRval)){
             //TODO:
         }
 
-        var<Expression *> reportMsg, assertCond;
-        var<ReportStmt::severity_t> reportSeverity;
         Case(C<ReportStmt>(reportMsg, reportSeverity)){
             Match(seq){
                 Case(C<AssertStmt>(assertCond)){
@@ -495,14 +547,10 @@ void traverse(SequentialStmt *seq){
             } EndMatch
         }
 
-        var<> ;
         Case(C<WaitForStmt>()){
             //TODO:
         }
 
-        var<WaitStmt::wait_type_t> waitType;
-        var<Expression *> waitExpr;
-        var<set<ExpName*>> waitSens;
         Case(C<WaitStmt>(waitType, waitExpr, waitSens)){
             //TODO:
         }

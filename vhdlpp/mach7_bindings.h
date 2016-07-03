@@ -154,7 +154,7 @@ namespace mch {
     };
 
     template <> struct bindings<ExpAggregate> {
-        Members(ExpAggregate::elements_,
+        Members(ExpAggregate::elements_, //vector<ExpAggregate::element_t*>
                 ExpAggregate::aggregate_)
     };
 
@@ -200,8 +200,8 @@ namespace mch {
     template <> struct bindings<ExpRange> {
         Members(ExpRange::left_,
                 ExpRange::right_,
-                ExpRange::direction_,
-                ExpRange::range_expr_,
+                // ExpRange::direction_,
+                // ExpRange::range_expr_,
                 ExpRange::range_base_,
                 ExpRange::range_reverse_);
     };
@@ -434,7 +434,7 @@ namespace mch {
 
     template <> struct bindings<CaseSeqStmt> {
         Members(CaseSeqStmt::cond_, //Expression*
-                CaseSeqStmt::alt_); //list<CaseStmtAlternative
+                CaseSeqStmt::alt_); //list<CaseStmtAlternative>
     };
 
 
