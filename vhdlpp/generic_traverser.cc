@@ -91,7 +91,7 @@ void GenericTraverser::traverse(AstNode *root){
             errorFlag = true;
             traversalErrors.push_back("Unknown type in node switch");
         }
-    } EndMatch
+    } EndMatch;
 }
 
 void GenericTraverser::traverse(ComponentBase *c){
@@ -134,14 +134,14 @@ void GenericTraverser::traverse(ComponentBase *c){
                         }
                     }
                 }
-            } EndMatch
+            } EndMatch;
         }
         Otherwise() {
             errorFlag = true;
             traversalErrors.push_back("Impossible condition in traverse "
                                       "for Component Base");
         }
-    } EndMatch
+    } EndMatch;
 }
 
 void GenericTraverser::traverse(Architecture *arch){
@@ -178,7 +178,7 @@ void GenericTraverser::traverse(Architecture *arch){
             traversalErrors.push_back("Impossible condition in "
                                       "traverse Architecture");
         }
-    } EndMatch
+    } EndMatch;
 }
 
 void GenericTraverser::traverse(Architecture::Statement *s){
@@ -254,7 +254,7 @@ void GenericTraverser::traverse(Architecture::Statement *s){
 
                     traverse(stmts);
                 }
-            } EndMatch
+            } EndMatch;
 
             return;
         }
