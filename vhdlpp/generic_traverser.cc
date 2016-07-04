@@ -159,8 +159,8 @@ void GenericTraverser::traverse(Architecture *arch){
                                         + name.str()
                                         + string(" detected"));
 
-                    if (predicate(c)) {
-                        visitor(c);
+                    if (predicate(arch)) {
+                        visitor(arch);
 
                         if (recurSpec == GenericTraverser::NONRECUR){
                             return;
@@ -214,8 +214,8 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                     traversalMessages.push_back("ForGenerate detected");
 
                     // run visitor
-                    if (predicate(c)) {
-                        visitor(c);
+                    if (predicate(s)) {
+                        visitor(s);
 
                         if (recurSpec == GenericTraverser::NONRECUR){
                             return;
@@ -225,13 +225,15 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                     // descent
                     traverse(msb);
                     traverse(lsb);
-                    traverse(stmts);
+
+                    for (auto &i : stmts)
+                        traverse(i);
                 }
                 Case(C<IfGenerate>(cond)){
                     traversalMessages.push_back("IfGenerate detected");
 
-                    if (predicate(c)) {
-                        visitor(c);
+                    if (predicate(s)) {
+                        visitor(s);
 
                         if (recurSpec == GenericTraverser::NONRECUR){
                             return;
@@ -239,20 +241,23 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                     }
 
                     traverse(cond);
-                    traverse(stmts);
+                    for (auto &i : stmts)
+                        traverse(i);
                 }
                 Otherwise(){
                     traversalMessages.push_back("GenerateStatement detected [error]");
 
-                    if (predicate(c)) {
-                        visitor(c);
+                    if (predicate(s)) {
+                        visitor(s);
 
                         if (recurSpec == GenericTraverser::NONRECUR){
                             return;
                         }
                     }
 
-                    traverse(stmts);
+                    // descent
+                    for (auto &i : stmts)
+                        traverse(i);
                 }
             } EndMatch;
 
@@ -263,8 +268,8 @@ void GenericTraverser::traverse(Architecture::Statement *s){
             traversalMessages.push_back("SignalAssignment detected");
 
             // run visitor
-            if (predicate(c)) {
-                visitor(c);
+            if (predicate(s)) {
+                visitor(s);
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
@@ -284,8 +289,8 @@ void GenericTraverser::traverse(Architecture::Statement *s){
 
 
             // run visitor
-            if (predicate(c)) {
-                visitor(c);
+            if (predicate(s)) {
+                visitor(s);
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
@@ -306,8 +311,8 @@ void GenericTraverser::traverse(Architecture::Statement *s){
             traversalMessages.push_back("ComponentInstantiation detected");
 
             // run visitor
-            if (predicate(c)) {
-                visitor(c);
+            if (predicate(s)) {
+                visitor(s);
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
