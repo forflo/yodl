@@ -997,42 +997,122 @@ void GenericTraverser::traverse(SequentialStmt *seq){
 
             Match(seq){
                 Case(C<WhileLoopStatement>(whileCond)){
-            traversalMessages.push_back("WhileLoopStatement detected");
-                    //TODO:
+                    traversalMessages.push_back("WhileLoopStatement detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        visitor(seq);
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(whileCond);
+
+                    for (auto &i : loopStmts)
+                        traverse(i);
                 }
 
                 Case(C<ForLoopStatement>(iterVar, iterRange)){
-            traversalMessages.push_back("ForLoopStatement detected");
-                    //TODO:
+                    traversalMessages.push_back("ForLoopStatement detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        visitor(seq);
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(iterRange);
+
+                    for (auto &i : loopStmts)
+                        traverse(i);
                 }
 
                 Case(C<BasicLoopStatement>()){
-            traversalMessages.push_back("BasicLoopStatement detected");
-                    //TODO:
+                    traversalMessages.push_back("BasicLoopStatement detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        visitor(seq);
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    for (auto &i : loopStmts)
+                        traverse(i);
                 }
 
                 Otherwise(){
-                    //TODO: Error!
+                    errorFlag = true;
+                    traversalErrors.push_back("Raw LoopStatement detected");
                 }
-            } EndMatch
+            } EndMatch;
         }
 
-        Case(C<IfSequential>(ifCond, ifPath,
-                             elsifPaths, elsePath)){
-            //TODO:
+        Case(C<IfSequential>(ifCond, ifPath, elsifPaths, elsePath)){
+            traversalMessages.push_back("IfSequential detected");
+
+            // run visitor
+            if(predicate(seq)){
+                visitor(seq);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            traverse(ifCond);
+
+            for (auto &i : ifPath)
+                traverse(i);
+
+            for (auto &i : elsifPaths)
+                traverse(i);
+
+            for (auto &i : elsePath)
+                traverse(i);
         }
 
         Case(C<ReturnStmt>(retValue)){
             traversalMessages.push_back("ReturnStmt detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(seq)){
+                visitor(seq);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            traverse(retValue);
         }
 
         Case(C<SignalSeqAssignment>(assignLval, waveform)){
             traversalMessages.push_back("SignalSeqAssignment detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(seq)){
+                visitor(seq);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            traverse(assignLval);
+
+            for (auto &i : waveform)
+                traverse(i);
         }
 
-        //FIXME: Runies build. Don't know why
+        //FIXME: Ruines build. Don't know why
 //        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
 //            traversalMessages.push_back("CaseSeqStmt detected");
 //            //TODO:
@@ -1040,41 +1120,107 @@ void GenericTraverser::traverse(SequentialStmt *seq){
 
         Case(C<ProcedureCall>(procName, procParams, procDef)){
             traversalMessages.push_back("ProcedureCall detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(seq)){
+                visitor(seq);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            for (auto &i : *static_cast<list<named_expr_t*>*>(procParams))
+                traverse(i);
         }
 
         Case(C<VariableSeqAssignment>(varLval, varRval)){
             traversalMessages.push_back("VariableSeqAssignment detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(seq)){
+                visitor(seq);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            traverse(varLval);
+            traverse(varRval);
         }
 
         Case(C<ReportStmt>(reportMsg, reportSeverity)){
-            traversalMessages.push_back("ReportStmt detected");
             Match(seq){
                 Case(C<AssertStmt>(assertCond)){
-            traversalMessages.push_back("AssertStmt detected");
-                    //TODO:
+                    traversalMessages.push_back("AssertStmt detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        visitor(seq);
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(assertCond);
+                    traverse(reportMsg);
                 }
                 Otherwise(){
-                    //TODO: Just ReportStmt
+                    traversalMessages.push_back("ReturnStmt detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        visitor(seq);
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(reportMsg);
                 }
-            } EndMatch
+            } EndMatch;
         }
 
         Case(C<WaitForStmt>()){
             traversalMessages.push_back("WaitForStmt detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(seq)){
+                visitor(seq);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
 
         Case(C<WaitStmt>(waitType, waitExpr, waitSens)){
             traversalMessages.push_back("WaitStmt detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(seq)){
+                visitor(seq);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            traverse(waitType);
+            traverse(waitExpr);
+            for (auto &i : waitSens)
+                traverse(i);
         }
 
         Otherwise(){
-            //TODO: error message
+            errorFlag = true;
+            traversalErrors.push_back("Raw SequentialStat detected");
         }
-    } EndMatch
+    } EndMatch;
 }
 
 void GenericTraverser::traverse(VType *type){
@@ -1111,70 +1257,188 @@ void GenericTraverser::traverse(VType *type){
     Match(type){
         Case(C<VTypeERROR>()){
             traversalMessages.push_back("VTypeERROR detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
 
         Case(C<VTypePrimitive>(primType, primPacked)){
             traversalMessages.push_back("VTypePrimitive detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
 
         Case(C<VTypeArray>(arrEtype, arrRanges, arrSigFlag, arrParent)){
             traversalMessages.push_back("VTypeArray detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // descent
+            traverse(arrEtype);
+            traverse(arrRanges);
+            traverse(arrParent);
         }
 
         Case(C<VTypeRange>(rangeBase)){
             traversalMessages.push_back("VTypeRange detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // descent
+            traverse(rangeBase);
         }
 
         Case(C<VTypeRangeConst>(cRangeStart, cRangeEnd)){
             traversalMessages.push_back("VTypeRangeConst detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
 
         Case(C<VTypeRangeExpr>(eRangeStart, eRangeEnd, eDownto)){
             traversalMessages.push_back("VTypeRangeExpr detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // descent
+            traverse(eRangeStart);
+            traverse(eRangeEnd);
         }
 
         Case(C<VTypeEnum>(enumNames)){
             traversalMessages.push_back("VTypeEnum detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
 
         Case(C<VTypeRecord>(recordElements)){
             traversalMessages.push_back("VTypeRecord detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // descent
+            for (auto &i : recordElements)
+                traverse(i);
         }
 
         Case(C<VTypeDef>(typeName, typeType)){
             traversalMessages.push_back("VTypeDef detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // descent
+            traverse(typeType);
         }
 
         Case(C<VSubTypeDef>()){
             traversalMessages.push_back("VSubTypeDef detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
-    } EndMatch
+    } EndMatch;
 }
 
 void GenericTraverser::traverse(SigVarBase *signal){
     Match(signal) {
         Case(C<Signal>()){
             traversalMessages.push_back("Signal detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
         Case(C<Variable>()){
             traversalMessages.push_back("Variable detected");
-            //TODO:
+
+            // run visitor
+            if(predicate(type)){
+                visitor(type);
+                if(recurSpec == GenericTraverser::NONRECUR) {
+                    return;
+                }
+            }
+
+            // nothing to descent
         }
         Otherwise(){
-            // TODO: Error?
+            errorFlag = true;
+            traversalErrors.push_back("Raw SigVarBase detected");
         }
-    } EndMatch
+    } EndMatch;
 }
 
 void GenericTraverser::traverse(){
