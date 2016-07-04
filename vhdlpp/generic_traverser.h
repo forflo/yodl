@@ -41,6 +41,28 @@
 
 using namespace std;
 
+// encapsulates a lambda and an appropriate state
+template<typename T>
+class StatefulLambda {
+public:
+    StatefulLambda(T e, function<int (AstNode *, T &)> l)
+        : environment(e)
+        , lambda(l) {};
+
+    // environment get's default initialized in this constructor
+    StatefulLambda(function<int (AstNode *, T &)> l)
+        : lambda(l) {};
+
+    int operator()(AstNode *node){
+        return lambda(node, environment);
+    };
+
+private:
+    T environment{};
+    function<int (AstNode *, T &value)> lambda;
+};
+
+
 class GenericTraverser {
 public:
     enum recur_t {
@@ -78,6 +100,7 @@ private:
     void traverse(SigVarBase *);
 
 private:
+    //template <typename T> TraverserEnvironment<T> environment;
     vector<string> traversalMessages;
     vector<string> traversalErrors;
     bool errorFlag = false;

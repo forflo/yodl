@@ -37,7 +37,7 @@ INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Ica
 
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
-CXXFLAGS = -Wall -Wextra -Wshadow   -g -O2 --std=c++11 $(CUSTOM)
+CXXFLAGS = -Wall -Wextra -Wshadow   -g -O2 --std=c++14 $(CUSTOM)
 LDFLAGS =  
 LIBS = -lm -lbz2 -lz -lhistory -lreadline 
 

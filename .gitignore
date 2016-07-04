@@ -8,3 +8,7 @@ lexor_keyword.cc
 parse.h
 parse.output
 vhdlpp/vhdl_testfiles/*.cf
+
+config.log
+config.status
+configure

@@ -1,12 +1,9 @@
 // FM. MA
-
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <map>
 #include <iostream>
-
-#include "test.h"
 
 // code base specific includes
 #include "generate_graph.h"
@@ -25,6 +22,7 @@
 #include "std_types.h"
 #include "std_funcs.h"
 #include "parse_context.h"
+#include "test.h"
 
 bool verbose_flag = false;
 // Where to dump design entities

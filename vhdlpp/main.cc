@@ -214,13 +214,17 @@ int main(int argc, char *argv[]) {
             } EndMatch;
             return false; //without: compiler warning
         },
-        [=](AstNode *node) -> int {
-            cout << "[VISITOR] Found node!"  << endl;
-            emit_dotgraph(std::cout,
-                          "Entity",
-                          dynamic_cast<Entity*>(node)
-                          ->emit_strinfo_tree());
-            return 0;
+        StatefulLambda<string>{
+            [=](AstNode *node, auto &env) -> int {
+                cout << "[VISITOR] Found node!"  << endl;
+                env = "100";
+                emit_dotgraph(std::cout,
+                              "Entity",
+                              dynamic_cast<Entity*>(node)
+                              ->emit_strinfo_tree());
+                cout << "[VISITOR] val fnord: " << env << endl;
+                return 0;
+            }
         },
         root,
         GenericTraverser::RECUR);

@@ -87,7 +87,7 @@ AS_IF([test "x$with_m32" = xyes],
     [])
 
 CFLAGS="$CTARGETFLAGS $CFLAGS"
-CXXFLAGS="$CTARGETFLAGS $CXXFLAGS --std=c++11"
+CXXFLAGS="$CTARGETFLAGS $CXXFLAGS --std=c++14"
 LDFLAGS="$CTARGETFLAGS $LDFLAGS"
 
 # Check that we are using either the GNU compilers or the Sun compilers
@@ -210,8 +210,8 @@ esac
 file64_support=''
 case "${host}" in
     *-*-linux*)
-	AC_DEFINE([_LARGEFILE_SOURCE], 
-              [1], 
+	AC_DEFINE([_LARGEFILE_SOURCE],
+              [1],
               [Indicates LFS (i.e. the ability to create files larger than 2 GiB on 32-bit operating systems).])
 	file64_support='-D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64'
 	;;
@@ -245,7 +245,7 @@ AC_SEARCH_LIBS([fmax], [m], [AC_DEFINE([HAVE_FMAX], [1], [])])
 AC_LANG(C++)
 AC_MSG_CHECKING(if uint64_t and unsigned long are identical)
 AC_COMPILE_IFELSE(
-    [AC_LANG_PROGRAM([ 
+    [AC_LANG_PROGRAM([
             #include "inttypes.h"
             static bool check(unsigned long val) {
               return val != 0;
