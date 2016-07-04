@@ -787,7 +787,7 @@ void GenericTraverser::traverse(Expression *e){
 
         Case(C<ExpReal>(dblValue)){
             traversalMessages.push_back("ExpReal detected");
-            //TODO: implement
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -814,6 +814,7 @@ void GenericTraverser::traverse(Expression *e){
                         }
                     }
 
+                    // descent
                     for (auto &i : *static_cast<list<Expression*>*>(indices))
                         traverse(i);
                 }
@@ -828,6 +829,7 @@ void GenericTraverser::traverse(Expression *e){
                         }
                     }
 
+                    // descent
                     for (auto &i : *static_cast<list<Expression*>*>(indices))
                         traverse(i);
                 }
@@ -836,7 +838,7 @@ void GenericTraverser::traverse(Expression *e){
 
         Case(C<ExpScopedName>(scopeName, scope, scopeNameName)){
             traversalMessages.push_back("ExpScopedName detected");
-            //TODO: implement
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -844,11 +846,15 @@ void GenericTraverser::traverse(Expression *e){
                     return;
                 }
             }
+
+            // descent
+            // TODO: scope
+            traverse(scopeNameName);
         }
 
         Case(C<ExpString>(strValue)){
             traversalMessages.push_back("ExpString detected");
-            //TODO: implement
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -856,11 +862,13 @@ void GenericTraverser::traverse(Expression *e){
                     return;
                 }
             }
+
+            // no descent, because leaf node
         }
 
         Case(C<ExpCast>(castExp, castType)){
             traversalMessages.push_back("ExpCast detected");
-            //TODO: implement
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -868,11 +876,15 @@ void GenericTraverser::traverse(Expression *e){
                     return;
                 }
             }
+
+            // descent
+            traverse(castExp);
+            traverse(castType);
         }
 
         Case(C<ExpNew>(newSize)){
             traversalMessages.push_back("ExpNew detected");
-            //TODO: implement
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -880,11 +892,14 @@ void GenericTraverser::traverse(Expression *e){
                     return;
                 }
             }
+
+            // descent
+            traverse(newSize);
         }
 
         Case(C<ExpTime>(timeAmount, timeUnit)){
             traversalMessages.push_back("ExpTime detected");
-            //TODO: implement
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -892,12 +907,15 @@ void GenericTraverser::traverse(Expression *e){
                     return;
                 }
             }
+
+            // no descent, because leaf node
         }
 
         Case(C<ExpRange>(rangeLeft, rangeRight,
-                         //direction, rangeExpr,
-                         rangeBase, rangeReverse)){
-            //TODO: implement
+                         /*direction,*/ rangeExpr,
+                         rangeBase/*, rangeReverse*/)){
+            traversalMessages.push_back("ExpRange detected");
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -905,12 +923,16 @@ void GenericTraverser::traverse(Expression *e){
                     return;
                 }
             }
-            //     traversalMessages.push_back("ExpRange");
+
+            // descent
+            traverse(rangeLeft);
+            traverse(rangeRight);
+            traverse(rangeBase);
         }
 
         Case(C<ExpDelay>(delayExpr, delayDelay)){
             traversalMessages.push_back("ExpDelay detected");
-            //TODO: implement
+
             // run visitor
             if(predicate(e)){
                 visitor(e);
@@ -918,12 +940,17 @@ void GenericTraverser::traverse(Expression *e){
                     return;
                 }
             }
+
+            // descent
+            traverse(delayExpr);
+            traverse(delayDelay);
         }
 
         Otherwise(){
-            //TODO: error message
+            errorFlag = true;
+            traversalErrors.push_back("Raw Expression detected");
         }
-    } EndMatch
+    } EndMatch;
 }
 
 void GenericTraverser::traverse(SequentialStmt *seq){
