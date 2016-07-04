@@ -487,18 +487,51 @@ void GenericTraverser::traverse(Expression *e){
 
             Match(e){
                 Case(C<ExpEdge>(edgeSpec)){
-            traversalMessages.push_back("ExpEdge detected");
-                    //TODO: implement
+                    traversalMessages.push_back("ExpEdge detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(op1);
                 }
                 Case(C<ExpUAbs>()){
-            traversalMessages.push_back("ExpUAbs detected");
-                    //TODO: implement
+                    traversalMessages.push_back("ExpUAbs detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(op1);
                 }
                 Case(C<ExpUNot>()){
-            traversalMessages.push_back("ExpUNot detected");
-                    //TODO: implement
+                    traversalMessages.push_back("ExpUNot detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(op1);
                 }
-            } EndMatch
+            } EndMatch;
         }
 
         Case(C<ExpBinary>(op1, op2)){
@@ -510,29 +543,91 @@ void GenericTraverser::traverse(Expression *e){
 
             Match(e){
                 Case(C<ExpArithmetic>(arithOp)){
-            traversalMessages.push_back("ExpArithmetic detected");
-                    //TODO:
+                    traversalMessages.push_back("ExpArithmetic detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(op1);
+                    traverse(op2);
                 }
                 Case(C<ExpLogical>(logOp)){
-            traversalMessages.push_back("ExpLogical detected");
-                    //TODO:
+                    traversalMessages.push_back("ExpLogical detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(op1);
+                    traverse(op2);
                 }
                 Case(C<ExpRelation>(relOp)){
-            traversalMessages.push_back("ExpRelation detected");
-                    //TODO:
+                    traversalMessages.push_back("ExpRelation detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(op1);
+                    traverse(op2);
                 }
                 Case(C<ExpShift>(shiftOp)){
-            traversalMessages.push_back("ExpShift detected");
-                    //TODO:
+                    traversalMessages.push_back("ExpShift detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    traverse(op1);
+                    traverse(op2);
                 }
-                Otherwise() {/*error*/}
-            } EndMatch
+                Otherwise() {
+                    errorFlag = true;
+                    traversalErrors.push_back("Raw ExpBinary detected");
+                    /*error*/
+                }
+            } EndMatch;
         }
 
         Case(C<ExpAggregate>(elements, aggregate)){
             traversalMessages.push_back("ExpAggregate detected");
-            //TODO: implement
-            traversalMessages.push_back("ExpAggregate");
+
+            // run visitor
+            if (predicate(e)) {
+                visitor(e);
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            // TODO: implement descents
         }
 
         Case(C<ExpAttribute>(attribName, attribArgs)){
@@ -542,123 +637,287 @@ void GenericTraverser::traverse(Expression *e){
 
             Match(e){
                 Case(C<ExpObjAttribute>(attribBase)){
-            traversalMessages.push_back("ExpObjAttribute detected");
-                    //TODO: Implement
+                    traversalMessages.push_back("ExpObjAttribute detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
+                        traverse(i);
+
+                    traverse(attribBase);
                 }
                 Case(C<ExpTypeAttribute>(attribTypeBase)){
-            traversalMessages.push_back("ExpTypeAttribute detected");
-                    //TODO: Implement
+                    traversalMessages.push_back("ExpTypeAttribute detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
+                        traverse(i);
+
+                    traverse(attribTypeBase);
                 }
                 Otherwise(){
-                    //TODO: No error. Just base class
+                    errorFlag = true;
+                    traversalErrors.push_back("Raw ExpAttribute detected");
                 }
-            } EndMatch
-            //TODO: implement
-            traversalMessages.push_back("ExpAttribute");
+            } EndMatch;
         }
 
         Case(C<ExpBitstring>(bitString)){
             traversalMessages.push_back("ExpBitstring detected");
-            //TODO: implement
-            traversalMessages.push_back("ExpBitstring");
+
+            // run visitor
+            if (predicate(e)) {
+                visitor(e);
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // no descent, because leaf node
         }
 
         Case(C<ExpCharacter>(charValue)){
             traversalMessages.push_back("ExpCharacter detected");
-            //TODO: implement
-            traversalMessages.push_back("ExpCharacter");
+
+            // run visitor
+            if (predicate(e)) {
+                visitor(e);
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // no descent, because leaf node
         }
 
         Case(C<ExpConcat>(concLeft, concRight)){
             traversalMessages.push_back("ExpConcat detected");
-            //TODO: implement
-            traversalMessages.push_back("ExpConcat");
+
+            // run visitor
+            if (predicate(e)) {
+                visitor(e);
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            traverse(concLeft);
+            traverse(concRight);
         }
 
         Case(C<ExpConditional>(condOptions)){
             traversalMessages.push_back("ExpConditional detected");
             Match(e){
                 Case(C<ExpSelected>(selector)){
-            traversalMessages.push_back("ExpSelected detected");
-                    //TODO: implement
+                    traversalMessages.push_back("ExpSelected detected");
+
+                    // run visitor
+                    if (predicate(e)) {
+                        visitor(e);
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    // TODO: implement descent
                 }
+
                 Otherwise(){
                     //TODO: Just base class
                 }
-            } EndMatch
-            //TODO: implement
+            } EndMatch;
             traversalMessages.push_back("ExpConditional");
         }
 
         Case(C<ExpFunc>(funcName, definition, argVector)){
             traversalMessages.push_back("ExpFunc detected");
-            //TODO: implement
-            traversalMessages.push_back("ExpFunc");
+
+            // run visitor
+            if (predicate(e)) {
+                visitor(e);
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            // TODO: descent into definition
+            for (auto &i : argVector)
+                traverse(i);
         }
 
         Case(C<ExpInteger>(intValue)){
             traversalMessages.push_back("ExpInteger detected");
             //TODO: implement
-            traversalMessages.push_back("ExpInteger");
+
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // no descent, because leaf node
         }
 
         Case(C<ExpReal>(dblValue)){
             traversalMessages.push_back("ExpReal detected");
             //TODO: implement
-            traversalMessages.push_back("ExpReal");
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // no descent, because leaf node
         }
 
         Case(C<ExpName>(nameName, indices)){
             traversalMessages.push_back("ExpName detected");
+
             Match(e){
                 Case(C<ExpNameALL>()){
-            traversalMessages.push_back("ExpNameALL detected");
-                    //TODO: Implement
+                    traversalMessages.push_back("ExpNameALL detected");
+
+                    // run visitor
+                    if(predicate(e)){
+                        visitor(e);
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    for (auto &i : *static_cast<list<Expression*>*>(indices))
+                        traverse(i);
                 }
                 Otherwise(){
-                    //TODO: Here just the base class
+                    traversalMessages.push_back("ExpName detected");
+
+                    // run visitor
+                    if(predicate(e)){
+                        visitor(e);
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    for (auto &i : *static_cast<list<Expression*>*>(indices))
+                        traverse(i);
                 }
-            } EndMatch
-            //TODO: implement
-            traversalMessages.push_back("ExpName");
+            } EndMatch;
         }
 
         Case(C<ExpScopedName>(scopeName, scope, scopeNameName)){
             traversalMessages.push_back("ExpScopedName detected");
             //TODO: implement
-            traversalMessages.push_back("ExpScopedName");
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
         }
 
         Case(C<ExpString>(strValue)){
             traversalMessages.push_back("ExpString detected");
             //TODO: implement
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
         }
 
         Case(C<ExpCast>(castExp, castType)){
             traversalMessages.push_back("ExpCast detected");
             //TODO: implement
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
         }
 
         Case(C<ExpNew>(newSize)){
             traversalMessages.push_back("ExpNew detected");
             //TODO: implement
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
         }
 
         Case(C<ExpTime>(timeAmount, timeUnit)){
             traversalMessages.push_back("ExpTime detected");
             //TODO: implement
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
         }
 
         Case(C<ExpRange>(rangeLeft, rangeRight,
                          //direction, rangeExpr,
                          rangeBase, rangeReverse)){
             //TODO: implement
-         //     traversalMessages.push_back("ExpRange");
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+            //     traversalMessages.push_back("ExpRange");
         }
 
         Case(C<ExpDelay>(delayExpr, delayDelay)){
             traversalMessages.push_back("ExpDelay detected");
             //TODO: implement
+            // run visitor
+            if(predicate(e)){
+                visitor(e);
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
         }
 
         Otherwise(){
