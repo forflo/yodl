@@ -313,7 +313,7 @@ public:
 
     /* List of signals that should be emitted in the related process
      * sensitivity list. It is filled during the elaboration step. */
-    list<const ExpName *> sens_list_;
+    list<ExpName *> sens_list_;
 };
 
 // OK DOT
@@ -398,7 +398,7 @@ public:
 // FM. MA
 class BlockStatement : public Architecture::Statement, public Scope {
 public:
-    class BlockHeader {
+    class BlockHeader : public AstNode {
     public:
         BlockHeader(list<InterfacePort*> *generic_clause,
                     list<named_expr_t*> *generic_map_aspect,

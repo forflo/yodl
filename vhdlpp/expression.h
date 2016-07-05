@@ -174,7 +174,7 @@ public:
     void set_type(const VType *);
 
 public:
-    const VType *type_;
+    VType *type_; //FM. MA | NOTE: Constness removed
 
 public:     // Not implemented
     Expression(const Expression&);
@@ -542,7 +542,7 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    const VType *base_;
+    VType *base_; //FM. MA | constness removed
 };
 
 // --OK DOT
@@ -889,7 +889,8 @@ public:
     ~ExpLogical();
 
     Expression *clone() const {
-        return new ExpLogical(fun_, peek_operand1()->clone(), peek_operand2()->clone());
+        return new ExpLogical(fun_, peek_operand1()->clone(),
+                              peek_operand2()->clone());
     }
 
     inline fun_t logic_fun() const {
@@ -1000,7 +1001,7 @@ public:
     Expression *index(unsigned int number) const;
 
     auto_ptr<ExpName>  prefix_;
-    perm_string             name_;
+    perm_string name_;
     list<Expression *> *indices_;
 };
 
@@ -1257,7 +1258,7 @@ public:
 
 public:
     Expression  *base_;
-    const VType *type_;
+    VType *type_; // FM. MA; removed constness
 };
 
 // DOT OK

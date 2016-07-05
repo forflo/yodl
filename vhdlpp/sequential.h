@@ -93,7 +93,7 @@ public:
 class IfSequential : public SequentialStmt {
 public:
     // --OK DOT
-    class Elsif : public LineInfo {
+    class Elsif : public LineInfo, public AstNode {
     public:
         Elsif(Expression *cond, list<SequentialStmt *> *tr);
         ~Elsif();
@@ -242,7 +242,7 @@ public:
 /* Grammar hint: case_statement ::= K_case expression K_is ... */
 class CaseSeqStmt : public SequentialStmt {
 public:
-    class CaseStmtAlternative : public LineInfo {
+    class CaseStmtAlternative : public LineInfo, public AstNode {
     public:
         CaseStmtAlternative(list<Expression *> *exp,
                 list<SequentialStmt *> *stmts);

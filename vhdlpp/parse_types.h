@@ -23,8 +23,9 @@
 
 # include "StringHeap.h"
 # include "expression.h"
+# include "root_class.h"
 
-class named_expr_t {
+class named_expr_t : public AstNode {
 public:
     named_expr_t(perm_string n, Expression *e)
         : name_(n)
@@ -39,8 +40,8 @@ public:
     void dump(ostream& out, int indent) const;
 
     // FM. not implemented!
-    SimpleTree<map<string, string>> *emit_strinfo_tree() const { 
-        return empty_simple_tree(); 
+    SimpleTree<map<string, string>> *emit_strinfo_tree() const {
+        return empty_simple_tree();
     };
     named_expr_t *clone() {
         return new named_expr_t(
@@ -50,14 +51,14 @@ public:
 
 private:
     perm_string name_;
-    Expression  *expr_;
+    Expression *expr_;
 
 private:     // Not implemented
     named_expr_t(const named_expr_t&);
     named_expr_t& operator =(const named_expr_t&);
 };
 
-class entity_aspect_t {
+class entity_aspect_t : public AstNode {
 public:
     typedef enum {
         ENTITY = 0,
@@ -82,10 +83,10 @@ public:
     }
 
     entity_aspect_type_t type_;
-    ExpName              *name_;
+    ExpName *name_;
 };
 
-class instant_list_t {
+class instant_list_t : public AstNode {
 public:
     typedef enum {
         ALL = 0,
@@ -109,18 +110,18 @@ public:
         return domain_;
     }
 
-    application_domain_t   domain_;
+    application_domain_t domain_;
     std::list<perm_string> *labels_;
 };
 
 struct adding_term {
     ExpArithmetic::fun_t op;
-    Expression           *term;
+    Expression *term;
 };
 
 // Stores information for file declarations containing a file name and open mode
 // (VHDL-2008 6.4.2.5)
-class file_open_info_t {
+class file_open_info_t : public AstNode {
 public:
     file_open_info_t(ExpString *filename__, ExpName *kind__ = NULL)
         : kind_(kind__)

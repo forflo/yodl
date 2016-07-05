@@ -235,7 +235,7 @@ public:
  * ranges as "box" ranges, meaning present but not defined. */
 class VTypeArray : public VType {
 public:
-    class range_t {
+    class range_t : public AstNode {
     public:
         range_t(Expression *m = NULL,
                 Expression *l = NULL,
@@ -268,7 +268,7 @@ public:
     public:
         Expression *msb_;
         Expression *lsb_;
-        bool       direction_;
+        bool direction_;
     };
 
 public:
@@ -454,7 +454,7 @@ public:
 // DOT OK
 class VTypeRecord : public VType {
 public:
-    class element_t {
+    class element_t : public AstNode {
     public:
         element_t(perm_string name, const VType *type);
 

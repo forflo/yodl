@@ -49,18 +49,20 @@ using namespace mch;
 using namespace std;
 
 //TODO:
-// ExpAggregate::choice_t
-// ExpAggregate::choice_element
-// ExpAggregate::element_t
-// ExpConditional::case_t
-// ExpName::index_t
+// ExpAggregate::choice_t -- inherit AstNode done
+// ExpAggregate::choice_element -- inherit AstNode done
+// ExpAggregate::element_t -- inherit AstNode done
+// ExpConditional::case_t -- inherit AstNode done
+// ExpName::index_t -- inherit AstNode done
 
-// IfSequential::Elsif
-// CaseSeqStmt::CaseStmtAlternative
-// BlockStatement::BlockHeader
+// IfSequential::Elsif -- inherit AstNode done
+// CaseSeqStmt::CaseStmtAlternative -- inherit AstNode done
+// BlockStatement::BlockHeader -- inherit AstNode
 
-// VTypeArray::range_t
-// VTypeRecord::element_t
+// VTypeArray::range_t -- inherit AstNode
+// VTypeRecord::element_t -- inherit AstNode
+
+// named_expr_t -- inherit AstNode
 
 void GenericTraverser::traverse(AstNode *root){
     traversalMessages.push_back("Entering AstNode switch");
@@ -194,7 +196,7 @@ void GenericTraverser::traverse(Architecture::Statement *s){
     var<ExpName*> lval;
     var<list<Expression*>> rval;
     var<list<ExpConditional::case_t*>> options;
-    var<list<const ExpName*>> senslist;
+    var<list<ExpName*>> senslist;
 
     // for ComponentInstanciation
     var<perm_string> iname, cname;
@@ -346,7 +348,8 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                     }
 
                     // descent
-                    traverse(seqStmts);
+                    for (auto &i : seqStmts)
+                        traverse(i);
                 }
                 Case(C<InitialStatement>()) {
                     traversalMessages.push_back("Found initial Statement");
@@ -360,7 +363,8 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                     }
 
                     // descent
-                    traverse(seqStmts);
+                    for (auto &i : seqStmts)
+                        traverse(i);
                 }
                 Case(C<ProcessStatement>(name, procSensList)) {
                     traversalMessages.push_back("Found process Statement");
@@ -378,7 +382,8 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                     for (auto &i : procSensList)
                         traverse(i);
 
-                    traverse(seqStmts);
+                    for (auto &i : seqStmts)
+                        traverse(i);
                 }
                 Otherwise() {
                     errorFlag = true;
@@ -420,7 +425,7 @@ void GenericTraverser::traverse(Architecture::Statement *s){
 }
 
 void GenericTraverser::traverse(Expression *e){
-    var<const VType *> type;
+    var<VType *> type;
     var<Expression *> op1, op2;
 
     var<vector<ExpAggregate::element_t*>> elements;
@@ -464,7 +469,7 @@ void GenericTraverser::traverse(Expression *e){
 
     // For ExpCast
     var<Expression*> castExp;
-    var<const VType *> castType;
+    var<VType *> castType;
 
     // For ExpRange
     var<Expression*> rangeLeft, rangeRight;
@@ -638,7 +643,7 @@ void GenericTraverser::traverse(Expression *e){
         Case(C<ExpAttribute>(attribName, attribArgs)){
             traversalMessages.push_back("ExpAttribute detected");
             var<ExpName *> attribBase;
-            var<const VType *> attribTypeBase;
+            var<VType *> attribTypeBase;
 
             Match(e){
                 Case(C<ExpObjAttribute>(attribBase)){
@@ -1215,7 +1220,6 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             }
 
             // descent
-            traverse(waitType);
             traverse(waitExpr);
             for (auto &i : waitSens)
                 traverse(i);
@@ -1234,13 +1238,13 @@ void GenericTraverser::traverse(VType *type){
     var<bool> primPacked;
 
     // For VTypeArray
-    var<const VType *> arrEtype;
+    var<VType *> arrEtype;
     var<vector<VTypeArray::range_t>> arrRanges;
     var<bool> arrSigFlag;
-    var<const VTypeArray *> arrParent;
+    var<VTypeArray *> arrParent;
 
     // For VTypeRange
-    var<const VType *> rangeBase;
+    var<VType *> rangeBase;
 
     // For VTypeRangeConst
     var<int64_t> cRangeStart, cRangeEnd;
@@ -1257,7 +1261,7 @@ void GenericTraverser::traverse(VType *type){
 
     // For VTypeDef
     var<perm_string> typeName;
-    var<const VType *> typeType;
+    var<VType *> typeType;
 
     Match(type){
         Case(C<VTypeERROR>()){
@@ -1417,8 +1421,8 @@ void GenericTraverser::traverse(SigVarBase *signal){
             traversalMessages.push_back("Signal detected");
 
             // run visitor
-            if(predicate(type)){
-                visitor(type);
+            if(predicate(signal)){
+                visitor(signal);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1430,8 +1434,8 @@ void GenericTraverser::traverse(SigVarBase *signal){
             traversalMessages.push_back("Variable detected");
 
             // run visitor
-            if(predicate(type)){
-                visitor(type);
+            if(predicate(signal)){
+                visitor(signal);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
