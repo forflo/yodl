@@ -205,9 +205,9 @@ namespace mch {
         Members(ExpRange::left_,
                 ExpRange::right_,
                 // ExpRange::direction_,
-                // ExpRange::range_expr_,
-                ExpRange::range_base_,
-                ExpRange::range_reverse_);
+                 ExpRange::range_expr_,
+                ExpRange::range_base_);
+                //ExpRange::range_reverse_);
     };
 
     template <> struct bindings<ExpTime> {
@@ -320,10 +320,10 @@ namespace mch {
     };
 
     template <> struct bindings<VTypeArray> {
-        Members(VTypeArray::etype_, //const VType *
+        Members(VTypeArray::etype_, //VType *
                 VTypeArray::ranges_, //vector<range_t>
                 VTypeArray::signed_flag_, //bool
-                VTypeArray::parent_); //const VTypeArray *
+                VTypeArray::parent_); //VTypeArray *
     };
 
     template <> struct bindings<VTypeRange> {

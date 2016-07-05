@@ -328,7 +328,7 @@ public:
     bool is_variable_length(ScopeBase *scope) const;
 
     // To handle subtypes
-    inline void set_parent_type(const VTypeArray *parent) {
+    inline void set_parent_type(VTypeArray *parent) {
         parent_ = parent;
     }
 
@@ -346,10 +346,10 @@ public:
     bool write_special_case(ostream& out) const;
     void write_range_to_stream_(ostream& fd) const;
 
-    const VType          *etype_;
-    vector<range_t>      ranges_;
-    bool                 signed_flag_;
-    const VTypeArray     *parent_;
+    VType *etype_;
+    vector<range_t> ranges_;
+    bool signed_flag_;
+    VTypeArray *parent_;
 };
 
 // DOT OK
@@ -371,7 +371,7 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    const VType *base_;
+    VType *base_;
 };
 
 class VTypeRangeConst : public VTypeRange {
@@ -564,7 +564,7 @@ public:
 
 public:
     perm_string name_;
-    const VType *type_;
+    VType *type_;
 };
 
 class VSubTypeDef : public VTypeDef {

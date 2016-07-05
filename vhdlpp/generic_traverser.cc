@@ -1305,7 +1305,10 @@ void GenericTraverser::traverse(VType *type){
 
             // descent
             traverse(arrEtype);
-            traverse(arrRanges);
+
+            for (auto &i : arrRanges)
+                traverse(&i); // working??
+
             traverse(arrParent);
         }
 
