@@ -103,7 +103,7 @@ VTypeArray::range_t *VTypeArray::range_t::clone() const {
 }
 
 
-VTypeArray::VTypeArray(const VType *element, const vector<VTypeArray::range_t>& r, bool sv)
+VTypeArray::VTypeArray(VType *element, vector<VTypeArray::range_t>& r, bool sv)
     : etype_(element)
     , ranges_(r)
     , signed_flag_(sv)
@@ -115,7 +115,7 @@ VTypeArray::VTypeArray(const VType *element, const vector<VTypeArray::range_t>& 
  * range_t. This means that we cannot delete the ExpRange object
  * unless we invent a way to remove the pointers from that object. So
  * this is a memory leak. Something to fix. */
-VTypeArray::VTypeArray(const VType *element, std::list<ExpRange *> *r, bool sv)
+VTypeArray::VTypeArray(VType *element, std::list<ExpRange *> *r, bool sv)
     : etype_(element)
     , ranges_(r->size())
     , signed_flag_(sv)
@@ -133,7 +133,7 @@ VTypeArray::VTypeArray(const VType *element, std::list<ExpRange *> *r, bool sv)
 }
 
 
-VTypeArray::VTypeArray(const VType *element, int msb, int lsb, bool sv)
+VTypeArray::VTypeArray(VType *element, int msb, int lsb, bool sv)
     : etype_(element)
     , ranges_(1)
     , signed_flag_(sv)
@@ -290,7 +290,7 @@ void VTypeArray::evaluate_ranges(ScopeBase *scope) {
 }
 
 
-VTypeRange::VTypeRange(const VType *base)
+VTypeRange::VTypeRange(VType *base)
     : base_(base)
 {}
 
@@ -299,12 +299,12 @@ VTypeRange::~VTypeRange()
 {}
 
 
-VTypeRangeConst::VTypeRangeConst(const VType *base, int64_t start_val, int64_t end_val)
+VTypeRangeConst::VTypeRangeConst(VType *base, int64_t start_val, int64_t end_val)
     : VTypeRange(base), start_(start_val), end_(end_val)
 {}
 
 
-VTypeRangeExpr::VTypeRangeExpr(const VType *base, Expression *start_expr,
+VTypeRangeExpr::VTypeRangeExpr(VType *base, Expression *start_expr,
                                Expression *end_expr, bool downto)
     : VTypeRange(base), start_(start_expr), end_(end_expr), downto_(downto)
 {}
@@ -333,8 +333,7 @@ VTypeEnum::VTypeEnum(const std::list<perm_string> *names)
 }
 
 
-VTypeEnum::~VTypeEnum()
-{}
+VTypeEnum::~VTypeEnum() {}
 
 
 void VTypeEnum::show(ostream& out) const {
@@ -411,7 +410,7 @@ const VTypeRecord::element_t *VTypeRecord::element_by_name(perm_string name, int
 }
 
 
-VTypeRecord::element_t::element_t(perm_string name, const VType *typ)
+VTypeRecord::element_t::element_t(perm_string name, VType *typ)
     : name_(name)
     , type_(typ) {}
 
@@ -421,7 +420,7 @@ VTypeDef::VTypeDef(perm_string nam)
     , type_(0) {}
 
 
-VTypeDef::VTypeDef(perm_string nam, const VType *typ)
+VTypeDef::VTypeDef(perm_string nam, VType *typ)
     : name_(nam)
     , type_(typ) {}
 
@@ -429,7 +428,7 @@ VTypeDef::VTypeDef(perm_string nam, const VType *typ)
 VTypeDef::~VTypeDef() {}
 
 
-void VTypeDef::set_definition(const VType *typ) {
+void VTypeDef::set_definition(VType *typ) {
     assert(type_ == 0);
     type_ = typ;
 }

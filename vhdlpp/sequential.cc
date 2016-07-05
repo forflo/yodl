@@ -235,7 +235,7 @@ ReturnStmt::~ReturnStmt() {
 }
 
 
-void ReturnStmt::cast_to(const VType *type) {
+void ReturnStmt::cast_to(VType *type) {
     assert(val_);
     val_ = new ExpCast(val_, type);
 }

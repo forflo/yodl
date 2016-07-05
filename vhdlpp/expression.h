@@ -171,7 +171,7 @@ public:
     // This function is called by the derived class during
     // elaboration to set the type of the current expression that
     // elaboration assigns to this expression.
-    void set_type(const VType *);
+    void set_type(VType *);
 
 public:
     VType *type_; //FM. MA | NOTE: Constness removed
@@ -518,7 +518,7 @@ public:
 //  DOT OK
 class ExpTypeAttribute : public ExpAttribute {
 public:
-    ExpTypeAttribute(const VType *base, perm_string name, list<Expression *> *args);
+    ExpTypeAttribute(VType *base, perm_string name, list<Expression *> *args);
     // no destructor - VType objects (base_) are shared between many expressions
 
     Expression *clone() const;
@@ -1237,7 +1237,7 @@ public:
 // Class that wraps other expressions to cast them to other types.
 class ExpCast : public Expression {
 public:
-    ExpCast(Expression *base, const VType *type);
+    ExpCast(Expression *base, VType *type);
     ~ExpCast();
 
     Expression *clone() const {

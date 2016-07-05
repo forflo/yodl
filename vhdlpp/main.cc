@@ -229,6 +229,8 @@ int main(int argc, char *argv[]) {
         root,
         GenericTraverser::RECUR);
 
+    printf("foobar");
+
     traverser.traverse();
     cout << "Traversal Messages:\n";
     traverser.emitTraversalMessages(cout, "\n");

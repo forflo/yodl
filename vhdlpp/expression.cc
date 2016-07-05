@@ -40,7 +40,7 @@ Expression::Expression()
 Expression::~Expression() {}
 
 
-void Expression::set_type(const VType *typ) {
+void Expression::set_type(VType *typ) {
     assert(type_ == 0 || type_ == typ);
     type_ = typ;
 }
@@ -127,7 +127,7 @@ void ExpObjAttribute::visit(ExprVisitor& func) {
 }
 
 
-ExpTypeAttribute::ExpTypeAttribute(const VType *base,
+ExpTypeAttribute::ExpTypeAttribute(VType *base,
         perm_string name,
         list<Expression *> *args)
     : ExpAttribute(name, args)
@@ -852,7 +852,7 @@ ExpUNot::ExpUNot(Expression *op1)
 ExpUNot::~ExpUNot() {}
 
 
-ExpCast::ExpCast(Expression *base, const VType *type)
+ExpCast::ExpCast(Expression *base, VType *type)
     : base_(base)
     , type_(type) {}
 

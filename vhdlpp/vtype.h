@@ -272,13 +272,13 @@ public:
     };
 
 public:
-    VTypeArray(const VType *etype,
-               const vector<range_t>& r,
+    VTypeArray(VType *etype,
+               vector<range_t>& r,
                bool signed_vector = false);
-    VTypeArray(const VType *etype,
+    VTypeArray(VType *etype,
                list<ExpRange *> *r,
                bool signed_vector = false);
-    VTypeArray(const VType *etype,
+    VTypeArray(VType *etype,
                int msb,
                int lsb,
                bool signed_vector = false);
@@ -355,7 +355,7 @@ public:
 // DOT OK
 class VTypeRange : public VType {
 public:
-    VTypeRange(const VType *base);
+    VTypeRange(VType *base);
     virtual ~VTypeRange() = 0;
 
     bool write_std_types(ostream& fd) const;
@@ -376,7 +376,7 @@ public:
 
 class VTypeRangeConst : public VTypeRange {
 public:
-    VTypeRangeConst(const VType *base, int64_t end, int64_t start);
+    VTypeRangeConst(VType *base, int64_t end, int64_t start);
 
     VType *clone() const {
         return new VTypeRangeConst(base_type()->clone(), start_, end_);
@@ -401,7 +401,7 @@ public:
 
 class VTypeRangeExpr : public VTypeRange {
 public:
-    VTypeRangeExpr(const VType *base, Expression *end, Expression *start, bool downto);
+    VTypeRangeExpr(VType *base, Expression *end, Expression *start, bool downto);
     ~VTypeRangeExpr();
 
     VType *clone() const;
@@ -456,7 +456,7 @@ class VTypeRecord : public VType {
 public:
     class element_t : public AstNode {
     public:
-        element_t(perm_string name, const VType *type);
+        element_t(perm_string name, VType *type);
 
         void write_to_stream(ostream&) const;
 
@@ -473,7 +473,7 @@ public:
 
     public:
         perm_string name_;
-        const VType *type_;
+        VType *type_;
 
     public:          // Not implement
         element_t(const element_t&);
@@ -515,7 +515,7 @@ public:
 class VTypeDef : public VType {
 public:
     explicit VTypeDef(perm_string name);
-    explicit VTypeDef(perm_string name, const VType *is);
+    explicit VTypeDef(perm_string name, VType *is);
 
     virtual ~VTypeDef();
 
@@ -531,7 +531,7 @@ public:
 
     // If the type is not given a definition in the constructor,
     // then this must be used to set the definition later.
-    void set_definition(const VType *is);
+    void set_definition(VType *is);
 
     // In some situations, we only need the definition of the
     // type, and this method gets it for us.
@@ -572,7 +572,7 @@ public:
     explicit VSubTypeDef(perm_string name)
         : VTypeDef(name) {}
 
-    explicit VSubTypeDef(perm_string name, const VType *is)
+    explicit VSubTypeDef(perm_string name, VType *is)
         : VTypeDef(name, is) {}
 
     void write_typedef_to_stream(ostream& fd, perm_string name) const;

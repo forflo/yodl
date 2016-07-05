@@ -195,7 +195,7 @@ public:
         return val_;
     }
 
-    void cast_to(const VType *type);
+    void cast_to(VType *type);
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
