@@ -103,7 +103,9 @@ VTypeArray::range_t *VTypeArray::range_t::clone() const {
 }
 
 
-VTypeArray::VTypeArray(VType *element, vector<VTypeArray::range_t>& r, bool sv)
+VTypeArray::VTypeArray(VType *element,
+                       const vector<VTypeArray::range_t>& r,
+                       bool sv)
     : etype_(element)
     , ranges_(r)
     , signed_flag_(sv)
@@ -393,7 +395,7 @@ int VTypeRecord::get_width(ScopeBase *scope) const {
 }
 
 
-const VTypeRecord::element_t *VTypeRecord::element_by_name(perm_string name, int *index) const {
+VTypeRecord::element_t *VTypeRecord::element_by_name(perm_string name, int *index) const {
     for (vector<element_t *>::const_iterator cur = elements_.begin()
          ; cur != elements_.end(); ++cur) {
         element_t *curp = *cur;

@@ -88,11 +88,11 @@ public:
     const InterfacePort *peek_param(int idx) const;
     const VType *peek_param_type(int idx) const;
 
-    const VType *peek_return_type() const {
+    VType *peek_return_type() const {
         return return_type_;
     }
 
-    inline void set_package(const Package *pkg) {
+    inline void set_package(Package *pkg) {
         assert(!package_);
         package_ = pkg;
     }
@@ -165,9 +165,9 @@ protected:
     perm_string name_;
 
     std::list<InterfacePort *> *ports_;
-    const VType                *return_type_;
+    VType                *return_type_;
     SubprogramBody             *body_;
-    const Package              *package_;
+    Package              *package_;
 };
 
 // Class to define functions headers defined in the standard VHDL libraries.

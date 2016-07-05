@@ -47,27 +47,28 @@ public:
     VTypeDef type_FILE_OPEN_KIND{perm_string::literal("file_open_kind")};
     VTypeDef type_FILE_OPEN_STATUS{perm_string::literal("file_open_status")};
 
-    const VTypePrimitive primitive_BIT{VTypePrimitive::BIT, true};
-    const VTypePrimitive primitive_INTEGER{VTypePrimitive::INTEGER};
-    const VTypePrimitive primitive_NATURAL{VTypePrimitive::NATURAL};
-    const VTypePrimitive primitive_REAL{VTypePrimitive::REAL};
+    VTypePrimitive primitive_BIT{VTypePrimitive::BIT, true};
+    VTypePrimitive primitive_INTEGER{VTypePrimitive::INTEGER};
+    VTypePrimitive primitive_NATURAL{VTypePrimitive::NATURAL};
+    VTypePrimitive primitive_REAL{VTypePrimitive::REAL};
 
-    const VTypePrimitive primitive_STDLOGIC{VTypePrimitive::STDLOGIC, true};
-    const VTypePrimitive primitive_TIME{VTypePrimitive::TIME, true};
+    VTypePrimitive primitive_STDLOGIC{VTypePrimitive::STDLOGIC, true};
+    VTypePrimitive primitive_TIME{VTypePrimitive::TIME, true};
 
-    const VTypeArray primitive_CHARACTER{
+    // TODO: all without const?
+    VTypeArray primitive_CHARACTER{
         &primitive_BIT, 7, 0};
-    const VTypeArray primitive_BIT_VECTOR{
+    VTypeArray primitive_BIT_VECTOR{
         &primitive_BIT, vector<VTypeArray::range_t> (1)};
-    const VTypeArray primitive_BOOL_VECTOR{
+    VTypeArray primitive_BOOL_VECTOR{
         &type_BOOLEAN, vector<VTypeArray::range_t> (1)};
-    const VTypeArray primitive_STDLOGIC_VECTOR{
+    VTypeArray primitive_STDLOGIC_VECTOR{
         &primitive_STDLOGIC, vector<VTypeArray::range_t> (1)};
-    const VTypeArray primitive_STRING{
+    VTypeArray primitive_STRING{
         &primitive_CHARACTER, vector<VTypeArray::range_t> (1)};
-    const VTypeArray primitive_SIGNED{
+    VTypeArray primitive_SIGNED{
         &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), true};
-    const VTypeArray primitive_UNSIGNED{
+    VTypeArray primitive_UNSIGNED{
         &primitive_STDLOGIC, vector<VTypeArray::range_t> (1), false};
 
 public:

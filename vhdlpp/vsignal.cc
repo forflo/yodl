@@ -29,7 +29,7 @@
 
 using namespace std;
 
-SigVarBase::SigVarBase(perm_string nam, const VType *typ, Expression *exp)
+SigVarBase::SigVarBase(perm_string nam, VType *typ, Expression *exp)
     : name_(nam)
     , type_(typ)
     , init_expr_(exp)

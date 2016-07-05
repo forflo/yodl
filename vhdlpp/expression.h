@@ -93,7 +93,7 @@ public:
     // This virtual method probes the expression to get the most
     // constrained type for the expression. For a given instance,
     // this may be called before the elaborate_expr method.
-    virtual const VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    virtual VType *probe_type(Entity *ent, ScopeBase *scope) const;
 
     // The fit_type virtual method is used by the ExpConcat class
     // to probe the type of operands. The atype argument is the
@@ -101,13 +101,13 @@ public:
     // returns its type as interpreted in this context. Really,
     // this is mostly about helping aggregate expressions within
     // concatenations to figure out their type.
-    virtual const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    virtual VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
 
     // This virtual method elaborates an expression. The ltype is
     // the type of the lvalue expression, if known, and can be
     // used to calculate the type for the expression being
     // elaborated.
-    virtual int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    virtual int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
 
     // Return the type that this expression would be if it were an
     // l-value. This should only be called after elaborate_lval is
@@ -205,9 +205,9 @@ public:
         return operand1_;
     }
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void visit(ExprVisitor& func);
 
 public:
@@ -238,11 +238,11 @@ public:
         return operand2_;
     }
 
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
     void visit(ExprVisitor& func);
 
 public:
-    int elaborate_exprs(Entity *, ScopeBase *, const VType *);
+    int elaborate_exprs(Entity *, ScopeBase *, VType *);
     int emit_operand1(ostream& out, Entity *ent, ScopeBase *scope) const;
     int emit_operand2(ostream& out, Entity *ent, ScopeBase *scope) const;
 
@@ -260,7 +260,7 @@ public:
     void dump_operands(ostream& out, int indent = 0) const;
 
 public:
-    virtual const VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
+    virtual VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
 
 public:
     Expression *operand1_;
@@ -380,9 +380,9 @@ public:
 
     Expression *clone() const;
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope,
+    VType *fit_type(Entity *ent, ScopeBase *scope,
                           const VTypeArray *atype) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
@@ -436,7 +436,7 @@ public:
                                  peek_operand2()->clone());
     }
 
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     virtual bool evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const;
@@ -446,7 +446,7 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    const VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
+    VType *resolve_operand_types_(const VType *t1, const VType *t2) const;
 
 public:
     fun_t fun_;
@@ -471,7 +471,7 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    int elaborate_args(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_args(Entity *ent, ScopeBase *scope, VType *ltype);
     void visit_args(ExprVisitor& func);
 
     list<Expression *> *clone_args() const;
@@ -499,8 +499,8 @@ public:
     }
 
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
 
     // Some attributes can be evaluated at compile time
@@ -528,8 +528,8 @@ public:
     }
 
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
 
     // Some attributes can be evaluated at compile time
@@ -560,8 +560,8 @@ public:
         return new ExpBitstring(*this);
     }
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
@@ -588,8 +588,8 @@ public:
         return new ExpCharacter(*this);
     }
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     bool is_primary(void) const;
@@ -621,9 +621,9 @@ public:
         return new ExpConcat(operand1_->clone(), operand2_->clone());
     }
 
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     bool is_primary(void) const;
@@ -666,7 +666,7 @@ public:
             return true_clause_;
         }
 
-        int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *lt);
+        int elaborate_expr(Entity *ent, ScopeBase *scope, VType *lt);
         int emit_option(ostream& out, Entity *ent, ScopeBase *scope) const;
         int emit_default(ostream& out, Entity *ent, ScopeBase *scope) const;
         void dump(ostream& out, int indent = 0) const;
@@ -696,8 +696,8 @@ public:
 
     virtual Expression *clone() const;
 
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
@@ -775,7 +775,7 @@ public:
 
     Expression *clone() const;
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
 
     inline perm_string func_name() const {
         return name_;
@@ -795,8 +795,8 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:     // Base methods
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
@@ -823,8 +823,8 @@ public:
         return new ExpInteger(*this);
     }
 
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     int emit_package(ostream& out) const;
@@ -859,8 +859,8 @@ public:
         return new ExpReal(*this);
     }
 
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     int emit_package(ostream& out) const;
@@ -897,7 +897,7 @@ public:
         return fun_;
     }
 
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
@@ -924,9 +924,9 @@ public:
     Expression *clone() const;
     int elaborate_lval(Entity *ent, ScopeBase *scope, bool);
     int elaborate_rval(Entity *ent, ScopeBase *scope, const InterfacePort *);
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *host) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *host) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit_indices(ostream& out, Entity *ent, ScopeBase *scope) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
@@ -971,9 +971,9 @@ public:
         Expression *offset_;
     };
 
-    const VType *elaborate_adjust_type_with_range_(Entity *ent,
+    VType *elaborate_adjust_type_with_range_(Entity *ent,
             ScopeBase *scope,
-            const VType *type);
+            VType *type);
 
     int elaborate_lval_(Entity *ent, ScopeBase *scope, bool, ExpName *suffix);
     const VType *probe_prefix_type_(Entity *ent, ScopeBase *scope) const;
@@ -1012,7 +1012,7 @@ public:
 
 
 public:
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
 };
 
@@ -1037,8 +1037,8 @@ public:
         return new ExpRelation(fun_, peek_operand1()->clone(), peek_operand2()->clone());
     }
 
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *probe_type(Entity *ent, ScopeBase *scope) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
@@ -1069,15 +1069,15 @@ public:
         return name_->elaborate_rval(ent, get_scope(scope), lval);
     }
 
-    const VType *probe_type(Entity *ent, ScopeBase *scope) const {
+    VType *probe_type(Entity *ent, ScopeBase *scope) const {
         return name_->probe_type(ent, get_scope(scope));
     }
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *host) const {
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *host) const {
         return name_->fit_type(ent, get_scope(scope), host);
     }
 
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype) {
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype) {
         return name_->elaborate_expr(ent, get_scope(scope), ltype);
     }
 
@@ -1139,7 +1139,7 @@ public:
             peek_operand2()->clone());
     }
 
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     bool evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const;
@@ -1167,8 +1167,8 @@ public:
         return new ExpString(*this);
     }
 
-    const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     bool is_primary(void) const;
@@ -1244,7 +1244,7 @@ public:
         return new ExpCast(base_->clone(), type_->clone());
     }
 
-    inline int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *) {
+    inline int elaborate_expr(Entity *ent, ScopeBase *scope, VType *) {
         return base_->elaborate_expr(ent, scope, type_);
     }
 
@@ -1303,7 +1303,7 @@ public:
         return new ExpTime(amount_, unit_);
     }
 
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream&) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
 
@@ -1352,7 +1352,7 @@ public:
         return direction_;
     }
 
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream&) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
@@ -1385,7 +1385,7 @@ public:
         return new ExpDelay(expr_->clone(), delay_->clone());
     }
 
-    int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
+    int elaborate_expr(Entity *ent, ScopeBase *scope, VType *ltype);
     void write_to_stream(ostream&) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;

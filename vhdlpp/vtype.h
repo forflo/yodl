@@ -273,7 +273,7 @@ public:
 
 public:
     VTypeArray(VType *etype,
-               vector<range_t>& r,
+               const vector<range_t>& r,
                bool signed_vector = false);
     VTypeArray(VType *etype,
                list<ExpRange *> *r,
@@ -306,7 +306,7 @@ public:
     }
 
     // returns the type of element held in the array
-    inline const VType *element_type() const {
+    inline VType *element_type() const {
         return parent_ ? parent_->element_type() : etype_;
     }
 
@@ -464,7 +464,7 @@ public:
             return name_;
         }
 
-        inline const VType *peek_type() const {
+        inline VType *peek_type() const {
             return type_;
         }
 
@@ -498,7 +498,7 @@ public:
         return true;
     }
 
-    const element_t *element_by_name(perm_string name, int *index = NULL) const;
+    element_t *element_by_name(perm_string name, int *index = NULL) const;
 
     inline const vector<element_t *> get_elements() const {
         return elements_;
@@ -535,7 +535,7 @@ public:
 
     // In some situations, we only need the definition of the
     // type, and this method gets it for us.
-    inline const VType *peek_definition(void) const {
+    inline VType *peek_definition(void) const {
         return type_;
     }
 

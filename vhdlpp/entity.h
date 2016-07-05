@@ -81,7 +81,7 @@ public:
     // Name of the port from the source code
     perm_string name;
     // Name of interface type as given in the source code.
-    const VType *type;
+    VType *type;
     // Default value expression (or nil)
     Expression *expr;
 };
@@ -101,7 +101,7 @@ public:
         return name_;
     }
 
-    const InterfacePort *find_port(perm_string by_name) const;
+    InterfacePort *find_port(perm_string by_name) const;
     const InterfacePort *find_generic(perm_string by_name) const;
 
     const vector<InterfacePort *>& get_generics() const {

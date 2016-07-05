@@ -37,11 +37,11 @@ using namespace std;
 class SigVarBase : public LineInfo, public AstNode {
 public:
     SigVarBase(perm_string name,
-               const VType *type,
+               VType *type,
                Expression *init_expr);
     virtual ~SigVarBase();
 
-    const VType *peek_type(void) const {
+    VType *peek_type(void) const {
         return type_;
     }
 
@@ -74,7 +74,7 @@ public:
 
 
     perm_string name_;
-    const VType *type_;
+    VType *type_;
     Expression  *init_expr_;
 
     unsigned refcnt_sequ_;
@@ -86,7 +86,7 @@ public:     // Not implemented
 
 class Signal : public SigVarBase {
 public:
-    Signal(perm_string name, const VType *type,
+    Signal(perm_string name, VType *type,
            Expression *init_expr);
 
     // FM. MA
@@ -97,7 +97,7 @@ public:
 
 class Variable : public SigVarBase {
 public:
-    Variable(perm_string name, const VType *type,
+    Variable(perm_string name, VType *type,
              Expression *init_expr = NULL);
 
     int emit(ostream& out, Entity *ent, ScopeBase *scope);
@@ -113,13 +113,13 @@ inline void SigVarBase::count_ref_sequ() {
 
 
 inline Signal::Signal(perm_string name,
-                      const VType *type,
+                      VType *type,
                       Expression *init_expr)
     : SigVarBase(name, type, init_expr) {}
 
 
 inline Variable::Variable(perm_string name,
-                          const VType *type,
+                          VType *type,
                           Expression *init_expr)
     : SigVarBase(name, type, init_expr) {}
 
