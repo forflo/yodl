@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (cont->parse_sorrys > 0) {
-            fprintf(stderr, "Encountered %d unsupported constructs parsing %s\n", 
+            fprintf(stderr, "Encountered %d unsupported constructs parsing %s\n",
                     cont->parse_sorrys, argv[i]);
         }
 
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
 
     AstNode *root = ent;
     GenericTraverser traverser(
-        [=](AstNode *node){
+        [=](const AstNode *node){
             Match(node){
                 Case(C<Entity>()){ return true; }
                 Otherwise(){ return false; }
@@ -215,12 +215,12 @@ int main(int argc, char *argv[]) {
             return false; //without: compiler warning
         },
         StatefulLambda<string>{
-            [=](AstNode *node, auto &env) -> int {
+            [=](const AstNode *node, auto &env) -> int {
                 cout << "[VISITOR] Found node!"  << endl;
                 env = "100";
                 emit_dotgraph(std::cout,
                               "Entity",
-                              dynamic_cast<Entity*>(node)
+                              dynamic_cast<const Entity*>(node)
                               ->emit_strinfo_tree());
                 cout << "[VISITOR] val fnord: " << env << endl;
                 return 0;
@@ -232,6 +232,28 @@ int main(int argc, char *argv[]) {
     traverser.traverse();
     cout << "Traversal Messages:\n";
     traverser.emitTraversalMessages(cout, "\n");
+
+    GenericTraverser traverser2(
+        [=](const AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        StatefulLambda<int>{
+            0,
+            [=](const AstNode *, auto &env) -> int {
+                cout << "[VISITOR] Found node!"  << endl;
+                env++;
+                return 0;
+            }
+        },
+        root,
+        GenericTraverser::RECUR);
+
+    cout << "\n\n";
+    traverser2.traverse();
 
     if (traverser.wasError()){
         cout << "\nError Messages:\n";

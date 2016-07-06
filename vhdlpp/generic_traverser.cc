@@ -196,7 +196,7 @@ void GenericTraverser::traverse(Architecture::Statement *s){
     var<ExpName*> lval;
     var<list<Expression*>> rval;
     var<list<ExpConditional::case_t*>> options;
-    var<list<ExpName*>> senslist;
+    var<list<const ExpName*>> senslist;
 
     // for ComponentInstanciation
     var<perm_string> iname, cname;
@@ -424,7 +424,7 @@ void GenericTraverser::traverse(Architecture::Statement *s){
     } EndMatch;
 }
 
-void GenericTraverser::traverse(Expression *e){
+void GenericTraverser::traverse(const Expression *e){
     var<VType *> type;
     var<Expression *> op1, op2;
 
@@ -469,7 +469,7 @@ void GenericTraverser::traverse(Expression *e){
 
     // For ExpCast
     var<Expression*> castExp;
-    var<VType *> castType;
+    var<const VType *> castType;
 
     // For ExpRange
     var<Expression*> rangeLeft, rangeRight;
@@ -490,6 +490,7 @@ void GenericTraverser::traverse(Expression *e){
     // For ExpDelay
     var<Expression *> delayExpr, delayDelay;
 
+    if (e == NULL) { return; }
     Match(e){
         Case(C<ExpUnary>(op1)){
             traversalMessages.push_back("ExpUnary detected");
@@ -643,7 +644,7 @@ void GenericTraverser::traverse(Expression *e){
         Case(C<ExpAttribute>(attribName, attribArgs)){
             traversalMessages.push_back("ExpAttribute detected");
             var<ExpName *> attribBase;
-            var<VType *> attribTypeBase;
+            var<const VType *> attribTypeBase;
 
             Match(e){
                 Case(C<ExpObjAttribute>(attribBase)){
@@ -1232,19 +1233,19 @@ void GenericTraverser::traverse(SequentialStmt *seq){
     } EndMatch;
 }
 
-void GenericTraverser::traverse(VType *type){
+void GenericTraverser::traverse(const VType *type){
     // For VTypePrimitive
     var<VTypePrimitive::type_t> primType;
     var<bool> primPacked;
 
     // For VTypeArray
-    var<VType *> arrEtype;
+    var<const VType *> arrEtype;
     var<vector<VTypeArray::range_t>> arrRanges;
     var<bool> arrSigFlag;
-    var<VTypeArray *> arrParent;
+    var<const VTypeArray *> arrParent;
 
     // For VTypeRange
-    var<VType *> rangeBase;
+    var<const VType *> rangeBase;
 
     // For VTypeRangeConst
     var<int64_t> cRangeStart, cRangeEnd;
@@ -1261,7 +1262,7 @@ void GenericTraverser::traverse(VType *type){
 
     // For VTypeDef
     var<perm_string> typeName;
-    var<VType *> typeType;
+    var<const VType *> typeType;
 
     Match(type){
         Case(C<VTypeERROR>()){

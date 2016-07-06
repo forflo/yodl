@@ -174,7 +174,7 @@ public:
     void set_type(const VType *);
 
 public:
-    VType *type_; //FM. MA | NOTE: Constness removed
+    const VType *type_; 
 
 public:     // Not implemented
     Expression(const Expression&);
@@ -542,7 +542,7 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
 public:
-    VType *base_; //FM. MA | constness removed
+    const VType *base_;
 };
 
 // --OK DOT
@@ -1258,7 +1258,7 @@ public:
 
 public:
     Expression  *base_;
-    VType *type_; // FM. MA; removed constness
+    const VType *type_;
 };
 
 // DOT OK

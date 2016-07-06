@@ -313,7 +313,7 @@ public:
 
     /* List of signals that should be emitted in the related process
      * sensitivity list. It is filled during the elaboration step. */
-    list<ExpName *> sens_list_;
+    list<const ExpName *> sens_list_;
 };
 
 // OK DOT

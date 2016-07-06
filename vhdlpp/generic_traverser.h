@@ -33,21 +33,21 @@ using namespace std;
 // encapsulates a lambda and an appropriate state
 template<typename T> class StatefulLambda {
 public:
-    StatefulLambda(T e, function<int (AstNode *, T &)> l)
+    StatefulLambda(T e, function<int (const AstNode *, T &)> l)
         : environment(e)
         , lambda(l) {};
 
     // environment get's default initialized in this constructor
-    StatefulLambda(function<int (AstNode *, T &)> l)
+    StatefulLambda(function<int (const AstNode *, T &)> l)
         : lambda(l) {};
 
-    int operator()(AstNode *node){
+    int operator()(const AstNode *node){
         return lambda(node, environment);
     };
 
 private:
     T environment{};
-    function<int (AstNode *, T &value)> lambda;
+    function<int (const AstNode *, T &value)> lambda;
 };
 
 
@@ -59,8 +59,8 @@ public:
     };
 
 public:
-    GenericTraverser(function<bool (AstNode *)> p,
-                     function<int (AstNode *)> v,
+    GenericTraverser(function<bool (const AstNode *)> p,
+                     function<int (const AstNode *)> v,
                      AstNode *a,
                      recur_t r)
         : predicate(p)
@@ -81,17 +81,17 @@ private:
     void traverse(ComponentBase *);
     void traverse(Architecture *);
     void traverse(Architecture::Statement *);
-    void traverse(Expression *);
+    void traverse(const Expression *);
     void traverse(SequentialStmt *);
-    void traverse(VType *);
+    void traverse(const VType *);
     void traverse(SigVarBase *);
 
     vector<string> traversalMessages;
     vector<string> traversalErrors;
     bool errorFlag = false;
 
-    function<bool (AstNode *)> predicate;
-    function<int (AstNode *)> visitor;
+    function<bool (const AstNode *)> predicate;
+    function<int (const AstNode *)> visitor;
     AstNode *ast;
     recur_t recurSpec;
 };
