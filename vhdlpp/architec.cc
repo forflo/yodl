@@ -59,6 +59,9 @@ Architecture *Architecture::clone() const {
     for (auto &i : statements_)
         copy_stmts.push_back(i->clone());
 
+    // FM. MA DEBUG
+    for (auto &i : copy_stmts)
+        cout << "Statement copied: " << i << endl;
 
     result->statements_ = copy_stmts;
 
@@ -386,7 +389,11 @@ int BlockStatement::elaborate(void) {
 }
 
 BlockStatement *BlockStatement::clone() const {
-    // TODO: Implement
+    auto result = new BlockStatement(header_->clone(),
+                                     label,
+        );
+
+
     return NULL;
 }
 

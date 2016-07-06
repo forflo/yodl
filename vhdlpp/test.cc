@@ -23,6 +23,8 @@
 #include "std_funcs.h"
 #include "parse_context.h"
 #include "test.h"
+#include "root_class.h"
+#include "mach7_includes.h"
 
 bool verbose_flag = false;
 // Where to dump design entities
@@ -147,4 +149,102 @@ TEST_CASE("Test equality of simple tree", "[simple tree]"){
 
     tree1->root["bar"] = "fnord";
     REQUIRE((*tree1 == *tree2) == false);
+}
+
+TEST_CASE("Test simple generic traversal", "[generic traverser]"){
+    using namespace mch;
+
+    int rc;
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
+                                       perm_string(), context);
+
+    REQUIRE(rc == 0);
+    REQUIRE(rc == 0);
+    REQUIRE(context->parse_errors == 0);
+    REQUIRE(context->parse_errors == 0);
+
+    REQUIRE(context->design_entities.size() == 1);
+
+    auto iterator = context->design_entities.begin();
+    auto entity1 = iterator->second;
+    REQUIRE(entity1 != NULL);
+
+    AstNode *root = entity1;
+
+    StatefulLambda<int> state = StatefulLambda<int>(
+        0,
+        [](const AstNode *, int &env) -> int {
+            cout << "[VISITOR] Found node!"  << endl;
+            env++;
+            return 0;
+        });
+
+    GenericTraverser traverser(
+        [=](const AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        [&state](const AstNode *a) -> int { return state(a); },
+        root,
+        GenericTraverser::RECUR);
+
+    traverser.traverse();
+    REQUIRE(state.environment == 2);
+}
+
+TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
+    using namespace mch;
+
+    int rc;
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
+                                       perm_string(), context);
+
+    REQUIRE(rc == 0);
+    REQUIRE(rc == 0);
+    REQUIRE(context->parse_errors == 0);
+    REQUIRE(context->parse_errors == 0);
+
+    REQUIRE(context->design_entities.size() == 1);
+
+    auto iterator = context->design_entities.begin();
+    auto entity1 = iterator->second;
+    REQUIRE(entity1 != NULL);
+
+    AstNode *root = entity1->clone();
+
+    StatefulLambda<int> state = StatefulLambda<int>(
+        0,
+        [](const AstNode *, int &env) -> int {
+            cout << "[VISITOR] Found node!"  << endl;
+            env++;
+            return 0;
+        });
+
+    GenericTraverser traverser(
+        [=](const AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        [&state](const AstNode *a) -> int { return state(a); },
+        root,
+        GenericTraverser::RECUR);
+
+    traverser.traverse();
+    REQUIRE(state.environment == 2);
+    traverser.emitTraversalMessages(cout, "\n");
+    traverser.emitErrorMessages(cout, "\n");
 }

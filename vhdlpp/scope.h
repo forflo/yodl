@@ -69,6 +69,8 @@ public:
         : context_(context)
         , package_header_(0) {}
 
+    ScopeBase(const ScopeBase &);
+
     explicit ScopeBase(const ActiveScope& ref);
 
     virtual ~ScopeBase() = 0;
@@ -177,6 +179,7 @@ public:
             delete val;
         }
 
+        // FM. MA
         SimpleTree<map<string, string>> *emit_strinfo_tree() const {
             auto result =  new SimpleTree<map<string, string>>(
                 map<string, string>{
@@ -186,6 +189,9 @@ public:
             result->forest.push_back(val->emit_strinfo_tree());
 
             return result;
+        }
+        const_t *clone() const {
+            return new const_t(typ->clone(), val->clone());
         }
 
         const VType *typ;

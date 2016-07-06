@@ -232,7 +232,6 @@ int main(int argc, char *argv[]) {
 //    traverser.traverse();
 //    cout << "Traversal Messages:\n";
 //    traverser.emitTraversalMessages(cout, "\n");
-
 //    if (traverser.wasError()){
 //        cout << "\nError Messages:\n";
 //        traverser.emitErrorMessages(cout, "\n");

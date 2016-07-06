@@ -205,6 +205,12 @@ void GenericTraverser::traverse(Architecture::Statement *s){
     // for StatementList subtree
     var<list<SequentialStmt*>> seqStmts;
 
+    if (s == NULL) {
+        errorFlag = true;
+        traversalErrors.push_back("Statement traverser called with Nullptr!");
+        return;
+    }
+
     Match(s){
         Case(C<GenerateStatement>(name, stmts)){
             traversalMessages.push_back("GenerateStatement detected");

@@ -63,6 +63,98 @@ ScopeBase::ScopeBase(const ActiveScope& ref)
 //freeing of member objects is performed by child classes
 ScopeBase::~ScopeBase() { }
 
+ScopeBase::ScopeBase(const ScopeBase &other)
+    : context_(other.context_)
+    , name_(other.name_) {
+
+    map<perm_string, Signal *> old_signals_copy;
+    map<perm_string, Signal *> new_signals_copy;
+
+    map<perm_string, Variable *> old_variables_copy;
+    map<perm_string, Variable *> new_variables_copy;
+
+    map<perm_string, ComponentBase *> old_components_copy;
+    map<perm_string, ComponentBase *> new_components_copy;
+
+    map<perm_string, const VType *> use_types_copy;
+    map<perm_string, const VType *> cur_types_copy;
+
+    map<perm_string, struct const_t *> use_constants_copy;
+    map<perm_string, struct const_t *> cur_constants_copy;
+
+    map<perm_string, SubHeaderList> use_subprograms_copy;
+    map<perm_string, SubHeaderList> cur_subprograms_copy;
+
+    map<perm_string, ScopeBase *> scopes_copy;
+
+    list<const VTypeEnum *> use_enums_copy;
+    list<SequentialStmt *> initializers_copy;
+    list<SequentialStmt *> finalizers_copy;
+
+    Package *package_header_copy;
+
+    // FM. MA More or less auto generated
+    for (auto &i : old_signals_) {
+        old_signals_copy[i.first] = i.second->clone();
+    }
+    for (auto &i : new_signals_) {
+        new_signals_copy[i.first] = i.second->clone();
+    }
+
+    for (auto &i : old_variables_) {
+        old_variables_copy[i.first] = i.second->clone();
+    }
+    for (auto &i : new_variables_) {
+        new_variables_copy[i.first] = i.second->clone();
+    }
+
+    for (auto &i : old_components_) {
+        old_components_copy[i.first] = i.second->clone();
+    }
+    for (auto &i : new_components_)
+    {
+        new_components_copy[i.first] = i.second->clone();
+    }
+
+    for (auto &i : use_types_)
+    {
+        use_types_copy[i.first] = i.second->clone();
+    }
+    for (auto &i : cur_types_)
+    {
+        cur_types_copy[i.first] = i.second->clone();
+    }
+
+    for (auto &i : use_constants_)
+    {
+        use_constants_copy[i.first] = i.second->clone();
+    }
+    for (auto &i : cur_constants_)
+    {
+        cur_constants_copy[i.first] = i.second->clone();
+    }
+
+    for (auto &i : use_subprograms_)
+    {
+        use_subprograms_copy[i.first] = i.second->clone();
+    }
+    for (auto &i : cur_subprograms_)
+    {
+        cur_subprograms_copy[i.first] = i.second->clone();
+    }
+
+    for (auto &i : scopes_)
+    {
+        scopes_copy[i.first] = i.second->clone();
+    }
+
+ use_enums
+ initializers
+ finalizers
+
+    Package *package_header_copy;
+}
+
 /* A parent scope is destroyed only if all child scopes
  * were previously destroyed. Therefor we can delete all
  * objects that were defined in this scope, leaving
