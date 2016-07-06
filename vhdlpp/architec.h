@@ -496,7 +496,10 @@ public:
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
     // TODO: Implement
-    ProcessStatement *clone() const { printf("Implement ME!\n"); return NULL; }
+    ProcessStatement *clone() const {
+        printf("Implement ME!\n");
+        return NULL;
+    }
 
 public:
     perm_string             iname_;

@@ -60,7 +60,7 @@ struct delete_pair_second {
     }
 };
 
-class ScopeBase {
+class ScopeBase : public AstNode {
 public:
     ScopeBase() : package_header_(0) {}
 
@@ -154,6 +154,8 @@ public:
      * installed into the old_*_ maps. Thus, all other derived
      * classes should only use the old_*_ maps. */
 
+    //TODO: Replace context with pointers to
+    //      a StandardTypes and StandardFunctions object
     //FM. MA Added ParserContext to members
     ParserContext *context_;
 
@@ -169,6 +171,8 @@ public:
     // Type declarations...
     map<perm_string, const VType *> use_types_;           //imported types
     map<perm_string, const VType *> cur_types_;           //current types
+
+    //TODO: Refactor me! Maybe put me inside vsignal.{h,cc}?
     // Constant declarations...
     struct const_t {
         const_t(const VType *t, Expression *v)

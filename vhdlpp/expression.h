@@ -174,7 +174,7 @@ public:
     void set_type(const VType *);
 
 public:
-    const VType *type_; 
+    const VType *type_;
 
 public:     // Not implemented
     Expression(const Expression&);

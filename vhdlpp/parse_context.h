@@ -54,6 +54,8 @@ public:
     SubprogramHeader *active_sub = NULL;
     ActiveScope *arc_scope = NULL;
 
+    //TODO: These classes don't really belong here.
+    //      They belong into the scope object
     StandardTypes *global_types;
     StandardFunctions *global_functions;
 

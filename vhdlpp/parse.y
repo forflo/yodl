@@ -2309,123 +2309,133 @@ K_end K_postponed_opt K_process identifier_opt ';'
  *     <nil>  if the list is not present, or
  *     or a non-empty list of actual expressions. */
 process_sensitivity_list_opt
-  : '(' process_sensitivity_list ')'
-      { $$ = $2; }
-  | '(' error ')'
-      { ParserUtil::errormsg(yy_parse_context, @2, "Error in process sensitivity list\n");
-	yyerrok;
-	$$ = 0;
-      }
-  |
+: '(' process_sensitivity_list ')'
+{ $$ = $2; }
+| '(' error ')'
+{
+    ParserUtil::errormsg(yy_parse_context, @2, "Error in process sensitivity list\n");
+    yyerrok;
+    $$ = 0;
+}
+|
       { $$ = 0; }
-  ;
+;
 
 process_sensitivity_list
-  : K_all
-      { std::list<Expression*>*tmp = new std::list<Expression*>;
-	ExpName*all = new ExpNameALL;
-	ParserUtil::add_location(all, @1);
-	tmp->push_back(all);
-	$$ = tmp;
-      }
-  | name_list
-      { $$ = $1; }
-  ;
+: K_all
+{
+    std::list<Expression*>*tmp = new std::list<Expression*>;
+    ExpName*all = new ExpNameALL;
+    ParserUtil::add_location(all, @1);
+    tmp->push_back(all);
+    $$ = tmp;
+}
+| name_list
+{ $$ = $1; }
+;
 
 range
-  : simple_expression direction simple_expression
-      { ExpRange* tmp = new ExpRange($1, $3, $2);
+: simple_expression direction simple_expression
+{
+    ExpRange* tmp = new ExpRange($1, $3, $2);
 
-	ParserUtil::add_location(tmp, @1);
-	$$ = tmp;
-      }
-  | name '\'' K_range
-      {
-        ExpRange*tmp = NULL;
-        ExpName*name = NULL;
-        if((name = dynamic_cast<ExpName*>($1))) {
-            tmp = new ExpRange(name, false);
-            ParserUtil::add_location(tmp, @1);
-        } else {
-	    ParserUtil::errormsg(yy_parse_context, @1, "'range attribute can be used with named expressions only");
-        }
-        $$ = tmp;
-      }
-  | name '\'' K_reverse_range
-      {
-        ExpRange*tmp = NULL;
-        ExpName*name = NULL;
-        if((name = dynamic_cast<ExpName*>($1))) {
-            tmp = new ExpRange(name, true);
-            ParserUtil::add_location(tmp, @1);
-        } else {
-	    ParserUtil::errormsg(yy_parse_context, @1, "'reverse_range attribute can be used with named expressions only");
-        }
-        $$ = tmp;
-      }
-  ;
+    ParserUtil::add_location(tmp, @1);
+    $$ = tmp;
+}
+| name '\'' K_range
+{
+    ExpRange*tmp = NULL;
+    ExpName*name = NULL;
+    if((name = dynamic_cast<ExpName*>($1))) {
+        tmp = new ExpRange(name, false);
+        ParserUtil::add_location(tmp, @1);
+    } else {
+        ParserUtil::errormsg(yy_parse_context, @1, "'range attribute can be used with named expressions only");
+    }
+    $$ = tmp;
+}
+| name '\'' K_reverse_range
+{
+    ExpRange*tmp = NULL;
+    ExpName*name = NULL;
+    if((name = dynamic_cast<ExpName*>($1))) {
+        tmp = new ExpRange(name, true);
+        ParserUtil::add_location(tmp, @1);
+    } else {
+        ParserUtil::errormsg(yy_parse_context, @1, "'reverse_range attribute can be used with named expressions only");
+    }
+    $$ = tmp;
+}
+;
 
 range_list
-  : range
-      { list<ExpRange*>*tmp = new list<ExpRange*>;
-	tmp->push_back($1);
-	$$ = tmp;
-      }
-  | range_list ',' range
-      { list<ExpRange*>*tmp = $1;
-	tmp->push_back($3);
-	$$ = tmp;
-      }
-  ;
+: range
+{ list<ExpRange*>*tmp = new list<ExpRange*>;
+    tmp->push_back($1);
+    $$ = tmp;
+}
+| range_list ',' range
+{ list<ExpRange*>*tmp = $1;
+    tmp->push_back($3);
+    $$ = tmp;
+}
+;
 
 record_type_definition
-  : K_record element_declaration_list K_end K_record
-      { VTypeRecord*tmp = new VTypeRecord($2);
-	$$ = tmp;
-      }
-  ;
+: K_record element_declaration_list K_end K_record
+{
+    VTypeRecord*tmp = new VTypeRecord($2);
+    $$ = tmp;
+}
+;
 
 relation
-  : shift_expression
-      { $$ = $1; }
-  | shift_expression '=' shift_expression
-      { ExpRelation*tmp = new ExpRelation(ExpRelation::EQ, $1, $3);
-        ParserUtil::add_location(tmp, @2);
-	$$ = tmp;
-      }
-  | shift_expression '<' shift_expression
-      { ExpRelation*tmp = new ExpRelation(ExpRelation::LT, $1, $3);
-        ParserUtil::add_location(tmp, @2);
-	$$ = tmp;
-      }
-  | shift_expression '>' shift_expression
-      { ExpRelation*tmp = new ExpRelation(ExpRelation::GT, $1, $3);
-        ParserUtil::add_location(tmp, @2);
-	$$ = tmp;
-      }
-  | shift_expression LEQ shift_expression
-      { ExpRelation*tmp = new ExpRelation(ExpRelation::LE, $1, $3);
-        ParserUtil::add_location(tmp, @2);
-	$$ = tmp;
-      }
-  | shift_expression GEQ shift_expression
-      { ExpRelation*tmp = new ExpRelation(ExpRelation::GE, $1, $3);
-        ParserUtil::add_location(tmp, @2);
-	$$ = tmp;
-      }
-  | shift_expression NE shift_expression
-      { ExpRelation*tmp = new ExpRelation(ExpRelation::NEQ, $1, $3);
-        ParserUtil::add_location(tmp, @2);
-	$$ = tmp;
-      }
-  ;
+: shift_expression
+{ $$ = $1; }
+| shift_expression '=' shift_expression
+{
+    ExpRelation*tmp = new ExpRelation(ExpRelation::EQ, $1, $3);
+    ParserUtil::add_location(tmp, @2);
+    $$ = tmp;
+}
+| shift_expression '<' shift_expression
+{
+    ExpRelation*tmp = new ExpRelation(ExpRelation::LT, $1, $3);
+    ParserUtil::add_location(tmp, @2);
+    $$ = tmp;
+}
+| shift_expression '>' shift_expression
+{
+    ExpRelation*tmp = new ExpRelation(ExpRelation::GT, $1, $3);
+    ParserUtil::add_location(tmp, @2);
+    $$ = tmp;
+}
+| shift_expression LEQ shift_expression
+{
+    ExpRelation*tmp = new ExpRelation(ExpRelation::LE, $1, $3);
+    ParserUtil::add_location(tmp, @2);
+    $$ = tmp;
+}
+| shift_expression GEQ shift_expression
+{
+    ExpRelation*tmp = new ExpRelation(ExpRelation::GE, $1, $3);
+    ParserUtil::add_location(tmp, @2);
+    $$ = tmp;
+}
+| shift_expression NE shift_expression
+{
+    ExpRelation*tmp = new ExpRelation(ExpRelation::NEQ, $1, $3);
+    ParserUtil::add_location(tmp, @2);
+    $$ = tmp;
+}
+;
 
 report_statement
-  : K_report expression severity_opt ';'
-      { ReportStmt*tmp = new ReportStmt($2, $3);
-	ParserUtil::add_location(tmp,@2);
-	$$ = tmp;
-      }
+: K_report expression severity_opt ';'
+{ ReportStmt*tmp = new ReportStmt($2, $3);
+    ParserUtil::add_location(tmp,@2);
+    $$ = tmp;
+}
 
 return_statement
   : K_return expression ';'
@@ -3008,42 +3018,47 @@ variable_assignment_statement /* IEEE 1076-2008 P10.6.1 */
       }
 
 variable_assignment
-  : name VASSIGN expression ';'
-      { VariableSeqAssignment*tmp = new VariableSeqAssignment($1, $3);
-	ParserUtil::add_location(tmp, @1);
-	$$ = tmp;
-      }
-  | name VASSIGN error ';'
-      { ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in r-value expression of assignment.\n");
-	yyerrok;
-	delete $1;
-	$$ = 0;
-      }
-  | error VASSIGN expression ';'
-      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in l-value expression of assignment.\n");
-	yyerrok;
-	delete $3;
-	$$ = 0;
-      }
-  ;
+: name VASSIGN expression ';'
+{
+    VariableSeqAssignment*tmp = new VariableSeqAssignment($1, $3);
+    ParserUtil::add_location(tmp, @1);
+    $$ = tmp;
+}
+| name VASSIGN error ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in r-value expression of assignment.\n");
+    yyerrok;
+    delete $1;
+    $$ = 0;
+}
+| error VASSIGN expression ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in l-value expression of assignment.\n");
+    yyerrok;
+    delete $3;
+    $$ = 0;
+}
+;
 
 variable_declaration /* IEEE 1076-2008 P6.4.2.4 */
-  : K_shared_opt K_variable identifier_list ':' subtype_indication
-    variable_declaration_assign_opt ';'
-      { /* Save the signal declaration in the block_signals map. */
-	for (std::list<perm_string>::iterator cur = $3->begin()
-		   ; cur != $3->end() ; ++cur) {
-	      Variable*sig = new Variable(*cur, $5, $6);
-	      ParserUtil::add_location(sig, @2);
-	      yy_parse_context->active_scope->bind_name(*cur, sig);
-	}
-	delete $3;
-      }
-  | K_shared_opt K_variable error ';'
-      { ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in variable declaration.\n");
-	yyerrok;
-      }
-  ;
+: K_shared_opt K_variable identifier_list ':' subtype_indication
+variable_declaration_assign_opt ';'
+{
+    /* Save the signal declaration in the block_signals map. */
+    for (std::list<perm_string>::iterator cur = $3->begin()
+             ; cur != $3->end() ; ++cur) {
+        Variable *sig = new Variable(*cur, $5, $6);
+        ParserUtil::add_location(sig, @2);
+        yy_parse_context->active_scope->bind_name(*cur, sig);
+    }
+    delete $3;
+}
+| K_shared_opt K_variable error ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @2, "Syntax error in variable declaration.\n");
+    yyerrok;
+}
+;
 
 variable_declaration_assign_opt
   : VASSIGN expression { $$ = $2; }

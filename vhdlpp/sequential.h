@@ -21,8 +21,6 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-// FM TODO: Make deep copy of lists in clone() impls generic!
-
 # include <set>
 
 # include "LineInfo.h"
