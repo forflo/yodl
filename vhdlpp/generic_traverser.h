@@ -45,8 +45,13 @@ public:
         return lambda(node, environment);
     };
 
+    using conversion_t = function<int (const AstNode *)> *;
+    operator conversion_t() {
+        return reinterpret_cast<function<int (const AstNode*)> *>(this);
+    };
+
+    T environment;
 private:
-    T environment{};
     function<int (const AstNode *, T &value)> lambda;
 };
 

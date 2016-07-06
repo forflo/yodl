@@ -206,32 +206,45 @@ int main(int argc, char *argv[]) {
     cout << "\n\n";
 
     AstNode *root = ent;
-    GenericTraverser traverser(
-        [=](const AstNode *node){
-            Match(node){
-                Case(C<Entity>()){ return true; }
-                Otherwise(){ return false; }
-            } EndMatch;
-            return false; //without: compiler warning
-        },
-        StatefulLambda<string>{
-            [=](const AstNode *node, auto &env) -> int {
-                cout << "[VISITOR] Found node!"  << endl;
-                env = "100";
-                emit_dotgraph(std::cout,
-                              "Entity",
-                              dynamic_cast<const Entity*>(node)
-                              ->emit_strinfo_tree());
-                cout << "[VISITOR] val fnord: " << env << endl;
-                return 0;
-            }
-        },
-        root,
-        GenericTraverser::RECUR);
+//    GenericTraverser traverser(
+//        [=](const AstNode *node){
+//            Match(node){
+//                Case(C<Entity>()){ return true; }
+//                Otherwise(){ return false; }
+//            } EndMatch;
+//            return false; //without: compiler warning
+//        },
+//        StatefulLambda<string>{
+//            [=](const AstNode *node, auto &env) -> int {
+//                cout << "[VISITOR] Found node!"  << endl;
+//                env = "100";
+//                emit_dotgraph(std::cout,
+//                              "Entity",
+//                              dynamic_cast<const Entity*>(node)
+//                              ->emit_strinfo_tree());
+//                cout << "[VISITOR] val fnord: " << env << endl;
+//                return 0;
+//            }
+//        },
+//        root,
+//        GenericTraverser::RECUR);
+//
+//    traverser.traverse();
+//    cout << "Traversal Messages:\n";
+//    traverser.emitTraversalMessages(cout, "\n");
 
-    traverser.traverse();
-    cout << "Traversal Messages:\n";
-    traverser.emitTraversalMessages(cout, "\n");
+//    if (traverser.wasError()){
+//        cout << "\nError Messages:\n";
+//        traverser.emitErrorMessages(cout, "\n");
+//    }
+
+    auto visitor =
+        [=](const AstNode *, int &env) -> int {
+        cout << "[VISITOR] Found node!"  << endl;
+        env++;
+        return 0;
+    };
+    StatefulLambda<int> state = StatefulLambda<int>(0, visitor);
 
     GenericTraverser traverser2(
         [=](const AstNode *node){
@@ -241,24 +254,14 @@ int main(int argc, char *argv[]) {
             } EndMatch;
             return false; //without: compiler warning
         },
-        StatefulLambda<int>{
-            0,
-            [=](const AstNode *, auto &env) -> int {
-                cout << "[VISITOR] Found node!"  << endl;
-                env++;
-                return 0;
-            }
-        },
+        [&state](const AstNode *a) -> int { return state(a); },
         root,
         GenericTraverser::RECUR);
 
     cout << "\n\n";
     traverser2.traverse();
+    cout << "Number of BlockStatements: " << state.environment << endl;
 
-    if (traverser.wasError()){
-        cout << "\nError Messages:\n";
-        traverser.emitErrorMessages(cout, "\n");
-    }
 
     cout << "\n\n";
 
