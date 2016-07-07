@@ -45,11 +45,6 @@ public:
         return lambda(node, environment);
     };
 
-    using conversion_t = function<int (const AstNode *)> *;
-    operator conversion_t() {
-        return reinterpret_cast<function<int (const AstNode*)> *>(this);
-    };
-
     T environment;
 private:
     function<int (const AstNode *, T &value)> lambda;
@@ -68,8 +63,19 @@ public:
                      function<int (const AstNode *)> v,
                      AstNode *a,
                      recur_t r)
-        : predicate(p)
-        , visitor(v)
+        : mutatingTraversal(false)
+        , predicate(p)
+        , constVisitor(v)
+        , ast(a)
+        , recurSpec(r) { }
+
+    GenericTraverser(function<bool (const AstNode *)> p,
+                     function<int (AstNode *)> v,
+                     AstNode *a,
+                     recur_t r)
+        : mutatingTraversal(true)
+        , predicate(p)
+        , mutatingVisitor(v)
         , ast(a)
         , recurSpec(r) { }
 
@@ -91,12 +97,24 @@ private:
     void traverse(const VType *);
     void traverse(SigVarBase *);
 
+private:
     vector<string> traversalMessages;
     vector<string> traversalErrors;
     bool errorFlag = false;
+    bool mutatingTraversal;
 
     function<bool (const AstNode *)> predicate;
-    function<int (const AstNode *)> visitor;
+    // visitor visits all nodes and
+    // mutating_visitor visits all mutable nodes
+    //
+    // because of the constness of certain Expression and VType
+    // Subclass members, mutating_visitor only visits
+    // Objects related to the AstNode Subclasses
+    // ComponentBase, Architecture,
+    // Architecture::Statement, SequentialStmt and SigVarBase
+    function<int (const AstNode *)> constVisitor;
+    function<int (AstNode *)> mutatingVisitor;
+
     AstNode *ast;
     recur_t recurSpec;
 };
