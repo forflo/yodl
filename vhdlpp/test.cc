@@ -218,7 +218,8 @@ TEST_CASE("Test simple generic traversal", "[generic traverser]"){
             } EndMatch;
             return false; //without: compiler warning
         },
-        [&state](const AstNode *a) -> int { return state(a); },
+        static_cast<function<int (const AstNode *)>>(
+            [&state](const AstNode *a) -> int { return state(a); }),
         root,
         GenericTraverser::RECUR);
 
