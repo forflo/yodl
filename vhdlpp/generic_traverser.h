@@ -65,7 +65,7 @@ public:
 
 public:
     GenericTraverser(function<bool (const AstNode *)> p,
-                     function<int (const AstNode *)> v,
+                     function<int (const AstNode *)> *v,
                      AstNode *a,
                      recur_t r)
         : predicate(p)
