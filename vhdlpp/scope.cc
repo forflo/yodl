@@ -63,97 +63,6 @@ ScopeBase::ScopeBase(const ActiveScope& ref)
 //freeing of member objects is performed by child classes
 ScopeBase::~ScopeBase() { }
 
-ScopeBase::ScopeBase(const ScopeBase &other)
-    : context_(other.context_)
-    , name_(other.name_) {
-
-    map<perm_string, Signal *> old_signals_copy;
-    map<perm_string, Signal *> new_signals_copy;
-
-    map<perm_string, Variable *> old_variables_copy;
-    map<perm_string, Variable *> new_variables_copy;
-
-    map<perm_string, ComponentBase *> old_components_copy;
-    map<perm_string, ComponentBase *> new_components_copy;
-
-    map<perm_string, const VType *> use_types_copy;
-    map<perm_string, const VType *> cur_types_copy;
-
-    map<perm_string, struct const_t *> use_constants_copy;
-    map<perm_string, struct const_t *> cur_constants_copy;
-
-    map<perm_string, SubHeaderList> use_subprograms_copy;
-    map<perm_string, SubHeaderList> cur_subprograms_copy;
-
-    map<perm_string, ScopeBase *> scopes_copy;
-
-    list<const VTypeEnum *> use_enums_copy;
-    list<SequentialStmt *> initializers_copy;
-    list<SequentialStmt *> finalizers_copy;
-
-    Package *package_header_copy;
-
-    // FM. MA More or less auto generated
-    for (auto &i : old_signals_) {
-        old_signals_copy[i.first] = i.second->clone();
-    }
-    for (auto &i : new_signals_) {
-        new_signals_copy[i.first] = i.second->clone();
-    }
-
-    for (auto &i : old_variables_) {
-        old_variables_copy[i.first] = i.second->clone();
-    }
-    for (auto &i : new_variables_) {
-        new_variables_copy[i.first] = i.second->clone();
-    }
-
-    for (auto &i : old_components_) {
-        old_components_copy[i.first] = i.second->clone();
-    }
-    for (auto &i : new_components_)
-    {
-        new_components_copy[i.first] = i.second->clone();
-    }
-
-    for (auto &i : use_types_)
-    {
-        use_types_copy[i.first] = i.second->clone();
-    }
-    for (auto &i : cur_types_)
-    {
-        cur_types_copy[i.first] = i.second->clone();
-    }
-
-    for (auto &i : use_constants_)
-    {
-        use_constants_copy[i.first] = i.second->clone();
-    }
-    for (auto &i : cur_constants_)
-    {
-        cur_constants_copy[i.first] = i.second->clone();
-    }
-
-    for (auto &i : use_subprograms_)
-    {
-        use_subprograms_copy[i.first] = i.second->clone();
-    }
-    for (auto &i : cur_subprograms_)
-    {
-        cur_subprograms_copy[i.first] = i.second->clone();
-    }
-
-    for (auto &i : scopes_)
-    {
-        scopes_copy[i.first] = i.second->clone();
-    }
-
- use_enums
- initializers
- finalizers
-
-    Package *package_header_copy;
-}
 
 /* A parent scope is destroyed only if all child scopes
  * were previously destroyed. Therefor we can delete all
@@ -195,11 +104,14 @@ const VType *ScopeBase::find_type(perm_string by_name) {
 }
 
 
-bool ScopeBase::find_constant(perm_string by_name, const VType *& typ, Expression *& exp) const {
+bool ScopeBase::find_constant(perm_string by_name,
+                              const VType *& typ,
+                              Expression *& exp) const {
     typ = NULL;
     exp = NULL;
 
-    map<perm_string, struct const_t *>::const_iterator cur = cur_constants_.find(by_name);
+    map<perm_string, struct const_t *>::const_iterator cur =
+        cur_constants_.find(by_name);
     if (cur == cur_constants_.end()) {
         cur = use_constants_.find(by_name);
         if (cur == use_constants_.end()) {
@@ -227,7 +139,8 @@ Signal *ScopeBase::find_signal(perm_string by_name) const {
 
 
 Variable *ScopeBase::find_variable(perm_string by_name) const {
-    map<perm_string, Variable *>::const_iterator cur = new_variables_.find(by_name);
+    map<perm_string, Variable *>::const_iterator cur =
+        new_variables_.find(by_name);
     if (cur == new_variables_.end()) {
         cur = old_variables_.find(by_name);
         if (cur == old_variables_.end()) {
@@ -245,7 +158,8 @@ const InterfacePort *ScopeBase::find_param(perm_string) const {
 
 
 const InterfacePort *ScopeBase::find_param_all(perm_string by_name) const {
-    for (map<perm_string, SubHeaderList>::const_iterator cur = use_subprograms_.begin();
+    for (map<perm_string, SubHeaderList>::const_iterator cur =
+             use_subprograms_.begin();
          cur != use_subprograms_.end(); ++cur) {
         const SubHeaderList& subp_list = cur->second;
 
@@ -257,7 +171,8 @@ const InterfacePort *ScopeBase::find_param_all(perm_string by_name) const {
         }
     }
 
-    for (map<perm_string, SubHeaderList>::const_iterator cur = cur_subprograms_.begin();
+    for (map<perm_string, SubHeaderList>::const_iterator cur =
+             cur_subprograms_.begin();
          cur != cur_subprograms_.end(); ++cur) {
         const SubHeaderList& subp_list = cur->second;
 
@@ -307,14 +222,16 @@ const VTypeEnum *ScopeBase::is_enum_name(perm_string name) const {
  * definition from another scope.
  */
 void ScopeBase::do_use_from(const ScopeBase *that) {
-    for (map<perm_string, ComponentBase *>::const_iterator cur = that->old_components_.begin()
+    for (map<perm_string, ComponentBase *>::const_iterator cur =
+             that->old_components_.begin()
          ; cur != that->old_components_.end(); ++cur) {
         if (cur->second == 0) {
             continue;
         }
         old_components_[cur->first] = cur->second;
     }
-    for (map<perm_string, ComponentBase *>::const_iterator cur = that->new_components_.begin()
+    for (map<perm_string, ComponentBase *>::const_iterator cur =
+             that->new_components_.begin()
          ; cur != that->new_components_.end(); ++cur) {
         if (cur->second == 0) {
             continue;
@@ -322,7 +239,8 @@ void ScopeBase::do_use_from(const ScopeBase *that) {
         old_components_[cur->first] = cur->second;
     }
 
-    for (map<perm_string, SubHeaderList>::const_iterator cur = that->cur_subprograms_.begin()
+    for (map<perm_string, SubHeaderList>::const_iterator cur =
+             that->cur_subprograms_.begin()
          ; cur != that->cur_subprograms_.end(); ++cur) {
         if (cur->second.empty()) {
             continue;
@@ -330,7 +248,8 @@ void ScopeBase::do_use_from(const ScopeBase *that) {
         use_subprograms_[cur->first] = cur->second;
     }
 
-    for (map<perm_string, const VType *>::const_iterator cur = that->cur_types_.begin()
+    for (map<perm_string, const VType *>::const_iterator cur =
+             that->cur_types_.begin()
          ; cur != that->cur_types_.end(); ++cur) {
         if (cur->second == 0) {
             continue;
@@ -338,7 +257,8 @@ void ScopeBase::do_use_from(const ScopeBase *that) {
         use_types_[cur->first] = cur->second;
     }
 
-    for (map<perm_string, const_t *>::const_iterator cur = that->cur_constants_.begin()
+    for (map<perm_string, const_t *>::const_iterator cur =
+             that->cur_constants_.begin()
          ; cur != that->cur_constants_.end(); ++cur) {
         use_constants_[cur->first] = cur->second;
     }
@@ -488,7 +408,9 @@ bool ActiveScope::is_vector_name(perm_string name) const {
 
 
 ComponentBase *Scope::find_component(perm_string by_name) {
-    map<perm_string, ComponentBase *>::const_iterator cur = new_components_.find(by_name);
+    map<perm_string, ComponentBase *>::const_iterator cur =
+        new_components_.find(by_name);
+
     if (cur == new_components_.end()) {
         cur = old_components_.find(by_name);
         if (cur == old_components_.end()) {

@@ -60,6 +60,22 @@ struct delete_pair_second {
     }
 };
 
+//FM. MA | Clone implementation NOTE:
+//
+//A correct clone() Method - like the one
+//of the Expression base class - of classes inheriting
+//ScopeBase, is especially tricky to implement.
+//I'll assume that once an Object of Singal, Variable,
+//ComponentBase ... is created. It won't be modified or
+//feed. Based on this assumption it's feasible to
+//completely omit deep copying of all Object pointed
+//to by the maps (members of this class). Thus, cloned AST's
+//will share nothing but those objects...
+//
+//This make-shift solution will (hopefully) be rewritten
+//once I understand every aspect of the implemented scoping.
+//Maybe the whole scope management needs complete rewrite...
+////
 class ScopeBase : public AstNode {
 public:
     ScopeBase() : package_header_(0) {}
@@ -159,6 +175,11 @@ public:
     //FM. MA Added ParserContext to members
     ParserContext *context_;
 
+    //TODO: In order to implement clone without duplication
+    //      of Singal, Variable ... Objects. The Pointers to
+    //      these Objects will have to be smart pointers in
+    //      in the future. Implement this! The need for the
+    //      ScopeBase::cleanup() Method of course would vanish.
     // Signal declarations...
     map<perm_string, Signal *> old_signals_;              //previous scopes
     map<perm_string, Signal *> new_signals_;              //current scope
