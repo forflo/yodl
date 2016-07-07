@@ -176,8 +176,8 @@ void GenericTraverser::traverse(Architecture *arch){
                                         + string(" detected"));
 
                     if (predicate(arch)) {
-                        if (mutatingTraversal) { mutatingVisitor(c); }
-                        else { constVisitor(c); }
+                        if (mutatingTraversal) { mutatingVisitor(arch); }
+                        else { constVisitor(arch); }
 
                         if (recurSpec == GenericTraverser::NONRECUR){
                             return;
@@ -1145,8 +1145,8 @@ void GenericTraverser::traverse(SequentialStmt *seq){
 
             // run visitor
             if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
@@ -1154,7 +1154,7 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             }
 
             // descent
-            traverse(retValue);
+            if (mutatingTraversal == false) { traverse(retValue); }
         }
 
         Case(C<SignalSeqAssignment>(assignLval, waveform)){
@@ -1162,8 +1162,8 @@ void GenericTraverser::traverse(SequentialStmt *seq){
 
             // run visitor
             if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
@@ -1171,10 +1171,12 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             }
 
             // descent
-            traverse(assignLval);
+            if (mutatingTraversal == false) {
+                traverse(assignLval);
 
-            for (auto &i : waveform)
-                traverse(i);
+                for (auto &i : waveform)
+                    traverse(i);
+            }
         }
 
         //FIXME: Ruines build. Don't know why
@@ -1188,8 +1190,8 @@ void GenericTraverser::traverse(SequentialStmt *seq){
 
             // run visitor
             if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
@@ -1197,8 +1199,9 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             }
 
             // descent
-            for (auto &i : *static_cast<list<named_expr_t*>*>(procParams))
-                traverse(i);
+            if (mutatingTraversal == false)
+                for (auto &i : *static_cast<list<named_expr_t*>*>(procParams))
+                    traverse(i);
         }
 
         Case(C<VariableSeqAssignment>(varLval, varRval)){
@@ -1206,8 +1209,8 @@ void GenericTraverser::traverse(SequentialStmt *seq){
 
             // run visitor
             if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
@@ -1215,8 +1218,10 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             }
 
             // descent
-            traverse(varLval);
-            traverse(varRval);
+            if (mutatingTraversal == false) {
+                traverse(varLval);
+                traverse(varRval);
+            }
         }
 
         Case(C<ReportStmt>(reportMsg, reportSeverity)){
@@ -1235,8 +1240,11 @@ void GenericTraverser::traverse(SequentialStmt *seq){
                     }
 
                     // descent
-                    traverse(assertCond);
-                    traverse(reportMsg);
+
+                    if (mutatingTraversal == false) {
+                        traverse(assertCond);
+                        traverse(reportMsg);
+                    }
                 }
                 Otherwise(){
                     traversalMessages.push_back("ReturnStmt detected");
@@ -1252,7 +1260,7 @@ void GenericTraverser::traverse(SequentialStmt *seq){
                     }
 
                     // descent
-                    traverse(reportMsg);
+                    if (mutatingTraversal == false) { traverse(reportMsg); }
                 }
             } EndMatch;
         }
@@ -1262,8 +1270,8 @@ void GenericTraverser::traverse(SequentialStmt *seq){
 
             // run visitor
             if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
 
                 if (recurSpec == GenericTraverser::NONRECUR){
                     return;
@@ -1287,9 +1295,11 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             }
 
             // descent
-            traverse(waitExpr);
-            for (auto &i : waitSens)
-                traverse(i);
+            if (mutatingTraversal == false) {
+                traverse(waitExpr);
+                for (auto &i : waitSens)
+                    traverse(i);
+            }
         }
 
         Otherwise(){
@@ -1336,7 +1346,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1350,7 +1360,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1364,7 +1374,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1384,7 +1394,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1399,7 +1409,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1413,7 +1423,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1429,7 +1439,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1443,7 +1453,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1459,7 +1469,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1474,7 +1484,7 @@ void GenericTraverser::traverse(const VType *type){
 
             // run visitor
             if(predicate(type)){
-                visitor(type);
+                constVisitor(type);
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1492,7 +1502,8 @@ void GenericTraverser::traverse(SigVarBase *signal){
 
             // run visitor
             if(predicate(signal)){
-                visitor(signal);
+                if (mutatingTraversal) { mutatingVisitor(signal); }
+                else { constVisitor(signal); }
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }
@@ -1505,7 +1516,8 @@ void GenericTraverser::traverse(SigVarBase *signal){
 
             // run visitor
             if(predicate(signal)){
-                visitor(signal);
+                if (mutatingTraversal) { mutatingVisitor(signal); }
+                else { constVisitor(signal); }
                 if(recurSpec == GenericTraverser::NONRECUR) {
                     return;
                 }

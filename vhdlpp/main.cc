@@ -224,7 +224,11 @@ int main(int argc, char *argv[]) {
             } EndMatch;
             return false; //without: compiler warning
         },
-        [&state](const AstNode *a) -> int { return state(a); },
+        // static_cast needed here in order to resolve the
+        // overload resolution ambiguity arising from the use
+        // of std::function
+        static_cast<function<int (const AstNode *)>>(
+            [&state](const AstNode *a) -> int { return state(a); }),
         root,
         GenericTraverser::RECUR);
 
