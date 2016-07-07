@@ -345,16 +345,34 @@ StatementList::~StatementList() {
 }
 
 
-ProcessStatement::ProcessStatement(perm_string                 iname,
-                                   const ActiveScope&          ref,
-                                   list<Expression *>     *sensitivity_list,
+ProcessStatement::ProcessStatement(perm_string iname,
+                                   const ActiveScope& ref,
+                                   list<Expression *> *sensitivity_list,
                                    list<SequentialStmt *> *statements_list)
-    : StatementList(statements_list), Scope(ref), iname_(iname) {
+    : StatementList(statements_list)
+    , Scope(ref)
+    , iname_(iname) {
     if (sensitivity_list) {
         sensitivity_list_.splice(sensitivity_list_.end(), *sensitivity_list);
     }
 }
 
+ProcessStatement *ProcessStatement::clone() const {
+    std::list<Expression *> sens_list_copy;
+    std::list<SequentialStmt *> *stmt_list_copy =
+        new std::list<SequentialStmt *>;
+
+    for (auto &i : sensitivity_list_)
+        sens_list_copy.push_back(i->clone());
+
+    for (auto &i : statements_)
+        stmt_list_copy->push_back(i->clone());
+
+    return new ProcessStatement(
+        iname_, ActiveScope(dynamic_cast<const Scope &>(*this)),
+        &sens_list_copy, stmt_list_copy);
+
+}
 
 ProcessStatement::~ProcessStatement() {
     for (list<Expression *>::iterator it = sensitivity_list_.begin();
@@ -384,7 +402,7 @@ BlockStatement::BlockHeader *BlockStatement::BlockHeader::clone() const {
     //TODO: implement
 }
 
-int BlockStatement::elaborate(void) {
+int BlockStatement::elaborate(Entity *, Architecture *) {
     return 0; // TODO: Implement
 }
 

@@ -279,6 +279,11 @@ protected:
  * used by the parser to build up scopes. */
 class ActiveScope : public ScopeBase {
 public:
+    //FM. MA | Needed for ProcessStatement::clone()
+    ActiveScope(const Scope &s)
+        : ScopeBase(s)
+        , context_entity_(0) {}
+
     ActiveScope(ParserContext *context)
         : ScopeBase(context)
         , context_entity_(0) {}
