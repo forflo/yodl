@@ -60,7 +60,7 @@ SimpleTree<map<string, string>> *BasicLoopStatement::emit_strinfo_tree(void) con
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "BasicLoopStatement"},
-            {"label", name_.str()}});
+            {"label", (name_.str() ? name_.str() : "")}});
 
     for (auto &i : stmts_)
         result->forest.push_back(i->emit_strinfo_tree());
@@ -77,6 +77,9 @@ SimpleTree<map<string, string>> *ForLoopStatement::emit_strinfo_tree(void) const
 
     result->forest = { range_->emit_strinfo_tree() };
 
+    for (auto &i : stmts_)
+        result->forest.push_back(i->emit_strinfo_tree());
+
     return result;
 }
 
@@ -84,7 +87,7 @@ SimpleTree<map<string, string>> *WhileLoopStatement::emit_strinfo_tree(void) con
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "WhileLoopStatement"},
-            {"label", name_.str()}});
+            {"label", (name_.str() ? name_.str() : "")}});
 
     result->forest = { cond_->emit_strinfo_tree() };
 
