@@ -430,12 +430,14 @@ int BlockStatement::elaborate(Entity *, Architecture *) {
 }
 
 BlockStatement *BlockStatement::clone() const {
-    auto result = new BlockStatement(header_->clone(),
-                                     label,
-        );
+    auto *concurrent_stmts_copy = new std::list<Architecture::Statement*>;
+    for (auto &i : *concurrent_stmts_)
+        concurrent_stmts_copy->push_back(i->clone());
 
-
-    return NULL;
+    return new BlockStatement(
+        header_->clone(), label_,
+        ActiveScope(dynamic_cast<const Scope &>(*this)),
+        concurrent_stmts_copy);
 }
 
 BlockStatement::BlockStatement(BlockStatement::BlockHeader *header,
