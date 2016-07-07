@@ -397,9 +397,32 @@ BlockStatement::BlockHeader::BlockHeader(list<InterfacePort*> *generic_clause,
     , port_map_aspect_(port_map_aspect)
 { }
 
+//TODO: use template function
 BlockStatement::BlockHeader *BlockStatement::BlockHeader::clone() const {
-    return NULL;
-    //TODO: implement
+    std::list<InterfacePort*> *generic_clause_copy =
+        new std::list<InterfacePort*>;
+    std::list<named_expr_t*> *generic_map_aspect_copy =
+        new std::list<named_expr_t*>;;
+    std::list<InterfacePort*> *port_clause_copy =
+        new std::list<InterfacePort*>;
+    std::list<named_expr_t*> *port_map_aspect_copy =
+        new std::list<named_expr_t*>;
+
+    for (auto &i : *generic_clause_)
+        generic_clause_copy->push_back(i->clone());
+
+    for (auto &i : *generic_map_aspect_)
+        generic_map_aspect_copy->push_back(i->clone());
+
+    for (auto &i : *port_clause_)
+        port_clause_copy->push_back(i->clone());
+
+    for (auto &i : *port_map_aspect_)
+        port_map_aspect_copy->push_back(i->clone());
+
+    return new BlockStatement::BlockHeader(
+        generic_clause_copy, generic_map_aspect_copy,
+        port_clause_copy, port_map_aspect_copy);
 }
 
 int BlockStatement::elaborate(Entity *, Architecture *) {
