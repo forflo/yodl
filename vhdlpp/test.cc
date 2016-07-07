@@ -51,6 +51,29 @@ TEST_CASE("Simple block", "[ast]"){
     REQUIRE(context->parse_sorrys == 0);
 }
 
+TEST_CASE("Simple for loop", "[ast]"){
+    int rc;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc = ParserUtil::parse_source_file(
+        "vhdl_testfiles/for_loop_simple.vhd",
+        perm_string(), context);
+
+    REQUIRE(rc == 0);
+    REQUIRE(context->parse_errors == 0);
+    REQUIRE(context->parse_sorrys == 0);
+
+    REQUIRE(context->design_entities.size() == 1);
+
+    auto iterator = context->design_entities.begin();
+    auto entity1 = iterator->second;
+
+    emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
+}
+
 TEST_CASE("Multiple parses", "[ast]"){
     int rc1, rc2;
 

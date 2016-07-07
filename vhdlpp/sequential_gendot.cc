@@ -72,8 +72,8 @@ SimpleTree<map<string, string>> *ForLoopStatement::emit_strinfo_tree(void) const
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ForLoopStatement"},
-            {"label", name_.str()},
-            {"loop-iterator", it_.str()}});
+            {"label", (name_.str() ? name_.str() : "") },
+            {"loop-iterator", (it_.str() ? it_.str() : "")}});
 
     result->forest = { range_->emit_strinfo_tree() };
 

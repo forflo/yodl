@@ -200,42 +200,13 @@ int main(int argc, char *argv[]) {
 
     ////
     // WARNING: CHECK ENTITY NAME!!
-    Entity *ent = cont->design_entities[perm_string::literal("ent")];
+    auto iter = cont->design_entities.begin();
+    auto entity1 = iter->second;
     cout << "Entity found!\n";
 
     cout << "\n\n";
 
-    AstNode *root = ent;
-//    GenericTraverser traverser(
-//        [=](const AstNode *node){
-//            Match(node){
-//                Case(C<Entity>()){ return true; }
-//                Otherwise(){ return false; }
-//            } EndMatch;
-//            return false; //without: compiler warning
-//        },
-//        StatefulLambda<string>{
-//            [=](const AstNode *node, auto &env) -> int {
-//                cout << "[VISITOR] Found node!"  << endl;
-//                env = "100";
-//                emit_dotgraph(std::cout,
-//                              "Entity",
-//                              dynamic_cast<const Entity*>(node)
-//                              ->emit_strinfo_tree());
-//                cout << "[VISITOR] val fnord: " << env << endl;
-//                return 0;
-//            }
-//        },
-//        root,
-//        GenericTraverser::RECUR);
-//
-//    traverser.traverse();
-//    cout << "Traversal Messages:\n";
-//    traverser.emitTraversalMessages(cout, "\n");
-//    if (traverser.wasError()){
-//        cout << "\nError Messages:\n";
-//        traverser.emitErrorMessages(cout, "\n");
-//    }
+    AstNode *root = iter->second;
 
     auto visitor =
         [=](const AstNode *, int &env) -> int {
@@ -248,7 +219,7 @@ int main(int argc, char *argv[]) {
     GenericTraverser traverser2(
         [=](const AstNode *node){
             Match(node){
-                Case(C<BlockStatement>()){ return true; }
+                Case(C<ForLoopStatement>()){ return true; }
                 Otherwise(){ return false; }
             } EndMatch;
             return false; //without: compiler warning
@@ -263,6 +234,8 @@ int main(int argc, char *argv[]) {
 
 
     cout << "\n\n";
+
+    emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
 
 
     /* End Playground */
