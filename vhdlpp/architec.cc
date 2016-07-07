@@ -408,17 +408,21 @@ BlockStatement::BlockHeader *BlockStatement::BlockHeader::clone() const {
     std::list<named_expr_t*> *port_map_aspect_copy =
         new std::list<named_expr_t*>;
 
-    for (auto &i : *generic_clause_)
-        generic_clause_copy->push_back(i->clone());
+    if (generic_clause_)
+        for (auto &i : *generic_clause_)
+            generic_clause_copy->push_back(i->clone());
 
-    for (auto &i : *generic_map_aspect_)
-        generic_map_aspect_copy->push_back(i->clone());
+    if (generic_map_aspect_)
+        for (auto &i : *generic_map_aspect_)
+            generic_map_aspect_copy->push_back(i->clone());
 
-    for (auto &i : *port_clause_)
-        port_clause_copy->push_back(i->clone());
+    if (port_clause_)
+        for (auto &i : *port_clause_)
+            port_clause_copy->push_back(i->clone());
 
-    for (auto &i : *port_map_aspect_)
-        port_map_aspect_copy->push_back(i->clone());
+    if (port_map_aspect_)
+        for (auto &i : *port_map_aspect_)
+            port_map_aspect_copy->push_back(i->clone());
 
     return new BlockStatement::BlockHeader(
         generic_clause_copy, generic_map_aspect_copy,

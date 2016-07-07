@@ -281,7 +281,7 @@ class ActiveScope : public ScopeBase {
 public:
     //FM. MA | Needed for ProcessStatement::clone()
     ActiveScope(const Scope &s)
-        : ScopeBase(s)
+        : ScopeBase(s.context_)
         , context_entity_(0) {}
 
     ActiveScope(ParserContext *context)
