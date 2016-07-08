@@ -11,13 +11,17 @@ class ForLoopUnroller {
 public:
     ForLoopUnroller() = default;
 
-    int operator()(const AstNode*);
+    int operator()(AstNode*);
 
 private:
-    const Entity *currentEntity;
-    const ScopeBase *currentScope;
+    Entity *currentEntity;
+    ScopeBase *currentScope;
 
-    int unroll(const AstNode *, bool top);
+    std::list<SequentialStmt *> accumulator;
+
+private:
+    int unroll(AstNode *);
+    int modifyProcess(AstNode *);
 };
 
-#endif /*  */
+#endif /* ForLoopUnroller */

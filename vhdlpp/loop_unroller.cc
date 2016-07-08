@@ -4,16 +4,18 @@
 #include "sequential.h"
 #include "entity.h"
 #include "expression.h"
+#include "architec.h"
 
-int ForLoopUnroller::unroll(const AstNode *forNode, bool top){
-    auto *f = dynamic_cast<const ForLoopStatement*>(forNode);
+int ForLoopUnroller::unroll(AstNode *forNode){
+    auto *f = dynamic_cast<ForLoopStatement*>(forNode);
 
     perm_string iterator = f->it_;
     std::list<SequentialStmt *> statements = f->stmts_;
-    std::list<SequentialStmt *> expandedStatements;
     ExpRange *range = f->range_;
+    ExpRange::range_dir_t dir = range->direction_;
 
     int64_t leftVal, rightVal;
+    bool containsNoForLoop = true;
     int rc = 0;
 
     //TODO: fix constness issue
@@ -31,28 +33,42 @@ int ForLoopUnroller::unroll(const AstNode *forNode, bool top){
     for (auto &i : statements){
         Match(i){
             Case(mch::C<ForLoopStatement>()){
-                unroll(i, false);
+                if (unroll(i) != 0){
+                    return 1;
+                }
             }
         } EndMatch;
     }
 
-    ExpRange::range_dir_t dir = range->direction_;
+    for (auto &i : statements){
+        Match(i){
+            Case(mch::C<ForLoopStatement>()) {
+                containsNoForLoop = false;
+            }
+        } EndMatch;
+    }
+
+    if (containsNoForLoop){
+        // only shallow copy, because that gets cloned further below
+        for (auto &i : statements)
+            accumulator.push_back(i);
+    }
 
     // expansion starts here
     switch(dir) {
     case ExpRange::range_dir_t::DOWNTO:
         if (leftVal < rightVal) { /* SEMANTIC ERROR */ return 1; }
         for (int i = leftVal; i >= rightVal; i--){
-            for (auto &i : statements)
-                expandedStatements.push_back(i->clone());
+            for (auto &i : accumulator)
+                accumulator.push_back(i->clone());
         }
 
         break;
     case ExpRange::range_dir_t::TO:
         if (leftVal > rightVal) { /* SEMANTIC ERROR */ return 1; }
         for (int i = leftVal; i <= rightVal; i++){
-            for (auto &i : statements)
-                expandedStatements.push_back(i->clone());
+            for (auto &i : accumulator)
+                accumulator.push_back(i->clone());
         }
 
         break;
@@ -60,23 +76,44 @@ int ForLoopUnroller::unroll(const AstNode *forNode, bool top){
         return 1; //ERROR
     }
 
-    f->stmts_ =
+    return 0;
+}
+
+int ForLoopUnroller::modifyProcess(AstNode *process){
+    ProcessStatement *proc = dynamic_cast<ProcessStatement*>(process);
+
+    using namespace mch;
+    for (list<SequentialStmt *>::iterator b = proc->statements_.begin();
+         b != proc->statements_.end();
+         ++b){
+
+        Match(*b){
+            Case(C<ForLoopStatement>()){
+                unroll(*b);
+
+                proc->statements_.erase(b);
+                ++b;
+                proc->statements_.splice(b, accumulator);
+            }
+            Otherwise(){ /* do nothing */ }
+        } EndMatch;
+    }
 
     return 0;
 }
 
-int ForLoopUnroller::operator()(const AstNode *n){
+int ForLoopUnroller::operator()(AstNode *n){
     using namespace mch;
 
     Match(n){
         Case(C<Entity>()){
-            currentEntity = dynamic_cast<const Entity*>(n);
+            currentEntity = dynamic_cast<Entity*>(n);
         }
         Case(C<ScopeBase>()){
-            currentScope = dynamic_cast<const ScopeBase *>(n);
+            currentScope = dynamic_cast<ScopeBase *>(n);
         }
-        Case(C<ForLoopStatement>()){
-            return unroll(n, true);
+        Case(C<ProcessStatement>()){
+            return modifyProcess(n);
         }
         Otherwise(){ return 0; }
     } EndMatch;

@@ -49,6 +49,7 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     vtype_gendot.o vsignal_gendot.o\
     simple_tree/simple_tree.o \
     generic_traverser.o \
+	loop_unroller.o \
     enum_overloads.o \
     parse_context.o  \
     generate_graph.o \

@@ -35,19 +35,32 @@ template<typename T> class StatefulLambda {
 public:
     StatefulLambda(T e, function<int (const AstNode *, T &)> l)
         : environment(e)
-        , lambda(l) {};
+        , constLambda(l) {};
 
     // environment get's default initialized in this constructor
     StatefulLambda(function<int (const AstNode *, T &)> l)
-        : lambda(l) {};
+        : constLambda(l) {};
+
+    StatefulLambda(T e, function<int (AstNode *, T &)> l)
+        : environment(e)
+        , mutatingLambda(l) {};
+
+    // environment get's default initialized in this constructor
+    StatefulLambda(function<int (AstNode *, T &)> l)
+        : mutatingLambda(l) {};
 
     int operator()(const AstNode *node){
-        return lambda(node, environment);
+        return constLambda(node, environment);
+    };
+
+    int operator()(AstNode *node){
+        return mutatingLambda(node, environment);
     };
 
     T environment;
 private:
-    function<int (const AstNode *, T &value)> lambda;
+    function<int (const AstNode *, T &value)> constLambda;
+    function<int (AstNode *, T &value)> mutatingLambda;
 };
 
 

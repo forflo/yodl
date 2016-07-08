@@ -49,6 +49,7 @@ const char COPYRIGHT[] =
 #include "vtype.h"
 #include "parse_context.h"
 #include "mach7_includes.h"
+#include "loop_unroller.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -214,7 +215,8 @@ int main(int argc, char *argv[]) {
         env++;
         return 0;
     };
-    StatefulLambda<int> state = StatefulLambda<int>(0, visitor);
+    StatefulLambda<int> state = StatefulLambda<int>(
+        0, static_cast<function <int (const AstNode*, int &)>>(visitor));
 
     GenericTraverser traverser2(
         [=](const AstNode *node){
@@ -233,11 +235,33 @@ int main(int argc, char *argv[]) {
     traverser2.traverse();
     cout << "Number of BlockStatements: " << state.environment << endl;
 
+    //Test for loop unroller
+
+    ForLoopUnroller forUnroller{};
+
+    GenericTraverser loopUnroller(
+        [](const AstNode *n) -> bool {
+            Match(n){
+                Case(C<ProcessStatement>()){
+                    return true;
+                }
+                Otherwise(){
+                    return false;
+                }
+            } EndMatch;
+            return false;
+        },
+        static_cast<function<int (AstNode *)>>(forUnroller),
+        root,
+        GenericTraverser::NONRECUR);
+
+    loopUnroller.traverse();
+
+    emit_dotgraph(std::cout, "fnord",
+                  dynamic_cast<Entity*>(root)->emit_strinfo_tree());
 
     cout << "\n\n";
-
-    emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
-
+//    emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
 
     /* End Playground */
 
