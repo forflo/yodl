@@ -5,25 +5,29 @@
 #include "entity.h"
 #include "expression.h"
 #include "architec.h"
+#include <iostream>
 
 int ForLoopUnroller::unroll(AstNode *forNode){
     auto *f = dynamic_cast<ForLoopStatement*>(forNode);
 
     perm_string iterator = f->it_;
     std::list<SequentialStmt *> statements = f->stmts_;
+    std::list<SequentialStmt *> localAcc;
     ExpRange *range = f->range_;
     ExpRange::range_dir_t dir = range->direction_;
 
     int64_t leftVal, rightVal;
     bool containsNoForLoop = true;
-    int rc = 0;
+    bool rc = true;
 
     //TODO: fix constness issue
-    rc += range->left_->evaluate(currentEntity, currentScope, leftVal);
-    rc += range->right_->evaluate(currentEntity, currentScope, rightVal);
+    rc = rc && range->left_->evaluate(
+        currentEntity, currentScope, leftVal);
+    rc = rc && range->right_->evaluate(
+        currentEntity, currentScope, rightVal);
 
     // non static range
-    if (rc != 0){
+    if (rc == false){
         return 1;
     }
 
@@ -50,8 +54,15 @@ int ForLoopUnroller::unroll(AstNode *forNode){
 
     if (containsNoForLoop){
         // only shallow copy, because that gets cloned further below
-        for (auto &i : statements)
-            accumulator.push_back(i);
+        for (auto &i : statements){
+            localAcc.push_back(i);
+        }
+    } else {
+        for (auto &i : accumulator){
+            localAcc.push_back(i);
+        }
+
+        accumulator.clear();
     }
 
     // expansion starts here
@@ -59,16 +70,16 @@ int ForLoopUnroller::unroll(AstNode *forNode){
     case ExpRange::range_dir_t::DOWNTO:
         if (leftVal < rightVal) { /* SEMANTIC ERROR */ return 1; }
         for (int i = leftVal; i >= rightVal; i--){
-            for (auto &i : accumulator)
-                accumulator.push_back(i->clone());
+            for (auto &j : localAcc)
+                accumulator.push_back(j->clone());
         }
 
         break;
     case ExpRange::range_dir_t::TO:
         if (leftVal > rightVal) { /* SEMANTIC ERROR */ return 1; }
         for (int i = leftVal; i <= rightVal; i++){
-            for (auto &i : accumulator)
-                accumulator.push_back(i->clone());
+            for (auto &j : localAcc)
+                accumulator.push_back(j->clone());
         }
 
         break;
@@ -83,19 +94,24 @@ int ForLoopUnroller::modifyProcess(AstNode *process){
     ProcessStatement *proc = dynamic_cast<ProcessStatement*>(process);
 
     using namespace mch;
+
     for (list<SequentialStmt *>::iterator b = proc->statements_.begin();
          b != proc->statements_.end();
          ++b){
+
+        cout << "test!!!\n";
+        cout << "[statements list]" << proc->statements_.size() << endl;
+
+        cout << "[iterator]" << *b << endl;
 
         Match(*b){
             Case(C<ForLoopStatement>()){
                 unroll(*b);
 
-                proc->statements_.erase(b);
-                ++b;
                 proc->statements_.splice(b, accumulator);
+                proc->statements_.erase(b);
+                std::advance(b, accumulator.size() - 1);
             }
-            Otherwise(){ /* do nothing */ }
         } EndMatch;
     }
 

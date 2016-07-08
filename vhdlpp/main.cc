@@ -202,40 +202,41 @@ int main(int argc, char *argv[]) {
     ////
     // WARNING: CHECK ENTITY NAME!!
     auto iter = cont->design_entities.begin();
-    auto entity1 = iter->second;
     cout << "Entity found!\n";
 
-    cout << "\n\n";
-
-    AstNode *root = iter->second;
-
-    auto visitor =
-        [=](const AstNode *, int &env) -> int {
-        cout << "[VISITOR] Found node!"  << endl;
-        env++;
-        return 0;
-    };
-    StatefulLambda<int> state = StatefulLambda<int>(
-        0, static_cast<function <int (const AstNode*, int &)>>(visitor));
-
-    GenericTraverser traverser2(
-        [=](const AstNode *node){
-            Match(node){
-                Case(C<ForLoopStatement>()){ return true; }
-                Otherwise(){ return false; }
-            } EndMatch;
-            return false; //without: compiler warning
-        },
-        static_cast<function<int (const AstNode *)>>(
-            [&state](const AstNode *a) -> int { return state(a); }),
-        root,
-        GenericTraverser::RECUR);
-
-    cout << "\n\n";
-    traverser2.traverse();
-    cout << "Number of BlockStatements: " << state.environment << endl;
+//    cout << "\n\n";
+//
+//
+//    auto visitor =
+//        [=](const AstNode *, int &env) -> int {
+//        cout << "[VISITOR] Found node!"  << endl;
+//        env++;
+//        return 0;
+//    };
+//    StatefulLambda<int> state = StatefulLambda<int>(
+//        0, static_cast<function <int (const AstNode*, int &)>>(visitor));
+//
+//    GenericTraverser traverser2(
+//        [=](const AstNode *node){
+//            Match(node){
+//                Case(C<ForLoopStatement>()){ return true; }
+//                Otherwise(){ return false; }
+//            } EndMatch;
+//            return false; //without: compiler warning
+//        },
+//        static_cast<function<int (const AstNode *)>>(
+//            [&state](const AstNode *a) -> int { return state(a); }),
+//        root,
+//        GenericTraverser::RECUR);
+//
+//    cout << "\n\n";
+//    traverser2.traverse();
+//    cout << "Number of BlockStatements: " << state.environment << endl;
 
     //Test for loop unroller
+
+    emit_dotgraph(std::cout, "fnord",
+                  dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
 
     ForLoopUnroller forUnroller{};
 
@@ -252,13 +253,13 @@ int main(int argc, char *argv[]) {
             return false;
         },
         static_cast<function<int (AstNode *)>>(forUnroller),
-        root,
+        iter->second,
         GenericTraverser::NONRECUR);
 
     loopUnroller.traverse();
 
     emit_dotgraph(std::cout, "fnord",
-                  dynamic_cast<Entity*>(root)->emit_strinfo_tree());
+                  dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
 
     cout << "\n\n";
 //    emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());

@@ -95,7 +95,8 @@ const VType *ExpName::elaborate_adjust_type_with_range_(Entity *ent, ScopeBase *
 }
 
 
-int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope, bool is_sequ, ExpName *suffix) {
+int ExpName::elaborate_lval_(Entity *ent, ScopeBase *scope,
+                             bool is_sequ, ExpName *suffix) {
     int errors = 0;
 
     if (debug_elaboration) {
