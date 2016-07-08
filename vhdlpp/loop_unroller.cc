@@ -99,17 +99,14 @@ int ForLoopUnroller::modifyProcess(AstNode *process){
          b != proc->statements_.end();
          ++b){
 
-        cout << "test!!!\n";
-        cout << "[statements list]" << proc->statements_.size() << endl;
-
-        cout << "[iterator]" << *b << endl;
-
         Match(*b){
             Case(C<ForLoopStatement>()){
                 unroll(*b);
 
                 proc->statements_.splice(b, accumulator);
+                delete *b; //free old unexpanded subtree
                 proc->statements_.erase(b);
+                //TODO: Bind iteration variables to appropriate values
                 std::advance(b, accumulator.size() - 1);
             }
         } EndMatch;
