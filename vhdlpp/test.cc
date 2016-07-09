@@ -25,6 +25,7 @@
 #include "test.h"
 #include "root_class.h"
 #include "mach7_includes.h"
+#include "path_finder.h"
 
 bool verbose_flag = false;
 // Where to dump design entities
@@ -204,11 +205,12 @@ TEST_CASE("Test simple generic traversal", "[generic traverser]"){
 
     StatefulLambda<int> state = StatefulLambda<int>(
         0,
+        static_cast<function <int (const AstNode *, int &)>>(
         [](const AstNode *, int &env) -> int {
             cout << "[VISITOR] Found node!"  << endl;
             env++;
             return 0;
-        });
+        }));
 
     GenericTraverser traverser(
         [=](const AstNode *node){
@@ -253,11 +255,12 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
 
     StatefulLambda<int> state = StatefulLambda<int>(
         0,
-        [](const AstNode *, int &env) -> int {
-            cout << "[VISITOR] Found node!"  << endl;
-            env++;
-            return 0;
-        });
+        static_cast<function<int (const AstNode *, int &)>>(
+            [](const AstNode *, int &env) -> int {
+                cout << "[VISITOR] Found node!"  << endl;
+                env++;
+                return 0;
+            }));
 
     GenericTraverser traverser(
         [=](const AstNode *node){
@@ -279,4 +282,25 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
     REQUIRE(state.environment == 2);
     traverser.emitTraversalMessages(cout, "\n");
     traverser.emitErrorMessages(cout, "\n");
+}
+
+TEST_CASE("Test n-ary traverser with expression", "[generic traverser]"){
+    ExpInteger *int1 = new ExpInteger(100);
+    ExpInteger *int2 = new ExpInteger(101);
+    ExpInteger *int3 = new ExpInteger(102);
+    ExpInteger *int4 = new ExpInteger(103);
+
+    ExpArithmetic *arith1 = new ExpArithmetic(ExpArithmetic::PLUS, int1, int2);
+    ExpArithmetic *arith2 = new ExpArithmetic(ExpArithmetic::PLUS, int1, int2);
+
+    ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
+
+    PathFinder pathFinder(1);
+
+    pathFinder.findPath(arith);
+    cout << pathFinder;
+
+    PathFinder pathFinder2(2);
+    pathFinder2.findPath(arith);
+    cout << pathFinder2;
 }

@@ -25,19 +25,47 @@
 
 #pragma clang diagnostic ignored "-Wshadow"
 
-int PathFinder::findPath(
-    AstNode *startNode, std::vector<std::vector<AstNode *>> &paths){
+int PathFinder::findPath(AstNode *startNode){
+    if (!paths.empty()) { paths.clear(); }
 
+    if (arity <= 0){ return 1; }
+
+    if (arity == 1){
+        paths = {{}};
+        return 0;
+    }
+
+    std::vector<AstNode *> accumulator(arity);
+
+    return getNaryPaths(1, getListOfChilds(startNode), accumulator);
 }
 
-int PathFinder::findPath(
-    const AstNode *startNode, std::vector<std::vector<const AstNode *>> &paths){
+int PathFinder::findPath(const AstNode *){
+    if (!paths.empty()) { paths.clear(); }
 
+    return 0;
+}
+
+// return as const, so no copy has to be made
+const std::vector<std::vector<AstNode *>> PathFinder::getPaths(){
+    return paths;
+}
+
+std::ostream &operator<<(std::ostream &out, PathFinder &us){
+    out << "Path finder with arity: [" << us.getArity() << "]" << endl;
+    out << endl;
+
+    for (auto &i : us.getPaths()){
+        for (auto &j : i)
+            out << j << " ";
+        out << endl;
+    }
+
+    return out;
 }
 
 
 int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
-                             std::vector<std::vector<AstNode*>> &paths,
                              std::vector<AstNode *> &accumulator){
 
     if (accumulator.size() != arity){
@@ -47,7 +75,7 @@ int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
     if (depth < arity){
         for (auto &i : childs){
             accumulator[depth] = i;
-            getNaryPaths(depth++, getListOfChilds(i), paths, accumulator);
+            getNaryPaths(depth++, getListOfChilds(i), accumulator);
         }
     } else {
         paths.push_back(accumulator);
@@ -55,7 +83,6 @@ int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
 
     return 0;
 }
-
 
 const std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
     using namespace mch;
