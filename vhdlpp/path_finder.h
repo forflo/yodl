@@ -20,11 +20,11 @@ public:
     const std::vector<std::vector<AstNode *>> getPaths();
     size_t getArity(){ return arity; };
 
+    static const std::list<AstNode *> getListOfChilds(AstNode *n);
+
 private:
     int getNaryPaths(size_t, const std::list<AstNode *> &childs,
                      std::vector<AstNode*> &);
-
-    const std::list<AstNode *> getListOfChilds(AstNode *n);
 
 private:
     const size_t arity;

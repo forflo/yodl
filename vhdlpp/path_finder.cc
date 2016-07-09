@@ -31,7 +31,7 @@ int PathFinder::findPath(AstNode *startNode){
     if (arity <= 0){ return 1; }
 
     if (arity == 1){
-        paths = {{}};
+        paths = {{startNode}};
         return 0;
     }
 
@@ -67,7 +67,6 @@ std::ostream &operator<<(std::ostream &out, PathFinder &us){
 
 int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
                              std::vector<AstNode *> &accumulator){
-
     if (accumulator.size() != arity){
         return 1;
     }

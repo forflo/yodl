@@ -285,16 +285,19 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
 }
 
 TEST_CASE("Test n-ary traverser with expression", "[generic traverser]"){
+    vector<vector<AstNode *>> res1, res2;
+
     ExpInteger *int1 = new ExpInteger(100);
     ExpInteger *int2 = new ExpInteger(101);
     ExpInteger *int3 = new ExpInteger(102);
     ExpInteger *int4 = new ExpInteger(103);
 
     ExpArithmetic *arith1 = new ExpArithmetic(ExpArithmetic::PLUS, int1, int2);
-    ExpArithmetic *arith2 = new ExpArithmetic(ExpArithmetic::PLUS, int1, int2);
+    ExpArithmetic *arith2 = new ExpArithmetic(ExpArithmetic::PLUS, int3, int4);
 
     ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
 
+    // check pathFinder::findPath
     PathFinder pathFinder(1);
 
     pathFinder.findPath(arith);
@@ -303,4 +306,29 @@ TEST_CASE("Test n-ary traverser with expression", "[generic traverser]"){
     PathFinder pathFinder2(2);
     pathFinder2.findPath(arith);
     cout << pathFinder2;
+
+    REQUIRE(pathFinder.getPaths().size() == 1);
+    REQUIRE(pathFinder.getPaths()[0][0] == arith);
+
+    REQUIRE(pathFinder2.getPaths().size() == 2);
+//
+//    REQUIRE(pathFinder.getPaths()[0][0] == arith);
+//    REQUIRE(pathFinder.getPaths()[0][1] == arith1);
+//
+//    REQUIRE(pathFinder.getPaths()[0][0] == arith);
+//    REQUIRE(pathFinder.getPaths()[0][1] == arith2);
+
+    // check function PathFinder::getListOfchilds
+    const std::list<AstNode *> childs1 = PathFinder::getListOfChilds(arith);
+    REQUIRE(childs1.front() == arith1);
+    REQUIRE(childs1.back() == arith2);
+
+    const std::list<AstNode *> childs2 = PathFinder::getListOfChilds(arith1);
+    REQUIRE(childs2.front() == int1);
+    REQUIRE(childs2.back() == int2);
+
+    const std::list<AstNode *> childs3 = PathFinder::getListOfChilds(arith2);
+    REQUIRE(childs3.front() == int3);
+    REQUIRE(childs3.back() == int4);
+
 }
