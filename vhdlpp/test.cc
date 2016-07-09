@@ -334,6 +334,10 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     pathFinder3.findPath(arith);
     cout << pathFinder3;
 
+    PathFinder pathFinder4(4);
+    pathFinder4.findPath(arith);
+    cout << pathFinder4;
+
     PathFinder pathFinderU(3);
     pathFinderU.findPath(aUnb);
     cout << pathFinderU;
@@ -375,13 +379,18 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     REQUIRE(pathFinder3.getPaths()[2][2] == int3);
     REQUIRE(pathFinder3.getPaths()[3][2] == int4);
 
+    // 4-ary pathFinder
+    REQUIRE(pathFinder4.getPaths().size() == 0);
+
     // 3-ary pathFinder on unbalanced tree
-
-
-    REQUIRE(pathFinderU.getPaths()[0].size() == 2);
+    REQUIRE(pathFinderU.getPaths()[0].size() == 3);
 
     REQUIRE(pathFinderU.getPaths()[0][0] == aUnb);
     REQUIRE(pathFinderU.getPaths()[1][0] == aUnb);
-    REQUIRE(pathFinderU.getPaths()[0][1] == 2);
-    REQUIRE(pathFinderU.getPaths()[1][1] == 2);
+    REQUIRE(pathFinderU.getPaths()[0][1] == arith1);
+    REQUIRE(pathFinderU.getPaths()[1][1] == arith1);
+    REQUIRE(pathFinderU.getPaths()[0][2] == int1);
+    REQUIRE(pathFinderU.getPaths()[1][2] == int2);
+
+    
 }

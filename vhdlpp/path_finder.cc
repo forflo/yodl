@@ -75,22 +75,12 @@ int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
         return 1;
     }
 
-    cout << "NaryPaths called!\n";
-    cout << "Depth:" << depth << endl;
-    cout << "Arity:" << arity << endl;
-
     if (depth < arity){
         for (auto &i : childs){
-            cout << "child: " << i << endl;
             accumulator[depth] = i;
             getNaryPaths(depth + 1, getListOfChilds(i), accumulator);
         }
     } else {
-        cout << "push";
-        for (auto &i : accumulator){
-            cout << i << " ";
-        }
-        cout <<endl;
         paths.push_back(accumulator);
     }
 
