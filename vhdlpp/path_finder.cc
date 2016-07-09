@@ -38,7 +38,7 @@ int PathFinder::findPath(AstNode *startNode){
     std::vector<AstNode *> accumulator(arity);
     accumulator[0] = startNode;
 
-    return getNaryPaths(arity, getListOfChilds(startNode), accumulator);
+    return getNaryPaths(1, getListOfChilds(startNode), accumulator);
 }
 
 int PathFinder::findPath(const AstNode *){
@@ -79,10 +79,10 @@ int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
     cout << "Depth:" << depth << endl;
     cout << "Arity:" << arity << endl;
 
-    if (depth <= arity){
+    if (depth < arity){
         for (auto &i : childs){
             cout << "child: " << i << endl;
-            accumulator[depth - 1] = i;
+            accumulator[depth] = i;
             getNaryPaths(depth + 1, getListOfChilds(i), accumulator);
         }
     } else {

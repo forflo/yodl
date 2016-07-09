@@ -296,8 +296,10 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     ExpArithmetic *arith2 = new ExpArithmetic(ExpArithmetic::PLUS, int3, int4);
 
     ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
+    ExpArithmetic *aUnb = new ExpArithmetic(ExpArithmetic::MULT, arith1, int4);
 
     cout << "arith: " <<  static_cast<AstNode *>(arith) << endl;
+    cout << "aUnb: " <<  static_cast<AstNode *>(aUnb) << endl;
     cout << "arith1: " << static_cast<AstNode *>(arith1) << endl;
     cout << "arith2: " << static_cast<AstNode *>(arith2) << endl;
     cout << "int1: " <<   static_cast<AstNode *>(int1) << endl;
@@ -328,16 +330,20 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     pathFinder2.findPath(arith);
     cout << pathFinder2;
 
-    ExpArithmetic *aUnb = new ExpArithmetic(ExpArithmetic::MULT, arith1, int4);
-
     PathFinder pathFinder3(3);
-    pathFinder3.findPath(aUnb);
+    pathFinder3.findPath(arith);
     cout << pathFinder3;
 
+    PathFinder pathFinderU(3);
+    pathFinderU.findPath(aUnb);
+    cout << pathFinderU;
+
+    // 1-ary pathFinder
     REQUIRE(pathFinder.getPaths().size() == 1);
     REQUIRE(pathFinder.getPaths()[0].size() == 1);
     REQUIRE(pathFinder.getPaths()[0][0] == arith);
 
+    // 2-ary pathFinder
     REQUIRE(pathFinder2.getPaths().size() == 2);
     REQUIRE(pathFinder2.getPaths()[0].size() == 2);
     REQUIRE(pathFinder2.getPaths()[1].size() == 2);
@@ -348,6 +354,34 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     REQUIRE(pathFinder2.getPaths()[1][0] == arith);
     REQUIRE(pathFinder2.getPaths()[1][1] == arith2);
 
+    // 3-ary pathFinder
+    REQUIRE(pathFinder3.getPaths().size() == 4);
+    for (int i = 0 ; i< 3; i++){
+        REQUIRE(pathFinder3.getPaths()[i].size() == 3);
+    }
+
+    REQUIRE(pathFinder3.getPaths()[0][0] == arith);
+    REQUIRE(pathFinder3.getPaths()[1][0] == arith);
+    REQUIRE(pathFinder3.getPaths()[2][0] == arith);
+    REQUIRE(pathFinder3.getPaths()[3][0] == arith);
+
+    REQUIRE(pathFinder3.getPaths()[0][1] == arith1);
+    REQUIRE(pathFinder3.getPaths()[1][1] == arith1);
+    REQUIRE(pathFinder3.getPaths()[2][1] == arith2);
+    REQUIRE(pathFinder3.getPaths()[3][1] == arith2);
+
+    REQUIRE(pathFinder3.getPaths()[0][2] == int1);
+    REQUIRE(pathFinder3.getPaths()[1][2] == int2);
+    REQUIRE(pathFinder3.getPaths()[2][2] == int3);
+    REQUIRE(pathFinder3.getPaths()[3][2] == int4);
+
+    // 3-ary pathFinder on unbalanced tree
 
 
+    REQUIRE(pathFinderU.getPaths()[0].size() == 2);
+
+    REQUIRE(pathFinderU.getPaths()[0][0] == aUnb);
+    REQUIRE(pathFinderU.getPaths()[1][0] == aUnb);
+    REQUIRE(pathFinderU.getPaths()[0][1] == 2);
+    REQUIRE(pathFinderU.getPaths()[1][1] == 2);
 }
