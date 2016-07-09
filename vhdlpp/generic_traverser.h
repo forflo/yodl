@@ -92,10 +92,34 @@ public:
         , ast(a)
         , recurSpec(r) { }
 
+    // Overloads for Nary Traversers
+    GenericTraverser(function<bool (const AstNode*)> p,
+                     function<int (const AstNode *, vector<const AstNode *>)> v,
+                     AstNode *a, int ar, recur_t r)
+        : mutatingTraversal(false)
+        , isNary(true)
+        , predicate(p)
+        , constNaryVisitor(v)
+        , ast(a)
+        , arity(ar)
+        , recurSpec(r) { }
+
+    GenericTraverser(function<bool (const AstNode*)> p,
+                     function<int (AstNode *, vector<AstNode *>)> v,
+                     AstNode *a, int ar, recur_t r)
+        : mutatingTraversal(true)
+        , isNary(true)
+        , predicate(p)
+        , mutatingNaryVisitor(v)
+        , ast(a)
+        , arity(ar)
+        , recurSpec(r) { }
+
     ~GenericTraverser() = default;
 
     void traverse();
-    bool wasError(){ return errorFlag; };
+    bool wasError(){ return errorFlag; }
+    bool isNaryTraverser() { return isNary; }
 
     void emitTraversalMessages(ostream &, const char *);
     void emitErrorMessages(ostream &, const char*);
@@ -115,6 +139,7 @@ private:
     vector<string> traversalErrors;
     bool errorFlag = false;
     bool mutatingTraversal;
+    bool isNary = false;
 
     function<bool (const AstNode *)> predicate;
     // visitor visits all nodes and
@@ -128,6 +153,11 @@ private:
     function<int (const AstNode *)> constVisitor;
     function<int (AstNode *)> mutatingVisitor;
 
+    // for n-ary visitor constructor overloads
+    function<int (const AstNode*, vector<const AstNode *>)> constNaryVisitor;
+    function<int (AstNode *, vector<AstNode *>)> mutatingNaryVisitor;
+
     AstNode *ast;
+    int arity;
     recur_t recurSpec;
 };
