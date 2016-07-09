@@ -87,7 +87,7 @@ int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
     return 0;
 }
 
-const std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
+const std::list<AstNode *> PathFinder::getListOfChilds(Expression *e){
     using namespace mch;
 
     var<VType *> type;
@@ -327,4 +327,362 @@ const std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
     } EndMatch;
 
     return result;
+}
+
+const std::list<AstNode *> PathFinder::getListOfChilds(Architecture *arch){
+    using namespace mch;
+
+    var<list<Architecture::Statement *>> statements;
+    var<ComponentInstantiation *> componentInst;
+    var<perm_string> name;
+    // propably not needed
+    //var<ProcessStatement *> currenProcess;
+
+    Match(arch){
+        Case(C<Architecture>(statements, componentInst, name)){
+
+            for (auto &i : statements)
+                ;
+
+            if (componentInst)
+                ;
+        }
+        Otherwise(){
+        }
+    } EndMatch;
+}
+
+const std::list<AstNode *> PathFinder::getListOfChilds(AstNode *root){
+    using namespace mch;
+
+    Match(root){
+        Case(C<Entity>()){
+            return getListOfChilds(static_cast<Entity*>(root))
+        }
+        Case(C<Architecture>()) {
+            return getListOfChilds(static_cast<Architecture*>(root))
+        }
+        Case(C<VType>()){
+            return getListOfChilds(static_cast<VType*>(root))
+        }
+        Case(C<SequentialStmt>()){
+            return getListOfChilds(static_cast<SequentialStmt*>(root))
+        }
+        Case(C<Architecture::Statement>()){
+            return getListOfChilds(static_cast<Architecture::Statement*>(root))
+        }
+        Case(C<Expression>()){
+            return getListOfChilds(static_cast<Expression*>(root))
+        }
+        Case(C<SigVarBase>()){
+            return getListOfChilds(static_cast<SigVarBase*>(root))
+        }
+        Otherwise() {
+        }
+    } EndMatch;
+}
+
+const std::list<AstNode *> PathFinder::getListOfChilds(SequentialStmt *seq){
+    using namespace mch;
+
+    var<perm_string> loopName;
+    var<list<SequentialStmt*>> loopStmts;
+
+    // For IfSequential
+    var<Expression *> ifCond;
+    var<list<SequentialStmt*>> ifPath, elsePath;
+    var<list<IfSequential::Elsif*>> elsifPaths;
+    // For ReturnStmt
+    var<Expression*> retValue;
+
+    // For SignalSeqAssignment
+    var<Expression*> assignLval;
+    var<list<Expression *>> waveform;
+
+    // For CaseStmtAlternative
+    var<Expression *> caseCond;
+    var<list<CaseSeqStmt::CaseStmtAlternative>> caseAlternatives;
+    // For ProcedureCall
+    var<perm_string> procName;
+    var<list<named_expr_t*> *> procParams;
+    var<SubprogramHeader *> procDef;
+
+    // For VariableSeqAssignment
+    var<Expression *> varLval, varRval;
+
+    // For ReportStmt
+    var<Expression *> reportMsg, assertCond;
+    var<ReportStmt::severity_t> reportSeverity;
+
+    // For WaitStmt
+    var<WaitStmt::wait_type_t> waitType;
+    var<Expression *> waitExpr;
+    var<set<ExpName*>> waitSens;
+
+    Match(seq){
+        Case(C<LoopStatement>(loopName, loopStmts)){
+            traversalMessages.push_back("LoopStatement detected");
+            var<Expression *> whileCond;
+            var<perm_string> iterVar;
+            var<ExpRange*> iterRange;
+
+            Match(seq){
+                Case(C<WhileLoopStatement>(whileCond)){
+                    traversalMessages.push_back("WhileLoopStatement detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        if (mutatingTraversal) { mutatingVisitor(seq); }
+                        else { constVisitor(seq); }
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    if (mutatingTraversal == false) { traverse(whileCond); }
+
+                    for (auto &i : loopStmts)
+                        traverse(i);
+                }
+
+                Case(C<ForLoopStatement>(iterVar, iterRange)){
+                    traversalMessages.push_back("ForLoopStatement detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        if (mutatingTraversal) { mutatingVisitor(seq); }
+                        else { constVisitor(seq); }
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    if (mutatingTraversal == false) { traverse(iterRange); }
+
+                    for (auto &i : loopStmts)
+                        traverse(i);
+                }
+
+                Case(C<BasicLoopStatement>()){
+                    traversalMessages.push_back("BasicLoopStatement detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        if (mutatingTraversal) { mutatingVisitor(seq); }
+                        else { constVisitor(seq); }
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    for (auto &i : loopStmts)
+                        traverse(i);
+                }
+
+                Otherwise(){
+                    errorFlag = true;
+                    traversalErrors.push_back("Raw LoopStatement detected");
+                }
+            } EndMatch;
+        }
+
+        Case(C<IfSequential>(ifCond, ifPath, elsifPaths, elsePath)){
+            traversalMessages.push_back("IfSequential detected");
+
+            // run visitor
+            if(predicate(seq)){
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            if (mutatingTraversal == false) { traverse(ifCond); }
+
+            for (auto &i : ifPath)
+                traverse(i);
+
+            for (auto &i : elsifPaths)
+                traverse(i);
+
+            for (auto &i : elsePath)
+                traverse(i);
+        }
+
+        Case(C<ReturnStmt>(retValue)){
+            traversalMessages.push_back("ReturnStmt detected");
+
+            // run visitor
+            if(predicate(seq)){
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            if (mutatingTraversal == false) { traverse(retValue); }
+        }
+
+        Case(C<SignalSeqAssignment>(assignLval, waveform)){
+            traversalMessages.push_back("SignalSeqAssignment detected");
+
+            // run visitor
+            if(predicate(seq)){
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            if (mutatingTraversal == false) {
+                traverse(assignLval);
+
+                for (auto &i : waveform)
+                    traverse(i);
+            }
+        }
+
+        //FIXME: Ruines build. Don't know why
+//        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
+//            traversalMessages.push_back("CaseSeqStmt detected");
+//            //TODO:
+//        }
+
+        Case(C<ProcedureCall>(procName, procParams, procDef)){
+            traversalMessages.push_back("ProcedureCall detected");
+
+            // run visitor
+            if(predicate(seq)){
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            if (mutatingTraversal == false)
+                for (auto &i : *static_cast<list<named_expr_t*>*>(procParams))
+                    traverse(i);
+        }
+
+        Case(C<VariableSeqAssignment>(varLval, varRval)){
+            traversalMessages.push_back("VariableSeqAssignment detected");
+
+            // run visitor
+            if(predicate(seq)){
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            if (mutatingTraversal == false) {
+                traverse(varLval);
+                traverse(varRval);
+            }
+        }
+
+        Case(C<ReportStmt>(reportMsg, reportSeverity)){
+            Match(seq){
+                Case(C<AssertStmt>(assertCond)){
+                    traversalMessages.push_back("AssertStmt detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        if (mutatingTraversal) { mutatingVisitor(seq); }
+                        else { constVisitor(seq); }
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+
+                    if (mutatingTraversal == false) {
+                        traverse(assertCond);
+                        traverse(reportMsg);
+                    }
+                }
+                Otherwise(){
+                    traversalMessages.push_back("ReturnStmt detected");
+
+                    // run visitor
+                    if(predicate(seq)){
+                        if (mutatingTraversal) { mutatingVisitor(seq); }
+                        else { constVisitor(seq); }
+
+                        if (recurSpec == GenericTraverser::NONRECUR){
+                            return;
+                        }
+                    }
+
+                    // descent
+                    if (mutatingTraversal == false) { traverse(reportMsg); }
+                }
+            } EndMatch;
+        }
+
+        Case(C<WaitForStmt>()){
+            traversalMessages.push_back("WaitForStmt detected");
+
+            // run visitor
+            if(predicate(seq)){
+                if (mutatingTraversal) { mutatingVisitor(seq); }
+                else { constVisitor(seq); }
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // nothing to descent
+        }
+
+        Case(C<WaitStmt>(waitType, waitExpr, waitSens)){
+            traversalMessages.push_back("WaitStmt detected");
+
+            // run visitor
+            if(predicate(seq)){
+                        if (mutatingTraversal) { mutatingVisitor(seq); }
+                        else { constVisitor(seq); }
+
+                if (recurSpec == GenericTraverser::NONRECUR){
+                    return;
+                }
+            }
+
+            // descent
+            if (mutatingTraversal == false) {
+                traverse(waitExpr);
+                for (auto &i : waitSens)
+                    traverse(i);
+            }
+        }
+
+        Otherwise(){
+            errorFlag = true;
+            traversalErrors.push_back("Raw SequentialStat detected");
+        }
+    } EndMatch;
 }

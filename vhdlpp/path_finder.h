@@ -7,6 +7,10 @@
 # include <map>
 # include <list>
 
+# include "architec.h"
+# include "sequential.h"
+# include "expression.h"
+# include "vtype.h"
 # include "root_class.h"
 
 class PathFinder {
@@ -25,6 +29,13 @@ public:
 private:
     int getNaryPaths(size_t, const std::list<AstNode *> &childs,
                      std::vector<AstNode*> &);
+
+    static const std::list<AstNode *> getListOfChilds(Architecture *);
+    static const std::list<AstNode *> getListOfChilds(SequentialStmt *);
+    static const std::list<AstNode *> getListOfChilds(Expression *);
+    static const std::list<AstNode *> getListOfChilds(VType *);
+    static const std::list<AstNode *> getListOfChilds(Architecture::Statement *);
+    static const std::list<AstNode *> getListOfChilds(SigVarBase *);
 
 private:
     const size_t arity;

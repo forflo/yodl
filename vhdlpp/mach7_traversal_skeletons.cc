@@ -1,4 +1,4 @@
-// Traversal Skeleton for the Expression class tree
+// EXPRESSION
 
     var<VType *> type;
     var<Expression *> op1, op2;
@@ -200,5 +200,153 @@
 
         Otherwise(){
 
+        }
+    } EndMatch;
+
+// ASTNODE
+    Match(root){
+        Case(C<Entity>()){
+        }
+        Case(C<Architecture>()) {
+        }
+        Case(C<VType>()){
+        }
+        Case(C<SequentialStmt>()){
+        }
+        Case(C<Architecture::Statement>()){
+        }
+        Case(C<Expression>()){
+        }
+        Case(C<SigVarBase>()){
+        }
+        Otherwise() {
+        }
+    } EndMatch;
+
+// ARCHITECTURE
+    var<list<Architecture::Statement *>> statements;
+    var<ComponentInstantiation *> componentInst;
+    var<perm_string> name;
+    // propably not needed
+    //var<ProcessStatement *> currenProcess;
+
+    Match(arch){
+        Case(C<Architecture>(statements, componentInst, name)){
+
+            for (auto &i : statements)
+
+            if (componentInst)
+        }
+        Otherwise(){
+        }
+    } EndMatch;
+
+// SEQUENTIAL STMT
+    var<perm_string> loopName;
+    var<list<SequentialStmt*>> loopStmts;
+
+    // For IfSequential
+    var<Expression *> ifCond;
+    var<list<SequentialStmt*>> ifPath, elsePath;
+    var<list<IfSequential::Elsif*>> elsifPaths;
+    // For ReturnStmt
+    var<Expression*> retValue;
+
+    // For SignalSeqAssignment
+    var<Expression*> assignLval;
+    var<list<Expression *>> waveform;
+
+    // For CaseStmtAlternative
+    var<Expression *> caseCond;
+    var<list<CaseSeqStmt::CaseStmtAlternative>> caseAlternatives;
+    // For ProcedureCall
+    var<perm_string> procName;
+    var<list<named_expr_t*> *> procParams;
+    var<SubprogramHeader *> procDef;
+
+    // For VariableSeqAssignment
+    var<Expression *> varLval, varRval;
+
+    // For ReportStmt
+    var<Expression *> reportMsg, assertCond;
+    var<ReportStmt::severity_t> reportSeverity;
+
+    // For WaitStmt
+    var<WaitStmt::wait_type_t> waitType;
+    var<Expression *> waitExpr;
+    var<set<ExpName*>> waitSens;
+
+    Match(seq){
+        Case(C<LoopStatement>(loopName, loopStmts)){
+
+            var<Expression *> whileCond;
+            var<perm_string> iterVar;
+            var<ExpRange*> iterRange;
+
+            Match(seq){
+                Case(C<WhileLoopStatement>(whileCond)){
+
+                }
+
+                Case(C<ForLoopStatement>(iterVar, iterRange)){
+
+                }
+
+                Case(C<BasicLoopStatement>()){
+
+                }
+
+                Otherwise(){
+                }
+
+            } EndMatch;
+        }
+
+        Case(C<IfSequential>(ifCond, ifPath, elsifPaths, elsePath)){
+
+        }
+
+        Case(C<ReturnStmt>(retValue)){
+
+        }
+
+        Case(C<SignalSeqAssignment>(assignLval, waveform)){
+
+        }
+
+        //FIXME: Ruines build. Don't know why
+//        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
+//
+//            //TODO:
+//        }
+
+        Case(C<ProcedureCall>(procName, procParams, procDef)){
+
+        }
+
+        Case(C<VariableSeqAssignment>(varLval, varRval)){
+            
+        }
+
+        Case(C<ReportStmt>(reportMsg, reportSeverity)){
+            Match(seq){
+                Case(C<AssertStmt>(assertCond)){
+
+                }
+                Otherwise(){
+
+                }
+            } EndMatch;
+        }
+
+        Case(C<WaitForStmt>()){
+
+        }
+
+        Case(C<WaitStmt>(waitType, waitExpr, waitSens)){
+
+        }
+
+        Otherwise(){
         }
     } EndMatch;

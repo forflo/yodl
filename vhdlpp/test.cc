@@ -391,6 +391,4 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     REQUIRE(pathFinderU.getPaths()[1][1] == arith1);
     REQUIRE(pathFinderU.getPaths()[0][2] == int1);
     REQUIRE(pathFinderU.getPaths()[1][2] == int2);
-
-    
 }
