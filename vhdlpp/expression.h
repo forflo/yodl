@@ -411,6 +411,8 @@ public:
     // This is the elements as directly parsed.
     vector<element_t *> elements_;
 
+    //TODO: FM. MA Fix the fact that there are no pointers but
+    //      rather values contained in aggregate_
     // These are the elements after elaboration. This form is
     // easier to check and emit.
     vector<choice_element> aggregate_;

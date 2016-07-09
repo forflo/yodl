@@ -57,7 +57,7 @@ int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
 }
 
 
-std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
+const std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
     using namespace mch;
 
     var<VType *> type;
@@ -127,25 +127,20 @@ std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
 
     std::list<AstNode *> result;
 
-    if (e == NULL) { result; }
+    if (e == NULL) { return result; }
     Match(e){
         Case(C<ExpUnary>(op1)){
-
             var<ExpEdge::fun_t> edgeSpec;
 
             Match(e){
                 Case(C<ExpEdge>(edgeSpec)){
-
+                    return result;
                 }
                 Case(C<ExpUAbs>()){
-
-
-
-
+                    return result;
                 }
                 Case(C<ExpUNot>()){
-
-
+                    return result;
                 }
             } EndMatch;
         }
@@ -159,30 +154,33 @@ std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
 
             Match(e){
                 Case(C<ExpArithmetic>(arithOp)){
-
+                    return {op1, op2};
                 }
                 Case(C<ExpLogical>(logOp)){
-
-
+                    return {op1, op2};
                 }
                 Case(C<ExpRelation>(relOp)){
-
+                    return {op1, op2};
                 }
                 Case(C<ExpShift>(shiftOp)){
-
+                    return {op1, op2};
                 }
                 Otherwise() {
-                    errorFlag = true;
-
-                    /*error*/
+                    return result;
                 }
             } EndMatch;
         }
 
         Case(C<ExpAggregate>(elements, aggregate)){
+            for (auto &i : elements)
+                result.push_front(i);
 
+            //TODO: Fix the fact that the list contains
+            //      values rather that pointers
+            /*for (auto &i : aggregate)
+              result.push_front(i);*/
 
-            // TODO: implement descents
+            return result;
         }
 
         Case(C<ExpAttribute>(attribName, attribArgs)){
@@ -190,71 +188,84 @@ std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
             var<ExpName *> attribBase;
             var<const VType *> attribTypeBase;
 
+            for (auto &i : *static_cast<std::list<Expression*> *>(attribArgs))
+                result.push_front(i);
+
             Match(e){
                 Case(C<ExpObjAttribute>(attribBase)){
-
-
+                    result.push_back(attribBase);
+                    return result;
                 }
                 Case(C<ExpTypeAttribute>(attribTypeBase)){
-
-
+                    //attribTypeBase is const so do nothing
                 }
                 Otherwise(){
-                    errorFlag = true;
-
+                    return result;
                 }
             } EndMatch;
         }
 
         Case(C<ExpBitstring>(bitString)){
-
+            return result;
         }
 
         Case(C<ExpCharacter>(charValue)){
+            return result;
         }
 
         Case(C<ExpConcat>(concLeft, concRight)){
+            return {concLeft, concRight};
         }
 
         Case(C<ExpConditional>(condOptions)){
+            for (auto &i : condOptions)
+                result.push_back(i);
 
             Match(e){
                 Case(C<ExpSelected>(selector)){
-
+                    result.push_back(selector);
+                    return result;
                 }
 
                 Otherwise(){
-
+                    return result;
                 }
             } EndMatch;
 
         }
 
         Case(C<ExpFunc>(funcName, definition, argVector)){
+            for (auto &i : argVector)
+                result.push_back(i);
+            //TODO: result.push_back(definition);
 
+            return result;
         }
 
         Case(C<ExpInteger>(intValue)){
-
-
+            return result;
         }
 
         Case(C<ExpReal>(dblValue)){
+            return result;
         }
 
         Case(C<ExpName>(nameName, indices)){
-
+            for (auto &i : *static_cast<list<Expression*>*>(indices))
+                result.push_back(i);
 
             Match(e){
                 Case(C<ExpNameALL>()){
+                    return result;
                 }
                 Otherwise(){
-
+                    return result;
                 }
             } EndMatch;
         }
 
         Case(C<ExpScopedName>(scopeName, scope, scopeNameName)){
+            return {scope, scopeNameName};
         }
 
         Case(C<ExpString>(strValue)){
@@ -264,6 +275,7 @@ std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
         }
 
         Case(C<ExpNew>(newSize)){
+            return {newSize};
         }
 
         Case(C<ExpTime>(timeAmount, timeUnit)){
@@ -272,22 +284,17 @@ std::list<AstNode *> PathFinder::getListOfChilds(AstNode *e){
         Case(C<ExpRange>(rangeLeft, rangeRight,
                          /*direction,*/ rangeExpr,
                          rangeBase/*, rangeReverse*/)){
-
-
-
-
+            return {rangeLeft, rangeRight, rangeBase};
         }
 
         Case(C<ExpDelay>(delayExpr, delayDelay)){
-
-
-
-
+            return {delayExpr, delayDelay};
         }
 
         Otherwise(){
-            errorFlag = true;
-
+            return result;
         }
     } EndMatch;
+
+    return result;
 }

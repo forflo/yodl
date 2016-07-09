@@ -13,15 +13,15 @@ public:
     PathFinder(size_t a)
         : arity(a) {}
 
-    int findPath(AstNode *, std::vector<AstNode *> &);
-    int findPath(const AstNode *, std::vector<const AstNode *> &);
+    int findPath(AstNode *, std::vector<std::vector<AstNode *>> &);
+    int findPath(const AstNode *, std::vector<std::vector<const AstNode *>> &);
 
 private:
     int getNaryPaths(size_t, const std::list<AstNode *> &childs,
                      std::vector<std::vector<AstNode *>> &,
                      std::vector<AstNode*> &);
 
-    std::list<AstNode *> getListOfChilds(AstNode *n);
+    const std::list<AstNode *> getListOfChilds(AstNode *n);
 
 private:
     const size_t arity;
