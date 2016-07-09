@@ -284,7 +284,7 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
     traverser.emitErrorMessages(cout, "\n");
 }
 
-TEST_CASE("Test n-ary traverser with expression", "[generic traverser]"){
+TEST_CASE("Test nary traverser", "[generic traverser]"){
     vector<vector<AstNode *>> res1, res2;
 
     ExpInteger *int1 = new ExpInteger(100);
@@ -297,26 +297,13 @@ TEST_CASE("Test n-ary traverser with expression", "[generic traverser]"){
 
     ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
 
-    // check pathFinder::findPath
-    PathFinder pathFinder(1);
-
-    pathFinder.findPath(arith);
-    cout << pathFinder;
-
-    PathFinder pathFinder2(2);
-    pathFinder2.findPath(arith);
-    cout << pathFinder2;
-
-    REQUIRE(pathFinder.getPaths().size() == 1);
-    REQUIRE(pathFinder.getPaths()[0][0] == arith);
-
-    REQUIRE(pathFinder2.getPaths().size() == 2);
-//
-//    REQUIRE(pathFinder.getPaths()[0][0] == arith);
-//    REQUIRE(pathFinder.getPaths()[0][1] == arith1);
-//
-//    REQUIRE(pathFinder.getPaths()[0][0] == arith);
-//    REQUIRE(pathFinder.getPaths()[0][1] == arith2);
+    cout << "arith: " <<  static_cast<AstNode *>(arith) << endl;
+    cout << "arith1: " << static_cast<AstNode *>(arith1) << endl;
+    cout << "arith2: " << static_cast<AstNode *>(arith2) << endl;
+    cout << "int1: " <<   static_cast<AstNode *>(int1) << endl;
+    cout << "int2: " <<   static_cast<AstNode *>(int2) << endl;
+    cout << "int3: " <<   static_cast<AstNode *>(int3) << endl;
+    cout << "int4: " <<   static_cast<AstNode *>(int4) << endl;
 
     // check function PathFinder::getListOfchilds
     const std::list<AstNode *> childs1 = PathFinder::getListOfChilds(arith);
@@ -330,5 +317,37 @@ TEST_CASE("Test n-ary traverser with expression", "[generic traverser]"){
     const std::list<AstNode *> childs3 = PathFinder::getListOfChilds(arith2);
     REQUIRE(childs3.front() == int3);
     REQUIRE(childs3.back() == int4);
+
+    // check pathFinder::findPath
+    PathFinder pathFinder(1);
+
+    pathFinder.findPath(arith);
+    cout << pathFinder;
+
+    PathFinder pathFinder2(2);
+    pathFinder2.findPath(arith);
+    cout << pathFinder2;
+
+    ExpArithmetic *aUnb = new ExpArithmetic(ExpArithmetic::MULT, arith1, int4);
+
+    PathFinder pathFinder3(3);
+    pathFinder3.findPath(aUnb);
+    cout << pathFinder3;
+
+    REQUIRE(pathFinder.getPaths().size() == 1);
+    REQUIRE(pathFinder.getPaths()[0].size() == 1);
+    REQUIRE(pathFinder.getPaths()[0][0] == arith);
+
+    REQUIRE(pathFinder2.getPaths().size() == 2);
+    REQUIRE(pathFinder2.getPaths()[0].size() == 2);
+    REQUIRE(pathFinder2.getPaths()[1].size() == 2);
+
+    REQUIRE(pathFinder2.getPaths()[0][0] == arith);
+    REQUIRE(pathFinder2.getPaths()[0][1] == arith1);
+
+    REQUIRE(pathFinder2.getPaths()[1][0] == arith);
+    REQUIRE(pathFinder2.getPaths()[1][1] == arith2);
+
+
 
 }

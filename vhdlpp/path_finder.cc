@@ -36,8 +36,9 @@ int PathFinder::findPath(AstNode *startNode){
     }
 
     std::vector<AstNode *> accumulator(arity);
+    accumulator[0] = startNode;
 
-    return getNaryPaths(1, getListOfChilds(startNode), accumulator);
+    return getNaryPaths(arity, getListOfChilds(startNode), accumulator);
 }
 
 int PathFinder::findPath(const AstNode *){
@@ -52,13 +53,16 @@ const std::vector<std::vector<AstNode *>> PathFinder::getPaths(){
 }
 
 std::ostream &operator<<(std::ostream &out, PathFinder &us){
+    int pfad = 0, elem = 0;
     out << "Path finder with arity: [" << us.getArity() << "]" << endl;
     out << endl;
 
     for (auto &i : us.getPaths()){
+        out << "Pfad [" << (pfad++) << "] = [";
         for (auto &j : i)
-            out << j << " ";
-        out << endl;
+            out << "(" << (elem++) << ") " << j << " ";
+        out << "]" << endl;
+        elem = 0;
     }
 
     return out;
@@ -71,12 +75,22 @@ int PathFinder::getNaryPaths(size_t depth, const std::list<AstNode *> &childs,
         return 1;
     }
 
-    if (depth < arity){
+    cout << "NaryPaths called!\n";
+    cout << "Depth:" << depth << endl;
+    cout << "Arity:" << arity << endl;
+
+    if (depth <= arity){
         for (auto &i : childs){
-            accumulator[depth] = i;
-            getNaryPaths(depth++, getListOfChilds(i), accumulator);
+            cout << "child: " << i << endl;
+            accumulator[depth - 1] = i;
+            getNaryPaths(depth + 1, getListOfChilds(i), accumulator);
         }
     } else {
+        cout << "push";
+        for (auto &i : accumulator){
+            cout << i << " ";
+        }
+        cout <<endl;
         paths.push_back(accumulator);
     }
 
