@@ -262,7 +262,6 @@ int main(int argc, char *argv[]) {
                   dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
 
     cout << "\n\n";
-//    emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
 
     /* End Playground */
 

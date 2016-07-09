@@ -20,7 +20,6 @@ int ForLoopUnroller::unroll(AstNode *forNode){
     bool containsNoForLoop = true;
     bool rc = true;
 
-    //TODO: fix constness issue
     rc = rc && range->left_->evaluate(
         currentEntity, currentScope, leftVal);
     rc = rc && range->right_->evaluate(

@@ -893,13 +893,15 @@ concurrent_signal_assignment_statement /* IEEE 1076-2008 P11.6 */
 | error LEQ waveform ';'
 {
     ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in "
-                       "l-value of signal assignment.\n");
+                         "l-value of signal assignment.\n");
     yyerrok;
     delete $3;
     $$ = 0;
 }
 ;
 
+//FM. MA
+//TODO: concurrent_procedure_call statement
 concurrent_statement
 : component_instantiation_statement
 | concurrent_signal_assignment_statement
@@ -926,7 +928,7 @@ K_end K_configuration_opt identifier_opt ';'
 | K_configuration error K_end K_configuration_opt identifier_opt ';'
 {
     ParserUtil::errormsg(yy_parse_context, @2, "Too many errors, giving "
-                       "up on configuration declaration.\n");
+                         "up on configuration declaration.\n");
     if($5) delete $5;
     yyerrok;
 }

@@ -1,21 +1,30 @@
+// FM. MA
 #ifndef IVL_PATH_FINDER
 #define IVL_PATH_FINDER
 
 # include <vector>
 # include <map>
+# include <list>
 
 # include "root_class.h"
 
 class PathFinder {
 public:
-    PathFinder(int a)
+    PathFinder(size_t a)
         : arity(a) {}
 
     int findPath(AstNode *, std::vector<AstNode *> &);
     int findPath(const AstNode *, std::vector<const AstNode *> &);
 
 private:
-    const int arity;
+    int getNaryPaths(size_t, const std::list<AstNode *> &childs,
+                     std::vector<std::vector<AstNode *>> &,
+                     std::vector<AstNode*> &);
+
+    std::list<AstNode *> getListOfChilds(AstNode *n);
+
+private:
+    const size_t arity;
 };
 
 #endif /* IVL_PATH_FINDER */
