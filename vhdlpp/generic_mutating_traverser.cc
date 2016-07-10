@@ -1396,6 +1396,7 @@ void GenericTraverser::traverseMutating(VType *type){
                 }
             }
 
+
             // descent
             traversalMessages.push_back(
                 "[C<VTypeArray>] No recurse into arrEtype because "
@@ -1562,6 +1563,16 @@ void GenericTraverser::traverse(){
         traverseMutating(ast);
     else
         traverseConst(ast);
+}
+
+void constVisitor(const AstNode *n){
+    if (isNary){ constNaryVisitorU(n); }
+    else { constVisitorU(n); }
+}
+
+void mutatingVisitor(AstNode *n){
+    if (isNary) { mutatingNaryVisitorU(n); }
+    else { mutatingVisitorU(n); }
 }
 
 void GenericTraverser::emitTraversalMessages(ostream &out, const char* delimit){

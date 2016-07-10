@@ -74,33 +74,32 @@ using namespace std;
 
 // named_expr_t -- inherit AstNode
 
-void GenericTraverser::traverse(AstNode *root){
-    currentPath.insert(currentPath.begin(), root);
+void GenericTraverser::traverseConst(const AstNode *root){
     traversalMessages.push_back("Entering AstNode switch");
 
     Match(root){
         Case(C<Entity>()){
-            traverse(static_cast<Entity*>(root));
+            traverseConst(static_cast<const Entity*>(root));
         }
         Case(C<Architecture>()) {
-            traverse(static_cast<Architecture*>(root));
+            traverseConst(static_cast<const Architecture*>(root));
         }
         Case(C<VType>()){
             if (!mutatingTraversal)
-                traverse(static_cast<VType*>(root));
+                traverseConst(static_cast<const VType*>(root));
         }
         Case(C<SequentialStmt>()){
-            traverse(static_cast<SequentialStmt*>(root));
+            traverseConst(static_cast<const SequentialStmt*>(root));
         }
         Case(C<Architecture::Statement>()){
-            traverse(static_cast<Architecture::Statement*>(root));
+            traverseConst(static_cast<const Architecture::Statement*>(root));
         }
         Case(C<Expression>()){
             if (!mutatingTraversal)
-                traverse(static_cast<Expression*>(root));
+                traverseConst(static_cast<const Expression*>(root));
         }
         Case(C<SigVarBase>()){
-            traverse(static_cast<SigVarBase*>(root));
+            traverseConst(static_cast<const SigVarBase*>(root));
         }
         Otherwise() {
             errorFlag = true;
@@ -109,8 +108,7 @@ void GenericTraverser::traverse(AstNode *root){
     } EndMatch;
 }
 
-void GenericTraverser::traverse(ComponentBase *c){
-    currentPath.insert(currentPath.begin(), c);
+void GenericTraverser::traverseConst(const ComponentBase *c){
     traversalMessages.push_back("Entering Entity switch");
 
     // For Entity
@@ -128,29 +126,15 @@ void GenericTraverser::traverse(ComponentBase *c){
                 Case(C<Entity>(entityArchs, entityBound, entityDecls)){
                     traversalMessages.push_back("Entity detected");
 
-                    if (predicate(c)) {
-                        if (mutatingTraversal) { mutatingVisitor(c); }
-                        else { constVisitor(c); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(c);
 
                     for (auto &i : entityArchs)
-                        traverse(i.second);
+                        traverseConst(i.second);
                 }
                 Otherwise(){
                     traversalMessages.push_back("ComponentBase detected");
 
-                    if (predicate(c)) {
-                        if (mutatingTraversal) { mutatingVisitor(c); }
-                        else { constVisitor(c); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(c);
                 }
             } EndMatch;
         }
@@ -162,8 +146,8 @@ void GenericTraverser::traverse(ComponentBase *c){
     } EndMatch;
 }
 
-void GenericTraverser::traverse(Architecture *arch){
-    currentPath.insert(currentPath.begin(), arch);
+void GenericTraverser::traverseConst(const Architecture *arch){
+    currentPathConst.insert(currentPathConst.begin(), arch);
     traversalMessages.push_back("Entering Architecture switch");
 
     var<list<Architecture::Statement *>> statements;
@@ -178,20 +162,13 @@ void GenericTraverser::traverse(Architecture *arch){
                                         + name.str()
                                         + string(" detected"));
 
-                    if (predicate(arch)) {
-                        if (mutatingTraversal) { mutatingVisitor(arch); }
-                        else { constVisitor(arch); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(arch);
 
             for (auto &i : statements)
-                traverse(i);
+                traverseConst(i);
 
             if (componentInst)
-                traverse(componentInst);
+                traverseConst(componentInst);
         }
         Otherwise(){
             errorFlag = true;
@@ -201,8 +178,8 @@ void GenericTraverser::traverse(Architecture *arch){
     } EndMatch;
 }
 
-void GenericTraverser::traverse(Architecture::Statement *s){
-    currentPath.insert(currentPath.begin(), s);
+void GenericTraverser::traverseConst(const Architecture::Statement *s){
+    currentPathConst.insert(currentPathConst.begin(), s);
     traversalMessages.push_back("Entering Statement switch");
 
     var<perm_string> name, label;
@@ -241,56 +218,35 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                     traversalMessages.push_back("ForGenerate detected");
 
                     // run visitor
-                    if (predicate(s)) {
-                        if (mutatingTraversal) { mutatingVisitor(s); }
-                        else { constVisitor(s); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(s);
 
                     // descent
                     if (mutatingTraversal == false) {
-                        traverse(msb);
-                        traverse(lsb);
+                        traverseConst(msb);
+                        traverseConst(lsb);
                     }
 
                     for (auto &i : stmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
                 Case(C<IfGenerate>(cond)){
                     traversalMessages.push_back("IfGenerate detected");
 
-                    if (predicate(s)) {
-                        if (mutatingTraversal) { mutatingVisitor(s); }
-                        else { constVisitor(s); }
+                    constVisitor(s);
 
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
-
-                    if (mutatingTraversal == false) { traverse(cond); };
+                    if (mutatingTraversal == false) { traverseConst(cond); };
                     for (auto &i : stmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
                 Otherwise(){
                     traversalMessages.push_back(
                         "GenerateStatement detected [error]");
 
-                    if (predicate(s)) {
-                        if (mutatingTraversal) { mutatingVisitor(s); }
-                        else { constVisitor(s); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(s);
 
                     // descent
                     for (auto &i : stmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
             } EndMatch;
 
@@ -301,21 +257,14 @@ void GenericTraverser::traverse(Architecture::Statement *s){
             traversalMessages.push_back("SignalAssignment detected");
 
             // run visitor
-            if (predicate(s)) {
-                if (mutatingTraversal) { mutatingVisitor(s); }
-                else { constVisitor(s); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(s);
 
             // descent
             if (mutatingTraversal == false) {
-                traverse(lval);
+                traverseConst(lval);
 
                 for (auto &i : rval)
-                    traverse(i);
+                    traverseConst(i);
             }
         }
 
@@ -324,47 +273,33 @@ void GenericTraverser::traverse(Architecture::Statement *s){
 
 
             // run visitor
-            if (predicate(s)) {
-                if (mutatingTraversal) { mutatingVisitor(s); }
-                else { constVisitor(s); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(s);
 
             // descent
             if (mutatingTraversal == false) {
-                traverse(lval);
+                traverseConst(lval);
 
                 for (auto &i : senslist)
-                    traverse(i);
+                    traverseConst(i);
             }
 
             for (auto &i : options)
-                traverse(i);
+                traverseConst(i);
         }
 
         Case(C<ComponentInstantiation>(iname, cname, genmap, portmap)){
             traversalMessages.push_back("ComponentInstantiation detected");
 
             // run visitor
-            if (predicate(s)) {
-                if (mutatingTraversal) { mutatingVisitor(s); }
-                else { constVisitor(s); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(s);
 
             // descent
             if (mutatingTraversal == false){
                 for (auto &i : genmap)
-                    traverse(i.second);
+                    traverseConst(i.second);
 
                 for (auto &i : portmap)
-                    traverse(i.second);
+                    traverseConst(i.second);
             }
         }
 
@@ -378,56 +313,35 @@ void GenericTraverser::traverse(Architecture::Statement *s){
                 Case(C<FinalStatement>()) {
                     traversalMessages.push_back("Found final Statement");
                     // run visitor
-                    if (predicate(s)) {
-                        if (mutatingTraversal) { mutatingVisitor(s); }
-                        else { constVisitor(s); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(s);
 
                     // descent
                     for (auto &i : seqStmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
                 Case(C<InitialStatement>()) {
                     traversalMessages.push_back("Found initial Statement");
                     // run visitor
-                    if (predicate(s)) {
-                        if (mutatingTraversal) { mutatingVisitor(s); }
-                        else { constVisitor(s); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(s);
 
                     // descent
                     for (auto &i : seqStmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
                 Case(C<ProcessStatement>(name, procSensList)) {
                     traversalMessages.push_back("Found process Statement");
 
                     // run visitor
-                    if (predicate(s)) {
-                        if (mutatingTraversal) { mutatingVisitor(s); }
-                        else { constVisitor(s); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(s);
 
                     // descent
                     if (mutatingTraversal == false){
                         for (auto &i : procSensList)
-                            traverse(i);
+                            traverseConst(i);
                     }
 
                     for (auto &i : seqStmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
                 Otherwise() {
                     errorFlag = true;
@@ -443,19 +357,12 @@ void GenericTraverser::traverse(Architecture::Statement *s){
             traversalMessages.push_back("BlockStatement detected");
 
             // run visitor
-            if (predicate(s)) {
-                if (mutatingTraversal) { mutatingVisitor(s); }
-                else { constVisitor(s); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(s);
 
             // descent
             for (auto &i : *static_cast<list<Architecture::Statement*>*>(
                      stmts_ptr)){
-                traverse(i);
+                traverseConst(i);
             }
 
             //TODO: descent into header too
@@ -464,14 +371,15 @@ void GenericTraverser::traverse(Architecture::Statement *s){
         Otherwise() {
             errorFlag = true;
             traversalErrors.push_back("Raw ArchitectureStatement detected");
-            //cout << "Wildcard pattern for traverse(const Arch::Stmt &s)\n";
+            //cout << "Wildcard pattern for traverseConst(const Arch::Stmt &s)\n";
             return;
         }
     } EndMatch;
 }
 
-void GenericTraverser::traverse(const Expression *e){
-    currentPath.insert(currentPath.begin(), e);
+void GenericTraverser::traverseConst(const Expression *e){
+    currentPathConst.insert(currentPathConst.begin(), e);
+
     var<VType *> type;
     var<Expression *> op1, op2;
 
@@ -557,7 +465,7 @@ void GenericTraverser::traverse(const Expression *e){
                     }
 
                     // descent
-                    traverse(op1);
+                    traverseConst(op1);
                 }
                 Case(C<ExpUAbs>()){
                     traversalMessages.push_back("ExpUAbs detected");
@@ -572,7 +480,7 @@ void GenericTraverser::traverse(const Expression *e){
                     }
 
                     // descent
-                    traverse(op1);
+                    traverseConst(op1);
                 }
                 Case(C<ExpUNot>()){
                     traversalMessages.push_back("ExpUNot detected");
@@ -587,7 +495,7 @@ void GenericTraverser::traverse(const Expression *e){
                     }
 
                     // descent
-                    traverse(op1);
+                    traverseConst(op1);
                 }
             } EndMatch;
         }
@@ -613,8 +521,8 @@ void GenericTraverser::traverse(const Expression *e){
                     }
 
                     // descent
-                    traverse(op1);
-                    traverse(op2);
+                    traverseConst(op1);
+                    traverseConst(op2);
                 }
                 Case(C<ExpLogical>(logOp)){
                     traversalMessages.push_back("ExpLogical detected");
@@ -629,8 +537,8 @@ void GenericTraverser::traverse(const Expression *e){
                     }
 
                     // descent
-                    traverse(op1);
-                    traverse(op2);
+                    traverseConst(op1);
+                    traverseConst(op2);
                 }
                 Case(C<ExpRelation>(relOp)){
                     traversalMessages.push_back("ExpRelation detected");
@@ -645,8 +553,8 @@ void GenericTraverser::traverse(const Expression *e){
                     }
 
                     // descent
-                    traverse(op1);
-                    traverse(op2);
+                    traverseConst(op1);
+                    traverseConst(op2);
                 }
                 Case(C<ExpShift>(shiftOp)){
                     traversalMessages.push_back("ExpShift detected");
@@ -661,8 +569,8 @@ void GenericTraverser::traverse(const Expression *e){
                     }
 
                     // descent
-                    traverse(op1);
-                    traverse(op2);
+                    traverseConst(op1);
+                    traverseConst(op2);
                 }
                 Otherwise() {
                     errorFlag = true;
@@ -708,9 +616,9 @@ void GenericTraverser::traverse(const Expression *e){
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
-                        traverse(i);
+                        traverseConst(i);
 
-                    traverse(attribBase);
+                    traverseConst(attribBase);
                 }
                 Case(C<ExpTypeAttribute>(attribTypeBase)){
                     traversalMessages.push_back("ExpTypeAttribute detected");
@@ -726,9 +634,9 @@ void GenericTraverser::traverse(const Expression *e){
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
-                        traverse(i);
+                        traverseConst(i);
 
-                    traverse(attribTypeBase);
+                    traverseConst(attribTypeBase);
                 }
                 Otherwise(){
                     errorFlag = true;
@@ -780,8 +688,8 @@ void GenericTraverser::traverse(const Expression *e){
             }
 
             // descent
-            traverse(concLeft);
-            traverse(concRight);
+            traverseConst(concLeft);
+            traverseConst(concRight);
         }
 
         Case(C<ExpConditional>(condOptions)){
@@ -825,7 +733,7 @@ void GenericTraverser::traverse(const Expression *e){
             // descent
             // TODO: descent into definition
             for (auto &i : argVector)
-                traverse(i);
+                traverseConst(i);
         }
 
         Case(C<ExpInteger>(intValue)){
@@ -833,12 +741,7 @@ void GenericTraverser::traverse(const Expression *e){
             //TODO: implement
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // no descent, because leaf node
         }
@@ -847,12 +750,7 @@ void GenericTraverser::traverse(const Expression *e){
             traversalMessages.push_back("ExpReal detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // no descent, because leaf node
         }
@@ -865,31 +763,21 @@ void GenericTraverser::traverse(const Expression *e){
                     traversalMessages.push_back("ExpNameALL detected");
 
                     // run visitor
-                    if(predicate(e)){
-                        constVisitor(e);
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(e);
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*>*>(indices))
-                        traverse(i);
+                        traverseConst(i);
                 }
                 Otherwise(){
                     traversalMessages.push_back("ExpName detected");
 
                     // run visitor
-                    if(predicate(e)){
-                        constVisitor(e);
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(e);
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*>*>(indices))
-                        traverse(i);
+                        traverseConst(i);
                 }
             } EndMatch;
         }
@@ -898,28 +786,18 @@ void GenericTraverser::traverse(const Expression *e){
             traversalMessages.push_back("ExpScopedName detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // descent
             // TODO: scope
-            traverse(scopeNameName);
+            traverseConst(scopeNameName);
         }
 
         Case(C<ExpString>(strValue)){
             traversalMessages.push_back("ExpString detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // no descent, because leaf node
         }
@@ -928,43 +806,28 @@ void GenericTraverser::traverse(const Expression *e){
             traversalMessages.push_back("ExpCast detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // descent
-            traverse(castExp);
-            traverse(castType);
+            traverseConst(castExp);
+            traverseConst(castType);
         }
 
         Case(C<ExpNew>(newSize)){
             traversalMessages.push_back("ExpNew detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // descent
-            traverse(newSize);
+            traverseConst(newSize);
         }
 
         Case(C<ExpTime>(timeAmount, timeUnit)){
             traversalMessages.push_back("ExpTime detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // no descent, because leaf node
         }
@@ -975,33 +838,23 @@ void GenericTraverser::traverse(const Expression *e){
             traversalMessages.push_back("ExpRange detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // descent
-            traverse(rangeLeft);
-            traverse(rangeRight);
-            traverse(rangeBase);
+            traverseConst(rangeLeft);
+            traverseConst(rangeRight);
+            traverseConst(rangeBase);
         }
 
         Case(C<ExpDelay>(delayExpr, delayDelay)){
             traversalMessages.push_back("ExpDelay detected");
 
             // run visitor
-            if(predicate(e)){
-                constVisitor(e);
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(e);
 
             // descent
-            traverse(delayExpr);
-            traverse(delayDelay);
+            traverseConst(delayExpr);
+            traverseConst(delayDelay);
         }
 
         Otherwise(){
@@ -1011,8 +864,8 @@ void GenericTraverser::traverse(const Expression *e){
     } EndMatch;
 }
 
-void GenericTraverser::traverse(SequentialStmt *seq){
-    currentPath.insert(currentPath.begin(), seq);
+void GenericTraverser::traverseConst(const SequentialStmt *seq){
+    currentPathConst.insert(currentPathConst.begin(), seq);
     var<perm_string> loopName;
     var<list<SequentialStmt*>> loopStmts;
 
@@ -1059,58 +912,37 @@ void GenericTraverser::traverse(SequentialStmt *seq){
                     traversalMessages.push_back("WhileLoopStatement detected");
 
                     // run visitor
-                    if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(seq);
 
                     // descent
-                    if (mutatingTraversal == false) { traverse(whileCond); }
+                    if (mutatingTraversal == false) { traverseConst(whileCond); }
 
                     for (auto &i : loopStmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
 
                 Case(C<ForLoopStatement>(iterVar, iterRange)){
                     traversalMessages.push_back("ForLoopStatement detected");
 
                     // run visitor
-                    if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(seq);
 
                     // descent
-                    if (mutatingTraversal == false) { traverse(iterRange); }
+                    if (mutatingTraversal == false) { traverseConst(iterRange); }
 
                     for (auto &i : loopStmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
 
                 Case(C<BasicLoopStatement>()){
                     traversalMessages.push_back("BasicLoopStatement detected");
 
                     // run visitor
-                    if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(seq);
 
                     // descent
                     for (auto &i : loopStmts)
-                        traverse(i);
+                        traverseConst(i);
                 }
 
                 Otherwise(){
@@ -1124,64 +956,43 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             traversalMessages.push_back("IfSequential detected");
 
             // run visitor
-            if(predicate(seq)){
-                if (mutatingTraversal) { mutatingVisitor(seq); }
-                else { constVisitor(seq); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(seq);
 
             // descent
-            if (mutatingTraversal == false) { traverse(ifCond); }
+            if (mutatingTraversal == false) { traverseConst(ifCond); }
 
             for (auto &i : ifPath)
-                traverse(i);
+                traverseConst(i);
 
             for (auto &i : elsifPaths)
-                traverse(i);
+                traverseConst(i);
 
             for (auto &i : elsePath)
-                traverse(i);
+                traverseConst(i);
         }
 
         Case(C<ReturnStmt>(retValue)){
             traversalMessages.push_back("ReturnStmt detected");
 
             // run visitor
-            if(predicate(seq)){
-                if (mutatingTraversal) { mutatingVisitor(seq); }
-                else { constVisitor(seq); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(seq);
 
             // descent
-            if (mutatingTraversal == false) { traverse(retValue); }
+            if (mutatingTraversal == false) { traverseConst(retValue); }
         }
 
         Case(C<SignalSeqAssignment>(assignLval, waveform)){
             traversalMessages.push_back("SignalSeqAssignment detected");
 
             // run visitor
-            if(predicate(seq)){
-                if (mutatingTraversal) { mutatingVisitor(seq); }
-                else { constVisitor(seq); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(seq);
 
             // descent
             if (mutatingTraversal == false) {
-                traverse(assignLval);
+                traverseConst(assignLval);
 
                 for (auto &i : waveform)
-                    traverse(i);
+                    traverseConst(i);
             }
         }
 
@@ -1195,38 +1006,24 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             traversalMessages.push_back("ProcedureCall detected");
 
             // run visitor
-            if(predicate(seq)){
-                if (mutatingTraversal) { mutatingVisitor(seq); }
-                else { constVisitor(seq); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(seq);
 
             // descent
             if (mutatingTraversal == false)
                 for (auto &i : *static_cast<list<named_expr_t*>*>(procParams))
-                    traverse(i);
+                    traverseConst(i);
         }
 
         Case(C<VariableSeqAssignment>(varLval, varRval)){
             traversalMessages.push_back("VariableSeqAssignment detected");
 
             // run visitor
-            if(predicate(seq)){
-                if (mutatingTraversal) { mutatingVisitor(seq); }
-                else { constVisitor(seq); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(seq);
 
             // descent
             if (mutatingTraversal == false) {
-                traverse(varLval);
-                traverse(varRval);
+                traverseConst(varLval);
+                traverseConst(varRval);
             }
         }
 
@@ -1236,37 +1033,23 @@ void GenericTraverser::traverse(SequentialStmt *seq){
                     traversalMessages.push_back("AssertStmt detected");
 
                     // run visitor
-                    if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(seq);
 
                     // descent
 
                     if (mutatingTraversal == false) {
-                        traverse(assertCond);
-                        traverse(reportMsg);
+                        traverseConst(assertCond);
+                        traverseConst(reportMsg);
                     }
                 }
                 Otherwise(){
                     traversalMessages.push_back("ReturnStmt detected");
 
                     // run visitor
-                    if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
-
-                        if (recurSpec == GenericTraverser::NONRECUR){
-                            return;
-                        }
-                    }
+                    constVisitor(seq);
 
                     // descent
-                    if (mutatingTraversal == false) { traverse(reportMsg); }
+                    if (mutatingTraversal == false) { traverseConst(reportMsg); }
                 }
             } EndMatch;
         }
@@ -1275,14 +1058,7 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             traversalMessages.push_back("WaitForStmt detected");
 
             // run visitor
-            if(predicate(seq)){
-                if (mutatingTraversal) { mutatingVisitor(seq); }
-                else { constVisitor(seq); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(seq);
 
             // nothing to descent
         }
@@ -1291,20 +1067,13 @@ void GenericTraverser::traverse(SequentialStmt *seq){
             traversalMessages.push_back("WaitStmt detected");
 
             // run visitor
-            if(predicate(seq)){
-                        if (mutatingTraversal) { mutatingVisitor(seq); }
-                        else { constVisitor(seq); }
-
-                if (recurSpec == GenericTraverser::NONRECUR){
-                    return;
-                }
-            }
+            constVisitor(seq);
 
             // descent
             if (mutatingTraversal == false) {
-                traverse(waitExpr);
+                traverseConst(waitExpr);
                 for (auto &i : waitSens)
-                    traverse(i);
+                    traverseConst(i);
             }
         }
 
@@ -1315,8 +1084,8 @@ void GenericTraverser::traverse(SequentialStmt *seq){
     } EndMatch;
 }
 
-void GenericTraverser::traverse(const VType *type){
-    // currentPath.insert(currentPath.begin(), type);
+void GenericTraverser::traverseConst(const VType *type){
+    // currentPathConst.insert(currentPathConst.begin(), type);
 
     // For VTypePrimitive
     var<VTypePrimitive::type_t> primType;
@@ -1353,12 +1122,7 @@ void GenericTraverser::traverse(const VType *type){
             traversalMessages.push_back("VTypeERROR detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // nothing to descent
         }
@@ -1367,12 +1131,7 @@ void GenericTraverser::traverse(const VType *type){
             traversalMessages.push_back("VTypePrimitive detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // nothing to descent
         }
@@ -1381,47 +1140,32 @@ void GenericTraverser::traverse(const VType *type){
             traversalMessages.push_back("VTypeArray detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // descent
-            traverse(arrEtype);
+            traverseConst(arrEtype);
 
             for (auto &i : arrRanges)
-                traverse(&i); // working??
+                traverseConst(&i); // working??
 
-            traverse(arrParent);
+            traverseConst(arrParent);
         }
 
         Case(C<VTypeRange>(rangeBase)){
             traversalMessages.push_back("VTypeRange detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // descent
-            traverse(rangeBase);
+            traverseConst(rangeBase);
         }
 
         Case(C<VTypeRangeConst>(cRangeStart, cRangeEnd)){
             traversalMessages.push_back("VTypeRangeConst detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // nothing to descent
         }
@@ -1430,28 +1174,18 @@ void GenericTraverser::traverse(const VType *type){
             traversalMessages.push_back("VTypeRangeExpr detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // descent
-            traverse(eRangeStart);
-            traverse(eRangeEnd);
+            traverseConst(eRangeStart);
+            traverseConst(eRangeEnd);
         }
 
         Case(C<VTypeEnum>(enumNames)){
             traversalMessages.push_back("VTypeEnum detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // nothing to descent
         }
@@ -1460,63 +1194,41 @@ void GenericTraverser::traverse(const VType *type){
             traversalMessages.push_back("VTypeRecord detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // descent
             for (auto &i : recordElements)
-                traverse(i);
+                traverseConst(i);
         }
 
         Case(C<VTypeDef>(typeName, typeType)){
             traversalMessages.push_back("VTypeDef detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // descent
-            traverse(typeType);
+            traverseConst(typeType);
         }
 
         Case(C<VSubTypeDef>()){
             traversalMessages.push_back("VSubTypeDef detected");
 
             // run visitor
-            if(predicate(type)){
-                constVisitor(type);
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(type);
 
             // nothing to descent
         }
     } EndMatch;
 }
 
-void GenericTraverser::traverse(SigVarBase *signal){
-    currentPath.insert(currentPath.begin(), signal);
+void GenericTraverser::traverseConst(const SigVarBase *signal){
+    currentPathConst.insert(currentPathConst.begin(), signal);
     Match(signal) {
         Case(C<Signal>()){
             traversalMessages.push_back("Signal detected");
 
-            // run visitor
-            if(predicate(signal)){
-                if (mutatingTraversal) { mutatingVisitor(signal); }
-                else { constVisitor(signal); }
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(signal);
 
             // nothing to descent
         }
@@ -1524,13 +1236,7 @@ void GenericTraverser::traverse(SigVarBase *signal){
             traversalMessages.push_back("Variable detected");
 
             // run visitor
-            if(predicate(signal)){
-                if (mutatingTraversal) { mutatingVisitor(signal); }
-                else { constVisitor(signal); }
-                if(recurSpec == GenericTraverser::NONRECUR) {
-                    return;
-                }
-            }
+            constVisitor(signal);
 
             // nothing to descent
         }
@@ -1539,20 +1245,4 @@ void GenericTraverser::traverse(SigVarBase *signal){
             traversalErrors.push_back("Raw SigVarBase detected");
         }
     } EndMatch;
-}
-
-void GenericTraverser::traverse(){
-    traverse(ast);
-}
-
-void GenericTraverser::emitTraversalMessages(ostream &out, const char* delimit){
-    for (auto &i : traversalMessages){
-        out << i << delimit;
-    }
-}
-
-void GenericTraverser::emitErrorMessages(ostream &out, const char* delimit){
-    for (auto &i : traversalErrors){
-        out << i << delimit;
-    }
 }

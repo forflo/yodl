@@ -75,9 +75,9 @@ public:
                      std::function<int (const AstNode *)> v,
                      AstNode *a,
                      recur_t r)
-        : mutatingTraversal(false)
+        : isMutating(false)
         , predicate(p)
-        , constVisitor(v)
+        , constVisitorU(v)
         , ast(a)
         , recurSpec(r) { }
 
@@ -85,9 +85,9 @@ public:
                      std::function<int (AstNode *)> v,
                      AstNode *a,
                      recur_t r)
-        : mutatingTraversal(true)
+        : isMutating(true)
         , predicate(p)
-        , mutatingVisitor(v)
+        , mutatingVisitorU(v)
         , ast(a)
         , recurSpec(r) { }
 
@@ -96,10 +96,10 @@ public:
                      std::function<int (const AstNode *,
                                         const std::vector<const AstNode *>)> &v,
                      AstNode *a, recur_t r)
-        : mutatingTraversal(false)
+        : isMutating(false)
         , isNary(true)
         , predicate(p)
-        , constNaryVisitor(v)
+        , constNaryVisitorU(v)
         , ast(a)
         , recurSpec(r) { }
 
@@ -107,10 +107,10 @@ public:
                      std::function<int (AstNode *,
                                         const std::vector<AstNode *>)> &v,
                      AstNode *a, recur_t r)
-        : mutatingTraversal(true)
+        : isMutating(true)
         , isNary(true)
         , predicate(p)
-        , mutatingNaryVisitor(v)
+        , mutatingNaryVisitorU(v)
         , ast(a)
         , recurSpec(r) { }
 
@@ -148,7 +148,7 @@ private:
     std::vector<string> traversalMessages;
     std::vector<string> traversalErrors;
     bool errorFlag = false;
-    bool mutatingTraversal;
+    bool isMutating;
     bool isNary = false;
 
     std::function<bool (const AstNode *)> predicate;
@@ -160,16 +160,20 @@ private:
     // Objects related to the AstNode Subclasses
     // ComponentBase, Architecture,
     // Architecture::Statement, SequentialStmt and SigVarBase
-    std::function<int (const AstNode *)> constVisitor;
-    std::function<int (AstNode *)> mutatingVisitor;
+    void constVisitor(const AstNode *);
+    void mutatingVisitor(AstNode *);
+
+    std::function<int (const AstNode *)> constVisitorU;
+    std::function<int (AstNode *)> mutatingVisitorU;
 
     // for n-ary visitor constructor overloads
     std::function<int (const AstNode*,
-                       const std::vector<const AstNode *> &)> constNaryVisitor;
+                       const std::vector<const AstNode *> &)> constNaryVisitorU;
     std::function<int (AstNode *,
-                       const std::vector<AstNode *> &)> mutatingNaryVisitor;
+                       const std::vector<AstNode *> &)> mutatingNaryVisitorU;
 
     std::vector<AstNode *> currentPath;
+    std::vector<const AstNode *> currentPathConst;
 
     AstNode *ast;
     recur_t recurSpec;
