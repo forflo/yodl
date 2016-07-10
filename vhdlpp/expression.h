@@ -903,6 +903,7 @@ public:
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
+    bool evaluate(Entity *, ScopeBase *, int64_t &value) const;
 
     // FM. MA
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
@@ -1044,6 +1045,7 @@ public:
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;
     void dump(ostream& out, int indent = 0) const;
+    bool evaluate(Entity *, ScopeBase *, int64_t &val) const;
 
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 

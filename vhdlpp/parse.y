@@ -1471,7 +1471,8 @@ K_generate   generate_statement_body   K_end   K_generate identifier_opt   ';'
     ParserUtil::add_location(tmp, @1);
 
     if ($11 && name != $11) {
-        ParserUtil::errormsg(yy_parse_context, @1, "for-generate name %s does not match closing name %s\n",
+        ParserUtil::errormsg(yy_parse_context, @1, "for-generate name %s does "
+                             "not match closing name %s\n",
                  name.str(), $11);
     }
     delete[]$1;
@@ -1571,7 +1572,8 @@ K_end K_generate identifier_opt ';'
     ParserUtil::add_location(tmp, @3);
 
     if ($9 && name != $9) {
-        ParserUtil::errormsg(yy_parse_context, @1, "if-generate name %s does not match closing name %s\n",
+        ParserUtil::errormsg(yy_parse_context, @1, "if-generate name %s does "
+                             "not match closing name %s\n",
                  name.str(), $9);
     }
     delete[]$1;
@@ -2352,7 +2354,8 @@ range
         tmp = new ExpRange(name, false);
         ParserUtil::add_location(tmp, @1);
     } else {
-        ParserUtil::errormsg(yy_parse_context, @1, "'range attribute can be used with named expressions only");
+        ParserUtil::errormsg(yy_parse_context, @1, "'range attribute can "
+                             "be used with named expressions only");
     }
     $$ = tmp;
 }
@@ -2364,7 +2367,8 @@ range
         tmp = new ExpRange(name, true);
         ParserUtil::add_location(tmp, @1);
     } else {
-        ParserUtil::errormsg(yy_parse_context, @1, "'reverse_range attribute can be used with named expressions only");
+        ParserUtil::errormsg(yy_parse_context, @1, "'reverse_range attribute "
+                             "can be used with named expressions only");
     }
     $$ = tmp;
 }

@@ -25,6 +25,47 @@
 # include  <limits>
 # include  <cmath>
 
+// FM. MA Expression evaluate for ExpLogical
+// HACK: val can be interpreted as bool also. If you do this
+//       you must stick to the C conversion conventions
+bool ExpRelation::evaluate(Entity *ent, ScopeBase *scope, int64_t &val) const {
+    int64_t left, right;
+
+    if (!eval_operand1(ent, scope, left)) { return false; }
+    if (!eval_operand2(ent, scope, right)) { return false; }
+
+    switch (fun_){
+    case EQ: val = left == right;
+    case NEQ:  val = left != right;
+    case LT:  val = left < right;
+    case GT:  val = left > right;
+    case LE:  val = left <= right;
+    case GE: val = left >= right;
+    }
+
+    return true;
+}
+
+// FM. MA
+// HACK: That's not really how it's implemented in the standard...
+bool ExpLogical::evaluate(Entity *ent, ScopeBase *scope, int64_t &val) const {
+    int64_t left, right;
+
+    if (!eval_operand1(ent, scope, left)) { return false; }
+    if (!eval_operand2(ent, scope, right)) { return false; }
+
+    switch (fun_){
+    case AND: val = static_cast<bool>(left) && static_cast<bool>(right);
+    case OR: val = static_cast<bool>(left) || static_cast<bool>(right);
+    case NOR: val = !(static_cast<bool>(left) || static_cast<bool>(right));
+    case XOR: val = static_cast<bool>(left) != static_cast<bool>(right);
+    case NAND: val = !(static_cast<bool>(left) && static_cast<bool>(right));
+    case XNOR: val = static_cast<bool>(left) == static_cast<bool>(right);
+    }
+
+    return true;
+}
+
 bool ExpArithmetic::evaluate(Entity *ent, ScopeBase *scope, int64_t& val) const {
     int64_t val1, val2;
     bool    rc;
@@ -111,7 +152,8 @@ bool ExpAttribute::test_array_type(const VType *type) const {
 }
 
 
-bool ExpAttribute::evaluate_type_attr(const VType *type, Entity *ent, ScopeBase *scope, int64_t& val) const {
+bool ExpAttribute::evaluate_type_attr(const VType *type, Entity *ent,
+                                      ScopeBase *scope, int64_t& val) const {
     if ((name_ == "length") && test_array_type(type)) {
         int64_t size = type->get_width(scope);
 

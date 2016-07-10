@@ -26,6 +26,15 @@
 #include "mach7_bindings.h"
 #include "path_finder.h"
 
+// Usage note:
+//
+// Traversal predicate for Generate expander must
+// return true if nodes with following type are visited:
+// - Entity
+// - ScopeBase
+// - Architecture
+// - BlockStatement
+
 class GenerateExpander {
 public:
     GenerateExpander() = default;
@@ -38,8 +47,15 @@ private:
 
     std::list<Architecture::Statement *> accumulator;
 
-    int unroll(AstNode *);
-    int modify(AstNode *);
+    int expandForGenerate(AstNode *);
+    int expandIfGenerate(AstNode *);
+    int modifyBlock(AstNode *);
+    int modifyArch(AstNode *);
+
+
+private:
+    void switchGenerateType(Architecture::Statement *g);
+    static bool containsGenerateStmt(std::list<Architecture::Statement *> &);
 };
 
 

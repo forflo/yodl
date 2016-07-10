@@ -191,7 +191,8 @@ ForGenerate::ForGenerate(perm_string gname,
     : GenerateStatement(gname, s)
     , genvar_(genvar)
     , lsb_(rang->lsb())
-    , msb_(rang->msb()) {}
+    , msb_(rang->msb())
+    , range_(rang) {}
 
 // FM. MA purpose: overload for clone
 ForGenerate::ForGenerate(perm_string gname,
@@ -202,7 +203,8 @@ ForGenerate::ForGenerate(perm_string gname,
     : GenerateStatement(gname, s)
     , genvar_(genvar)
     , lsb_(lsb)
-    , msb_(msb) {}
+    , msb_(msb)
+    , range_(0){}
 
 ForGenerate::~ForGenerate() {}
 
@@ -440,8 +442,7 @@ BlockStatement *BlockStatement::clone() const {
 
     return new BlockStatement(
         header_->clone(), label_,
-        ActiveScope(dynamic_cast<const Scope &>(*this)),
-        concurrent_stmts_copy);
+        *this, concurrent_stmts_copy);
 }
 
 BlockStatement::BlockStatement(BlockStatement::BlockHeader *header,
@@ -449,7 +450,16 @@ BlockStatement::BlockStatement(BlockStatement::BlockHeader *header,
                                const ActiveScope &scope,
                                list<Architecture::Statement*>
                                *concurrent_stmts)
-    : Scope(scope)
+    : ScopeBase(scope)
+    , label_(label)
+    , header_(header)
+    , concurrent_stmts_(concurrent_stmts) { }
+
+BlockStatement::BlockStatement(BlockStatement::BlockHeader *header,
+                               perm_string label,
+                               const ScopeBase &scope,
+                               list<Architecture::Statement*> *concurrent_stmts)
+    : ScopeBase(scope)
     , label_(label)
     , header_(header)
     , concurrent_stmts_(concurrent_stmts) { }

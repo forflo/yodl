@@ -193,10 +193,10 @@ public:
                 ExpRange *rang,
                 list<Architecture::Statement *>& s);
     ForGenerate(perm_string gname,
-                             perm_string genvar,
-                             Expression *lsb,
-                             Expression *msb,
-                             list<Architecture::Statement *>& s);
+                perm_string genvar,
+                Expression *lsb,
+                Expression *msb,
+                list<Architecture::Statement *>& s);
     ~ForGenerate();
 
     int elaborate(Entity *ent, Architecture *arc);
@@ -223,6 +223,8 @@ public:
     perm_string genvar_;
     Expression  *lsb_;
     Expression  *msb_;
+
+    ExpRange *range_; //FM. MA used for easier unfolding
 };
 
 // OK DOT
@@ -398,7 +400,7 @@ public:
 };
 
 // FM. MA
-class BlockStatement : public Architecture::Statement, public Scope {
+class BlockStatement : public Architecture::Statement, public ScopeBase {
 public:
     class BlockHeader : public AstNode {
     public:
@@ -422,6 +424,11 @@ public:
     BlockStatement(BlockStatement::BlockHeader *header,
                    perm_string label,
                    const ActiveScope &scope,
+                   list<Architecture::Statement*> *concurrent_stmts);
+
+    BlockStatement(BlockStatement::BlockHeader *header,
+                   perm_string label,
+                   const ScopeBase &scope,
                    list<Architecture::Statement*> *concurrent_stmts);
 
     int elaborate(Entity *, Architecture *);

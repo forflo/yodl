@@ -5,6 +5,10 @@
 #include <map>
 #include <iostream>
 
+// YOSYS specific headers
+#include <yosys/kernel.h>
+#include <yosys/rtlil.h>
+
 // code base specific includes
 #include "generate_graph.h"
 #include "simple_tree.h"
@@ -27,6 +31,7 @@
 #include "mach7_includes.h"
 #include "path_finder.h"
 
+
 bool verbose_flag = false;
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
@@ -36,6 +41,11 @@ const char *debug_log_path            = 0;
 
 bool     debug_elaboration = false;
 ofstream debug_log_file;
+
+TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
+
+}
+
 
 TEST_CASE("Simple block", "[ast]"){
     int rc;
