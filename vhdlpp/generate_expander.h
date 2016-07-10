@@ -51,10 +51,12 @@ private:
     int expandIfGenerate(AstNode *);
     int modifyBlock(AstNode *);
     int modifyArch(AstNode *);
+    int modify(std::list<Architecture::Statement *> &);
 
 
 private:
-    void switchGenerateType(Architecture::Statement *g);
+    int expandGenerate(Architecture::Statement *g);
+    bool isGenerate(Architecture::Statement *g);
     static bool containsGenerateStmt(std::list<Architecture::Statement *> &);
 };
 

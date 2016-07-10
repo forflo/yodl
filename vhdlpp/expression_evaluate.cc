@@ -26,8 +26,7 @@
 # include  <cmath>
 
 // FM. MA Expression evaluate for ExpLogical
-// HACK: val can be interpreted as bool also. If you do this
-//       you must stick to the C conversion conventions
+// HACK: That's not really how it's implemented in the standard...
 bool ExpRelation::evaluate(Entity *ent, ScopeBase *scope, int64_t &val) const {
     int64_t left, right;
 
