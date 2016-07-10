@@ -85,7 +85,7 @@ int GenerateExpander::expandIfGenerate(AstNode *node){
     return 0;
 }
 
-bool GenerateExpander::containsGenerateStmt(std::list<Architecture::Statement *> &sList){
+bool GenerateExpander::containsGenerateStmt(const std::list<Architecture::Statement *> &sList){
     using namespace mch;
 
     StatefulLambda<int> genStmtCounter(

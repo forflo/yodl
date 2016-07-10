@@ -57,7 +57,7 @@ private:
 private:
     int expandGenerate(Architecture::Statement *g);
     bool isGenerate(Architecture::Statement *g);
-    static bool containsGenerateStmt(std::list<Architecture::Statement *> &);
+    static bool containsGenerateStmt(const std::list<Architecture::Statement *> &);
 };
 
 

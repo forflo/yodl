@@ -29,8 +29,6 @@
 #include "vtype.h"
 #include "mach7_includes.h"
 
-using namespace std;
-
 // encapsulates a lambda and an appropriate state
 template<typename T> class StatefulLambda {
 public:
@@ -73,8 +71,8 @@ public:
     };
 
 public:
-    GenericTraverser(function<bool (const AstNode *)> p,
-                     function<int (const AstNode *)> v,
+    GenericTraverser(std::function<bool (const AstNode *)> p,
+                     std::function<int (const AstNode *)> v,
                      AstNode *a,
                      recur_t r)
         : mutatingTraversal(false)
@@ -83,8 +81,8 @@ public:
         , ast(a)
         , recurSpec(r) { }
 
-    GenericTraverser(function<bool (const AstNode *)> p,
-                     function<int (AstNode *)> v,
+    GenericTraverser(std::function<bool (const AstNode *)> p,
+                     std::function<int (AstNode *)> v,
                      AstNode *a,
                      recur_t r)
         : mutatingTraversal(true)
@@ -94,26 +92,26 @@ public:
         , recurSpec(r) { }
 
     // Overloads for Nary Traversers
-    GenericTraverser(function<bool (const AstNode*)> p,
-                     function<int (const AstNode *, vector<const AstNode *>)> v,
-                     AstNode *a, int ar, recur_t r)
+    GenericTraverser(std::function<bool (const AstNode*)> p,
+                     std::function<int (const AstNode *,
+                                        const std::vector<const AstNode *>)> &v,
+                     AstNode *a, recur_t r)
         : mutatingTraversal(false)
         , isNary(true)
         , predicate(p)
         , constNaryVisitor(v)
         , ast(a)
-        , arity(ar)
         , recurSpec(r) { }
 
-    GenericTraverser(function<bool (const AstNode*)> p,
-                     function<int (AstNode *, vector<AstNode *>)> v,
-                     AstNode *a, int ar, recur_t r)
+    GenericTraverser(std::function<bool (const AstNode*)> p,
+                     std::function<int (AstNode *,
+                                        const std::vector<AstNode *>)> &v,
+                     AstNode *a, recur_t r)
         : mutatingTraversal(true)
         , isNary(true)
         , predicate(p)
         , mutatingNaryVisitor(v)
         , ast(a)
-        , arity(ar)
         , recurSpec(r) { }
 
     ~GenericTraverser() = default;
@@ -122,27 +120,38 @@ public:
     bool wasError(){ return errorFlag; }
     bool isNaryTraverser() { return isNary; }
 
-    void emitTraversalMessages(ostream &, const char *);
-    void emitErrorMessages(ostream &, const char*);
+    void emitTraversalMessages(std::ostream &, const char *);
+    void emitErrorMessages(std::ostream &, const char*);
 
 private:
-    void traverse(AstNode *);
-    void traverse(ComponentBase *);
-    void traverse(Architecture *);
-    void traverse(Architecture::Statement *);
-    void traverse(const Expression *);
-    void traverse(SequentialStmt *);
-    void traverse(const VType *);
-    void traverse(SigVarBase *);
+    void traverseMutating(AstNode *);
+    void traverseMutating(ComponentBase *);
+    void traverseMutating(Architecture *);
+    void traverseMutating(Architecture::Statement *);
+    void traverseMutating(Expression *);
+    void traverseMutating(SequentialStmt *);
+    void traverseMutating(VType *);
+    void traverseMutating(SigVarBase *);
+
+    // Unfortunately, I don't know a way to circumvent
+    // this redundancy...
+    void traverseConst(const AstNode *);
+    void traverseConst(const ComponentBase *);
+    void traverseConst(const Architecture *);
+    void traverseConst(const Architecture::Statement *);
+    void traverseConst(const Expression *);
+    void traverseConst(const SequentialStmt *);
+    void traverseConst(const VType *);
+    void traverseConst(const SigVarBase *);
 
 private:
-    vector<string> traversalMessages;
-    vector<string> traversalErrors;
+    std::vector<string> traversalMessages;
+    std::vector<string> traversalErrors;
     bool errorFlag = false;
     bool mutatingTraversal;
     bool isNary = false;
 
-    function<bool (const AstNode *)> predicate;
+    std::function<bool (const AstNode *)> predicate;
     // visitor visits all nodes and
     // mutating_visitor visits all mutable nodes
     //
@@ -151,14 +160,17 @@ private:
     // Objects related to the AstNode Subclasses
     // ComponentBase, Architecture,
     // Architecture::Statement, SequentialStmt and SigVarBase
-    function<int (const AstNode *)> constVisitor;
-    function<int (AstNode *)> mutatingVisitor;
+    std::function<int (const AstNode *)> constVisitor;
+    std::function<int (AstNode *)> mutatingVisitor;
 
     // for n-ary visitor constructor overloads
-    function<int (const AstNode*, vector<const AstNode *>)> constNaryVisitor;
-    function<int (AstNode *, vector<AstNode *>)> mutatingNaryVisitor;
+    std::function<int (const AstNode*,
+                       const std::vector<const AstNode *> &)> constNaryVisitor;
+    std::function<int (AstNode *,
+                       const std::vector<AstNode *> &)> mutatingNaryVisitor;
+
+    std::vector<AstNode *> currentPath;
 
     AstNode *ast;
-    int arity;
     recur_t recurSpec;
 };
