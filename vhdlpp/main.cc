@@ -253,10 +253,9 @@ int main(int argc, char *argv[]) {
             return false;
         },
         static_cast<function<int (AstNode *)>>(forUnroller),
-        iter->second,
         GenericTraverser::NONRECUR);
 
-    loopUnroller.traverse();
+    loopUnroller(iter->second);
 
     emit_dotgraph(std::cout, "fnord",
                   dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());

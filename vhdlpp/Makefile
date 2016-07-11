@@ -33,7 +33,7 @@ LEX = flex
 YACC = bison
 
 # FM. MA| Added new include paths
-INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Icatch
+INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Icatch -Iyosys
 
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
@@ -48,7 +48,8 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     expression_gendot.o architec_gendot.o sequential_gendot.o entity_gendot.o \
     vtype_gendot.o vsignal_gendot.o\
     simple_tree/simple_tree.o \
-    generic_traverser.o \
+    generic_const_traverser.o \
+    generic_mutating_traverser.o \
 	loop_unroller.o \
 	path_finder.o \
     enum_overloads.o \
