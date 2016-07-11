@@ -108,9 +108,9 @@ bool GenerateExpander::containsGenerateStmt(const std::list<Architecture::Statem
                 [&genStmtCounter](const AstNode *n) -> int {
                     return genStmtCounter(n);
                 }),
-            i, GenericTraverser::RECUR);
+            GenericTraverser::RECUR);
 
-        traverser.traverse();
+        traverser(i);
 
         if (genStmtCounter.environment > 0){
             return true;

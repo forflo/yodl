@@ -73,57 +73,54 @@ public:
 public:
     GenericTraverser(std::function<bool (const AstNode *)> p,
                      std::function<int (const AstNode *)> v,
-                     AstNode *a,
                      recur_t r)
         : isMutating(false)
         , predicate(p)
         , constVisitorU(v)
-        , ast(a)
         , recurSpec(r) { }
 
     GenericTraverser(std::function<bool (const AstNode *)> p,
                      std::function<int (AstNode *)> v,
-                     AstNode *a,
                      recur_t r)
         : isMutating(true)
         , predicate(p)
         , mutatingVisitorU(v)
-        , ast(a)
         , recurSpec(r) { }
 
     // Overloads for Nary Traversers
     GenericTraverser(std::function<bool (const AstNode*)> p,
                      std::function<int (const AstNode *,
                                         const std::vector<const AstNode *>)> &v,
-                     AstNode *a, recur_t r)
+                     recur_t r)
         : isMutating(false)
         , isNary(true)
         , predicate(p)
         , constNaryVisitorU(v)
-        , ast(a)
         , recurSpec(r) { }
 
     GenericTraverser(std::function<bool (const AstNode*)> p,
                      std::function<int (AstNode *,
                                         const std::vector<AstNode *>)> &v,
-                     AstNode *a, recur_t r)
+                     recur_t r)
         : isMutating(true)
         , isNary(true)
         , predicate(p)
         , mutatingNaryVisitorU(v)
-        , ast(a)
         , recurSpec(r) { }
 
     ~GenericTraverser() = default;
 
-    void traverse();
     bool wasError(){ return errorFlag; }
     bool isNaryTraverser() { return isNary; }
 
     void emitTraversalMessages(std::ostream &, const char *);
     void emitErrorMessages(std::ostream &, const char*);
 
+    int operator()(AstNode *);
+
 private:
+    void traverse(AstNode *);
+
     void traverseMutating(AstNode *);
     void traverseMutating(ComponentBase *);
     void traverseMutating(Architecture *);
@@ -144,14 +141,6 @@ private:
     void traverseConst(const VType *);
     void traverseConst(const SigVarBase *);
 
-private:
-    std::vector<string> traversalMessages;
-    std::vector<string> traversalErrors;
-    bool errorFlag = false;
-    bool isMutating;
-    bool isNary = false;
-
-    std::function<bool (const AstNode *)> predicate;
     // visitor visits all nodes and
     // mutating_visitor visits all mutable nodes
     //
@@ -162,6 +151,18 @@ private:
     // Architecture::Statement, SequentialStmt and SigVarBase
     void constVisitor(const AstNode *);
     void mutatingVisitor(AstNode *);
+
+    bool runVisitorConst(const AstNode *);
+    bool runVisitorMutating(AstNode *);
+
+private:
+    std::vector<string> traversalMessages;
+    std::vector<string> traversalErrors;
+    bool errorFlag = false;
+    bool isMutating;
+    bool isNary = false;
+
+    std::function<bool (const AstNode *)> predicate;
 
     std::function<int (const AstNode *)> constVisitorU;
     std::function<int (AstNode *)> mutatingVisitorU;
@@ -175,6 +176,8 @@ private:
     std::vector<AstNode *> currentPath;
     std::vector<const AstNode *> currentPathConst;
 
-    AstNode *ast;
     recur_t recurSpec;
 };
+
+//TODO: Add path inserts/removals into
+//      generic_{mutating,const}_traverser.cc
