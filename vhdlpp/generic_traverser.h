@@ -125,6 +125,7 @@ public:
     void emitErrorMessages(std::ostream &, const char*);
 
     int operator()(AstNode *);
+    int operator()(const AstNode *);
 
 private:
     void traverse(AstNode *);

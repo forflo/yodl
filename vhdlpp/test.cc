@@ -211,7 +211,7 @@ TEST_CASE("Test simple generic traversal", "[generic traverser]"){
     auto entity1 = iterator->second;
     REQUIRE(entity1 != NULL);
 
-    AstNode *root = entity1;
+    const AstNode *root = entity1;
 
     StatefulLambda<int> state = StatefulLambda<int>(
         0,
@@ -333,7 +333,7 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
     auto entity1 = iterator->second;
     REQUIRE(entity1 != NULL);
 
-    AstNode *root = entity1->clone();
+    const AstNode *root = entity1->clone();
 
     StatefulLambda<int> state = StatefulLambda<int>(
         0,
@@ -554,4 +554,50 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
         GenericTraverser::RECUR);
 
     traverserNaryMutating(arith);
+}
+
+TEST_CASE("Higher order traverser", "[generic traverser]"){
+    int rc;
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
+                                       perm_string(), context);
+
+    REQUIRE(rc == 0);
+    REQUIRE(rc == 0);
+    REQUIRE(context->parse_errors == 0);
+    REQUIRE(context->parse_errors == 0);
+
+    REQUIRE(context->design_entities.size() == 1);
+
+    auto iterator = context->design_entities.begin();
+    auto entity1 = iterator->second;
+    REQUIRE(entity1 != NULL);
+
+    struct counter_t {
+        int count;
+
+        int operator()(const AstNode *n){
+            const SignalAssignment *sig = dynamic_cast<const SignalAssignment*>(n);
+            count += sig->rval_.size();
+            return 0;
+        }
+    };
+
+    GenericTraverser trav(
+        [](const AstNode *n) -> bool {
+            Match(n){ Case(mch::C<BlockStatement>()){ return true; } }
+            EndMatch; return false;
+        },
+        static_cast<function<int (const AstNode *)>>(
+        GenericTraverser(
+            [](const AstNode *n) -> bool {
+                Match(n){ Case(mch::C<SignalAssignment>()){ return true; } }
+                EndMatch; return false;
+            },
+            static_cast<function<int (const AstNode *)>>(counter_t()),
+            GenericTraverser::NONRECUR)),
+        GenericTraverser::NONRECUR);
 }

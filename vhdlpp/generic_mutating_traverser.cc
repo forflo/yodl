@@ -1165,15 +1165,15 @@ void GenericTraverser::traverseMutating(SigVarBase *n){
     currentPath.erase(currentPath.begin());
 }
 
-void GenericTraverser::traverse(AstNode *ast){
-    if (isMutating)
-        traverseMutating(ast);
-    else
-        traverseConst(ast);
+int GenericTraverser::operator()(AstNode *ast){
+    if (isMutating == false) { return 1; }
+    traverseMutating(ast);
+    return 0;
 }
 
-int GenericTraverser::operator()(AstNode *ast){
-    traverse(ast);
+int GenericTraverser::operator()(const AstNode *ast){
+    if (isMutating == true) { return 1; }
+    traverseConst(ast);
     return 0;
 }
 
