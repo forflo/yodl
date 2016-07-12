@@ -82,7 +82,7 @@ TEST_CASE("Simple for loop", "[ast]"){
     auto iterator = context->design_entities.begin();
     auto entity1 = iterator->second;
 
-    emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
+    //emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
 }
 
 TEST_CASE("Multiple parses", "[ast]"){

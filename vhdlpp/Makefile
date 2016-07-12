@@ -42,13 +42,13 @@ YOSYS_INCLUDES = -I/usr/local/share/yosys/include \
                  -I/usr/include/tcl8.6
 YOSYS_CPP = -DYOSYS_ENABLE_READLINE -DYOSYS_ENABLE_PLUGINS \
              -DYOSYS_ENABLE_TCL -DYOSYS_ENABLE_ABC -DYOSYS_ENABLE_COVER \
-             -D_YOSYS_ -MD
+             -D_YOSYS_
 YOSYS_MISC = "-rdynamic"
 
 CPPFLAGS = $(INCLUDE_PATH) $(YOSYS_INCLUDES) $(YOSYS_CPP)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
 CXXFLAGS = "-ggdb" -Wall -Wextra -Wshadow  \
-            -g -O0 --std=c++14 $(CUSTOM) $(YOSYS_MISC)
+            -g -O0 --std=c++14 $(CUSTOM)
 LDFLAGS =   $(YOSYS_LIBS)
 LIBS = -lm -lbz2 -lz -lhistory -lreadline  -L/usr/local/lib
 
@@ -83,14 +83,13 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
 all: dep vhdlpp
 
 test: $O
-	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $O test.cc $(LIBS)
+	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $O test.cc $(LIBS) $(YOSYS_MISC)
 
 check: all
 
 clean:
 	rm -f *.o *~ parse.cc parse.h lexor.cc parse.output lexor_keyword.cc
-	rm *.d
-	rm -rf dep vhdlpp
+	rm -rf dep vhdlpp vhdlpp_tests
 
 distclean: clean
 	rm -f Makefile config.log

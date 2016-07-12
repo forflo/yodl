@@ -160,8 +160,8 @@ private:
     void constVisitor(const AstNode *);
     void mutatingVisitor(AstNode *);
 
-    bool runVisitorConst(const AstNode *);
-    bool runVisitorMutating(AstNode *);
+    bool noFurtherRecur(const AstNode *);
+    bool noFurtherMRecur(AstNode *);
 
 private:
     std::vector<string> traversalMessages;
