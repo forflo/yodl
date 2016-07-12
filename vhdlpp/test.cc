@@ -6,8 +6,8 @@
 #include <iostream>
 
 // YOSYS specific headers
-#include <yosys/kernel.h>
-#include <yosys/rtlil.h>
+#include <kernel/yosys.h>
+#include <kernel/rtlil.h>
 
 // code base specific includes
 #include "generate_graph.h"

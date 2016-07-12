@@ -28,17 +28,29 @@ vpath %.cc $(srcdir)/../libmisc
 vpath %.cc $(srcdir)
 
 CC = gcc
-CXX = g++
+CXX = clang++
 LEX = flex
 YACC = bison
 
 # FM. MA| Added new include paths
-INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Icatch
+INCLUDE_PATH = -I. -I.. -I../libmisc \
+    -Isimple_tree -Imach7 -Imach7/patterns -Icatch \
 
-CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
+YOSYS_LIBS = "-lyosys"
+YOSYS_INCLUDES = -I/usr/local/share/yosys/include \
+                  -I/usr/lib/libffi-3.2.1/include \
+                  -I/usr/include/tcl8.6  \
+                  -L/usr/local/lib
+YOSYS_CPP = -DYOSYS_ENABLE_READLINE -DYOSYS_ENABLE_PLUGINS \
+             -DYOSYS_ENABLE_TCL -DYOSYS_ENABLE_ABC -DYOSYS_ENABLE_COVER \
+             -D_YOSYS_ -MD
+YOSYS_MISC = "-rdynamic"
+
+CPPFLAGS = $(INCLUDE_PATH) $(YOSYS_INCLUDES) $(YOSYS_CPP)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
-CXXFLAGS = -Wall -Wextra -Wshadow   -g -O0 --std=c++14 $(CUSTOM)
-LDFLAGS =  
+CXXFLAGS = "-ggdb" -Wall -Wextra -Wshadow  \
+            -g -O0 --std=c++14 $(CUSTOM) $(YOSYS_MISC)
+LDFLAGS =   $(YOSYS_LIBS)
 LIBS = -lm -lbz2 -lz -lhistory -lreadline 
 
 M = StringHeap.o LineInfo.o
@@ -50,8 +62,8 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     simple_tree/simple_tree.o \
     generic_const_traverser.o \
     generic_mutating_traverser.o \
-	loop_unroller.o \
-	path_finder.o \
+    loop_unroller.o \
+    path_finder.o \
     enum_overloads.o \
     parse_context.o  \
     generate_graph.o \
