@@ -232,11 +232,83 @@ TEST_CASE("Test simple generic traversal", "[generic traverser]"){
         },
         static_cast<function<int (const AstNode *)>>(
             [&state](const AstNode *a) -> int { return state(a); }),
-        root,
         GenericTraverser::RECUR);
 
-    traverser.traverse();
+    traverser(root);
     REQUIRE(state.environment == 2);
+}
+
+TEST_CASE("GenericTraverser class constructor test", "[generic traverser]"){
+    using namespace mch;
+
+    GenericTraverser traverserConst(
+        [=](const AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        static_cast<function<int (const AstNode *)>>(
+            [](const AstNode *) -> int { return 0; }),
+        GenericTraverser::RECUR);
+
+    REQUIRE(traverserConst.isNaryTraverser() == false);
+    REQUIRE(traverserConst.wasError() == false);
+    REQUIRE(traverserConst.isMutatingTraverser() == false);
+
+    GenericTraverser traverserMutating(
+        [=](const AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        static_cast<function<int (AstNode *)>>([](AstNode *) -> int {
+                return 0; }),
+        GenericTraverser::RECUR);
+
+    REQUIRE(traverserMutating.isNaryTraverser() == false);
+    REQUIRE(traverserMutating.wasError() == false);
+    REQUIRE(traverserMutating.isMutatingTraverser() == true);
+
+    GenericTraverser traverserNary(
+        [=](const AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        static_cast<function<int (
+            const AstNode *, const std::vector<const AstNode *> &)>>(
+                [](const AstNode *, const std::vector<const AstNode *> &)
+                -> int { return 0; }),
+        GenericTraverser::RECUR);
+
+    REQUIRE(traverserNary.isNaryTraverser() == true);
+    REQUIRE(traverserNary.wasError() == false);
+    REQUIRE(traverserNary.isMutatingTraverser() == false);
+
+    GenericTraverser traverserNaryMutating(
+        [=](const AstNode *node){
+            Match(node){
+                Case(C<BlockStatement>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        static_cast<function<int (
+            AstNode *, const std::vector<AstNode *> &)>>(
+                [](AstNode *, const std::vector<AstNode *> &)
+                -> int { return 0; }),
+        GenericTraverser::RECUR);
+
+    REQUIRE(traverserNaryMutating.isNaryTraverser() == true);
+    REQUIRE(traverserNaryMutating.wasError() == false);
+    REQUIRE(traverserNaryMutating.isMutatingTraverser() == true);
+
 }
 
 TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
@@ -285,10 +357,9 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
         // of std::function
         static_cast<function<int (const AstNode *)>>(
             [&state](const AstNode *a) -> int { return state(a); }),
-        root,
         GenericTraverser::RECUR);
 
-    traverser.traverse();
+    traverser(root);
     REQUIRE(state.environment == 2);
     traverser.emitTraversalMessages(cout, "\n");
     traverser.emitErrorMessages(cout, "\n");
@@ -318,15 +389,18 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     cout << "int4: " <<   static_cast<AstNode *>(int4) << endl;
 
     // check function PathFinder::getListOfchilds
-    const std::list<AstNode *> childs1 = PathFinder::getListOfChilds(arith);
+    const std::list<AstNode *> childs1 =
+        PathFinder::getListOfChilds(static_cast<AstNode *>(arith));
     REQUIRE(childs1.front() == arith1);
     REQUIRE(childs1.back() == arith2);
 
-    const std::list<AstNode *> childs2 = PathFinder::getListOfChilds(arith1);
+    const std::list<AstNode *> childs2 =
+        PathFinder::getListOfChilds(static_cast<AstNode *>(arith1));
     REQUIRE(childs2.front() == int1);
     REQUIRE(childs2.back() == int2);
 
-    const std::list<AstNode *> childs3 = PathFinder::getListOfChilds(arith2);
+    const std::list<AstNode *> childs3 =
+        PathFinder::getListOfChilds(static_cast<AstNode *>(arith2));
     REQUIRE(childs3.front() == int3);
     REQUIRE(childs3.back() == int4);
 

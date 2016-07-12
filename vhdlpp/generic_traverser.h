@@ -70,11 +70,17 @@ public:
         NONRECUR
     };
 
+    // TODO: At the moment, one has to explicitly static_cast the
+    // second argument of all four ctor overloads, because of the
+    // misbehaving type deduction for std::function templates. Thi
+    // should be simplified!
+    ////
 public:
     GenericTraverser(std::function<bool (const AstNode *)> p,
                      std::function<int (const AstNode *)> v,
                      recur_t r)
         : isMutating(false)
+        , isNary(false)
         , predicate(p)
         , constVisitorU(v)
         , recurSpec(r) { }
@@ -83,6 +89,7 @@ public:
                      std::function<int (AstNode *)> v,
                      recur_t r)
         : isMutating(true)
+        , isNary(false)
         , predicate(p)
         , mutatingVisitorU(v)
         , recurSpec(r) { }
@@ -90,7 +97,7 @@ public:
     // Overloads for Nary Traversers
     GenericTraverser(std::function<bool (const AstNode*)> p,
                      std::function<int (const AstNode *,
-                                        const std::vector<const AstNode *>)> &v,
+                                        const std::vector<const AstNode *> &)> v,
                      recur_t r)
         : isMutating(false)
         , isNary(true)
@@ -100,7 +107,7 @@ public:
 
     GenericTraverser(std::function<bool (const AstNode*)> p,
                      std::function<int (AstNode *,
-                                        const std::vector<AstNode *>)> &v,
+                                        const std::vector<AstNode *> &)> v,
                      recur_t r)
         : isMutating(true)
         , isNary(true)
@@ -112,6 +119,7 @@ public:
 
     bool wasError(){ return errorFlag; }
     bool isNaryTraverser() { return isNary; }
+    bool isMutatingTraverser() { return isMutating; }
 
     void emitTraversalMessages(std::ostream &, const char *);
     void emitErrorMessages(std::ostream &, const char*);
