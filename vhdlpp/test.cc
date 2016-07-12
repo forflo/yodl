@@ -365,7 +365,7 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
     traverser.emitErrorMessages(cout, "\n");
 }
 
-TEST_CASE("Test nary traverser", "[generic traverser]"){
+TEST_CASE("Test path finder", "[path finder]"){
     vector<vector<AstNode *>> res1, res2;
 
     ExpInteger *int1 = new ExpInteger(100);
@@ -475,4 +475,83 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     REQUIRE(pathFinderU.getPaths()[1][1] == arith1);
     REQUIRE(pathFinderU.getPaths()[0][2] == int1);
     REQUIRE(pathFinderU.getPaths()[1][2] == int2);
+}
+
+TEST_CASE("Test nary traverser", "[generic traverser]"){
+    ExpInteger *int1 = new ExpInteger(100);
+    ExpInteger *int2 = new ExpInteger(101);
+    ExpInteger *int3 = new ExpInteger(102);
+    ExpInteger *int4 = new ExpInteger(103);
+
+    ExpArithmetic *arith1 = new ExpArithmetic(ExpArithmetic::PLUS, int1, int2);
+    ExpArithmetic *arith2 = new ExpArithmetic(ExpArithmetic::PLUS, int3, int4);
+
+    ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
+    ExpArithmetic *aUnb = new ExpArithmetic(ExpArithmetic::MULT, arith1, int4);
+
+    cout << "arith: " <<  static_cast<AstNode *>(arith) << endl;
+    cout << "aUnb: " <<  static_cast<AstNode *>(aUnb) << endl;
+    cout << "arith1: " << static_cast<AstNode *>(arith1) << endl;
+    cout << "arith2: " << static_cast<AstNode *>(arith2) << endl;
+    cout << "int1: " <<   static_cast<AstNode *>(int1) << endl;
+    cout << "int2: " <<   static_cast<AstNode *>(int2) << endl;
+    cout << "int3: " <<   static_cast<AstNode *>(int3) << endl;
+    cout << "int4: " <<   static_cast<AstNode *>(int4) << endl;
+
+    struct functor_t {
+        bool alreadyCalled = false;
+
+        AstNode *i1;
+        AstNode *i2;
+        AstNode *i3;
+        AstNode *i4;
+        AstNode *ar;
+        AstNode *ar1;
+        AstNode *ar2;
+        AstNode *au;
+
+        functor_t(AstNode *a, AstNode *b,
+                  AstNode *c, AstNode *d,
+                  AstNode *e, AstNode *f,
+                  AstNode *g, AstNode *h)
+            : i1(a), i2(b), i3(c), i4(d)
+            , ar(e), ar1(f), ar2(g), au(h) {}
+
+        int operator()(AstNode *node, const std::vector<AstNode *> &parents){
+            if (node == i1){
+                REQUIRE(parents[0] == ar1);
+                REQUIRE(parents[1] == ar);
+            }
+
+            if (node == i2){
+                REQUIRE(parents[0] == ar1);
+                REQUIRE(parents[1] == ar);
+            }
+
+            if (node == i3) {
+                REQUIRE(parents[0] == ar2);
+                REQUIRE(parents[1] == ar);
+            }
+
+            if (node == i4) {
+                REQUIRE(parents[0] == ar2);
+                REQUIRE(parents[1] == ar);
+            }
+
+            return 0;
+        }
+    };
+
+    GenericTraverser traverserNaryMutating(
+        [=](const AstNode *node){
+            Match(node){
+                Case(mch::C<ExpInteger>()){ return true; }
+                Otherwise(){ return false; }
+            } EndMatch;
+            return false; //without: compiler warning
+        },
+        functor_t(int1, int2, int3, int4, arith, arith1, arith2, aUnb),
+        GenericTraverser::RECUR);
+
+    traverserNaryMutating(arith);
 }

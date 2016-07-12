@@ -76,7 +76,6 @@ using namespace std;
 // named_expr_t -- inherit AstNode
 
 void GenericTraverser::traverseMutating(AstNode *n){
-    currentPath.insert(currentPath.begin(), n);
     traversalMessages.push_back("Entering AstNode switch");
 
     Match(n){
@@ -128,7 +127,7 @@ void GenericTraverser::traverseMutating(ComponentBase *n){
                 Case(C<Entity>(entityArchs, entityBound, entityDecls)){
                     traversalMessages.push_back("Entity detected");
 
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     for (auto &i : entityArchs)
                         traverseMutating(i.second);
@@ -136,7 +135,7 @@ void GenericTraverser::traverseMutating(ComponentBase *n){
                 Otherwise(){
                     traversalMessages.push_back("ComponentBase detected");
 
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
                 }
             } EndMatch;
         }
@@ -146,6 +145,7 @@ void GenericTraverser::traverseMutating(ComponentBase *n){
                                       "for Component Base");
         }
     } EndMatch;
+    currentPath.erase(currentPath.begin());
 }
 
 void GenericTraverser::traverseMutating(Architecture *n){
@@ -164,7 +164,7 @@ void GenericTraverser::traverseMutating(Architecture *n){
                                         + name.str()
                                         + string(" detected"));
 
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             for (auto &i : statements)
                 traverseMutating(i);
@@ -178,6 +178,7 @@ void GenericTraverser::traverseMutating(Architecture *n){
                                       "traverse Architecture");
         }
     } EndMatch;
+    currentPath.erase(currentPath.begin());
 }
 
 void GenericTraverser::traverseMutating(Architecture::Statement *n){
@@ -220,7 +221,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
                     traversalMessages.push_back("ForGenerate detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(msb);
@@ -232,7 +233,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
                 Case(C<IfGenerate>(cond)){
                     traversalMessages.push_back("IfGenerate detected");
 
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     traverseMutating(cond);
 
@@ -243,7 +244,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
                     traversalMessages.push_back(
                         "GenerateStatement detected [error]");
 
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     for (auto &i : stmts)
@@ -258,7 +259,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
             traversalMessages.push_back("SignalAssignment detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(lval);
@@ -272,7 +273,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
 
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(lval);
@@ -289,7 +290,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
             traversalMessages.push_back("ComponentInstantiation detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             for (auto &i : genmap)
@@ -310,7 +311,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
             Case(C<FinalStatement>()) {
                 traversalMessages.push_back("Found final Statement");
                 // run visitor
-                if(noFurtherRecur(n)) { return ; }
+                if(noFurtherMRecur(n)) { return ; }
 
                 // descent
                 for (auto &i : seqStmts)
@@ -319,7 +320,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
             Case(C<InitialStatement>()) {
                 traversalMessages.push_back("Found initial Statement");
                 // run visitor
-                if(noFurtherRecur(n)) { return ; }
+                if(noFurtherMRecur(n)) { return ; }
 
                 // descent
                 for (auto &i : seqStmts)
@@ -329,7 +330,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
                 traversalMessages.push_back("Found process Statement");
 
                 // run visitor
-                if(noFurtherRecur(n)) { return ; }
+                if(noFurtherMRecur(n)) { return ; }
 
                 // descent
                 for (auto &i : procSensList)
@@ -352,7 +353,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
         traversalMessages.push_back("BlockStatement detected");
 
         // run visitor
-        if(noFurtherRecur(n)) { return ; }
+        if(noFurtherMRecur(n)) { return ; }
 
         // descent
         for (auto &i : *static_cast<list<Architecture::Statement*>*>(
@@ -369,6 +370,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
             return;
         }
     } EndMatch;
+    currentPath.erase(currentPath.begin());
 }
 
 void GenericTraverser::traverseMutating(Expression *n){
@@ -449,7 +451,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpEdge detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(op1);
@@ -458,7 +460,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpUAbs detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(op1);
@@ -467,7 +469,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpUNot detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(op1);
@@ -487,7 +489,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpArithmetic detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(op1);
@@ -497,7 +499,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpLogical detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(op1);
@@ -507,7 +509,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpRelation detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(op1);
@@ -517,7 +519,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpShift detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(op1);
@@ -535,7 +537,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpAggregate detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             // TODO: implement descents
@@ -551,7 +553,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpObjAttribute detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
@@ -563,7 +565,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpTypeAttribute detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
@@ -584,7 +586,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpBitstring detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // no descent, because leaf node
         }
@@ -593,7 +595,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpCharacter detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // no descent, because leaf node
         }
@@ -602,7 +604,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpConcat detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(concLeft);
@@ -616,7 +618,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpSelected detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     // TODO: implement descent
@@ -633,7 +635,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpFunc detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             // TODO: descent into definition
@@ -646,7 +648,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             //TODO: implement
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // no descent, because leaf node
         }
@@ -655,7 +657,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpReal detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // no descent, because leaf node
         }
@@ -668,7 +670,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpNameALL detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*>*>(indices))
@@ -678,7 +680,7 @@ void GenericTraverser::traverseMutating(Expression *n){
                     traversalMessages.push_back("ExpName detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     for (auto &i : *static_cast<list<Expression*>*>(indices))
@@ -691,7 +693,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpScopedName detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             // TODO: scope
@@ -702,7 +704,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpString detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // no descent, because leaf node
         }
@@ -711,7 +713,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpCast detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(castExp);
@@ -725,7 +727,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpNew detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(newSize);
@@ -735,7 +737,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpTime detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // no descent, because leaf node
         }
@@ -746,7 +748,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpRange detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(rangeLeft);
@@ -758,7 +760,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalMessages.push_back("ExpDelay detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(delayExpr);
@@ -770,6 +772,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             traversalErrors.push_back("Raw Expression detected");
         }
     } EndMatch;
+    currentPath.erase(currentPath.begin());
 }
 
 void GenericTraverser::traverseMutating(SequentialStmt *n){
@@ -820,7 +823,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
                     traversalMessages.push_back("WhileLoopStatement detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(whileCond);
@@ -833,7 +836,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
                     traversalMessages.push_back("ForLoopStatement detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traverseMutating(iterRange);
@@ -846,7 +849,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
                     traversalMessages.push_back("BasicLoopStatement detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     for (auto &i : loopStmts)
@@ -864,7 +867,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalMessages.push_back("IfSequential detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(ifCond);
@@ -883,7 +886,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalMessages.push_back("ReturnStmt detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(retValue);
@@ -893,7 +896,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalMessages.push_back("SignalSeqAssignment detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traversalMessages.push_back(
@@ -911,7 +914,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalMessages.push_back("ProcedureCall detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traversalMessages.push_back(
@@ -923,7 +926,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalMessages.push_back("VariableSeqAssignment detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traversalMessages.push_back(
@@ -937,7 +940,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
                     traversalMessages.push_back("AssertStmt detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
 
@@ -949,7 +952,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
                     traversalMessages.push_back("ReturnStmt detected");
 
                     // run visitor
-                    if(noFurtherRecur(n)) { return ; }
+                    if(noFurtherMRecur(n)) { return ; }
 
                     // descent
                     traversalMessages.push_back(
@@ -963,7 +966,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalMessages.push_back("WaitForStmt detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
@@ -972,7 +975,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalMessages.push_back("WaitStmt detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traversalMessages.push_back(
@@ -985,6 +988,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             traversalErrors.push_back("Raw SequentialStat detected");
         }
     } EndMatch;
+    currentPath.erase(currentPath.begin());
 }
 
 void GenericTraverser::traverseMutating(VType *n){
@@ -1025,7 +1029,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeERROR detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
@@ -1034,7 +1038,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypePrimitive detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
@@ -1043,7 +1047,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeArray detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traversalMessages.push_back(
@@ -1062,7 +1066,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeRange detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traversalMessages.push_back(
@@ -1074,7 +1078,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeRangeConst detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
@@ -1083,7 +1087,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeRangeExpr detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traverseMutating(eRangeStart);
@@ -1094,7 +1098,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeEnum detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
@@ -1103,7 +1107,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeRecord detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             for (auto &i : recordElements)
@@ -1114,7 +1118,7 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VTypeDef detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // descent
             traversalMessages.push_back(
@@ -1126,11 +1130,12 @@ void GenericTraverser::traverseMutating(VType *n){
             traversalMessages.push_back("VSubTypeDef detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
     } EndMatch;
+    currentPath.erase(currentPath.begin());
 }
 
 void GenericTraverser::traverseMutating(SigVarBase *n){
@@ -1140,7 +1145,7 @@ void GenericTraverser::traverseMutating(SigVarBase *n){
             traversalMessages.push_back("Signal detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
@@ -1148,7 +1153,7 @@ void GenericTraverser::traverseMutating(SigVarBase *n){
             traversalMessages.push_back("Variable detected");
 
             // run visitor
-            if(noFurtherRecur(n)) { return ; }
+            if(noFurtherMRecur(n)) { return ; }
 
             // nothing to descent
         }
@@ -1157,6 +1162,7 @@ void GenericTraverser::traverseMutating(SigVarBase *n){
             traversalErrors.push_back("Raw SigVarBase detected");
         }
     } EndMatch;
+    currentPath.erase(currentPath.begin());
 }
 
 void GenericTraverser::traverse(AstNode *ast){
@@ -1172,13 +1178,23 @@ int GenericTraverser::operator()(AstNode *ast){
 }
 
 void GenericTraverser::constVisitor(const AstNode *n){
+    const AstNode *tmpChild = currentPathConst[0];
+    currentPathConst.erase(currentPathConst.begin());
+
     if (isNary){ constNaryVisitorU(n, currentPathConst); }
     else { constVisitorU(n); }
+
+    currentPathConst.insert(currentPathConst.begin(), tmpChild);
 }
 
 void GenericTraverser::mutatingVisitor(AstNode *n){
+    AstNode *tmpChild = currentPath[0];
+    currentPath.erase(currentPath.begin());
+
     if (isNary) { mutatingNaryVisitorU(n, currentPath); }
     else { mutatingVisitorU(n); }
+
+    currentPath.insert(currentPath.begin(), tmpChild);
 }
 
 void GenericTraverser::emitTraversalMessages(ostream &out, const char* delimit){
