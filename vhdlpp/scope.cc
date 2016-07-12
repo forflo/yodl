@@ -63,6 +63,28 @@ ScopeBase::ScopeBase(const ActiveScope& ref)
 //freeing of member objects is performed by child classes
 ScopeBase::~ScopeBase() { }
 
+//FM. MA | Copy constructor used by BlockStatement
+ScopeBase::ScopeBase(const ScopeBase &ref)
+    : context_(ref.context_) //FM. MA Adjustet initializer list
+    , old_signals_(ref.old_signals_)
+    , new_signals_(ref.new_signals_)
+    , old_variables_(ref.old_variables_)
+    , new_variables_(ref.new_variables_)
+    , old_components_(ref.old_components_)
+    , new_components_(ref.new_components_)
+    , use_types_(ref.use_types_)
+    , cur_types_(ref.cur_types_)
+    , use_constants_(ref.use_constants_)
+    , cur_constants_(ref.cur_constants_)
+    , use_subprograms_(ref.use_subprograms_)
+    , cur_subprograms_(ref.cur_subprograms_)
+    , scopes_(ref.scopes_)
+    , use_enums_(ref.use_enums_)
+    , initializers_(ref.initializers_)
+    , finalizers_(ref.finalizers_)
+    , package_header_(ref.package_header_)
+    , name_(ref.name_) { }
+
 
 /* A parent scope is destroyed only if all child scopes
  * were previously destroyed. Therefor we can delete all

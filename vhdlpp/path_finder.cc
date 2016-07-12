@@ -386,6 +386,7 @@ const std::list<AstNode *> PathFinder::getListOfChilds(AstNode *root){
     return {};
 }
 
+// TODO: Implement
 const std::list<AstNode *> PathFinder::getListOfChilds(SequentialStmt *seq){
     using namespace mch;
 
@@ -497,4 +498,167 @@ const std::list<AstNode *> PathFinder::getListOfChilds(SequentialStmt *seq){
         Otherwise(){
         }
     } EndMatch;
+}
+
+const std::list<AstNode *> PathFinder::getListOfChilds(VType *n){
+    using namespace mch;
+    // For VTypePrimitive
+    var<VTypePrimitive::type_t> primType;
+    var<bool> primPacked;
+
+    // For VTypeArray
+    var<const VType *> arrEtype;
+    var<vector<VTypeArray::range_t>> arrRanges;
+    var<bool> arrSigFlag;
+    var<const VTypeArray *> arrParent;
+
+    // For VTypeRange
+    var<const VType *> rangeBase;
+
+    // For VTypeRangeConst
+    var<int64_t> cRangeStart, cRangeEnd;
+
+    // For VTypeRangeExpr
+    var<Expression *> eRangeStart, eRangeEnd;
+    var<bool> eDownto;
+
+    // For VTypeRecord
+    var<vector<VTypeRecord::element_t *>> recordElements;
+
+    // For VTypeEnum
+    var<vector<perm_string>> enumNames;
+
+    // For VTypeDef
+    var<perm_string> typeName;
+    var<const VType *> typeType;
+
+    Match(n){
+        Case(C<VTypeERROR>()){
+        }
+
+        Case(C<VTypePrimitive>(primType, primPacked)){
+        }
+
+        Case(C<VTypeArray>(arrEtype, arrRanges, arrSigFlag, arrParent)){
+        }
+
+        Case(C<VTypeRange>(rangeBase)){
+        }
+
+        Case(C<VTypeRangeConst>(cRangeStart, cRangeEnd)){
+        }
+
+        Case(C<VTypeRangeExpr>(eRangeStart, eRangeEnd, eDownto)){
+        }
+
+        Case(C<VTypeEnum>(enumNames)){
+        }
+
+        Case(C<VTypeRecord>(recordElements)){
+        }
+
+        Case(C<VTypeDef>(typeName, typeType)){
+        }
+
+        Case(C<VSubTypeDef>()){
+        }
+    } EndMatch;
+
+    return {};
+}
+
+
+const std::list<AstNode*> PathFinder::getListOfChilds(Architecture::Statement *n){
+    using namespace mch;
+
+    var<perm_string> name, label;
+    var<list<Architecture::Statement*>> stmts;
+    var<list<Architecture::Statement*>*> stmts_ptr;
+    var<BlockStatement::BlockHeader*> header;
+    var<Expression&> cond;
+
+    // for SignalAsignment and CondSignalAssignment
+    var<ExpName*> lval;
+    var<list<Expression*>> rval;
+    var<list<ExpConditional::case_t*>> options;
+    var<list<const ExpName*>> senslist;
+
+    // for ComponentInstanciation
+    var<perm_string> iname, cname;
+    var<map<perm_string, Expression*>> genmap, portmap;
+
+    // for StatementList subtree
+    var<list<SequentialStmt*>> seqStmts;
+
+    if (n == NULL) {
+        // TODO: error msg
+        return {};
+    }
+
+    Match(n){
+        Case(C<GenerateStatement>(name, stmts)){
+            var<Expression *> cond, msb, lsb;
+            var<perm_string> genvar;
+
+            Match(n){
+                Case(C<ForGenerate>(genvar, msb, lsb)){
+                }
+                Case(C<IfGenerate>(cond)){
+                }
+                Otherwise(){
+                }
+            } EndMatch;
+
+            return {};
+        }
+
+        Case(C<SignalAssignment>(lval, rval)){
+        }
+
+        Case(C<CondSignalAssignment>(lval, options, senslist)){
+        }
+
+        Case(C<ComponentInstantiation>(iname, cname, genmap, portmap)){
+        }
+
+        Case(C<StatementList>(seqStmts)){
+
+            var<perm_string> name;
+            var<list<Expression *>> procSensList;
+
+            Match(n){
+                Case(C<FinalStatement>()) {
+                }
+                Case(C<InitialStatement>()) {
+                }
+                Case(C<ProcessStatement>(name, procSensList)) {
+                }
+                Otherwise() {
+                }
+            } EndMatch;
+        }
+
+        Case(C<BlockStatement>(label, header, stmts_ptr)){
+        }
+
+        Otherwise() {
+        }
+    } EndMatch;
+
+    return {};
+}
+
+const std::list<AstNode *> PathFinder::getListOfChilds(SigVarBase *n){
+    using namespace mch;
+
+    Match(n) {
+        Case(C<Signal>()){
+        }
+        Case(C<Variable>()){
+        }
+        Otherwise(){
+        }
+    } EndMatch;
+
+    return {};
 }

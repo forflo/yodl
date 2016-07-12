@@ -33,7 +33,7 @@ LEX = flex
 YACC = bison
 
 # FM. MA| Added new include paths
-INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Icatch -Iyosys
+INCLUDE_PATH = -I. -I.. -I../libmisc -Isimple_tree -Imach7 -Imach7/patterns -Icatch
 
 CPPFLAGS = $(INCLUDE_PATH)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)

@@ -25,6 +25,7 @@
 # include "sequential.h"
 // Need this for parse_errors?
 # include "parse_api.h"
+# include "scope.h"
 
 using namespace std;
 
