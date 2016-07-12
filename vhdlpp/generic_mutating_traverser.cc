@@ -1181,8 +1181,11 @@ void GenericTraverser::constVisitor(const AstNode *n){
     const AstNode *tmpChild = currentPathConst[0];
     currentPathConst.erase(currentPathConst.begin());
 
-    if (isNary){ constNaryVisitorU(n, currentPathConst); }
-    else { constVisitorU(n); }
+    if (isNary){
+        constNaryVisitorU(n, currentPathConst);
+    } else {
+        constVisitorU(n);
+    }
 
     currentPathConst.insert(currentPathConst.begin(), tmpChild);
 }
@@ -1191,8 +1194,11 @@ void GenericTraverser::mutatingVisitor(AstNode *n){
     AstNode *tmpChild = currentPath[0];
     currentPath.erase(currentPath.begin());
 
-    if (isNary) { mutatingNaryVisitorU(n, currentPath); }
-    else { mutatingVisitorU(n); }
+    if (isNary) {
+        mutatingNaryVisitorU(n, currentPath);
+    } else {
+        mutatingVisitorU(n);
+    }
 
     currentPath.insert(currentPath.begin(), tmpChild);
 }
