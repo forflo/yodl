@@ -954,7 +954,8 @@ ExpRange::~ExpRange() {
 
 Expression *ExpRange::clone() const {
     if (range_expr_) {
-        return new ExpRange(static_cast<ExpName *> (range_base_->clone()), range_reverse_);
+        return new ExpRange(static_cast<ExpName *> (range_base_->clone()),
+                            range_reverse_);
     }else  {
         return new ExpRange(left_->clone(), right_->clone(), direction_);
     }

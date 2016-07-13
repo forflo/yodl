@@ -52,10 +52,10 @@ private:
     int modifyArch(AstNode *);
     int modify(std::list<Architecture::Statement *> &);
 
-
 private:
     int expandGenerate(Architecture::Statement *g);
     bool isGenerate(Architecture::Statement *g);
+    bool isBlockStmt(Architecture::Statement *g);
     static bool containsGenerateStmt(const std::list<Architecture::Statement *> &);
 };
 

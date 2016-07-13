@@ -211,12 +211,12 @@ public:
         for (auto &i : statements_)
             copy.push_back(i->clone());
 
-        return new ForGenerate(
-            name_,
-            genvar_,
-            lsb_->clone(),
-            msb_->clone(),
-            copy);
+        if (range_)
+            return new ForGenerate(
+                name_, genvar_, range_, copy);
+        else
+            return new ForGenerate(
+                name_, genvar_, lsb_, msb_, copy);
     }
 
 public:

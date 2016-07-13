@@ -16,7 +16,9 @@ architecture behaviour of ForLoop is
 begin
    gen : for i in 1 to 2 generate
       nested : for j in 1 to 2 generate
-         sum <= i + j;
+         moreNested : for k in 1 to 2 generate
+            sum <= i + j + k;
+         end generate moreNested;
       end generate nested;
    end generate gen;
 end behaviour;

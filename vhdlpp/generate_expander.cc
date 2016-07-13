@@ -150,6 +150,14 @@ int GenerateExpander::expandGenerate(Architecture::Statement *g){
     return 0;
 }
 
+bool GenerateExpander::isBlockStmt(Architecture::Statement *g){
+    using namespace mch;
+    Match(g){
+        Case(C<BlockStatement>()){return true;}
+    } EndMatch;
+    return false;
+}
+
 bool GenerateExpander::isGenerate(Architecture::Statement *g){
     using namespace mch;
     Match(g){
@@ -161,31 +169,41 @@ bool GenerateExpander::isGenerate(Architecture::Statement *g){
 
 int GenerateExpander::modify(std::list<Architecture::Statement *> &statements){
     using namespace mch;
+    std::list<Architecture::Statement *> unfolded;
 
     while (containsGenerateStmt(statements)){
-        for (std::list<Architecture::Statement *>::iterator i = statements.begin();
-             i != statements.end();
-             ++i){
+        for (auto &i : statements){
 
             //TODO: replace with exception
-            if (*i == NULL) {
+            if (i == NULL) {
                 std::cout << "Nullptr in modifyArch" << endl;
                 return 1;
             }
 
-            if (isGenerate(*i)){
-                if (expandGenerate(*i)){
+            if (isGenerate(i)){
+                bool expandRc = expandGenerate(i);
+
+                if (expandRc){
                     std::cout << "error in expander" << endl;
                     return 1; //error in expander
-                } else {
-                    statements.splice(i, accumulator);
-                    statements.erase(i);
-                    std::advance(i, accumulator.size() - 1);
-                    accumulator.clear();
                 }
+
+                for (auto &j : accumulator)
+                    unfolded.push_back(j);
+
+                accumulator.clear();
+            } else if (isBlockStmt(i)) {
+                modifyBlock(i);
+                unfolded.push_back(i);
+            } else {
+                unfolded.push_back(i);
             }
         }
+
+        statements = unfolded;
+        unfolded.clear();
     }
+
 
     return 0;
 }
