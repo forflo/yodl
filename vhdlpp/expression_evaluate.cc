@@ -34,12 +34,12 @@ bool ExpRelation::evaluate(Entity *ent, ScopeBase *scope, int64_t &val) const {
     if (!eval_operand2(ent, scope, right)) { return false; }
 
     switch (fun_){
-    case EQ: val = left == right;
-    case NEQ:  val = left != right;
-    case LT:  val = left < right;
-    case GT:  val = left > right;
-    case LE:  val = left <= right;
-    case GE: val = left >= right;
+    case EQ: val = left == right;    break;
+    case NEQ:  val = left != right;  break;
+    case LT:  val = left < right;    break;
+    case GT:  val = left > right;    break;
+    case LE:  val = left <= right;   break;
+    case GE: val = left >= right;    break;
     }
 
     return true;
@@ -55,11 +55,17 @@ bool ExpLogical::evaluate(Entity *ent, ScopeBase *scope, int64_t &val) const {
 
     switch (fun_){
     case AND: val = static_cast<bool>(left) && static_cast<bool>(right);
+        break;
     case OR: val = static_cast<bool>(left) || static_cast<bool>(right);
+        break;
     case NOR: val = !(static_cast<bool>(left) || static_cast<bool>(right));
+        break;
     case XOR: val = static_cast<bool>(left) != static_cast<bool>(right);
+        break;
     case NAND: val = !(static_cast<bool>(left) && static_cast<bool>(right));
+        break;
     case XNOR: val = static_cast<bool>(left) == static_cast<bool>(right);
+        break;
     }
 
     return true;

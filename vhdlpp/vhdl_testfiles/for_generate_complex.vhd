@@ -14,11 +14,11 @@ end ForLoop;
 architecture behaviour of ForLoop is
    signal result : std_logic_vector(n downto 0);
 begin
---   gen : for i in 1 to 2 generate
---      nested : for j in 1 to 1 + i * 2 generate
---         sum <= i + j + k;
---      end generate nested;
---   end generate gen;
+   gen : for i in 1 to 2 generate
+      nested : for j in 1 to 1 + i * 2 generate
+         sum <= i + j + k;
+      end generate nested;
+   end generate gen;
 
    reverse: for i in 2 downto 1 generate
       nestedReverse : for j in 2 downto 1 generate
