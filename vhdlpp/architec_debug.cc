@@ -146,12 +146,12 @@ void ProcessStatement::dump(ostream& out, int indent) const {
 }
 
 void BlockStatement::dump(ostream &out, int indent) const {
-    out << setw(indent) << label_ << " : " << "block is" << endl;
+    out << setw(indent + 3) << label_ << " : " << "block is" << endl;
 
     if (header_)
-        header_->dump(out, indent + 3);
+        header_->dump(out, indent + 6);
 
     if (concurrent_stmts_)
         for (auto &i : *concurrent_stmts_)
-            i->dump(out, indent + 3);
+            i->dump(out, indent + 6);
 }
