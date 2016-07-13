@@ -50,7 +50,7 @@ const char COPYRIGHT[] =
 #include "parse_context.h"
 #include "mach7_includes.h"
 #include "loop_unroller.h"
-#include "exp_name_replacer.h"
+#include "name_replacer.h"
 #include "generate_expander.h"
 #include "stateful_lambda.h"
 
@@ -74,7 +74,6 @@ using namespace mch;
 bool verbose_flag = false;
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
-const char *dump_design_entities_path = "ast_dump.vhd";
 const char *dump_libraries_path       = 0;
 const char *debug_log_path            = 0;
 
@@ -84,33 +83,13 @@ ofstream debug_log_file;
 extern void dump_libraries(ostream& file);
 extern void parser_cleanup();
 
-static void process_debug_token(const char *word) {
-    if (strcmp(word, "yydebug") == 0) {
-        yydebug = 1;
-    } else if (strcmp(word, "no-yydebug") == 0) {
-        yydebug = 0;
-    } else if (strncmp(word, "entities=", 9) == 0) {
-        dump_design_entities_path = strdup(word + 9);
-    } else if (strncmp(word, "libraries=", 10) == 0) {
-        dump_libraries_path = strdup(word + 10);
-    } else if (strncmp(word, "log=", 4) == 0) {
-        debug_log_path = strdup(word + 4);
-    } else if (strcmp(word, "elaboration") == 0) {
-        debug_elaboration = true;
-    }
-}
-
 void main_parse_arguments(int argc, char *argv[]){
 #   define VERSION_TAG    "VERSION_TAG"
 #   define NOTICE         "NOTICE\n"
 
     int opt;
-    while ((opt = getopt(argc, argv, "D:L:vVw:")) != EOF) {
+    while ((opt = getopt(argc, argv, "L:vVw:")) != EOF) {
         switch (opt) {
-        case 'D':
-            process_debug_token(optarg);
-            break;
-
         case 'L':
             library_add_directory(optarg);
             break;
@@ -202,12 +181,8 @@ int main(int argc, char *argv[]) {
     /* Playground */
     cout << "There are " <<  cont->design_entities.size() << " entities\n";
 
-    ////
-    // WARNING: CHECK ENTITY NAME!!
     auto iter = cont->design_entities.begin();
     cout << "Entity found!\n";
-
-//    Entity *i
 
     ForLoopUnroller forUnroller{};
 

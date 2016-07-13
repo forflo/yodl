@@ -1,7 +1,7 @@
 #include "generic_traverser.h"
 #include "architec.h"
 #include "stateful_lambda.h"
-#include "exp_name_replacer.h"
+#include "name_replacer.h"
 #include "generate_expander.h"
 #include "mach7_includes.h"
 
@@ -46,18 +46,17 @@ int GenerateExpander::expandForGenerate(AstNode *node){
         if (leftVal > rightVal) { /* SEMANTIC ERROR */ return 1; }
 
         for (int i = leftVal; i <= rightVal; i++){
-            ExpNameReplacer replacer(ExpInteger{i}, ExpName(genvar));
+            NameReplacer visitor(ExpInteger{i}, ExpName(genvar));
 
-            GenericTraverser replacerT(
+            GenericTraverser traverser(
                 [](const AstNode *n) -> bool {
                     Match(n){Case(mch::C<ExpName>()){return true;}} EndMatch;
                     return false;
                 },
-                replacer,
-                GenericTraverser::NONRECUR);
+                visitor, GenericTraverser::NONRECUR);
 
             Architecture::Statement *temp = b->clone();
-            replacerT(temp);
+            traverser(temp);
 
             accumulator.push_back(temp);
         }

@@ -63,7 +63,7 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     generic_mutating_traverser.o \
     loop_unroller.o \
 	generate_expander.o \
-	exp_name_replacer.o \
+	name_replacer.o \
     path_finder.o \
     enum_overloads.o \
     parse_context.o  \
