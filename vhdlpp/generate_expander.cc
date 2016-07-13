@@ -37,9 +37,11 @@ int GenerateExpander::expandForGenerate(AstNode *node){
 
     switch(range->direction_) {
     case ExpRange::range_dir_t::DOWNTO:
-        if (leftVal < rightVal) { /* SEMANTIC ERROR */ return 1; }
+        // If direction of range is DOWNTO. leftVal contains
+        // the value of x in for i y downto x
+        if (leftVal > rightVal) { /* SEMANTIC ERROR */ return 1; }
 
-        for (int i = leftVal; i >= rightVal; i--){
+        for (int i = rightVal; i >= leftVal; i--){
             Architecture::Statement *temp = b->clone();
 
             NameReplacer visitor(ExpInteger{i}, ExpName(genvar));
