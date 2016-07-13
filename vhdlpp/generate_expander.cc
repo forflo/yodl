@@ -40,7 +40,20 @@ int GenerateExpander::expandForGenerate(AstNode *node){
         if (leftVal < rightVal) { /* SEMANTIC ERROR */ return 1; }
 
         for (int i = leftVal; i >= rightVal; i--){
-            accumulator.push_back(b->clone());
+            Architecture::Statement *temp = b->clone();
+
+            NameReplacer visitor(ExpInteger{i}, ExpName(genvar));
+
+            GenericTraverser traverser(
+                [](const AstNode *n) -> bool {
+                    Match(n){Case(mch::C<ExpName>()){return true;}} EndMatch;
+                    return false;
+                },
+                visitor, GenericTraverser::NONRECUR);
+
+            traverser(temp);
+
+            accumulator.push_back(temp);
         }
         break;
     case ExpRange::range_dir_t::TO:
