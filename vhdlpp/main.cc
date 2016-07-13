@@ -50,6 +50,9 @@ const char COPYRIGHT[] =
 #include "parse_context.h"
 #include "mach7_includes.h"
 #include "loop_unroller.h"
+#include "exp_name_replacer.h"
+#include "generate_expander.h"
+#include "stateful_lambda.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -204,39 +207,7 @@ int main(int argc, char *argv[]) {
     auto iter = cont->design_entities.begin();
     cout << "Entity found!\n";
 
-//    cout << "\n\n";
-//
-//
-//    auto visitor =
-//        [=](const AstNode *, int &env) -> int {
-//        cout << "[VISITOR] Found node!"  << endl;
-//        env++;
-//        return 0;
-//    };
-//    StatefulLambda<int> state = StatefulLambda<int>(
-//        0, static_cast<function <int (const AstNode*, int &)>>(visitor));
-//
-//    GenericTraverser traverser2(
-//        [=](const AstNode *node){
-//            Match(node){
-//                Case(C<ForLoopStatement>()){ return true; }
-//                Otherwise(){ return false; }
-//            } EndMatch;
-//            return false; //without: compiler warning
-//        },
-//        static_cast<function<int (const AstNode *)>>(
-//            [&state](const AstNode *a) -> int { return state(a); }),
-//        root,
-//        GenericTraverser::RECUR);
-//
-//    cout << "\n\n";
-//    traverser2.traverse();
-//    cout << "Number of BlockStatements: " << state.environment << endl;
-
-    //Test for loop unroller
-
-    emit_dotgraph(std::cout, "fnord",
-                  dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
+//    Entity *i
 
     ForLoopUnroller forUnroller{};
 
@@ -256,6 +227,37 @@ int main(int argc, char *argv[]) {
         GenericTraverser::NONRECUR);
 
     loopUnroller(iter->second);
+
+    ExpNameReplacer replacer(
+        new ExpInteger(100), new ExpName(perm_string::literal("i")));
+
+    GenericTraverser replacerT(
+        [](const AstNode *n) -> bool {
+            Match(n){
+                Case(C<ExpName>()){return true;}
+            } EndMatch;
+            return false;
+        },
+        replacer,
+        GenericTraverser::NONRECUR);
+
+    replacerT(iter->second);
+
+    GenerateExpander genE;
+    GenericTraverser genExpander(
+        [](const AstNode *n) -> bool {
+            Match(n){
+                Case(C<ExpName>()){return true;}
+                Case(C<Architecture>()){return true;}
+                Case(C<ScopeBase>()){return true;}
+                Case(C<BlockStatement>()){return true;}
+            } EndMatch;
+            return false;
+        },
+        genE,
+        GenericTraverser::NONRECUR);
+
+    genExpander(iter->second);
 
     emit_dotgraph(std::cout, "fnord",
                   dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());

@@ -20,7 +20,6 @@
 #include "std_types.h"
 #include "architec.h"
 #include "parse_api.h"
-#include "generic_traverser.h"
 #include "vtype.h"
 #include "root_class.h"
 #include "mach7_bindings.h"
@@ -59,6 +58,5 @@ private:
     bool isGenerate(Architecture::Statement *g);
     static bool containsGenerateStmt(const std::list<Architecture::Statement *> &);
 };
-
 
 #endif /* IVL_GENERATE_EXPANDER */

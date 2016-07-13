@@ -438,11 +438,11 @@ int BlockStatement::elaborate(Entity *, Architecture *) {
 
 BlockStatement *BlockStatement::clone() const {
     auto *concurrent_stmts_copy = new std::list<Architecture::Statement*>;
-    for (auto &i : *concurrent_stmts_)
-        concurrent_stmts_copy->push_back(i->clone());
+    if (concurrent_stmts_) for (auto &i : *concurrent_stmts_)
+                               concurrent_stmts_copy->push_back(i->clone());
 
     return new BlockStatement(
-        header_->clone(), label_,
+        (header_ ? header_->clone() : 0), label_,
         *this, concurrent_stmts_copy);
 }
 

@@ -1,3 +1,7 @@
+#include "generic_traverser.h"
+#include "architec.h"
+#include "stateful_lambda.h"
+#include "exp_name_replacer.h"
 #include "generate_expander.h"
 #include "mach7_includes.h"
 
@@ -9,6 +13,7 @@ int GenerateExpander::expandForGenerate(AstNode *node){
     Expression *lower = forGenerate->lsb_;
     Expression *upper = forGenerate->msb_;
     ExpRange *range = forGenerate->range_;
+
 
     int64_t leftVal, rightVal;
     bool staticEvaluable = true;
@@ -41,7 +46,23 @@ int GenerateExpander::expandForGenerate(AstNode *node){
         if (leftVal > rightVal) { /* SEMANTIC ERROR */ return 1; }
 
         for (int i = leftVal; i <= rightVal; i++){
-            accumulator.push_back(b->clone());
+            ExpNameReplacer replacer(
+                new ExpInteger(i), new ExpName(genvar));
+
+            GenericTraverser replacerT(
+                [](const AstNode *n) -> bool {
+                    Match(n){
+                        Case(mch::C<ExpName>()){return true;}
+                    } EndMatch;
+                    return false;
+                },
+                replacer,
+                GenericTraverser::NONRECUR);
+
+            Architecture::Statement *temp = b->clone();
+            replacerT(temp);
+
+            accumulator.push_back(temp);
         }
         break;
     default:
@@ -79,38 +100,37 @@ int GenerateExpander::expandIfGenerate(AstNode *node){
             new std::list<Architecture::Statement*>(statements));
 
         accumulator.push_back(b);
-        delete b;
     }
 
     return 0;
 }
 
-bool GenerateExpander::containsGenerateStmt(const std::list<Architecture::Statement *> &sList){
+bool GenerateExpander::containsGenerateStmt(
+    const std::list<Architecture::Statement *> &sList){
     using namespace mch;
 
     StatefulLambda<int> genStmtCounter(
         0, static_cast<function<int (const AstNode *, int &)>>(
             [](const AstNode *, int &env) -> int {
                 env++;
-                return 0;
-            }));
+                return 0;}));
+
+    GenericTraverser traverser(
+        [](const AstNode *n) -> bool {
+            Match(n){
+                Case(C<ForGenerate>()){ return true;}
+                Case(C<IfGenerate>()){ return true;}
+            } EndMatch;
+            return false;
+        },
+        static_cast<function<int (const AstNode *)>>(
+            [&genStmtCounter](const AstNode *n) -> int {
+                return genStmtCounter(n);
+            }),
+        GenericTraverser::RECUR);
 
     for (auto &i : sList){
-        GenericTraverser traverser(
-            [](const AstNode *n) -> bool {
-                Match(n){
-                    Case(C<ForGenerate>()){ return true;}
-                    Case(C<IfGenerate>()){ return true;}
-                } EndMatch;
-                return false;
-            },
-            static_cast<function<int (const AstNode *)>>(
-                [&genStmtCounter](const AstNode *n) -> int {
-                    return genStmtCounter(n);
-                }),
-            GenericTraverser::RECUR);
-
-        traverser(i);
+        traverser(const_cast<const Architecture::Statement*>(i));
 
         if (genStmtCounter.environment > 0){
             return true;
@@ -158,12 +178,13 @@ int GenerateExpander::modify(std::list<Architecture::Statement *> &statements){
 
             if (isGenerate(*i)){
                 if (expandGenerate(*i)){
+                    std::cout << "error in expander" << endl;
+                    return 1; //error in expander
+                } else {
                     statements.splice(i, accumulator);
                     statements.erase(i);
                     std::advance(i, accumulator.size() - 1);
                     accumulator.clear();
-                } else {
-                    return 1; //error in expander
                 }
             }
         }
@@ -189,17 +210,19 @@ int GenerateExpander::operator()(AstNode *n){
     using namespace mch;
 
     Match(n){
+        Case(C<Architecture>()){
+            currentScope = dynamic_cast<ScopeBase *>(n);
+            return modifyArch(n);
+        }
+        Case(C<BlockStatement>()){
+            currentScope = dynamic_cast<ScopeBase *>(n);
+            return modifyBlock(n);
+        }
         Case(C<Entity>()){
             currentEntity = dynamic_cast<Entity*>(n);
         }
         Case(C<ScopeBase>()){
             currentScope = dynamic_cast<ScopeBase *>(n);
-        }
-        Case(C<Architecture>()){
-            return modifyArch(n);
-        }
-        Case(C<BlockStatement>()){
-            return modifyBlock(n);
         }
     } EndMatch;
 

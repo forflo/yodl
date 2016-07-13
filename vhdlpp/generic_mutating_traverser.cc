@@ -440,7 +440,10 @@ void GenericTraverser::traverseMutating(Expression *n){
     // For ExpDelay
     var<Expression *> delayExpr, delayDelay;
 
-    if (n == NULL) { return; }
+    if (n == NULL) {
+        std::cout << "Expression was NULL!" << endl;
+        return;
+    }
     Match(n){
         Case(C<ExpUnary>(op1)){
             traversalMessages.push_back("ExpUnary detected");
@@ -899,9 +902,9 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             if(noFurtherMRecur(n)) { return ; }
 
             // descent
-            traversalMessages.push_back(
-                "[C<SignalSeqAssignment>] Can recurse into"
-                "assignLval/waveform, because of the nodes constness");
+            traverseMutating(assignLval);
+            for(auto &i: waveform)
+                traverseMutating(i);
         }
 
         //FIXME: Ruines build. Don't know why
@@ -915,6 +918,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
 
             // run visitor
             if(noFurtherMRecur(n)) { return ; }
+            std::cout << "ProcedureCall traversal not yet implemented" << endl;
 
             // descent
             traversalMessages.push_back(
@@ -929,9 +933,8 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             if(noFurtherMRecur(n)) { return ; }
 
             // descent
-            traversalMessages.push_back(
-                "[C<VariableSeqAssignment>] Can not recurse into"
-                "varLval and Rval, because of the nodes constness");
+            traverseMutating(varLval);
+            traverseMutating(varRval);
         }
 
         Case(C<ReportStmt>(reportMsg, reportSeverity)){
@@ -944,9 +947,8 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
 
                     // descent
 
-                    traversalMessages.push_back(
-                        "[C<AssertStmt>] Can not recurse into"
-                        "assertCond and reportMsg, because of the nodes constness");
+                    traverseMutating(reportMsg);
+                    traverseMutating(assertCond);
                 }
                 Otherwise(){
                     traversalMessages.push_back("ReturnStmt detected");
@@ -955,9 +957,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
                     if(noFurtherMRecur(n)) { return ; }
 
                     // descent
-                    traversalMessages.push_back(
-                        "[C<ReportStmt>] Can not recurse into"
-                        "reportMsg, because of the nodes constness");
+                    traverseMutating(reportMsg);
                 }
             } EndMatch;
         }
@@ -978,9 +978,9 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             if(noFurtherMRecur(n)) { return ; }
 
             // descent
-            traversalMessages.push_back(
-                "[C<WaitStmt>] Can not recurse into"
-                "waitExpr and waitSens, because of the nodes constness");
+            traverseMutating(waitExpr);
+            for(auto &i: waitSens)
+                traverseMutating(i);
         }
 
         Otherwise(){
@@ -1182,6 +1182,7 @@ void GenericTraverser::constVisitor(const AstNode *n){
     currentPathConst.erase(currentPathConst.begin());
 
     if (isNary){
+        std::cout << "[mutatinVisitor]" << std::endl;
         constNaryVisitorU(n, currentPathConst);
     } else {
         constVisitorU(n);
@@ -1195,6 +1196,7 @@ void GenericTraverser::mutatingVisitor(AstNode *n){
     currentPath.erase(currentPath.begin());
 
     if (isNary) {
+        std::cout << "[mutatinVisitor]" << std::endl;
         mutatingNaryVisitorU(n, currentPath);
     } else {
         mutatingVisitorU(n);

@@ -1,24 +1,13 @@
 // FM. MA
-#include <fstream>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <sys/stat.h>
-#include <cerrno>
-#include <limits>
 #include <vector>
-#include <map>
 #include <iostream>
-#include <math.h>
 #include <functional>
 
 // code base specific includes
 #include "vhdlpp_config.h"
 #include "generate_graph.h"
-#include "version_base.h"
 #include "simple_tree.h"
 #include "StringHeap.h"
-#include "compiler.h"
 #include "sequential.h"
 #include "library.h"
 #include "std_funcs.h"
@@ -28,40 +17,6 @@
 #include "root_class.h"
 #include "vtype.h"
 #include "mach7_includes.h"
-
-// encapsulates a lambda and an appropriate state
-template<typename T> class StatefulLambda {
-public:
-    StatefulLambda(T e, function<int (const AstNode *, T &)> l)
-        : environment(e)
-        , constLambda(l) {};
-
-    // environment get's default initialized in this constructor
-    StatefulLambda(function<int (const AstNode *, T &)> l)
-        : constLambda(l) {};
-
-    StatefulLambda(T e, function<int (AstNode *, T &)> l)
-        : environment(e)
-        , mutatingLambda(l) {};
-
-    // environment get's default initialized in this constructor
-    StatefulLambda(function<int (AstNode *, T &)> l)
-        : mutatingLambda(l) {};
-
-    int operator()(const AstNode *node){
-        return constLambda(node, environment);
-    };
-
-    int operator()(AstNode *node){
-        return mutatingLambda(node, environment);
-    };
-
-    T environment;
-private:
-    function<int (const AstNode *, T &value)> constLambda;
-    function<int (AstNode *, T &value)> mutatingLambda;
-};
-
 
 class GenericTraverser {
 public:
