@@ -412,6 +412,7 @@ public:
         SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 
         BlockHeader *clone() const;
+        void dump(ostream &, int) const {};
 
     public:
         list<InterfacePort*> *generic_clause_;
@@ -432,6 +433,7 @@ public:
                    list<Architecture::Statement*> *concurrent_stmts);
 
     int elaborate(Entity *, Architecture *);
+    void dump(ostream& out, int indent = 0) const;
 
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
 

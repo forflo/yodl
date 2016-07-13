@@ -13,19 +13,9 @@
 using namespace std;
 
 static const char * NODEID = "NODEID";
-static const char * GRAPH_ATTRIBS = "graph [ranksep=\"3.0 equally\"];\n";
+static const char * GRAPH_ATTRIBS = "graph [];\n";
 static const char * NODE_ATTRIBS = "node [shape=record, color=indigo];\n";
 static const char * EDGE_ATTRIBS = "edge [arrowhead=vee, color=black];\n";
-
-static int path_to_num(vector<int> &path){
-    int result = 0;
-    int exp = path.size() - 1;
-
-    for (auto &i : path)
-        result += i * pow(2, exp--);
-
-    return result;
-}
 
 static string path_to_string(vector<int> &path){
     string result = "";

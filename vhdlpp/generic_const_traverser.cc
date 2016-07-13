@@ -1146,6 +1146,11 @@ bool GenericTraverser::noFurtherRecur(const AstNode *n){
         constVisitor(n);
 
         if (recurSpec == GenericTraverser::NONRECUR){
+            // first node in path list list must be
+            // deleted here, because the recursively traverser
+            // function will return immediately if this funciton
+            // returns true!
+            currentPathConst.erase(currentPathConst.begin());
             return true;
         }
     }
@@ -1158,6 +1163,7 @@ bool GenericTraverser::noFurtherMRecur(AstNode *n){
         mutatingVisitor(n);
 
         if (recurSpec == GenericTraverser::NONRECUR){
+            currentPath.erase(currentPath.begin());
             return true;
         }
     }

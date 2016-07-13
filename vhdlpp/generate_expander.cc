@@ -46,14 +46,11 @@ int GenerateExpander::expandForGenerate(AstNode *node){
         if (leftVal > rightVal) { /* SEMANTIC ERROR */ return 1; }
 
         for (int i = leftVal; i <= rightVal; i++){
-            ExpNameReplacer replacer(
-                new ExpInteger(i), new ExpName(genvar));
+            ExpNameReplacer replacer(ExpInteger{i}, ExpName(genvar));
 
             GenericTraverser replacerT(
                 [](const AstNode *n) -> bool {
-                    Match(n){
-                        Case(mch::C<ExpName>()){return true;}
-                    } EndMatch;
+                    Match(n){Case(mch::C<ExpName>()){return true;}} EndMatch;
                     return false;
                 },
                 replacer,

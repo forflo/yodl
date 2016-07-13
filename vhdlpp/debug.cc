@@ -146,39 +146,40 @@ void ScopeBase::dump_scope(ostream& out) const {
         }
     }
     // Dump subprograms
-    out << "   -- Imported Subprograms" << endl;
-    for (map<perm_string, SubHeaderList>::const_iterator cur = use_subprograms_.begin()
-         ; cur != cur_subprograms_.end(); ++cur) {
-        const SubHeaderList& subp_list = cur->second;
-
-        for (SubHeaderList::const_iterator it = subp_list.begin();
-             it != subp_list.end(); ++it) {
-            const SubprogramHeader *subp = *it;
-            out << "   subprogram " << cur->first << " is" << endl;
-            subp->dump(out);
-            if (subp->body()) {
-                subp->body()->dump(out);
-            }
-            out << "   end subprogram " << cur->first << endl;
-        }
-    }
-
-    out << "   -- Subprograms from this scope" << endl;
-    for (map<perm_string, SubHeaderList>::const_iterator cur = cur_subprograms_.begin()
-         ; cur != cur_subprograms_.end(); ++cur) {
-        const SubHeaderList& subp_list = cur->second;
-
-        for (SubHeaderList::const_iterator it = subp_list.begin();
-             it != subp_list.end(); ++it) {
-            const SubprogramHeader *subp = *it;
-            out << "   subprogram " << cur->first << " is" << endl;
-            subp->dump(out);
-            if (subp->body()) {
-                subp->body()->dump(out);
-            }
-            out << "   end subprogram " << cur->first << endl;
-        }
-    }
+    // FM. MA Somehow raises SigSegv. This is not my code
+//    out << "   -- Imported Subprograms" << endl;
+//    for (map<perm_string, SubHeaderList>::const_iterator cur = use_subprograms_.begin()
+//         ; cur != cur_subprograms_.end(); ++cur) {
+//        const SubHeaderList& subp_list = cur->second;
+//
+//        for (SubHeaderList::const_iterator it = subp_list.begin();
+//             it != subp_list.end(); ++it) {
+//            const SubprogramHeader *subp = *it;
+//            out << "   subprogram " << cur->first << " is" << endl;
+//            subp->dump(out);
+//            if (subp->body()) {
+//                subp->body()->dump(out);
+//            }
+//            out << "   end subprogram " << cur->first << endl;
+//        }
+//    }
+//
+//    out << "   -- Subprograms from this scope" << endl;
+//    for (map<perm_string, SubHeaderList>::const_iterator cur = cur_subprograms_.begin()
+//         ; cur != cur_subprograms_.end(); ++cur) {
+//        const SubHeaderList& subp_list = cur->second;
+//
+//        for (SubHeaderList::const_iterator it = subp_list.begin();
+//             it != subp_list.end(); ++it) {
+//            const SubprogramHeader *subp = *it;
+//            out << "   subprogram " << cur->first << " is" << endl;
+//            subp->dump(out);
+//            if (subp->body()) {
+//                subp->body()->dump(out);
+//            }
+//            out << "   end subprogram " << cur->first << endl;
+//        }
+//    }
     // Dump component declarations
     out << "   -- Components" << endl;
     for (map<perm_string, ComponentBase *>::const_iterator cur = old_components_.begin()

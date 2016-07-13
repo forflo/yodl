@@ -74,7 +74,7 @@ using namespace mch;
 bool verbose_flag = false;
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
-const char *dump_design_entities_path = 0;
+const char *dump_design_entities_path = "ast_dump.vhd";
 const char *dump_libraries_path       = 0;
 const char *debug_log_path            = 0;
 
@@ -228,21 +228,6 @@ int main(int argc, char *argv[]) {
 
     loopUnroller(iter->second);
 
-    ExpNameReplacer replacer(
-        new ExpInteger(100), new ExpName(perm_string::literal("i")));
-
-    GenericTraverser replacerT(
-        [](const AstNode *n) -> bool {
-            Match(n){
-                Case(C<ExpName>()){return true;}
-            } EndMatch;
-            return false;
-        },
-        replacer,
-        GenericTraverser::NONRECUR);
-
-    replacerT(iter->second);
-
     GenerateExpander genE;
     GenericTraverser genExpander(
         [](const AstNode *n) -> bool {
@@ -272,11 +257,12 @@ int main(int argc, char *argv[]) {
         dump_libraries(file);
     }
 
-    if (dump_design_entities_path) {
-        ofstream file(dump_design_entities_path);
 
-        cont->dump_design_entities(file);
-    }
+    cout << "VHDL-AST-Dump" << endl;
+    cont->dump_design_entities(std::cout);
+
+    cout << endl;
+    cout << "Verilog" << endl;
 
     if (errors > 0) {
         delete cont;
