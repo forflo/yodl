@@ -25,6 +25,22 @@ int NameReplacer::operator()(AstNode *n, const std::vector<AstNode *> &parents){
 
             break;
         }
+        Case(C<ExpRange>()){
+            ExpRange *toMod = dynamic_cast<ExpRange*>(parents[0]);
+
+            if (toMod->left_ == current){
+                delete toMod->left_;
+                toMod->left_ = replacement.clone();
+            } else if (toMod->right_ == current) {
+                delete toMod->right_;
+                toMod->right_ = replacement.clone();
+            } else {
+                std::cout << "This should not have happened!" << std::endl;
+                return 1;
+            }
+
+            break;
+        }
         Case(C<SignalAssignment>()){
             std::list<Expression *> newRvals;
             std::list<Expression *> obsoleteRvals;
