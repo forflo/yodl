@@ -3,6 +3,7 @@
 #include "stateful_lambda.h"
 #include "name_replacer.h"
 #include "generate_expander.h"
+#include "generate_graph.h"
 #include "mach7_includes.h"
 
 int GenerateExpander::expandForGenerate(AstNode *node){
@@ -34,6 +35,30 @@ int GenerateExpander::expandForGenerate(AstNode *node){
         0, label, *currentScope,
         new std::list<Architecture::Statement*>(forGenerate->statements_));
 
+//    std::cout << ">>Vorher!" << endl;
+//    emit_dotgraph(std::cout, genvar.str(), b->emit_strinfo_tree());
+//
+//    BlockStatement *cl = b->clone();
+//    Architecture::Statement *cla = cl;
+//
+//    NameReplacer visitor(ExpInteger{4711}, ExpName(genvar));
+//
+//    GenericTraverser traverser(
+//        [](const AstNode *n) -> bool {
+//            Match(n){Case(mch::C<ExpName>()){return true;}} EndMatch;
+//            return false;
+//        },
+//        visitor, GenericTraverser::NONRECUR);
+//
+//    traverser(cla);
+//
+//    std::cout << ">>[[ORIGINAL]]!" << endl;
+//    emit_dotgraph(std::cout, genvar.str(), b->emit_strinfo_tree());
+//    std::cout << ">>[[KOPIE]]!" << endl;
+//    emit_dotgraph(std::cout, genvar.str(), cla->emit_strinfo_tree());
+//
+//    return 0;
+
     switch(range->direction_) {
     case ExpRange::range_dir_t::DOWNTO:
         if (leftVal < rightVal) { /* SEMANTIC ERROR */ return 1; }
@@ -46,6 +71,11 @@ int GenerateExpander::expandForGenerate(AstNode *node){
         if (leftVal > rightVal) { /* SEMANTIC ERROR */ return 1; }
 
         for (int i = leftVal; i <= rightVal; i++){
+            Architecture::Statement *temp = b->clone();
+            std::cout << "[cloned block]: " << i << endl;
+            emit_dotgraph(std::cout, genvar.str(), temp->emit_strinfo_tree());
+            std::cout << endl;
+
             NameReplacer visitor(ExpInteger{i}, ExpName(genvar));
 
             GenericTraverser traverser(
@@ -55,8 +85,8 @@ int GenerateExpander::expandForGenerate(AstNode *node){
                 },
                 visitor, GenericTraverser::NONRECUR);
 
-            Architecture::Statement *temp = b->clone();
             traverser(temp);
+
 
             accumulator.push_back(temp);
         }
@@ -65,6 +95,12 @@ int GenerateExpander::expandForGenerate(AstNode *node){
         delete b;
         return 1; //ERROR
     }
+
+    std::cout << ">> Nachher" << endl;
+    for (auto &i : accumulator){
+        emit_dotgraph(std::cout, genvar.str(), i->emit_strinfo_tree());
+    }
+    std::cout << endl << endl;
 
     delete b;
     return 0;

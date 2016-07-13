@@ -213,10 +213,11 @@ public:
 
         if (range_)
             return new ForGenerate(
-                name_, genvar_, range_, copy);
+                name_, genvar_,
+                static_cast<ExpRange*>(range_->clone()), copy);
         else
             return new ForGenerate(
-                name_, genvar_, lsb_, msb_, copy);
+                name_, genvar_, lsb_->clone(), msb_->clone(), copy);
     }
 
 public:

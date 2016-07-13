@@ -1,7 +1,15 @@
+// FM. MA
+// Simple constant propagator
+////
 #include "name_replacer.h"
 
 int NameReplacer::operator()(AstNode *n, const std::vector<AstNode *> &parents){
     using namespace mch;
+
+    std::cout << "Replacer called with: " <<
+        dynamic_cast<const ExpInteger*>(&replacement)->value_ << " " <<
+        name.name_ << endl;
+
 
     if (n == 0) { return 1; }
     if (parents.size() == 0){ return 0; }
@@ -27,6 +35,7 @@ int NameReplacer::operator()(AstNode *n, const std::vector<AstNode *> &parents){
         }
         Case(C<ExpRange>()){
             ExpRange *toMod = dynamic_cast<ExpRange*>(parents[0]);
+            std::cout << "expRange REPLACER" << std::endl;
 
             if (toMod->left_ == current){
                 delete toMod->left_;
