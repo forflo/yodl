@@ -465,31 +465,3 @@ BlockStatement::BlockStatement(BlockStatement::BlockHeader *header,
     , label_(label)
     , header_(header)
     , concurrent_stmts_(concurrent_stmts) { }
-
-SimpleTree<map<string, string>> *BlockStatement::emit_strinfo_tree() const {
-    auto result = new SimpleTree<map<string, string>>(
-        map<string, string>{
-            {"node-type", "BlockStatement"},
-            {"label", label_.str()}});
-
-    if (header_)
-        result->forest.push_back(header_->emit_strinfo_tree());
-
-    if (concurrent_stmts_)
-        for (auto &i : *concurrent_stmts_)
-            result->forest.push_back(i->emit_strinfo_tree());
-
-    // from base scope
-    for (auto &i : new_signals_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
-    for (auto &i : new_variables_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
-    for (auto &i : new_components_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
-    for (auto &i : cur_types_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
-    for (auto &i : cur_constants_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
-
-    return result;
-};

@@ -65,6 +65,10 @@ public:
 
 //    int operator()(std::ostream &, std::string, AstNode *);
 
+    DotGraphGenerator setBlacklist(const std::vector<std::string> &b){
+        keyBlacklist = b;
+        return *this;
+    }
 
 private:
     std::string path_to_string(std::vector<int> &path);
@@ -102,6 +106,8 @@ private:
 
     compassPoint arrowFrom = compassPoint::NIL;
     compassPoint arrowTo = compassPoint::NIL;
+
+    std::vector<std::string> keyBlacklist;
 
     const char *NODEID = "NODEID";
     const char *GRAPH_ATTRIBS = "graph [];\n";

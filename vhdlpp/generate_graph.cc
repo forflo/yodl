@@ -53,8 +53,15 @@ int DotGraphGenerator::emit_vertices(ostream &out,
     root_copy.erase("node-type");
     root_copy.erase(NODEID);
 
-    for (auto &i : root_copy)
-        out << "|{" << i.first << "|" << i.second << "}";
+    for (auto &i : root_copy){
+        if (!keyBlacklist.empty()){
+            for (auto &j : keyBlacklist){
+                if (j != i.first){
+                    out << "|{" << i.first << "|" << i.second << "}";
+                }
+            }
+        }
+    }
 
     out << "}\"];\n";
 
@@ -113,22 +120,43 @@ int DotGraphGenerator::emit_ascii_tree(ostream &out,
                                        const SimpleTree<map<string, string>> *ast,
                                        const int indent = 0){
 
-    for (int i = 0; i < indent * indentMult; i++)
+    for (int i = 0; i < indent * indentMult; i++){
         out << " ";
+    }
 
     auto i1 = ast->root.find("node-type");
     auto i2 = ast->root.find("node-pointer");
 
     out << "[" << (i1 != ast->root.end() ? i1->second : "")
         << "@" << (i2 != ast->root.end() ? i2->second : "")
-        << "|";
+        << " | ";
 
-    for (auto &i : ast->root)
-        out << i.first << "=" << i.second;
+    for (auto &i : ast->root){
+        if (i.first == "node-pointer"){
+            continue;
+        }
+        if (!keyBlacklist.empty()){
+            for (auto &j : keyBlacklist){
+                if (j != i.first){
+                    out << i.first << "=" << i.second << " "
+                        << (i.first == (std::prev(ast->root.end(), 1)->first)
+                            ? ""
+                            : ", ");
+                }
+            }
+        } else {
+            out << i.first << "=" << i.second
+                << (i.first == (std::prev(ast->root.end(), 1)->first)
+                    ? ""
+                    : ", ");
+        }
+
+    }
     out << "]" << endl;
 
-    for (auto &i : ast->forest)
+    for (auto &i : ast->forest){
         emit_ascii_tree(out, i, indent + 1);
+    }
 
     return 0;
 }
