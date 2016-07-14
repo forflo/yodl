@@ -27,7 +27,7 @@ SimpleTree<map<string, string>> *ExpInteger::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"value", (dynamic_cast<stringstream&>(
-                stringstream{} << value_)).str()}});
+                           stringstream{} << value_)).str()}});
 }
 
 SimpleTree<map<string, string>> *ExpReal::emit_strinfo_tree() const {
@@ -37,7 +37,7 @@ SimpleTree<map<string, string>> *ExpReal::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"value", (dynamic_cast<stringstream&>(
-                stringstream{} << value_)).str()}});
+                           stringstream{} << value_)).str()}});
 }
 
 SimpleTree<map<string, string>> *ExpString::emit_strinfo_tree() const {
@@ -74,16 +74,16 @@ SimpleTree<map<string, string>> *ExpTime::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"unit", (dynamic_cast<stringstream&>(
-                stringstream{} << unit_)).str()},
+                          stringstream{} << unit_)).str()},
             {"time value", (dynamic_cast<stringstream&>(
-                stringstream{} << amount_)).str()}});
+                                stringstream{} << amount_)).str()}});
 }
 
 SimpleTree<map<string, string>> *ExpBitstring::emit_strinfo_tree() const {
     stringstream conv;
     for (vector<char>::const_iterator i = value_.begin();
-            i != value_.end();
-            ++i)
+         i != value_.end();
+         ++i)
         conv << *i;
 
     return new SimpleTree<map<string, string>>(
@@ -162,10 +162,10 @@ SimpleTree<map<string, string>> *ExpAggregate::emit_strinfo_tree() const {
 SimpleTree<map<string, string>> *ExpAttribute::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
-             {"node-type", "ExpAttribute"},
-             {"node-pointer", static_cast<stringstream&>(
+            {"node-type", "ExpAttribute"},
+            {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
-             {"attribute", name_.str()}});
+            {"attribute", name_.str()}});
 
     for (auto &i : *args_)
         result->forest.push_back(i->emit_strinfo_tree());
@@ -214,10 +214,10 @@ SimpleTree<map<string, string>> *ExpCast::emit_strinfo_tree() const {
 SimpleTree<map<string, string>> *ExpObjAttribute::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
-             {"node-type", "ExpObjAttribute"},
-             {"node-pointer", static_cast<stringstream&>(
-                     (stringstream{} << this)).str()},
-             {"attribute", name_.str()}});
+            {"node-type", "ExpObjAttribute"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
+            {"attribute", name_.str()}});
 
     /* The attribute might not have arguments, in which
      * case args_ will be NULL */
@@ -233,10 +233,10 @@ SimpleTree<map<string, string>> *ExpObjAttribute::emit_strinfo_tree() const {
 SimpleTree<map<string, string>> *ExpTypeAttribute::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
-             {"node-type", "ExpTypeAttribute"},
-             {"node-pointer", static_cast<stringstream&>(
-                     (stringstream{} << this)).str()},
-             {"attribute", name_.str()}});
+            {"node-type", "ExpTypeAttribute"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
+            {"attribute", name_.str()}});
 
     for (auto &i : *args_)
         result->forest.push_back(i->emit_strinfo_tree());
@@ -253,7 +253,7 @@ SimpleTree<map<string, string>> *ExpArithmetic::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{} << fun_)).str()}});
+                              stringstream{} << fun_)).str()}});
 
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -269,7 +269,7 @@ SimpleTree<map<string, string>> *ExpLogical::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{} << fun_)).str()}});
+                              stringstream{} << fun_)).str()}});
 
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -285,7 +285,7 @@ SimpleTree<map<string, string>> *ExpRelation::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{} << fun_)).str()}});
+                              stringstream{} << fun_)).str()}});
 
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -301,7 +301,7 @@ SimpleTree<map<string, string>> *ExpShift::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"operator", (dynamic_cast<stringstream&>(
-                stringstream{} << shift_)).str()}});
+                              stringstream{} << shift_)).str()}});
 
     result->forest = {
         operand1_->emit_strinfo_tree(),
@@ -318,7 +318,7 @@ SimpleTree<map<string, string>> *ExpEdge::emit_strinfo_tree() const {
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"edgespec", (dynamic_cast<stringstream&>(
-                stringstream{} << fun_)).str()}});
+                              stringstream{} << fun_)).str()}});
 
     result->forest = { operand1_->emit_strinfo_tree() };
 

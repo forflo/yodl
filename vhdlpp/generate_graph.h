@@ -45,35 +45,60 @@ public:
         : arrowShape(a), nodeColor(c)
         , edgeColor(c), nodeShape(s) { }
 
+
     explicit DotGraphGenerator();
 
-    int operator()(std::ostream &, std::string,
-                   SimpleTree<std::map<std::string, std::string>> *);
+    int operator()(
+        std::ostream &, std::string,
+        const SimpleTree<std::map<std::string, std::string>> *);
 
+    int operator()(
+        std::string,
+        const SimpleTree<std::map<std::string, std::string>> *);
+
+    int operator()(
+        std::ostream &,
+        const SimpleTree<std::map<std::string, std::string>> *);
+
+    int operator()(
+        const SimpleTree<std::map<std::string, std::string>> *);
 
 //    int operator()(std::ostream &, std::string, AstNode *);
 
 
 private:
     std::string path_to_string(std::vector<int> &path);
-    int emit_edges(std::ostream &out,
-                   SimpleTree<std::map<std::string, std::string>> * ast);
-    int emit_vertices(std::ostream &out,
-                      const SimpleTree<std::map<std::string, std::string>> * ast,
-                      int depth = 0);
+    int emit_edges(
+        std::ostream &out,
+        SimpleTree<std::map<std::string, std::string>> * ast);
 
-    int add_nodeids(SimpleTree<std::map<std::string, std::string>> *ast,
-                    std::vector<int> path,
-                    int depth = 0);
-    int emit_dotgraph(std::ostream &out,
-                      std::string name,
-                      SimpleTree<std::map<std::string, std::string>> *ast);
+    int emit_vertices(
+        std::ostream &out,
+        SimpleTree<std::map<std::string, std::string>> * ast,
+        int depth = 0);
+
+    int add_nodeids(
+        SimpleTree<std::map<std::string, std::string>> *ast,
+        std::vector<int> path,
+        int depth = 0);
+
+    int emit_dotgraph(
+        std::ostream &out,
+        std::string name,
+        SimpleTree<std::map<std::string, std::string>> *ast);
+
+    int emit_ascii_tree(
+        std::ostream &,
+        const SimpleTree<std::map<std::string, std::string>> *,
+        const int);
 
 private:
     arrowHead arrowShape = arrowHead::VEE;
     color nodeColor = color::INDIGO;
     color edgeColor = color::BLACK;
     shape nodeShape = shape::RECORD;
+
+    int indentMult = 2;
 
     compassPoint arrowFrom = compassPoint::NIL;
     compassPoint arrowTo = compassPoint::NIL;
