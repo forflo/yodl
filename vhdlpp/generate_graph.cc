@@ -26,9 +26,11 @@ int DotGraphGenerator::emit_edges(ostream &out,
 
     for (auto &i : ast->forest){
         out << ast->root[NODEID]
+            << (arrowFrom != compassPoint::NIL ? ":" : "")
             << arrowFrom
             << " -> "
             << i->root[NODEID]
+            << (arrowTo != compassPoint::NIL ? ":" : "")
             << arrowTo << ";\n";
 
         emit_edges(out, i);
@@ -104,7 +106,14 @@ int DotGraphGenerator::emit_dotgraph(ostream &out,
     return 0;
 }
 
+DotGraphGenerator::DotGraphGenerator(){}
+
 int DotGraphGenerator::operator()(ostream &out, string name,
                                   SimpleTree<map<string, string>> *ast){
     return emit_dotgraph(out, name, ast);
 }
+
+// TODO: make that work
+//int operator()(std::ostream &out, std::string name, AstNode *ast){
+//    return emit_dotgraph(out, name, ast);
+//}

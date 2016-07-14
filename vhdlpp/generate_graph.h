@@ -3,6 +3,7 @@
 #define IVL_GENERATE_GRAPH
 
 #include "simple_tree.h"
+#include "root_class.h"
 
 #include <string>
 #include <map>
@@ -19,14 +20,6 @@ public:
         NORMAL, TEE, VEE
     };
 
-    enum class color {
-        INDIGO, BLACK
-    };
-
-    enum shape {
-        RECORD
-    };
-
     enum compassPoint {
         NORTH, NORTHEAST,
         EAST, SOUTHEAST,
@@ -34,6 +27,13 @@ public:
         WEST, NORTHWEST,
         NIL // defaults to emptystring
     };
+
+    enum class color {INDIGO, BLACK};
+
+    enum shape {RECORD};
+
+    DotGraphGenerator(compassPoint f, compassPoint t)
+        : arrowFrom(f) , arrowTo(t) { }
 
     DotGraphGenerator(arrowHead a, color c, shape s,
                       compassPoint f, compassPoint t)
@@ -45,10 +45,14 @@ public:
         : arrowShape(a), nodeColor(c)
         , edgeColor(c), nodeShape(s) { }
 
-    DotGraphGenerator();
+    explicit DotGraphGenerator();
 
     int operator()(std::ostream &, std::string,
-                 SimpleTree<std::map<std::string, std::string>> *);
+                   SimpleTree<std::map<std::string, std::string>> *);
+
+
+//    int operator()(std::ostream &, std::string, AstNode *);
+
 
 private:
     std::string path_to_string(std::vector<int> &path);

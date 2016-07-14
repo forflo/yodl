@@ -25,5 +25,6 @@ std::ostream &operator<<(std::ostream &os, port_mode_t fun);
 std::ostream &operator<<(std::ostream &os, DotGraphGenerator::color s);
 std::ostream &operator<<(std::ostream &os, DotGraphGenerator::shape s);
 std::ostream &operator<<(std::ostream &os, DotGraphGenerator::arrowHead s);
+std::ostream &operator<<(std::ostream &os, DotGraphGenerator::compassPoint s);
 
 #endif /* IVL_ENUM_OVL */
