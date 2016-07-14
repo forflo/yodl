@@ -219,8 +219,8 @@ int main(int argc, char *argv[]) {
 
     genExpander(iter->second);
 
-    emit_dotgraph(std::cout, "fnord",
-                  dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
+    DotGraphGenerator()(std::cout, "fnord",
+                        dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
 
     cout << "\n\n";
 

@@ -2,6 +2,7 @@
 //
 #include "generate_graph.h"
 #include "simple_tree.h"
+#include "enum_overloads.h"
 
 #include <sstream>
 #include <cmath>
@@ -12,12 +13,7 @@
 
 using namespace std;
 
-static const char * NODEID = "NODEID";
-static const char * GRAPH_ATTRIBS = "graph [];\n";
-static const char * NODE_ATTRIBS = "node [shape=record, color=indigo];\n";
-static const char * EDGE_ATTRIBS = "edge [arrowhead=vee, color=black];\n";
-
-static string path_to_string(vector<int> &path){
+string DotGraphGenerator::path_to_string(vector<int> &path){
     string result = "";
     for (auto &i : path)
         result += to_string(i);
@@ -25,15 +21,15 @@ static string path_to_string(vector<int> &path){
     return result;
 }
 
-static int emit_edges(ostream &out,
+int DotGraphGenerator::emit_edges(ostream &out,
         SimpleTree<map<string, string>> * ast){
 
     for (auto &i : ast->forest){
         out << ast->root[NODEID]
-            << ":s"
+            << arrowFrom
             << " -> "
             << i->root[NODEID]
-            << ":n;\n";
+            << arrowTo << ";\n";
 
         emit_edges(out, i);
     }
@@ -41,9 +37,9 @@ static int emit_edges(ostream &out,
     return 0;
 }
 
-static int emit_vertices(ostream &out,
+int DotGraphGenerator::emit_vertices(ostream &out,
         const SimpleTree<map<string, string>> * ast,
-        int depth = 0){
+        int depth){
     map<string, string> root_copy(ast->root);
 
     out << root_copy[NODEID] << " [label=\"{";
@@ -64,9 +60,9 @@ static int emit_vertices(ostream &out,
     return 0;
 }
 
-static int add_nodeids(SimpleTree<map<string, string>> *ast,
+int DotGraphGenerator::add_nodeids(SimpleTree<map<string, string>> *ast,
         vector<int> path,
-        int depth = 0){
+        int depth){
     int pcount = 0;
 
     stringstream buffer;
@@ -80,13 +76,13 @@ static int add_nodeids(SimpleTree<map<string, string>> *ast,
     for (auto &i : ast->forest){
         vector<int> tpath(path);
         tpath.push_back(pcount++);
-        add_nodeids(i, tpath, ++depth);
+        add_nodeids(i, tpath, depth + 1);
     }
 
     return 0;
 }
 
-int emit_dotgraph(ostream &out,
+int DotGraphGenerator::emit_dotgraph(ostream &out,
         string name,
         SimpleTree<map<string, string>> *ast){
     vector<int> path;
@@ -94,8 +90,10 @@ int emit_dotgraph(ostream &out,
 
     out << "digraph " << name << "{\n";
     out << GRAPH_ATTRIBS
-        << EDGE_ATTRIBS
-        << NODE_ATTRIBS;
+        << "node [shape=" << nodeShape
+        << ", color=" << nodeColor << "];" << endl
+        << "edge [arrowhead=" << arrowShape
+        << ", color=" << edgeColor << "];" << endl;
 
     emit_vertices(out, ast);
     out << '\n';
@@ -104,4 +102,9 @@ int emit_dotgraph(ostream &out,
     out << "}\n";
 
     return 0;
+}
+
+int DotGraphGenerator::operator()(ostream &out, string name,
+                                  SimpleTree<map<string, string>> *ast){
+    return emit_dotgraph(out, name, ast);
 }

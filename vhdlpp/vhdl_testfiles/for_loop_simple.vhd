@@ -18,20 +18,8 @@ begin
       variable M : natural := 42;
       variable F : natural := 10;
    begin
-      for I in 1 to 2 loop
-         for J in 1 to 2 loop
-            for F in 1 to 2 loop
-               F := I + J;
-            end loop;
-
-            for M in 1 to 2 loop
-               M := I + J;
-            end loop;
-         end loop;
+      for I in 1 to 5 loop
+         F := I;
       end loop;
    end process forLoopProc;
-
-   gen : for i in 1 to 10 generate
-      sum <= i;
-   end generate gen;
 end behaviour;

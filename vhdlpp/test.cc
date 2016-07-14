@@ -163,8 +163,8 @@ TEST_CASE("Simple clone test with dot generation", "[clone]"){
     auto tree1 = entity1->emit_strinfo_tree();
     auto tree2 = entity2->emit_strinfo_tree();
 
-    emit_dotgraph(a, "foo", entity1->emit_strinfo_tree());
-    emit_dotgraph(b, "foo", entity2->emit_strinfo_tree());
+    DotGraphGenerator()(a, "foo", entity1->emit_strinfo_tree());
+    DotGraphGenerator()(b, "foo", entity2->emit_strinfo_tree());
 
     REQUIRE((*tree1 == *tree2) == true);
     REQUIRE(a.str() == b.str());
