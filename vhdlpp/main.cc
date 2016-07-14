@@ -219,11 +219,14 @@ int main(int argc, char *argv[]) {
 
     genExpander(iter->second);
 
-    DotGraphGenerator().setBlacklist({"node-pointer"})(std::cout, "foobar",
-                        dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
+    DotGraphGenerator()
+        .setBlacklist({"node-pointer"})(
+            std::cout, "foobar",
+            dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
 
     DotGraphGenerator()(
-        std::cout, dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
+        std::cout,
+        dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
 
     cout << "\n\n";
 
