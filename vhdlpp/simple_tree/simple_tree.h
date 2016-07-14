@@ -6,13 +6,11 @@
 # include <string>
 # include <iostream>
 
-using namespace std;
-
 template<typename T> class SimpleTree;
 
 template<typename T>
-bool operator==(const vector<SimpleTree<T>*> &thi,
-                const vector<SimpleTree<T>*> &that);
+bool operator==(const std::vector<SimpleTree<T>*> &thi,
+                const std::vector<SimpleTree<T>*> &that);
 
 template<typename T>
 class SimpleTree {
@@ -25,7 +23,7 @@ public:
             delete i;
     };
 
-    SimpleTree(const T s, vector<SimpleTree<T>*> own)
+    SimpleTree(const T s, std::vector<SimpleTree<T>*> own)
         : root(s)
         , forest(own) { };
 
@@ -42,11 +40,11 @@ public:
 
 public:
     T root;
-    vector<SimpleTree<T>*> forest;
+    std::vector<SimpleTree<T>*> forest;
 };
 
 
-SimpleTree<map<string, string>> *empty_simple_tree();
+SimpleTree<std::map<std::string, std::string>> *empty_simple_tree();
 
 // has to be inline because c++
 template<typename T>
@@ -56,8 +54,8 @@ bool SimpleTree<T>::operator==(const SimpleTree<T> &that) const {
 }
 
 template<typename T>
-bool operator==(const vector<SimpleTree<T>*> &thi,
-                const vector<SimpleTree<T>*> &that){
+bool operator==(const std::vector<SimpleTree<T>*> &thi,
+                const std::vector<SimpleTree<T>*> &that){
     bool result(true);
 
     if (thi.size() != thi.size()){
@@ -78,16 +76,16 @@ bool operator==(const vector<SimpleTree<T>*> &thi,
 template<typename T>
 void SimpleTree<T>::traverse_st(SimpleTree<T> *tree,
                                 int depth){
-    cout << "Root:\n";
+    std::cout << "Root:\n";
 
     for (auto &i : tree->root){
-        cout << i.first
+        std::cout << i.first
              << " = "
              << i.second
              << "\n";
     }
 
-    cout << "Forest: \n";
+    std::cout << "Forest: \n";
     for (auto &i : tree->forest)
         traverse_st(i, depth++);
 

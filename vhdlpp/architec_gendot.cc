@@ -2,6 +2,7 @@
 
 #include <list>
 #include <map>
+#include <sstream>
 
 #include "StringHeap.h"
 #include "LineInfo.h"
@@ -10,10 +11,14 @@
 #include "scope.h"
 #include "architec.h"
 
+using namespace std;
+
 SimpleTree<map<string, string>> *ForGenerate::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ForGenerate"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"generator variable", genvar_.str()},
             {"name", name_.str()}});
 
@@ -33,6 +38,8 @@ SimpleTree<map<string, string>> *Architecture::emit_strinfo_tree() const{
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Architecture"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"name", name_.str()}});
 
     for (auto &i : statements_)
@@ -45,6 +52,8 @@ SimpleTree<map<string, string>> *IfGenerate::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "IfGenerate"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"name", name_.str()}});
 
     for (auto &i : statements_)
@@ -58,6 +67,8 @@ SimpleTree<map<string, string>> *IfGenerate::emit_strinfo_tree() const {
 SimpleTree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"node-type", "CondSignalAssignment"}});
 
     if(lval_)
@@ -74,7 +85,9 @@ SimpleTree<map<string, string>> *CondSignalAssignment::emit_strinfo_tree() const
 
 SimpleTree<map<string, string>> *SignalAssignment::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
-        map<string, string>{{"node-type", "SignalAssignment"}});
+        map<string, string>{{"node-type", "SignalAssignment"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()}});
 
     result->forest.push_back(lval_->emit_strinfo_tree());
 
@@ -88,6 +101,8 @@ SimpleTree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree() con
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ComponentInstanciation"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"cname", cname_.str()},
             {"label", iname_.str()}});
 
@@ -96,7 +111,9 @@ SimpleTree<map<string, string>> *ComponentInstantiation::emit_strinfo_tree() con
 
 SimpleTree<map<string, string>> *StatementList::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
-        map<string, string>{{"node-type", "StatementList"}});
+        map<string, string>{{"node-type", "StatementList"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()}});
 
     for (auto &i : statements_)
         result->forest.push_back(i->emit_strinfo_tree());
@@ -106,14 +123,19 @@ SimpleTree<map<string, string>> *StatementList::emit_strinfo_tree() const {
 
 SimpleTree<map<string, string>> *InitialStatement::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
-        map<string, string>{{"node-type", "InitialStatement"}});
+        map<string, string>{{"node-type", "InitialStatement"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()}});
 
     return result;
 }
 
 SimpleTree<map<string, string>> *FinalStatement::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
-        map<string, string>{{"node-type", "FinalStatement"}});
+        map<string, string>{
+            {"node-type", "FinalStatement"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()}});
 
     return result;
 }
@@ -122,6 +144,8 @@ SimpleTree<map<string, string>> *ProcessStatement::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "ProcessStatement"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"label", iname_.str()}});
 
     // From base StatementList

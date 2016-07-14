@@ -26,6 +26,8 @@ SimpleTree<map<string, string>> *InterfacePort::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "InterfacePort"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"port name", name.str()},
             {"port mode", (dynamic_cast<stringstream&>(
                 stringstream{} << mode)).str()}});
@@ -42,6 +44,8 @@ SimpleTree<map<string, string>> *ComponentBase::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Component"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"component name", name_.str()}});
 
     for (auto &i : parms_)
@@ -57,6 +61,8 @@ SimpleTree<map<string, string>> *Entity::emit_strinfo_tree() const {
     auto result = new SimpleTree<map<string, string>>(
         map<string, string>{
             {"node-type", "Entity"},
+            {"node-pointer", static_cast<stringstream&>(
+                    (stringstream{} << this)).str()},
             {"name", name_.str()}});
 
     for (auto &i : parms_)

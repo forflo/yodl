@@ -59,7 +59,7 @@ private:
     int emit_edges(std::ostream &out,
                    SimpleTree<std::map<std::string, std::string>> * ast);
     int emit_vertices(std::ostream &out,
-                      const SimpleTree<map<std::string, std::string>> * ast,
+                      const SimpleTree<std::map<std::string, std::string>> * ast,
                       int depth = 0);
 
     int add_nodeids(SimpleTree<std::map<std::string, std::string>> *ast,
