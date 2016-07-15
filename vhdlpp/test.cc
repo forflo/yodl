@@ -42,7 +42,90 @@ const char *debug_log_path            = 0;
 bool     debug_elaboration = false;
 ofstream debug_log_file;
 
+// this test case demponstrates the use of cliffords
+// RTLIL API. The cells get wired up to form a full adder.
 TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
+    using namespace Yosys::RTLIL;
+
+    Design *design = new Design();
+    Module *module = new Module();
+
+    design->add(module);
+
+    Wire *cin = module->addWire("\\cin", 1);
+    Wire *cout = module->addWire("\\cout", 1);
+    Wire *a0 = module->addWire("\\a0", 1);
+    Wire *a1 = module->addWire("\\a0", 1);
+    Wire *b0 = module->addWire("\\a0", 1);
+    Wire *b1 = module->addWire("\\a0", 1);
+
+    Wire *xor1f_outT = module->addWire("\\xor1f_outT", 1);
+    Wire *xor1f_out = module->addWire("\\xor1f_out", 1);
+
+    Cell *xor1f = module->addCell(NEW_ID, "$xor");
+    Cell *xor2f = module->addCell(NEW_ID, "$xor");
+
+    xor1f->setParam("\\A_SIGNED", 0);
+    xor1f->setParam("\\A_WIDTH", 1);
+
+    xor1f->setPort("\\A", cin);
+    xor1f->setPort("\\B", a0);
+    xor1f->setPort("\\Y", xor1f_outT);
+
+    xor2f->setParam("\\A_SIGNED", 0);
+    xor2f->setParam("\\A_WIDTH", 1);
+
+    xor2f->setPort("\\A", xor1f_outT);
+    xor2f->setPort("\\B", b0);
+    xor2f->setPort("\\Y", xor1f_out);
+
+
+    Cell *and11 = module->addCell(NEW_ID, "$and");
+    Cell *and12 = module->addCell(NEW_ID, "$and");
+    Cell *and13 = module->addCell(NEW_ID, "$and");
+
+    Wire *and11_out = module->addWire("\\and11_out", 1);
+    Wire *and12_out = module->addWire("\\and12_out", 1);
+    Wire *and13_out = module->addWire("\\and13_out", 1);
+
+    and11->setParam("\\A_SIGNED", 0);
+    and11->setParam("\\A_WIDTH", 1);
+
+    and12->setParam("\\A_SIGNED", 0);
+    and12->setParam("\\A_WIDTH", 1);
+
+    and13->setParam("\\A_SIGNED", 0);
+    and13->setParam("\\A_WIDTH", 1);
+
+    and11->setPort("\\A", a0);
+    and11->setPort("\\B", b0);
+    and11->setPort("\\Y", and11_out);
+
+    and12->setPort("\\A", a0);
+    and12->setPort("\\B", cin);
+    and12->setPort("\\Y", and12_out);
+
+    and13->setPort("\\A", a0);
+    and13->setPort("\\B", cin);
+    and13->setPort("\\Y", and13_out);
+
+    Cell *or1f = module->addCell(NEW_ID, "$or");
+    Cell *or2f = module->addCell(NEW_ID, "$or");
+
+    Wire *or1f_outT = module->addWire("\\or1f_outT", 1);
+    Wire *or1f_out = module->addWire("\\or1f_out", 1);
+
+    or1f->setParam("\\A_SIGNED", 0);
+    or2f->setParam("\\A_WIDTH", 1);
+
+    or1f->setPort("\\A", and11_out);
+    or1f->setPort("\\B", and12_out);
+    or1f->setPort("\\Y", or1f_outT);
+
+    or2f->setPort("\\A", or1f_outT);
+    or2f->setPort("\\B", and13_out);
+    or2f->setPort("\\Y", or1f_out);
+
 
 }
 
