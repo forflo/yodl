@@ -73,7 +73,7 @@
 
 #pragma once
 
-#include "../cppft/config.hpp" // C++ feature testing and feature emulation
+#include <cppft/config.hpp> // C++ feature testing and feature emulation
 #include "macros.hpp"       // Tools for preprocessor meta-programming
 
 //------------------------------------------------------------------------------

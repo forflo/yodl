@@ -8,6 +8,7 @@
 // YOSYS specific headers
 #include <kernel/yosys.h>
 #include <kernel/rtlil.h>
+#include <backends/ilang/ilang_backend.h>
 
 // code base specific includes
 #include "generate_graph.h"
@@ -17,6 +18,7 @@
 #include "compiler.h"
 #include "sequential.h"
 #include "library.h"
+#include "stateful_lambda.h"
 #include "std_funcs.h"
 #include "std_types.h"
 #include "architec.h"
@@ -30,6 +32,7 @@
 #include "root_class.h"
 #include "mach7_includes.h"
 #include "path_finder.h"
+#include "predicate_generators.h"
 
 
 bool verbose_flag = false;
@@ -42,10 +45,27 @@ const char *debug_log_path            = 0;
 bool     debug_elaboration = false;
 ofstream debug_log_file;
 
+TEST_CASE("Type predicate meta functions test", "[meta]"){
+    ExpInteger *int1 = new ExpInteger(100);
+    ExpString *str = new ExpString("fnord");
+    ExpReal *real = new ExpReal(0.0123);
+
+    function<bool (const AstNode *)> e1 =
+        makeNaryTypePredicate<ExpInteger, ExpString>();
+
+    REQUIRE(e1(int1) == true);
+    REQUIRE(e1(str) == true);
+    REQUIRE(e1(real) == false);
+}
+
 // this test case demponstrates the use of cliffords
 // RTLIL API. The cells get wired up to form a full adder.
 TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     using namespace Yosys::RTLIL;
+    using namespace Yosys::ILANG_BACKEND;
+
+    Yosys::log_streams.push_back(&std::cout);
+    Yosys::log_error_stderr = true;
 
     Design *design = new Design();
     Module *module = new Module();
@@ -55,15 +75,15 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     Wire *cin = module->addWire("\\cin", 1);
     Wire *cout = module->addWire("\\cout", 1);
     Wire *a0 = module->addWire("\\a0", 1);
-    Wire *a1 = module->addWire("\\a0", 1);
-    Wire *b0 = module->addWire("\\a0", 1);
-    Wire *b1 = module->addWire("\\a0", 1);
+    Wire *a1 = module->addWire("\\a1", 1);
+    Wire *b0 = module->addWire("\\b0", 1);
+    Wire *b1 = module->addWire("\\b1", 1);
 
-    Wire *xor1f_outT = module->addWire("\\xor1f_outT", 1);
-    Wire *xor1f_out = module->addWire("\\xor1f_out", 1);
+    Wire *xor1f_outT = module->addWire("\\xor1foutT", 1);
+    Wire *xor1f_out = module->addWire("\\xor1fout", 1);
 
-    Cell *xor1f = module->addCell(NEW_ID, "$xor");
-    Cell *xor2f = module->addCell(NEW_ID, "$xor");
+    Cell *xor1f = module->addCell("\\xor1f", "$xor");
+    Cell *xor2f = module->addCell("\\xor2f", "$xor");
 
     xor1f->setParam("\\A_SIGNED", 0);
     xor1f->setParam("\\A_WIDTH", 1);
@@ -80,13 +100,13 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     xor2f->setPort("\\Y", xor1f_out);
 
 
-    Cell *and11 = module->addCell(NEW_ID, "$and");
-    Cell *and12 = module->addCell(NEW_ID, "$and");
-    Cell *and13 = module->addCell(NEW_ID, "$and");
+    Cell *and11 = module->addCell("\\and11", "$and");
+    Cell *and12 = module->addCell("\\and12", "$and");
+    Cell *and13 = module->addCell("\\and13", "$and");
 
-    Wire *and11_out = module->addWire("\\and11_out", 1);
-    Wire *and12_out = module->addWire("\\and12_out", 1);
-    Wire *and13_out = module->addWire("\\and13_out", 1);
+    Wire *and11_out = module->addWire("\\and11out", 1);
+    Wire *and12_out = module->addWire("\\and12out", 1);
+    Wire *and13_out = module->addWire("\\and13out", 1);
 
     and11->setParam("\\A_SIGNED", 0);
     and11->setParam("\\A_WIDTH", 1);
@@ -109,11 +129,11 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     and13->setPort("\\B", cin);
     and13->setPort("\\Y", and13_out);
 
-    Cell *or1f = module->addCell(NEW_ID, "$or");
-    Cell *or2f = module->addCell(NEW_ID, "$or");
+    Cell *or1f = module->addCell("\\or1f", "$or");
+    Cell *or2f = module->addCell("\\or2f", "$or");
 
-    Wire *or1f_outT = module->addWire("\\or1f_outT", 1);
-    Wire *or1f_out = module->addWire("\\or1f_out", 1);
+    Wire *or1f_outT = module->addWire("\\or1foutT", 1);
+    Wire *or1f_out = module->addWire("\\or1fout", 1);
 
     or1f->setParam("\\A_SIGNED", 0);
     or2f->setParam("\\A_WIDTH", 1);
@@ -126,7 +146,12 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     or2f->setPort("\\B", and13_out);
     or2f->setPort("\\Y", or1f_out);
 
+    stringstream ilangBuffer;
+    dump_design(ilangBuffer, design, false);
 
+    std::cout << ilangBuffer.str();
+
+    REQUIRE(ilangBuffer.str() != "");
 }
 
 
@@ -306,13 +331,14 @@ TEST_CASE("Test simple generic traversal", "[generic traverser]"){
         }));
 
     GenericTraverser traverser(
-        [=](const AstNode *node){
+        /*[=](const AstNode *node){
             Match(node){
                 Case(C<BlockStatement>()){ return true; }
                 Otherwise(){ return false; }
             } EndMatch;
             return false; //without: compiler warning
-        },
+            },*/
+        makeTypePredicate<BlockStatement>(),
         static_cast<function<int (const AstNode *)>>(
             [&state](const AstNode *a) -> int { return state(a); }),
         GenericTraverser::RECUR);
@@ -560,6 +586,7 @@ TEST_CASE("Test path finder", "[path finder]"){
     REQUIRE(pathFinderU.getPaths()[1][2] == int2);
 }
 
+
 TEST_CASE("Test nary traverser", "[generic traverser]"){
     ExpInteger *int1 = new ExpInteger(100);
     ExpInteger *int2 = new ExpInteger(101);
@@ -626,13 +653,14 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     };
 
     GenericTraverser traverserNaryMutating(
-        [=](const AstNode *node){
+        /*[=](const AstNode *node){
             Match(node){
                 Case(mch::C<ExpInteger>()){ return true; }
                 Otherwise(){ return false; }
             } EndMatch;
             return false; //without: compiler warning
-        },
+        },*/
+        makeTypePredicate<ExpInteger>(),
         functor_t(int1, int2, int3, int4, arith, arith1, arith2, aUnb),
         GenericTraverser::RECUR);
 
@@ -670,10 +698,13 @@ TEST_CASE("Higher order traverser", "[generic traverser]"){
     };
 
     GenericTraverser trav(
+        /* old boilerplate
         [](const AstNode *n) -> bool {
             Match(n){ Case(mch::C<BlockStatement>()){ return true; } }
             EndMatch; return false;
         },
+        */
+        makeTypePredicate<BlockStatement>(),
         static_cast<function<int (const AstNode *)>>(
         GenericTraverser(
             [](const AstNode *n) -> bool {
