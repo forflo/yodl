@@ -1,0 +1,64 @@
+autoidx 1
+module 
+  wire \or1fout
+  wire \or1foutT
+  wire \and13out
+  wire \and12out
+  wire \and11out
+  wire \xor1fout
+  wire \xor1foutT
+  wire \b1
+  wire \b0
+  wire \a1
+  wire \a0
+  wire \cout
+  wire \cin
+  cell $or \or2f
+    parameter \A_WIDTH 1
+    connect \Y \or1fout
+    connect \B \and13out
+    connect \A \or1foutT
+  end
+  cell $or \or1f
+    parameter \A_SIGNED 0
+    connect \Y \or1foutT
+    connect \B \and12out
+    connect \A \and11out
+  end
+  cell $and \and13
+    parameter \A_WIDTH 1
+    parameter \A_SIGNED 0
+    connect \Y \and13out
+    connect \B \cin
+    connect \A \a0
+  end
+  cell $and \and12
+    parameter \A_WIDTH 1
+    parameter \A_SIGNED 0
+    connect \Y \and12out
+    connect \B \cin
+    connect \A \a0
+  end
+  cell $and \and11
+    parameter \A_WIDTH 1
+    parameter \A_SIGNED 0
+    connect \Y \and11out
+    connect \B \b0
+    connect \A \a0
+  end
+  cell $xor \xor2f
+    parameter \A_WIDTH 1
+    parameter \A_SIGNED 0
+    connect \Y \xor1fout
+    connect \B \b0
+    connect \A \xor1foutT
+  end
+  cell $xor \xor1f
+    parameter \A_WIDTH 1
+    parameter \A_SIGNED 0
+    connect \Y \xor1foutT
+    connect \B \a0
+    connect \A \cin
+  end
+end
+
