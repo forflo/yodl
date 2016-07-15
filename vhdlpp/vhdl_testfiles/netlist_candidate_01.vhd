@@ -80,3 +80,47 @@ begin
          (a(pos) and wire(pos));
    end generate rippleCarry;
 end behv;
+
+----
+-- for n = 1 this expands to:
+----------------
+-- library ieee;
+-- use ieee.std_logic_1164.all;
+-- use ieee.std_logic_arith.all;
+-- use ieee.std_logic_unsigned.all;
+--
+-- entity adder is
+--    port(A    : in  std_logic_vector(1 downto 0);
+--         B    : in  std_logic_vector(1 downto 0);
+--         cin  : in  std_logic;
+--         cout : out std_logic;
+--         sum  : out std_logic_vector(1 downto 0));
+-- end adder;
+--
+-- architecture behv of adder is
+--    signal wire : std_logic_vector(2 downto 0);
+-- begin
+--    wire(0) <= cin;
+--    cout    <= wire(2);
+--
+--    rippleCarry : for pos in 0 to 1 generate
+--       sum(pos) <= a(pos) xor b(pos) xor wire(pos);
+--       wire(pos + 1) <=
+--          (a(pos) and b(pos)) or
+--          (b(pos) and wire(pos)) or
+--          (a(pos) and wire(pos));
+--    end generate rippleCarry;
+--
+--    -- which in turn expands to:
+--    sum(0) <= a(0) xor b(0) xor wire(0);
+--    wire(1) <= (a(0) and b(0)) or
+--               (b(0) and wire(0)) or
+--               (a(0) and wire(0));
+--
+--    sum(1) <= a(1) xor b(1) xor wire(1);
+--    wire(2) <= (a(1) and b(1)) or
+--               (b(1) and wire(1)) or
+--               (a(1) and wire(1));
+--
+-- end behv;
+----
