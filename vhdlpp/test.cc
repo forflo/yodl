@@ -56,6 +56,10 @@ TEST_CASE("Type predicate meta functions test", "[meta]"){
     REQUIRE(e1(int1) == true);
     REQUIRE(e1(str) == true);
     REQUIRE(e1(real) == false);
+
+    delete int1;
+    delete str;
+    delete real;
 }
 
 // this test case demponstrates the use of cliffords
@@ -653,13 +657,6 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     };
 
     GenericTraverser traverserNaryMutating(
-        /*[=](const AstNode *node){
-            Match(node){
-                Case(mch::C<ExpInteger>()){ return true; }
-                Otherwise(){ return false; }
-            } EndMatch;
-            return false; //without: compiler warning
-        },*/
         makeTypePredicate<ExpInteger>(),
         functor_t(int1, int2, int3, int4, arith, arith1, arith2, aUnb),
         GenericTraverser::RECUR);
@@ -698,12 +695,6 @@ TEST_CASE("Higher order traverser", "[generic traverser]"){
     };
 
     GenericTraverser trav(
-        /* old boilerplate
-        [](const AstNode *n) -> bool {
-            Match(n){ Case(mch::C<BlockStatement>()){ return true; } }
-            EndMatch; return false;
-        },
-        */
         makeTypePredicate<BlockStatement>(),
         static_cast<function<int (const AstNode *)>>(
         GenericTraverser(

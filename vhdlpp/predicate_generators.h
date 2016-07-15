@@ -8,6 +8,19 @@
 #include "root_class.h"
 #include "mach7_includes.h"
 
+////
+//Nomenclature: Type predicates are c++-functors that
+//return true, if they're called with a pointer that matches
+//a certain type.
+
+//Usage (1-ary):
+//function<bool (const AstNode *)> tP =
+//    makeTypePredicate<ExpInteger>();
+//
+//Usage (n-ary):
+//function<bool (const AstNode *)> tnP =
+//    makeNaryTypePredicate<ExpInteger, ExpArithmetic, SequentialStmt...>();
+
 template<typename T> struct makeTypePredicate {
     bool operator()(const AstNode *n){
         Match(n){
@@ -21,6 +34,7 @@ template<typename T> struct makeTypePredicate {
 template<typename T, typename ...J> struct makeNaryTypePredicate;
 template<typename T> struct makeNaryTypePredicate<T>;
 
+// terminate template recursion through partial specialization
 template<typename T> struct makeNaryTypePredicate<T>{
     bool operator()(const AstNode *n){
         Match(n){
@@ -30,12 +44,12 @@ template<typename T> struct makeNaryTypePredicate<T>{
     }
 };
 
-// simple recursive template that can be used to generate
+// simple recursive (and variadic) template that can be used to generate
 // type predicates that check for multiple types.
-// Usage: makeNaryTypePredicate<typeFoo, typeBar, typeBaz>()(AstNodePointerFoo);
 // WARNING: This should not be used for huge type parameter lists as the
 //          created type switching algorithm is slow (O(n), with n being the
 //          number of type given to this template)
+// TODO: Improve performance
 template<typename T, typename ...J> struct makeNaryTypePredicate {
     bool operator()(const AstNode *n){
         if (helper(n)) {
