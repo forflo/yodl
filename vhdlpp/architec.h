@@ -501,6 +501,14 @@ public:
                      list<Expression *>     *sensitivity_list,
                      list<SequentialStmt *> *statement_list);
 
+    // FM. MA Added in order to be able to construct ProcessStatement
+    // object in contexts where no access to an active scope is possible
+    // (while transforming the AST)
+    ProcessStatement(perm_string                 iname,
+                     const ScopeBase&          ref,
+                     list<Expression *>     *sensitivity_list,
+                     list<SequentialStmt *> *statement_list);
+
     ~ProcessStatement();
 
     int elaborate(Entity *ent, Architecture *arc);

@@ -360,6 +360,19 @@ ProcessStatement::ProcessStatement(perm_string iname,
     }
 }
 
+// FM. MA for building ProcessStatements only with access to ScopeBases
+ProcessStatement::ProcessStatement(perm_string iname,
+                                   const ScopeBase& ref,
+                                   list<Expression *> *sensitivity_list,
+                                   list<SequentialStmt *> *statements_list)
+    : StatementList(statements_list)
+    , Scope(ref)
+    , iname_(iname) {
+    if (sensitivity_list) {
+        sensitivity_list_.splice(sensitivity_list_.end(), *sensitivity_list);
+    }
+}
+
 ProcessStatement *ProcessStatement::clone() const {
     std::list<Expression *> sens_list_copy;
     std::list<SequentialStmt *> *stmt_list_copy =

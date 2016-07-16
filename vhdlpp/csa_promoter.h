@@ -36,8 +36,7 @@ public:
 
 private:
     Entity *currentEntity;
-    Scope *architecture;
-    
+    ScopeBase *architecture;
 };
 
 #endif /* IVL_CSA_PROMOTER */

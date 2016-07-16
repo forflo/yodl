@@ -260,6 +260,9 @@ public:
     explicit Scope(const ActiveScope& ref)
         : ScopeBase(ref) {}
 
+    explicit Scope(const ScopeBase &ref)
+        : ScopeBase(ref) {}
+
     Scope(int i){ i++; }
 
     virtual ~Scope() {}
