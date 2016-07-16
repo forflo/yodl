@@ -257,6 +257,8 @@ public:
     Expression *cond_;
 };
 
+// TODO: check whether this type of statement shall be able to
+// contain a label
 // OK DOT
 /* The SignalAssignment class represents the
  * concurrent_signal_assignment that is placed in an architecture.  */
@@ -284,7 +286,7 @@ public:
     }
 
 public:
-    ExpName                 *lval_;
+    ExpName *lval_;
     list<Expression *> rval_;
 };
 

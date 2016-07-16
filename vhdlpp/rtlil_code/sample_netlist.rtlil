@@ -1,5 +1,5 @@
 autoidx 1
-module 
+module \testmod
   wire \or1fout
   wire \or1foutT
   wire \and13out
@@ -14,18 +14,29 @@ module
   wire \cout
   wire \cin
   cell $or \or2f
+    parameter \Y_WIDTH 1
+    parameter \B_WIDTH 1
+    parameter \B_SIGNED 0
     parameter \A_WIDTH 1
+    parameter \A_SIGNED 0
     connect \Y \or1fout
     connect \B \and13out
     connect \A \or1foutT
   end
   cell $or \or1f
+    parameter \Y_WIDTH 1
+    parameter \B_WIDTH 1
+    parameter \B_SIGNED 0
+    parameter \A_WIDTH 1
     parameter \A_SIGNED 0
     connect \Y \or1foutT
     connect \B \and12out
     connect \A \and11out
   end
   cell $and \and13
+    parameter \Y_WIDTH 1
+    parameter \B_WIDTH 1
+    parameter \B_SIGNED 0
     parameter \A_WIDTH 1
     parameter \A_SIGNED 0
     connect \Y \and13out
@@ -33,6 +44,9 @@ module
     connect \A \a0
   end
   cell $and \and12
+    parameter \Y_WIDTH 1
+    parameter \B_WIDTH 1
+    parameter \B_SIGNED 0
     parameter \A_WIDTH 1
     parameter \A_SIGNED 0
     connect \Y \and12out
@@ -40,6 +54,9 @@ module
     connect \A \a0
   end
   cell $and \and11
+    parameter \Y_WIDTH 1
+    parameter \B_WIDTH 1
+    parameter \B_SIGNED 0
     parameter \A_WIDTH 1
     parameter \A_SIGNED 0
     connect \Y \and11out
@@ -47,6 +64,9 @@ module
     connect \A \a0
   end
   cell $xor \xor2f
+    parameter \Y_WIDTH 1
+    parameter \B_WIDTH 1
+    parameter \B_SIGNED 0
     parameter \A_WIDTH 1
     parameter \A_SIGNED 0
     connect \Y \xor1fout
@@ -54,6 +74,9 @@ module
     connect \A \xor1foutT
   end
   cell $xor \xor1f
+    parameter \Y_WIDTH 1
+    parameter \B_WIDTH 1
+    parameter \B_SIGNED 0
     parameter \A_WIDTH 1
     parameter \A_SIGNED 0
     connect \Y \xor1foutT

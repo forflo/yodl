@@ -74,6 +74,7 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     Design *design = new Design();
     Module *module = new Module();
 
+    module->name = "\\testmod";
     design->add(module);
 
     Wire *cin = module->addWire("\\cin", 1);
@@ -89,20 +90,16 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     Cell *xor1f = module->addCell("\\xor1f", "$xor");
     Cell *xor2f = module->addCell("\\xor2f", "$xor");
 
-    xor1f->setParam("\\A_SIGNED", 0);
-    xor1f->setParam("\\A_WIDTH", 1);
-
     xor1f->setPort("\\A", cin);
     xor1f->setPort("\\B", a0);
     xor1f->setPort("\\Y", xor1f_outT);
-
-    xor2f->setParam("\\A_SIGNED", 0);
-    xor2f->setParam("\\A_WIDTH", 1);
 
     xor2f->setPort("\\A", xor1f_outT);
     xor2f->setPort("\\B", b0);
     xor2f->setPort("\\Y", xor1f_out);
 
+    xor1f->fixup_parameters();
+    xor2f->fixup_parameters();
 
     Cell *and11 = module->addCell("\\and11", "$and");
     Cell *and12 = module->addCell("\\and12", "$and");
@@ -111,15 +108,6 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     Wire *and11_out = module->addWire("\\and11out", 1);
     Wire *and12_out = module->addWire("\\and12out", 1);
     Wire *and13_out = module->addWire("\\and13out", 1);
-
-    and11->setParam("\\A_SIGNED", 0);
-    and11->setParam("\\A_WIDTH", 1);
-
-    and12->setParam("\\A_SIGNED", 0);
-    and12->setParam("\\A_WIDTH", 1);
-
-    and13->setParam("\\A_SIGNED", 0);
-    and13->setParam("\\A_WIDTH", 1);
 
     and11->setPort("\\A", a0);
     and11->setPort("\\B", b0);
@@ -133,14 +121,15 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     and13->setPort("\\B", cin);
     and13->setPort("\\Y", and13_out);
 
+    and11->fixup_parameters();
+    and12->fixup_parameters();
+    and13->fixup_parameters();
+
     Cell *or1f = module->addCell("\\or1f", "$or");
     Cell *or2f = module->addCell("\\or2f", "$or");
 
     Wire *or1f_outT = module->addWire("\\or1foutT", 1);
     Wire *or1f_out = module->addWire("\\or1fout", 1);
-
-    or1f->setParam("\\A_SIGNED", 0);
-    or2f->setParam("\\A_WIDTH", 1);
 
     or1f->setPort("\\A", and11_out);
     or1f->setPort("\\B", and12_out);
@@ -149,6 +138,9 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     or2f->setPort("\\A", or1f_outT);
     or2f->setPort("\\B", and13_out);
     or2f->setPort("\\Y", or1f_out);
+
+    or1f->fixup_parameters();
+    or2f->fixup_parameters();
 
     stringstream ilangBuffer;
     dump_design(ilangBuffer, design, false);
