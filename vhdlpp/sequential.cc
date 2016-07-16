@@ -131,6 +131,16 @@ SignalSeqAssignment::SignalSeqAssignment(Expression *sig,
     }
 }
 
+// FM. MA new overload for more convenience
+// NOTE: makes deep copy of wav!
+SignalSeqAssignment::SignalSeqAssignment(Expression *sig,
+                                         const std::list<Expression *> &wav) {
+    lval_ = sig;
+
+    for (auto &i : wav)
+        waveform_.push_back(i->clone());
+}
+
 
 SignalSeqAssignment::~SignalSeqAssignment() {
     delete lval_;

@@ -8,9 +8,12 @@
 #define IVL_CSA_PROMOTER
 
 #include <vector>
+#include <list>
 
 #include "root_class.h"
 #include "architec.h"
+#include "sequential.h"
+#include "scope.h"
 #include "predicate_generators.h"
 #include "StringHeap.h"
 
@@ -19,24 +22,11 @@ using namespace std;
 class CsaPromoter {
 public:
 
-    int operator()(AstNode *n, const vector<AstNode*> &parents){
-
-        if(makeTypePredicate<SignalAssignment>()(n)){
-            ProcessStatement *replacement = new ProcessStatement(
-                perm_string::literal(""), );
-        }
-
-        if(makeTypePredicate<CondSignalAssignment>()(n)){
-            ProcessStatement *replacement = new ProcessStatement();
-            //TODO: implement
-        }
-
-        return 0;
-    }
+    int operator()(AstNode *n, const vector<AstNode*> &parents);
 
 private:
     Entity *currentEntity;
-    ScopeBase *architecture;
+    ScopeBase *currentScope;
 };
 
 #endif /* IVL_CSA_PROMOTER */

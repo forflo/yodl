@@ -210,6 +210,7 @@ public:
 class SignalSeqAssignment : public SequentialStmt {
 public:
     SignalSeqAssignment(Expression *sig, list<Expression *> *wav);
+    SignalSeqAssignment(Expression *sig, const list<Expression *> &wav);
     ~SignalSeqAssignment();
 
 public:
@@ -232,7 +233,7 @@ public:
     };
 
 public:
-    Expression              *lval_;
+    Expression *lval_;
     list<Expression *> waveform_;
 };
 
