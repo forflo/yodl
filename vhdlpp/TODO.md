@@ -2,4 +2,15 @@
 
 - Add simple stateful lambda (or traverser class)
   that searches for constructs not meant for simulation
-  
+
+## parse.y
+
+Not all names can be parsed
+Missing non-terminals/terminals are:
+- operator symbol = string 
+- character literal 
+- slice name
+- attribute name
+- external name
+
+For more details visit: (VHDL-2008, p 8.1)

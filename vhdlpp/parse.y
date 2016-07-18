@@ -1845,6 +1845,13 @@ mode
 
 mode_opt : mode {$$ = $1;} | {$$ = PORT_NONE;} ;
 
+//FM. MA
+//TODO: Add missing
+//      - operator symbold (string)
+//      - character literal
+//      - slice name
+//      - attribute name
+//      - external name
 name /* IEEE 1076-2008 P8.1 */
 : IDENTIFIER /* simple_name (IEEE 1076-2008 P8.2) */
 {
@@ -1875,6 +1882,9 @@ name /* IEEE 1076-2008 P8.1 */
 }
 ;
 
+//FM. MA
+//TODO: Actual syntax rule according to IEEE 1076-2008 P8.1 is
+// indexed_name -> prefix ( expression_list )
 indexed_name
 /* Note that this rule can match array element selects and various
    function calls. The only way we can tell the difference is from
@@ -2072,6 +2082,7 @@ port_map_aspect_opt
 ;
 
 
+//FM. MA TODO: why is there no procedure_call?
 prefix /* IEEE 1076-2008 P8.1 */
 : name { $$ = $1; }
 ;
@@ -2444,65 +2455,72 @@ report_statement
 }
 
 return_statement
-  : K_return expression ';'
-      { ReturnStmt*tmp = new ReturnStmt($2);
-	ParserUtil::add_location(tmp, @1);
-	$$ = tmp;
-      }
-  | K_return ';'
-      { ReturnStmt*tmp = new ReturnStmt(0);
-	ParserUtil::add_location(tmp, @1);
-	$$ = tmp;
-      }
-  | K_return error ';'
-      { ReturnStmt*tmp = new ReturnStmt(0);
-	ParserUtil::add_location(tmp, @1);
-	$$ = tmp;
-	ParserUtil::errormsg(yy_parse_context, @2, "Error in expression in return statement.\n");
-	yyerrok;
-      }
-  ;
+: K_return expression ';'
+{
+    ReturnStmt*tmp = new ReturnStmt($2);
+    ParserUtil::add_location(tmp, @1);
+    $$ = tmp;
+}
+| K_return ';'
+{
+    ReturnStmt*tmp = new ReturnStmt(0);
+    ParserUtil::add_location(tmp, @1);
+    $$ = tmp;
+}
+| K_return error ';'
+{
+    ReturnStmt*tmp = new ReturnStmt(0);
+    ParserUtil::add_location(tmp, @1);
+    $$ = tmp;
+    ParserUtil::errormsg(yy_parse_context, @2, "Error in expression in return statement.\n");
+    yyerrok;
+}
+;
 
 secondary_unit
-  : architecture_body
-  | package_body
-  ;
+: architecture_body
+| package_body
+;
 
 selected_name /* IEEE 1076-2008 P8.3 */
-  : prefix '.' suffix
-      { Expression*pfx = $1;
-	ExpName*pfx1 = dynamic_cast<ExpName*>(pfx);
-	assert(pfx1);
-	perm_string tmp = lex_strings.make($3);
-	$$ = new ExpName(pfx1, tmp);
-	ParserUtil::add_location($$, @3);
-	delete[]$3;
-      }
-  | error '.' suffix
-      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in prefix in front of \"%s\".\n", $3);
-        yyerrok;
-	$$ = new ExpName(lex_strings.make($3));
-	ParserUtil::add_location($$, @3);
-	delete[]$3;
-      }
-  ;
+: prefix '.' suffix
+{
+    Expression*pfx = $1;
+    ExpName*pfx1 = dynamic_cast<ExpName*>(pfx);
+    assert(pfx1);
+    perm_string tmp = lex_strings.make($3);
+    $$ = new ExpName(pfx1, tmp);
+    ParserUtil::add_location($$, @3);
+    delete[]$3;
+}
+| error '.' suffix
+{
+    ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in prefix in front of \"%s\".\n", $3);
+    yyerrok;
+    $$ = new ExpName(lex_strings.make($3));
+    ParserUtil::add_location($$, @3);
+    delete[]$3;
+}
+;
 
 selected_names
-  : selected_names ',' selected_name
-      { std::list<Expression*>* tmp = $1;
-	tmp->push_back($3);
-	$$ = tmp;
-      }
-  | selected_name
-      { std::list<Expression*>* tmp = new std::list<Expression*>();
-	tmp->push_back($1);
-	$$ = tmp;
-      }
-  ;
+: selected_names ',' selected_name
+{
+    std::list<Expression*>* tmp = $1;
+    tmp->push_back($3);
+    $$ = tmp;
+}
+| selected_name
+{
+    std::list<Expression*>* tmp = new std::list<Expression*>();
+    tmp->push_back($1);
+    $$ = tmp;
+}
+;
 
-  /* The *_lib variant of selected_name is used by the "use"
-     clause. It is syntactically identical to other selected_name
-     rules, but is a convenient place to attach use_clause actions. */
+/* The *_lib variant of selected_name is used by the "use"
+   clause. It is syntactically identical to other selected_name
+   rules, but is a convenient place to attach use_clause actions. */
 selected_name_lib
 : IDENTIFIER '.' K_all
 {
@@ -2911,6 +2929,8 @@ subtype_indication
 }
 ;
 
+//FM. MA
+//TODO: add non terminal operator symbol (visit TODO.md)
 suffix
 : IDENTIFIER { $$ = $1; }
 | CHARACTER_LITERAL { $$ = $1; }

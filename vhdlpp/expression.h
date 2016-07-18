@@ -1003,7 +1003,7 @@ public:
 public:
     Expression *index(unsigned int number) const;
 
-    auto_ptr<ExpName>  prefix_;
+    unique_ptr<ExpName>  prefix_;
     perm_string name_;
     list<Expression *> *indices_;
 };

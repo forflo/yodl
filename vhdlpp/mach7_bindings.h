@@ -277,7 +277,7 @@ namespace mch {
 
     template <> struct bindings<ExpName> {
         //TODO: add prefix
-        Members(//ExpName::prefix_,
+        Members(ExpName::prefix_, // unique_ptr<ExpName>
                 ExpName::name_,
                 ExpName::indices_);
     };

@@ -443,6 +443,7 @@ void GenericTraverser::traverseMutating(Expression *n){
     var<double> dblValue;
 
     // For ExpName
+    var<unique_ptr<ExpName>> namePrefix;
     var<perm_string> nameName;
     var<list<Expression*>*> indices;
 
@@ -724,7 +725,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             break;
         }
 
-        Case(C<ExpName>(nameName, indices)){
+        Case(C<ExpName>(namePrefix, nameName, indices)){
             traversalMessages.push_back("ExpName detected");
 
             Match(n){
