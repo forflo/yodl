@@ -1,10 +1,12 @@
 #include "csa_promoter.h"
+#include "mach7_includes.h"
 
 using namespace std;
+using namespace mch;
 
 
 int CsaPromoter::operator()(AstNode *n, const vector<AstNode*> &parents){
-    ProcessStatement *replacement;
+    ProcessStatement *replacement = 0;
 
     if(makeTypePredicate<SignalAssignment>()(n)){
         replacement = new ProcessStatement(
@@ -24,7 +26,20 @@ int CsaPromoter::operator()(AstNode *n, const vector<AstNode*> &parents){
         //TODO: implement
     }
 
-    
+    if (replacement) {
+        Match(parents[0]){
+            Case(C<BlockStatement>()){
+
+            }
+            Case(C<Architecture>()){
+
+            }
+            Otherwise(){
+                std::cout << "stange error in CasPromoter" << endl;
+                return 1;
+            }
+        } EndMatch;
+    }
 
     return 0;
 }

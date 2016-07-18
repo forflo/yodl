@@ -45,7 +45,7 @@ const char *debug_log_path            = 0;
 bool     debug_elaboration = false;
 ofstream debug_log_file;
 
-TEST_CASE("Type predicate meta functions test", "[meta]"){
+TEST_CASE("Type predicate meta functions test", "[type predicates]"){
     ExpInteger *int1 = new ExpInteger(100);
     ExpString *str = new ExpString("fnord");
     ExpReal *real = new ExpReal(0.0123);
@@ -56,6 +56,35 @@ TEST_CASE("Type predicate meta functions test", "[meta]"){
     REQUIRE(e1(int1) == true);
     REQUIRE(e1(str) == true);
     REQUIRE(e1(real) == false);
+
+    delete int1;
+    delete str;
+    delete real;
+}
+
+TEST_CASE("Type predicate combinators test", "[type predicates]"){
+    ExpInteger *int1 = new ExpInteger(100);
+    ExpString *str = new ExpString("fnord");
+    ExpReal *real = new ExpReal(0.0123);
+
+    function<bool (const AstNode *)> t1 =
+        makeNaryTypePredicate<ExpInteger>();
+
+    function<bool (const AstNode *)> t2 =
+        makeNaryTypePredicate<ExpString>();
+
+    auto e1 = t1 || t2;
+    auto e2 = t1 && t2;
+
+    REQUIRE(e1(int1) == true);
+    REQUIRE(e1(str) == true);
+    REQUIRE(e1(real) == false);
+
+    // neither int1, str or real inherits
+    // from both ExpInteger and ExpString
+    REQUIRE(e2(int1) == false);
+    REQUIRE(e2(str) == false);
+    REQUIRE(e2(real) == false);
 
     delete int1;
     delete str;
