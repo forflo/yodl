@@ -10,27 +10,31 @@ template<typename T> class StatefulLambda {
 public:
     StatefulLambda(T e, std::function<int (const AstNode *, T &)> l)
         : environment(e)
-        , constLambda(l) {};
+        , constLambda(l) {}
 
     // environment get's default initialized in this constructor
     StatefulLambda(std::function<int (const AstNode *, T &)> l)
-        : constLambda(l) {};
+        : constLambda(l) {}
 
     StatefulLambda(T e, std::function<int (AstNode *, T &)> l)
         : environment(e)
-        , mutatingLambda(l) {};
+        , mutatingLambda(l) {}
 
     // environment get's default initialized in this constructor
     StatefulLambda(std::function<int (AstNode *, T &)> l)
-        : mutatingLambda(l) {};
+        : mutatingLambda(l) {}
 
     int operator()(const AstNode *node){
         return constLambda(node, environment);
-    };
+    }
 
     int operator()(AstNode *node){
         return mutatingLambda(node, environment);
-    };
+    }
+
+    void reset(){
+        environment = T();
+    }
 
     T environment;
 private:

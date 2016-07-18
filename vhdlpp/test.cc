@@ -34,16 +34,11 @@
 #include "path_finder.h"
 #include "predicate_generators.h"
 
-
-bool verbose_flag = false;
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
 const char *dump_design_entities_path = 0;
 const char *dump_libraries_path       = 0;
 const char *debug_log_path            = 0;
-
-bool     debug_elaboration = false;
-ofstream debug_log_file;
 
 TEST_CASE("Type predicate meta functions test", "[type predicates]"){
     ExpInteger *int1 = new ExpInteger(100);
@@ -179,7 +174,7 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
     stringstream ilangBuffer;
     dump_design(ilangBuffer, design, false);
 
-    std::cout << ilangBuffer.str();
+//    std::cout << ilangBuffer.str();
 
     REQUIRE(ilangBuffer.str() != "");
 }
@@ -616,6 +611,36 @@ TEST_CASE("Test path finder", "[path finder]"){
     REQUIRE(pathFinderU.getPaths()[1][2] == int2);
 }
 
+TEST_CASE("NONRECUR test", "[generic traversre]"){
+    ExpInteger *int1 = new ExpInteger(100);
+    ExpInteger *int2 = new ExpInteger(101);
+    ExpInteger *int3 = new ExpInteger(102);
+    ExpInteger *int4 = new ExpInteger(103);
+
+    ExpArithmetic *arith1 = new ExpArithmetic(ExpArithmetic::PLUS, int1, int2);
+    ExpArithmetic *arith2 = new ExpArithmetic(ExpArithmetic::PLUS, int3, int4);
+
+    ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
+
+    StatefulLambda<int> stateLambda(
+        0, static_cast<function <int (const AstNode *, int &)>>(
+            [](const AstNode *, int &env) -> int {
+                env++; return 0; })
+        );
+
+    GenericTraverser traverser(
+        makeTypePredicate<ExpArithmetic>(),
+        static_cast<function <int (const AstNode *)>>(
+            [&stateLambda](const AstNode *n) -> int {
+                stateLambda(n); return 0; }),
+        GenericTraverser::NONRECUR);
+
+    traverser(arith);
+
+    REQUIRE(stateLambda.environment == 1);
+    stateLambda.reset();
+    REQUIRE(stateLambda.environment == 0);
+}
 
 TEST_CASE("Test nary traverser", "[generic traverser]"){
     ExpInteger *int1 = new ExpInteger(100);
