@@ -86,6 +86,11 @@ TEST_CASE("Type predicate combinators test", "[type predicates]"){
     REQUIRE(e2(str) == false);
     REQUIRE(e2(real) == false);
 
+    auto e3 = ! e2;
+    REQUIRE(e3(int1) == true);
+    REQUIRE(e3(str) == true);
+    REQUIRE(e3(real) == true);
+
     delete int1;
     delete str;
     delete real;
