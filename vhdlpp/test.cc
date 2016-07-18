@@ -40,6 +40,10 @@ const char *dump_design_entities_path = 0;
 const char *dump_libraries_path       = 0;
 const char *debug_log_path            = 0;
 
+bool verbose_flag = false;
+bool debug_elaboration = false;
+ofstream debug_log_file;
+
 TEST_CASE("Type predicate meta functions test", "[type predicates]"){
     ExpInteger *int1 = new ExpInteger(100);
     ExpString *str = new ExpString("fnord");
@@ -623,21 +627,50 @@ TEST_CASE("NONRECUR test", "[generic traversre]"){
     ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
 
     StatefulLambda<int> stateLambda(
-        0, static_cast<function <int (const AstNode *, int &)>>(
-            [](const AstNode *, int &env) -> int {
-                env++; return 0; })
-        );
+        0, static_cast<function <int (AstNode *, int &)>>(
+            [](AstNode *, int &env) -> int {
+                env++; return 0; }));
 
     GenericTraverser traverser(
         makeTypePredicate<ExpArithmetic>(),
-        static_cast<function <int (const AstNode *)>>(
-            [&stateLambda](const AstNode *n) -> int {
+        static_cast<function <int (AstNode *)>>(
+            [&stateLambda](AstNode *n) -> int {
                 stateLambda(n); return 0; }),
         GenericTraverser::NONRECUR);
 
     traverser(arith);
 
     REQUIRE(stateLambda.environment == 1);
+    stateLambda.reset();
+    REQUIRE(stateLambda.environment == 0);
+}
+
+TEST_CASE("RECUR test", "[generic traversre]"){
+    ExpInteger *int1 = new ExpInteger(100);
+    ExpInteger *int2 = new ExpInteger(101);
+    ExpInteger *int3 = new ExpInteger(102);
+    ExpInteger *int4 = new ExpInteger(103);
+
+    ExpArithmetic *arith1 = new ExpArithmetic(ExpArithmetic::PLUS, int1, int2);
+    ExpArithmetic *arith2 = new ExpArithmetic(ExpArithmetic::PLUS, int3, int4);
+
+    ExpArithmetic *arith = new ExpArithmetic(ExpArithmetic::MULT, arith1, arith2);
+
+    StatefulLambda<int> stateLambda(
+        0, static_cast<function <int ( AstNode *, int &)>>(
+            []( AstNode *, int &env) -> int {
+                env++; return 0; }));
+
+    GenericTraverser traverser(
+        makeTypePredicate<ExpArithmetic>(),
+        static_cast<function <int ( AstNode *)>>(
+            [&stateLambda]( AstNode *n) -> int {
+                stateLambda(n); return 0; }),
+        GenericTraverser::RECUR);
+
+    traverser(arith);
+
+    REQUIRE(stateLambda.environment == 3);
     stateLambda.reset();
     REQUIRE(stateLambda.environment == 0);
 }
