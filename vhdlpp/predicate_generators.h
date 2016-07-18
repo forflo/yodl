@@ -45,11 +45,11 @@ template<typename T> struct makeNaryTypePredicate<T>{
     }
 };
 
-// simple recursive (and variadic) template that can be used to generate
+// Simple recursive (and variadic) template that can be used to generate
 // type predicates that check for multiple types.
-// WARNING: This should not be used for huge type parameter lists as the
-//          created type switching algorithm is slow (O(n), with n being the
-//          number of type given to this template)
+// WARNING: This should not be used for huge type parameter packs as the
+//          created type switching algorithm is slow (worst case: O(n),
+//          with n being the number of type given to this template)
 // TODO: Improve performance
 template<typename T, typename ...J> struct makeNaryTypePredicate {
     bool operator()(const AstNode *n){
@@ -63,9 +63,7 @@ template<typename T, typename ...J> struct makeNaryTypePredicate {
 private:
     bool helper(const AstNode *n){
         Match(n){
-            CaseInT(mch::C<T>()){
-                return true;
-            }
+            CaseInT(mch::C<T>()){ return true; }
         } EndMatch;
         return false;
     }
