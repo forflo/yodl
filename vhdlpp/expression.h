@@ -918,7 +918,22 @@ public:
  * that represents the "all" keyword is contexts that can handle it. */
 class ExpName : public Expression {
 public:
+    enum class operator_symbol_t {
+        EQ, LT,
+        GT, NEQ,
+        LE, GE,
+        PLUS, MINUS,
+        MULT, DIV,
+        MOD, REM,
+        POW, xCONCAT,
+        AND, OR,
+        NAND, NOR,
+        XOR, XNOR,
+    };
+
+
     explicit ExpName(perm_string nn);
+    explicit ExpName(operator_symbol_t); //FM. MA
 
     ExpName(perm_string nn, list<Expression *> *indices);
     ExpName(ExpName *prefix, perm_string nn, list<Expression *> *indices = NULL);
@@ -1002,6 +1017,9 @@ public:
 
 public:
     Expression *index(unsigned int number) const;
+
+    bool is_operator_symbol_ = false;
+    operator_symbol_t operator_sym_;
 
     unique_ptr<ExpName>  prefix_;
     perm_string name_;

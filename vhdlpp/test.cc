@@ -449,6 +449,8 @@ TEST_CASE("GenericTraverser class constructor test", "[generic traverser]"){
 
 }
 
+template<typename T> void f(T);
+
 TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
     using namespace mch;
 
@@ -490,11 +492,13 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
             } EndMatch;
             return false; //without: compiler warning
         },
+
         // static_cast needed here in order to resolve the
         // overload resolution ambiguity arising from the use
         // of std::function
         static_cast<function<int (const AstNode *)>>(
-            [&state](const AstNode *a) -> int { return state(a); }),
+            [&state](const AstNode *a) -> int {
+                return state(a); }),
         GenericTraverser::RECUR);
 
     traverser(root);
@@ -789,4 +793,35 @@ TEST_CASE("Higher order traverser", "[generic traverser]"){
             static_cast<function<int (const AstNode *)>>(counter_t()),
             GenericTraverser::NONRECUR)),
         GenericTraverser::NONRECUR);
+}
+
+TEST_CASE("Parser test operator symbol", "[parser]"){
+    int rc1;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc1 = ParserUtil::parse_source_file(
+        "vhdl_testfiles/parser_test_operator_symbol.vhd",
+        perm_string(), context);
+
+    REQUIRE(rc1 == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+
+
+    GenericTraverser trav(
+        makeTypePredicate<ExpName>(),
+        [](AstNode *n) -> int {
+            ExpName *temp = dynamic_cast<ExpName*>(n);
+            if (temp){
+                REQUIRE(temp->is_operator_symbol_ == true);
+            } else {
+                std::cout << "Nullpointer in test [parser]" << endl;
+            }
+            return 0;
+        },
+        GenericTraverser::NONRECUR);
+
 }

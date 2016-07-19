@@ -32,8 +32,10 @@ int SignalExtractor::operator()(const AstNode *node){
 
 // for detailed description of the rules used
 // visit IEEE Std 1076-2008 page 146, p. 10.2
-int SignalExtractor::lambda_t::operator()(const AstNode *n, set<const AstNode *> &env){
+int SignalExtractor::lambda_t::operator()(const AstNode *n,
+                                          set<const AstNode *> &env){
     using namespace mch;
+
     Match(n){
         Case(C<ExpName>()){
             // check:
@@ -42,12 +44,18 @@ int SignalExtractor::lambda_t::operator()(const AstNode *n, set<const AstNode *>
             // => add longest static prefix of name to env
             const ExpName *n = dynamic_cast<const ExpName*> (n);
 
-            Signal *s = curScope->find_signal(n->name_);
-            if (s != 0){
-                std::cout << "Signal refered with simple name "
-                          << n->name_.str()
-                          << " was inserted" << endl;
-                env.insert(s);
+            // => name is a simple name
+            if (n->prefix_.get() == NULL){
+
+                Signal *s = curScope->find_signal(n->name_);
+                if (s != 0){
+                    std::cout << "Signal refered with simple name "
+                              << n->name_.str()
+                              << " was inserted" << endl;
+                    env.insert(s);
+                }
+            } else {
+
             }
         }
         Case(C<ExpFunc>()){

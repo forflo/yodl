@@ -623,12 +623,19 @@ ExpLogical::ExpLogical(ExpLogical::fun_t ty
 ExpLogical::~ExpLogical() {}
 
 
+//FM. MA constructs a simple_name
 ExpName::ExpName(perm_string nn)
     : name_(nn) {
     indices_ = new list<Expression *>();
 }
 
+//FM. MA
+ExpName::ExpName(ExpName::operator_symbol_t sym)
+    : is_operator_symbol_(true)
+    , operator_sym_(sym)
+    , indices_(0) {}
 
+//FM. MA constructs a intexed_name
 ExpName::ExpName(perm_string nn, list<Expression *> *indices)
     : name_(nn)
     , indices_(indices) {}

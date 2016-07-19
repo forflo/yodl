@@ -28,6 +28,7 @@
 # include "vhdlint.h"
 # include "vhdlreal.h"
 # include "parse_wrap.h"
+# include "expression.h"
 
 # include <cmath>
 # include <cassert>
@@ -109,6 +110,12 @@ time			    {integer}{W}*([fFpPnNuUmM]?[sS])
     return CHARACTER_LITERAL;
 }
 
+(\"\+\"|\"\*\") {
+    yylval.text = strdupnew(yytext);
+    assert(yylval.text);
+    return OPERATOR_SYMBOL;
+}
+
 (\"([^\"]|(\"\"))*?\") {
     yylval.text = escape_quot_and_dup(yytext);
     assert(yylval.text);
@@ -117,19 +124,19 @@ time			    {integer}{W}*([fFpPnNuUmM]?[sS])
 
 [a-zA-Z_][a-zA-Z0-9_]* {
     for (char*cp = yytext ; *cp ; cp += 1)
-	    *cp = tolower(*cp);
+        *cp = tolower(*cp);
 
     int rc = lexor_keyword_code(yytext, yyleng);
     switch (rc) {
-	case IDENTIFIER:
-	    if(!are_underscores_correct(yytext))
+    case IDENTIFIER:
+        if(!are_underscores_correct(yytext))
             std::cerr << "An invalid underscore in the identifier:"
-                    << yytext << std::endl;
-                //yywarn(yylloc, "An invalid underscore in the identifier");
-	    yylval.text = strdupnew(yytext);
-	    break;
-	default:
-	    break;
+                      << yytext << std::endl;
+        //yywarn(yylloc, "An invalid underscore in the identifier");
+        yylval.text = strdupnew(yytext);
+        break;
+    default:
+        break;
     }
     return rc;
 }
@@ -255,7 +262,7 @@ static bool is_based_correct(char* text)
         //the base exceeds 16 or equals 0
         if(base > 16 || base == 0)
             return 0;
-    } else { 
+    } else {
         //the base consists of one char and is equal to zero
         base = clean_base[0] - '0';
         if(base == 0)
@@ -275,8 +282,8 @@ static bool is_based_correct(char* text)
             allowed_chars.insert(c + 'a');
     }
     //MANTISSA examination
-    for(ptr = strchr(text, '#') + 1, length = 0; 
-        ptr != strrchr(text, '#'); 
+    for(ptr = strchr(text, '#') + 1, length = 0;
+        ptr != strrchr(text, '#');
         ++ptr) {
         if(*ptr == '.') {
             //we found a dot and another one was already found
@@ -322,7 +329,7 @@ static char* escape_quot_and_dup(char* text) {
 
     unsigned old_idx, new_idx;
     for(new_idx = 0, old_idx = 0; old_idx < strlen(text); ) {
-        if(text[old_idx] == '"' && old_idx == 0) { 
+        if(text[old_idx] == '"' && old_idx == 0) {
             //the beginning of the literal
             ++old_idx;
             continue;

@@ -249,6 +249,7 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 %token <uni_integer> INT_LITERAL
 %token <uni_real> REAL_LITERAL
 %token <text> STRING_LITERAL CHARACTER_LITERAL BITSTRING_LITERAL
+%token <text> OPERATOR_SYMBOL
  /* compound symbols */
 %token LEQ GEQ VASSIGN NE BOX EXP ARROW DLT DGT CC M_EQ M_NE M_LT M_LEQ M_GT M_GEQ
 
@@ -1847,11 +1848,11 @@ mode_opt : mode {$$ = $1;} | {$$ = PORT_NONE;} ;
 
 //FM. MA
 //TODO: Add missing
-//      - operator symbold (string)
+//      - operator symbold ("+", "-", "*", ... including the quotes)
 //      - character literal
 //      - slice name
 //      - attribute name
-//      - external name
+//      x external name (ignored for synthesis)
 name /* IEEE 1076-2008 P8.1 */
 : IDENTIFIER /* simple_name (IEEE 1076-2008 P8.2) */
 {
@@ -1871,6 +1872,25 @@ name /* IEEE 1076-2008 P8.1 */
     delete[]$1;
     $$ = tmp;
 }
+// FM. MA
+| OPERATOR_SYMBOL
+{
+    Expression *tmp;
+    auto s = ExpName::operator_symbol_t::EQ;
+
+    if (!strcmp($1, "\"+\"")) {
+        s = ExpName::operator_symbol_t::PLUS;
+    } else if (!strcmp($1, "\"*\"")) {
+        s = ExpName::operator_symbol_t::MULT;
+    }
+
+    tmp = new ExpName(s);
+    ParserUtil::add_location(tmp, @1);
+
+    $$ = tmp;
+}
+//| CHARACTER_LITERAL { $$ = 0;}
+//| attribute_name {}
 | selected_name { $$ = $1; }
 | indexed_name { $$ = $1; }
 | selected_name '(' expression_list ')'
