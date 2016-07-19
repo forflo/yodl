@@ -290,7 +290,8 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 %type <expr> expression factor primary relation
 %type <expr> expression_logical expression_logical_and expression_logical_or
 %type <expr> expression_logical_xnor expression_logical_xor
-%type <expr> name prefix selected_name indexed_name slice_name //FM. MA
+%type <expr> name prefix selected_name indexed_name
+%type <expr> attribute_name slice_name //FM. MA
 %type <expr> shift_expression signal_declaration_assign_opt
 %type <expr> simple_expression simple_expression_2 term
 %type <expr> variable_declaration_assign_opt waveform_element interface_element_expression
@@ -1890,7 +1891,7 @@ name /* IEEE 1076-2008 P8.1 */
     $$ = tmp;
 }
 //| CHARACTER_LITERAL { $$ = 0;}
-//| attribute_name {}
+| attribute_name {}
 | selected_name { $$ = $1; }
 //| slice_name { $$ = $1; } //produces 12 s/r conflicts. Maybe GLR?
 | indexed_name { $$ = $1; }
@@ -1904,6 +1905,15 @@ name /* IEEE 1076-2008 P8.1 */
 ;
 
 //FM. MA
+//TODO: Find a way to resolve the ambiguity
+attribute_name
+: prefix '\'' IDENTIFIER
+{
+    $$ = 0;
+}
+
+//FM. MA
+//TODO: Find a way to resolve the ambiguity
 slice_name
 : prefix   '('   range   ')'
 {
