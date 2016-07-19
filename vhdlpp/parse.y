@@ -35,6 +35,7 @@
 //FM. MA trying to make parser reentrant
 %parse-param {ParserContext *yy_parse_context}
 
+
 // FM. MA
 // so that parse_context.h get's included in generated parse.h
 %code requires {
@@ -289,7 +290,7 @@ static void touchup_interface_for_functions(std::list<InterfacePort*>*ports) {
 %type <expr> expression factor primary relation
 %type <expr> expression_logical expression_logical_and expression_logical_or
 %type <expr> expression_logical_xnor expression_logical_xor
-%type <expr> name prefix selected_name indexed_name
+%type <expr> name prefix selected_name indexed_name slice_name //FM. MA
 %type <expr> shift_expression signal_declaration_assign_opt
 %type <expr> simple_expression simple_expression_2 term
 %type <expr> variable_declaration_assign_opt waveform_element interface_element_expression
@@ -1848,7 +1849,6 @@ mode_opt : mode {$$ = $1;} | {$$ = PORT_NONE;} ;
 
 //FM. MA
 //TODO: Add missing
-//      - operator symbold ("+", "-", "*", ... including the quotes)
 //      - character literal
 //      - slice name
 //      - attribute name
@@ -1892,6 +1892,7 @@ name /* IEEE 1076-2008 P8.1 */
 //| CHARACTER_LITERAL { $$ = 0;}
 //| attribute_name {}
 | selected_name { $$ = $1; }
+//| slice_name { $$ = $1; } //produces 12 s/r conflicts. Maybe GLR?
 | indexed_name { $$ = $1; }
 | selected_name '(' expression_list ')'
 {
@@ -1901,6 +1902,13 @@ name /* IEEE 1076-2008 P8.1 */
     delete $3;  // contents of the list is moved to the selected_name
 }
 ;
+
+//FM. MA
+slice_name
+: prefix   '('   range   ')'
+{
+    $$ = 0;
+};
 
 //FM. MA
 //TODO: Actual syntax rule according to IEEE 1076-2008 P8.1 is
@@ -1934,89 +1942,95 @@ indexed_name
 
   /* Handle name lists as lists of expressions. */
 name_list
-  : name_list ',' name
-      { std::list<Expression*>*tmp = $1;
-	tmp->push_back($3);
-	$$ = tmp;
-      }
-  | name
-      { std::list<Expression*>*tmp = new std::list<Expression*>;
-	tmp->push_back($1);
-	$$ = tmp;
-      }
-  ;
+: name_list ',' name
+{
+    std::list<Expression*>*tmp = $1;
+    tmp->push_back($3);
+    $$ = tmp;
+}
+| name
+{
+    std::list<Expression*>*tmp = new std::list<Expression*>;
+    tmp->push_back($1);
+    $$ = tmp;
+}
+;
 
 package_declaration
-  : package_declaration_start K_is
-    package_declarative_part_opt
-    K_end K_package_opt identifier_opt ';'
-      { perm_string name = lex_strings.make($1);
-	if($6 && name != $6) {
-	      ParserUtil::errormsg(yy_parse_context, @1, "Identifier %s doesn't match package name %s.\n",
-		       $6, name.str());
-        }
-	Package*tmp = new Package(name, *yy_parse_context->active_scope);
-	ParserUtil::add_location(tmp, @1);
-	delete[]$1;
-        if ($6) delete[]$6;
-	yy_parse_context->pop_scope();
-	  /* Put this package into the work library, or the currently
-	     parsed library. Note that parse_library_name is an
-	     argument to the parser. */
-	library_save_package(parse_library_name, tmp);
-      }
-  | package_declaration_start K_is error K_end K_package_opt identifier_opt ';'
-    { ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in package clause.\n");
-      yyerrok;
-      yy_parse_context->pop_scope();
+: package_declaration_start K_is
+package_declarative_part_opt
+K_end K_package_opt identifier_opt ';'
+{
+    perm_string name = lex_strings.make($1);
+    if($6 && name != $6) {
+        ParserUtil::errormsg(yy_parse_context, @1, "Identifier %s doesn't match package name %s.\n",
+                             $6, name.str());
     }
-  ;
+    Package*tmp = new Package(name, *yy_parse_context->active_scope);
+    ParserUtil::add_location(tmp, @1);
+    delete[]$1;
+    if ($6) delete[]$6;
+    yy_parse_context->pop_scope();
+    /* Put this package into the work library, or the currently
+       parsed library. Note that parse_library_name is an
+       argument to the parser. */
+    library_save_package(parse_library_name, tmp);
+}
+| package_declaration_start K_is error K_end K_package_opt identifier_opt ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @3, "Syntax error in package clause.\n");
+    yyerrok;
+    yy_parse_context->pop_scope();
+}
+;
 
 package_declaration_start
-  : K_package IDENTIFIER
-      { yy_parse_context->push_scope();
-	$$ = $2;
-      }
-  ;
+: K_package IDENTIFIER
+{
+    yy_parse_context->push_scope();
+    $$ = $2;
+}
+;
 
 /* TODO: this list must be extended in the future
    presently it is only a sketch */
 package_body_declarative_item /* IEEE1076-2008 P4.8 */
-  : use_clause
-  | subprogram_body
-  ;
+: use_clause
+| subprogram_body
+;
 
 package_body_declarative_items
-  : package_body_declarative_items package_body_declarative_item
-  | package_body_declarative_item
-  ;
+: package_body_declarative_items package_body_declarative_item
+| package_body_declarative_item
+;
 package_body_declarative_part_opt
-  : package_body_declarative_items
-  |
-  ;
+: package_body_declarative_items
+|
+;
 
 package_declarative_item
-  : component_declaration
-  | constant_declaration
-  | subprogram_declaration
-  | subtype_declaration
-  | type_declaration
-  | use_clause
-  | error ';'
-      { ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in package declarative item.\n");
-	yyerrok;
-      }
-  ;
+: component_declaration
+| constant_declaration
+| subprogram_declaration
+| subtype_declaration
+| type_declaration
+| use_clause
+| error ';'
+{
+    ParserUtil::errormsg(yy_parse_context, @1, "Syntax error in package declarative item.\n");
+    yyerrok;
+}
+;
 
 package_declarative_items
-  : package_declarative_items package_declarative_item
-  | package_declarative_item
-  ;
+: package_declarative_items package_declarative_item
+| package_declarative_item
+;
 
 package_declarative_part_opt
-  : package_declarative_items
-  |
-  ;
+: package_declarative_items
+|
+;
 
 package_body /* IEEE 1076-2008 P4.8 */
 : package_body_start K_is

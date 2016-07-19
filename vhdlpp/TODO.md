@@ -7,7 +7,6 @@
 
 Not all names can be parsed
 Missing non-terminals/terminals are:
-- operator symbol = string
 - character literal
 - slice name
 - attribute name
