@@ -8,6 +8,5 @@
 #include <constructor.hpp>  // Support for constructor patterns
 #include <primitive.hpp>
 #include <equivalence.hpp>  // Equivalence combinator +
-// xtl adapter for standard smart pointers
 
 #endif // IVL_MACH7_SETUP
