@@ -312,8 +312,8 @@ public:
         choice_t& operator =(const choice_t&);
 
     public:
-        auto_ptr<Expression> expr_;
-        auto_ptr<ExpRange>   range_;
+        unique_ptr<Expression> expr_;
+        unique_ptr<ExpRange>   range_;
     };
 
     struct choice_element : public AstNode {

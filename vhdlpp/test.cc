@@ -61,28 +61,6 @@ TEST_CASE("Type predicate meta functions test", "[type predicates]"){
     delete real;
 }
 
-TEST_CASE("Mach7 temp", "[temp]"){
-    using namespace mch;
-
-    ExpName *name = new ExpName(perm_string::literal("foobar"));
-
-    bool result = false;
-    var<std::unique_ptr<ExpName>> uptr;
-
-    Match(name){
-        Case(C<ExpName>((int *) 0, 4)){
-            std::cout << "Nullpointer detected!" << endl;
-            result = true;
-        }
-        Case(C<ExpName>(ptr, 4)){
-            std::cout << "Pointer detected!" << endl;
-            result = false;
-        }
-    } EndMatch;
-
-    REQUIRE(result == true);
-}
-
 TEST_CASE("Type predicate combinators test", "[type predicates]"){
     ExpInteger *int1 = new ExpInteger(100);
     ExpString *str = new ExpString("fnord");

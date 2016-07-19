@@ -42,6 +42,7 @@
 #include "vtype.h"
 #include "root_class.h"
 #include "mach7_bindings.h"
+#include "mach7_includes.h"
 
 #pragma clang diagnostic ignored "-Wshadow"
 
@@ -443,7 +444,6 @@ void GenericTraverser::traverseMutating(Expression *n){
     var<double> dblValue;
 
     // For ExpName
-    var<unique_ptr<ExpName>> namePrefix;
     var<perm_string> nameName;
     var<list<Expression*>*> indices;
 
@@ -725,7 +725,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             break;
         }
 
-        Case(C<ExpName>(namePrefix, nameName, indices)){
+        Case(C<ExpName>(nameName, indices)){
             traversalMessages.push_back("ExpName detected");
 
             Match(n){

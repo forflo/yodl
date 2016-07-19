@@ -174,8 +174,8 @@ namespace mch {
     };
 
     template <> struct bindings<ExpAggregate::choice_t> {
-        Members(ExpAggregate::choice_t::expr_, // auto_ptr<Expression>
-                ExpAggregate::choice_t::range_); // auto_ptr<ExpRange>
+        Members(ExpAggregate::choice_t::expr_, // unique_ptr<Expression>
+                ExpAggregate::choice_t::range_); // unique_ptr<ExpRange>
     };
 
     template <> struct bindings<ExpConcat> {
@@ -277,7 +277,7 @@ namespace mch {
 
     template <> struct bindings<ExpName> {
         //TODO: add prefix
-        Members(ExpName::prefix_, // unique_ptr<ExpName>
+        Members(//ExpName::prefix_, // unique_ptr<ExpName>
                 ExpName::name_,
                 ExpName::indices_);
     };

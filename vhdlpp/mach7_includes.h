@@ -6,6 +6,8 @@
 #include <address.hpp>      // Address and dereference combinators
 #include <bindings.hpp>     // Mach7 support for bindings on arbitrary UDT
 #include <constructor.hpp>  // Support for constructor patterns
+#include <primitive.hpp>
 #include <equivalence.hpp>  // Equivalence combinator +
+// xtl adapter for standard smart pointers
 
 #endif // IVL_MACH7_SETUP
