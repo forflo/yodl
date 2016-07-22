@@ -1867,7 +1867,8 @@ name /* IEEE 1076-2008 P8.1 */
            !yy_parse_context->parse_type_by_name(name))
             tmp = new ExpFunc(name);
         else
-            tmp = new ExpName(name);
+            tmp = (new ExpName(name))->set_name_type(
+                ExpName::name_type_t::SIMPLE_NAME);
     }
     ParserUtil::add_location(tmp, @1);
     delete[]$1;
@@ -1885,7 +1886,8 @@ name /* IEEE 1076-2008 P8.1 */
         s = ExpName::operator_symbol_t::MULT;
     }
 
-    tmp = new ExpName(s);
+    tmp = (new ExpName(s))->set_name_type(
+        ExpName::name_type_t::OPERATOR_SYMBOL);
     ParserUtil::add_location(tmp, @1);
 
     $$ = tmp;
@@ -1914,6 +1916,8 @@ attribute_name
 
 //FM. MA
 //TODO: Find a way to resolve the ambiguity
+//NOTE: slices can be emulated by indexed_name
+//      because a discrete range also is an expression
 slice_name
 : prefix   '('   range   ')'
 {
@@ -1935,7 +1939,8 @@ indexed_name
     delete[]$1;
     if (yy_parse_context->active_scope->is_vector_name(name) ||
         yy_parse_context->is_subprogram_param(name))
-        tmp = new ExpName(name, $3);
+        tmp = (new ExpName(name, $3))->set_name_type(
+            ExpName::name_type_t::INDEXED_NAME);
     else
         tmp = new ExpFunc(name, $3);
     ParserUtil::add_location(tmp, @1);
@@ -2533,7 +2538,8 @@ selected_name /* IEEE 1076-2008 P8.3 */
     ExpName*pfx1 = dynamic_cast<ExpName*>(pfx);
     assert(pfx1);
     perm_string tmp = lex_strings.make($3);
-    $$ = new ExpName(pfx1, tmp);
+    $$ = (new ExpName(pfx1, tmp))->set_name_type(
+        ExpName::name_type_t::SELECTED_NAME);
     ParserUtil::add_location($$, @3);
     delete[]$3;
 }

@@ -931,6 +931,11 @@ public:
         XOR, XNOR,
     };
 
+    enum class name_type_t {
+        SIMPLE_NAME, SELECTED_NAME,
+        INDEXED_NAME, ATTRIBUTE_NAME,
+        OPERATOR_SYMBOL, UNKNOWN
+    };
 
     explicit ExpName(perm_string nn);
     explicit ExpName(operator_symbol_t); //FM. MA
@@ -1015,11 +1020,18 @@ public:
     int emit_workaround_(ostream& out, Entity *ent, ScopeBase *scope,
                          const list<index_t *>& indices, int field_size) const;
 
+    // FM. MA
+    ExpName *set_name_type(name_type_t t){
+        name_type_ = t;
+        return this;
+    }
+
 public:
     Expression *index(unsigned int number) const;
 
     bool is_operator_symbol_ = false;
     operator_symbol_t operator_sym_;
+    name_type_t name_type_ = name_type_t::UNKNOWN;
 
     unique_ptr<ExpName>  prefix_;
     perm_string name_;
