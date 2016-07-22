@@ -805,9 +805,9 @@ public:     // Base methods
     void visit(ExprVisitor& func);   // NOTE: does not handle expressions in subprogram
 
 public:
-    perm_string               name_;
+    perm_string name_;
     vector<Expression *> argv_;
-    SubprogramHeader          *def_;
+    SubprogramHeader *def_;
 };
 
 // --OK DOT

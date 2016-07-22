@@ -42,26 +42,51 @@ int SignalExtractor::lambda_t::operator()(const AstNode *n,
             // - name is simple name
             // - name denotes a signal
             // => add longest static prefix of name to env
-            const ExpName *n = dynamic_cast<const ExpName*> (n);
+            const ExpName *name = dynamic_cast<const ExpName*> (n);
+            Signal *s;
 
-            // => name is a simple name
-            if (n->prefix_.get() == NULL){
-
-                Signal *s = curScope->find_signal(n->name_);
-                if (s != 0){
+            switch (name->name_type_){
+            case ExpName::name_type_t::SIMPLE_NAME:
+                s = curScope->find_signal(name->name_);
+                if (s){
                     std::cout << "Signal refered with simple name "
-                              << n->name_.str()
+                              << name->name_.str()
                               << " was inserted" << endl;
                     env.insert(s);
                 }
-            } else {
 
+                break;
+            case ExpName::name_type_t::SELECTED_NAME:
+                std::cout << "Signal extraction for selected names not implemented!"
+                          << endl;
+                break;
+
+            // also coveres slice names
+            case ExpName::name_type_t::INDEXED_NAME:
+                s = curScope->find_signal(name->name_);
+                if (s) {
+                    env.insert(s);
+                }
+
+                if (name->indices_ != NULL) {
+                    for (auto &i : *name->indices_)
+                        (*this)(i, env);
+
+                }
+                break;
+            default:
+                std::cout << "Signal extraction for other name type not implemented!"
+                          << endl;
             }
         }
         Case(C<ExpFunc>()){
-
+            const ExpFunc *func = dynamic_cast<const ExpFunc *>(n);
+            for (auto &i : func->argv_)
+                (*this)(i, env);
         }
-        Otherwise(){ return 0; }
+        Otherwise(){
+            return 0;
+        }
     } EndMatch;
 
     return 0;
