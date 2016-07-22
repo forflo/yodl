@@ -1,4 +1,3 @@
-#include <set>
 #include <functional>
 
 #include "signal_extractor.h"
@@ -21,38 +20,29 @@ int SignalExtractor::operator()(const AstNode *node){
         return 0;
     }
 
-    StatefulLambda<set<const AstNode *>> extractor(
-        static_cast<function <int (const AstNode *, set<const AstNode *> &env)>>(
-            lambda_t(currentEntity, currentScope)));
-
-//    GenericTraverser
+    worker(node);
 
     return 0;
 }
 
 // for detailed description of the rules used
 // visit IEEE Std 1076-2008 page 146, p. 10.2
-int SignalExtractor::lambda_t::operator()(const AstNode *n,
-                                          set<const AstNode *> &env){
+int SignalExtractor::worker(const AstNode *n){
     using namespace mch;
 
     Match(n){
         Case(C<ExpName>()){
-            // check:
-            // - name is simple name
-            // - name denotes a signal
-            // => add longest static prefix of name to env
             const ExpName *name = dynamic_cast<const ExpName*> (n);
             Signal *s;
 
             switch (name->name_type_){
             case ExpName::name_type_t::SIMPLE_NAME:
-                s = curScope->find_signal(name->name_);
+                s = currentScope->find_signal(name->name_);
                 if (s){
                     std::cout << "Signal refered with simple name "
                               << name->name_.str()
                               << " was inserted" << endl;
-                    env.insert(s);
+                    signals.insert(s);
                 }
 
                 break;
@@ -63,14 +53,14 @@ int SignalExtractor::lambda_t::operator()(const AstNode *n,
 
             // also coveres slice names
             case ExpName::name_type_t::INDEXED_NAME:
-                s = curScope->find_signal(name->name_);
+                s = currentScope->find_signal(name->name_);
                 if (s) {
-                    env.insert(s);
+                    signals.insert(s);
                 }
 
                 if (name->indices_ != NULL) {
                     for (auto &i : *name->indices_)
-                        (*this)(i, env);
+                        worker(i);
 
                 }
                 break;
@@ -82,7 +72,7 @@ int SignalExtractor::lambda_t::operator()(const AstNode *n,
         Case(C<ExpFunc>()){
             const ExpFunc *func = dynamic_cast<const ExpFunc *>(n);
             for (auto &i : func->argv_)
-                (*this)(i, env);
+                worker(i);
         }
         Otherwise(){
             return 0;

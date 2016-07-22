@@ -33,6 +33,7 @@
 #include "mach7_includes.h"
 #include "path_finder.h"
 #include "predicate_generators.h"
+#include "signal_extractor.h"
 
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
@@ -824,4 +825,37 @@ TEST_CASE("Parser test operator symbol", "[parser]"){
         },
         GenericTraverser::NONRECUR);
 
+}
+
+TEST_CASE("Signal extraction simple test", "[signal extraction]"){
+    int rc1;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc1 = ParserUtil::parse_source_file(
+        "vhdl_testfiles/signal_extractor_test.vhd",
+        perm_string(), context);
+
+    REQUIRE(rc1 == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+
+    auto iterator = context->design_entities.begin();
+    auto entity = iterator->second;
+    REQUIRE(entity != NULL);
+
+    SignalExtractor extractor;
+
+    GenericTraverser traverser(
+        makeNaryTypePredicate<Entity, ScopeBase,
+                              ExpName, ExpFunc,
+                              ExpAggregate>(),
+        static_cast<function<int (const AstNode *)>>(extractor),
+        GenericTraverser::NONRECUR);
+
+    traverser(entity);
+
+    REQUIRE(extractor.signals.size() == 2);
 }

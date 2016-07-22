@@ -13,20 +13,10 @@ public:
 
     int operator()(const AstNode *);
 
-
-
+    std::set<const AstNode *> signals;
 private:
-    class lambda_t {
-    public:
-        lambda_t(const Entity *e, const ScopeBase *s)
-            : curEnt(e) , curScope(s) {}
 
-        int operator()(const AstNode *, std::set<const AstNode *> &env);
-
-    private:
-        const Entity *curEnt;
-        const ScopeBase *curScope;
-    };
+    int worker(const AstNode *);
 
     const Entity *currentEntity;
     const ScopeBase *currentScope;
