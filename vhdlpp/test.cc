@@ -855,6 +855,8 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
         static_cast<function<int (const AstNode *)>>(extractor),
         GenericTraverser::NONRECUR);
 
+    REQUIRE(traverser.isMutatingTraverser() == false);
+
     traverser(entity);
 
     REQUIRE(extractor.signals.size() == 2);
