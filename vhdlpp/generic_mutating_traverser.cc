@@ -1268,14 +1268,20 @@ void GenericTraverser::traverseMutating(SigVarBase *n){
 }
 
 int GenericTraverser::operator()(AstNode *ast){
-    if (isMutating == false) { return 1; }
-    traverseMutating(ast);
+    if (isMutating == true) {
+        traverseMutating(ast);
+    } else {
+        traverseConst(const_cast<const AstNode *>(ast));
+    }
     return 0;
 }
 
 int GenericTraverser::operator()(const AstNode *ast){
-    if (isMutating == true) { return 1; }
-    traverseConst(ast);
+    if (isMutating == true) {
+        std::cout << "Fail in operator()" << endl;
+    } else {
+        traverseConst(ast);
+    }
     return 0;
 }
 

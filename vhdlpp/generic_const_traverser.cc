@@ -115,6 +115,7 @@ void GenericTraverser::traverseConst(const AstNode *n){
 }
 
 void GenericTraverser::traverseConst(const ComponentBase *n){
+    currentPathConst.insert(currentPathConst.begin(), n);
     traversalMessages.push_back("Entering Entity switch");
 
     // For Entity
@@ -157,6 +158,7 @@ void GenericTraverser::traverseConst(const ComponentBase *n){
             break;
         }
     } EndMatch;
+    currentPathConst.erase(currentPathConst.begin());
 }
 
 void GenericTraverser::traverseConst(const Architecture *n){
@@ -191,6 +193,7 @@ void GenericTraverser::traverseConst(const Architecture *n){
             break;
         }
     } EndMatch;
+    currentPathConst.erase(currentPathConst.begin());
 }
 
 void GenericTraverser::traverseConst(const Architecture::Statement *n){
@@ -397,6 +400,7 @@ void GenericTraverser::traverseConst(const Architecture::Statement *n){
             break;
         }
     } EndMatch;
+    currentPathConst.erase(currentPathConst.begin());
 }
 
 void GenericTraverser::traverseConst(const Expression *n){
@@ -835,6 +839,7 @@ void GenericTraverser::traverseConst(const Expression *n){
             break;
         }
     } EndMatch;
+    currentPathConst.erase(currentPathConst.begin());
 }
 
 void GenericTraverser::traverseConst(const SequentialStmt *n){
@@ -1064,6 +1069,7 @@ void GenericTraverser::traverseConst(const SequentialStmt *n){
             break;
         }
     } EndMatch;
+    currentPathConst.erase(currentPathConst.begin());
 }
 
 void GenericTraverser::traverseConst(const VType *n){
@@ -1212,6 +1218,7 @@ void GenericTraverser::traverseConst(const VType *n){
             break;
         }
     } EndMatch;
+    currentPathConst.erase(currentPathConst.begin());
 }
 
 void GenericTraverser::traverseConst(const SigVarBase *n){
@@ -1240,6 +1247,8 @@ void GenericTraverser::traverseConst(const SigVarBase *n){
             break;
         }
     } EndMatch;
+
+    currentPathConst.erase(currentPathConst.begin());
 }
 
 bool GenericTraverser::noFurtherRecur(const AstNode *n){
