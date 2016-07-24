@@ -34,6 +34,7 @@
 #include "path_finder.h"
 #include "predicate_generators.h"
 #include "signal_extractor.h"
+#include "elsif_eliminator.h"
 
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
@@ -878,5 +879,44 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
 //}
 
 TEST_CASE("ElsifEliminator test", "[elsif eliminator]"){
+    int rc1;
 
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc1 = ParserUtil::parse_source_file(
+        "vhdl_testfiles/elsif_eliminator_nested_test.vhd",
+        perm_string(), context);
+
+    REQUIRE(rc1 == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+
+    auto iterator = context->design_entities.begin();
+    auto entity = iterator->second;
+    REQUIRE(entity != NULL);
+
+    ElsifEliminator elsifEliminator;
+
+    GenericTraverser traverser(
+        makeTypePredicate<IfSequential>(),
+        static_cast<function<int (AstNode *)>>(elsifEliminator),
+        GenericTraverser::RECUR);
+
+
+    StatefulLambda<int> cnt(
+        0, static_cast<function<int (AstNode *, int &)>>(
+            [](AstNode *, int &env) -> int { env++; return 0; }));
+
+    GenericTraverser counter(
+        makeTypePredicate<IfSequential>(),
+        [&cnt](AstNode *n) -> int { return cnt(n); },
+        GenericTraverser::RECUR);
+
+    traverser(entity);
+    counter(entity);
+
+    // I manually counted the if statements in the desugared AST...
+    REQUIRE(cnt.environment == 8);
 }
