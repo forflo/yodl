@@ -60,6 +60,8 @@ int DotGraphGenerator::emit_vertices(ostream &out,
                     out << "|{" << i.first << "|" << i.second << "}";
                 }
             }
+        } else {
+            out << "|{" << i.first << "|" << i.second << "}";
         }
     }
 

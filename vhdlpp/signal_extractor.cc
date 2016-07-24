@@ -58,24 +58,22 @@ int SignalExtractor::worker(const AstNode *n){
                     signals.insert(s);
                 }
 
-                if (name->indices_ != NULL) {
-                    for (auto &i : *name->indices_)
-                        worker(i);
-
-                }
                 break;
             default:
                 std::cout << "Signal extraction for other name type not implemented!"
                           << endl;
             }
+            break;
         }
         Case(C<ExpFunc>()){
             const ExpFunc *func = dynamic_cast<const ExpFunc *>(n);
             for (auto &i : func->argv_)
                 worker(i);
+            break;
         }
         Otherwise(){
             return 0;
+            break;
         }
     } EndMatch;
 

@@ -48,6 +48,7 @@ public:
 
     explicit DotGraphGenerator();
 
+    // overloads for dot-graph generation
     int operator()(
         std::ostream &, std::string,
         const SimpleTree<std::map<std::string, std::string>> *);
@@ -56,10 +57,12 @@ public:
         std::string,
         const SimpleTree<std::map<std::string, std::string>> *);
 
+    // output ascii data to stream
     int operator()(
         std::ostream &,
         const SimpleTree<std::map<std::string, std::string>> *);
 
+    // outputs ascii tree to std::cout
     int operator()(
         const SimpleTree<std::map<std::string, std::string>> *);
 

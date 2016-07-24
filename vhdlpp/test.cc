@@ -852,12 +852,16 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
         makeNaryTypePredicate<Entity, ScopeBase,
                               ExpName, ExpFunc,
                               ExpAggregate>(),
-        static_cast<function<int (const AstNode *)>>(extractor),
-        GenericTraverser::NONRECUR);
+        static_cast<function<int (const AstNode *)>>(
+            [&extractor](const AstNode *n) -> int { return extractor(n);}),
+        GenericTraverser::RECUR);
 
     REQUIRE(traverser.isMutatingTraverser() == false);
 
     traverser(entity);
+
+    DotGraphGenerator()(entity->emit_strinfo_tree());
+    DotGraphGenerator()("graph foo", entity->emit_strinfo_tree());
 
     REQUIRE(extractor.signals.size() == 2);
 }
