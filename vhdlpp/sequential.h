@@ -119,6 +119,13 @@ public:
 
 public:
     IfSequential(Expression *cond,
+                 const list<SequentialStmt *> &tr,
+                 const list<IfSequential::Elsif *> &elsif,
+                 const list<SequentialStmt *> &fa)
+        : cond_(cond) , if_(tr)
+        , elsif_(elsif) , else_(fa) {}
+
+    IfSequential(Expression *cond,
         list<SequentialStmt *> *tr,
         list<IfSequential::Elsif *> *elsif,
         list<SequentialStmt *> *fa);

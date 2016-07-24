@@ -80,6 +80,7 @@ int CsaLifter::operator()(AstNode *n, const vector<AstNode*> &){
     Match(n){
         Case(C<BlockStatement>()){
             currentScope = dynamic_cast<ScopeBase *>(n);
+            //sure this is correct?
             modStmtList(*dynamic_cast<BlockStatement*>(n)->concurrent_stmts_);
             break;
         }
