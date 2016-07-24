@@ -69,49 +69,22 @@ private:
     }
 };
 
-
-
 // Disjunction of two predicates.
 std::function<bool (const AstNode* )> operator||(
     const std::function<bool (const AstNode *)> &lhs,
-    const std::function<bool (const AstNode *)> &rhs){
-
-    return [lhs, rhs](const AstNode *n) -> bool {
-        return (lhs(n) || rhs(n));
-    };
-}
+    const std::function<bool (const AstNode *)> &rhs);
 
 // Conjugation of two predicates.
 std::function<bool (const AstNode* )> operator&&(
     const std::function<bool (const AstNode *)> &lhs,
-    const std::function<bool (const AstNode *)> &rhs){
+    const std::function<bool (const AstNode *)> &rhs);
 
-    return [lhs, rhs](const AstNode *n) -> bool {
-        return (lhs(n) && rhs(n));
-    };
-}
-
-// we cannot use && or || or ! operators as they require
-// the return type bool
-// we cannot use && or || or ! operators as they require
-// the return type bool
-// Negation
 std::function<bool (const AstNode* )> operator!(
-    const std::function<bool (const AstNode *)> &rhs){
-
-    return [rhs](const AstNode *n) -> bool {
-        return (!rhs(n));
-    };
-}
+    const std::function<bool (const AstNode *)> &rhs);
 
 // XOR
 std::function<bool (const AstNode* )> operator^(
     const std::function<bool (const AstNode *)> &lhs,
-    const std::function<bool (const AstNode *)> &rhs){
-
-    return [lhs, rhs](const AstNode *n) -> bool {
-        return (rhs(n) != lhs(n));
-    };
-}
+    const std::function<bool (const AstNode *)> &rhs);
 
 #endif /* IVL_PREDICATE_GENERATOR */
