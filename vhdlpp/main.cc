@@ -53,6 +53,8 @@ const char COPYRIGHT[] =
 #include "name_replacer.h"
 #include "generate_expander.h"
 #include "stateful_lambda.h"
+#include "elsif_eliminator.h"
+#include "predicate_generators.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -184,40 +186,14 @@ int main(int argc, char *argv[]) {
     auto iter = cont->design_entities.begin();
     cout << "Entity found!\n";
 
-    ForLoopUnroller forUnroller{};
+    ElsifEliminator elsifEliminator;
 
-    GenericTraverser loopUnroller(
-        [](const AstNode *n) -> bool {
-            Match(n){
-                Case(C<ProcessStatement>()){
-                    return true;
-                }
-                Otherwise(){
-                    return false;
-                }
-            } EndMatch;
-            return false;
-        },
-        static_cast<function<int (AstNode *)>>(forUnroller),
-        GenericTraverser::NONRECUR);
+    GenericTraverser traverser(
+        makeTypePredicate<IfSequential>(),
+        static_cast<function<int (AstNode *)>>(elsifEliminator),
+        GenericTraverser::RECUR);
 
-    loopUnroller(iter->second);
-
-    GenerateExpander genE;
-    GenericTraverser genExpander(
-        [](const AstNode *n) -> bool {
-            Match(n){
-                Case(C<ExpName>()){return true;}
-                Case(C<Architecture>()){return true;}
-                Case(C<ScopeBase>()){return true;}
-                Case(C<BlockStatement>()){return true;}
-            } EndMatch;
-            return false;
-        },
-        genE,
-        GenericTraverser::NONRECUR);
-
-    genExpander(iter->second);
+    traverser(iter->second);
 
     DotGraphGenerator()
         .setBlacklist({"node-pointer"})(

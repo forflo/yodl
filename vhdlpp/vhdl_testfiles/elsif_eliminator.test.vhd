@@ -20,7 +20,7 @@ begin
    begin
       -- without else
       if (3 = 3) then
-         baz := 3
+         baz := 3;
       elsif (4 = 4) then
          baz := 4;
       elsif (5 = 5) then
@@ -31,7 +31,7 @@ begin
 
       -- with else
       if (3 = 3) then
-         baz := 3
+         baz := 3;
       elsif (4 = 4) then
          baz := 4;
       elsif (5 = 5) then

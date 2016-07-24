@@ -873,6 +873,10 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
             perm_string::literal("foo"));
 }
 
-TEST_CASE("Simple csa lifter test", "[csa lifter]"){
-    
+//TEST_CASE("Simple csa lifter test", "[csa lifter]"){
+//
+//}
+
+TEST_CASE("ElsifEliminator test", "[elsif eliminator]"){
+
 }
