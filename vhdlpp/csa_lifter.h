@@ -19,12 +19,20 @@
 
 using namespace std;
 
+/* CsaLifters must be put into an GenericTraverser which
+   is equipped with the following type predicate:
+   makeNaryTypePredicate<Entity, BlockStatement,
+   Architecture> */
 class CsaLifter {
 public:
 
     int operator()(AstNode *n, const vector<AstNode*> &parents);
 
 private:
+    int modStmtList(std::list<Architecture::Statement*> &);
+    Architecture::Statement *encapsulateCSA(const SignalAssignment*);
+    Architecture::Statement *encapsulateCCSA(const CondSignalAssignment*);
+
     Entity *currentEntity;
     ScopeBase *currentScope;
 };

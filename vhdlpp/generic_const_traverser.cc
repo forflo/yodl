@@ -1267,16 +1267,3 @@ bool GenericTraverser::noFurtherRecur(const AstNode *n){
 
     return false;
 }
-
-bool GenericTraverser::noFurtherMRecur(AstNode *n){
-    if (predicate(n)){
-        mutatingVisitor(n);
-
-        if (recurSpec == GenericTraverser::NONRECUR){
-            currentPath.erase(currentPath.begin());
-            return true;
-        }
-    }
-
-    return false;
-}

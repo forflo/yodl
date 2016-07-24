@@ -10,10 +10,14 @@
 class SignalExtractor {
 public:
     SignalExtractor() {}
+    SignalExtractor(const Entity *ce,
+                    const ScopeBase *cs)
+        : currentEntity(ce)
+        , currentScope(cs) {}
 
     int operator()(const AstNode *);
 
-    std::set<const AstNode *> signals;
+    std::set<const Signal *> signals;
 private:
 
     int worker(const AstNode *);

@@ -574,6 +574,8 @@ public:
 };
 
 // --OK DOT
+//FM. MA. TODO: This does not correctly reflect how
+//              wait statements can be build. (VHDL2008 p. 10.2)
 class WaitStmt : public SequentialStmt {
 public:
     typedef enum {
@@ -582,6 +584,10 @@ public:
     } wait_type_t;
 
     WaitStmt(wait_type_t typ, Expression *expression);
+    // FM. MA Quick fix for wait on sensitivity lists!
+    explicit WaitStmt(const std::list<Expression *> &w)
+        : type_(wait_type_t::ON)
+        , wait_on_list_(w) {}
 
     void dump(ostream& out, int indent) const;
     int elaborate(Entity *ent, ScopeBase *scope);
@@ -596,13 +602,23 @@ public:
     SimpleTree<map<string, string>> *emit_strinfo_tree() const;
     WaitStmt *clone() const {
         set<ExpName *> copy_senslist;
+        std::list<Expression *> copy_waitonlist;
+
+        for (auto &i : wait_on_list_)
+            copy_waitonlist.push_back(i->clone());
 
         for (auto &i : sens_list_)
             copy_senslist.insert(static_cast<ExpName*>(i->clone()));
 
-        auto result = new WaitStmt(
-            type_,
-            expr_->clone());
+        WaitStmt *result;
+
+        if (type_ == wait_type_t::ON){
+            result = new WaitStmt(copy_waitonlist);
+        } else {
+            result = new WaitStmt(
+                type_,
+                expr_->clone());
+        }
 
         result->sens_list_ = copy_senslist;
 
@@ -612,6 +628,7 @@ public:
 public:
     wait_type_t type_;
     Expression  *expr_;
+    std::list<Expression *> wait_on_list_;
     // Sensitivity list for 'wait until' statement
     set<ExpName *> sens_list_;
 };

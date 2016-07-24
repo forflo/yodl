@@ -1,4 +1,5 @@
 //FM. MA
+
 //
 // This class contains boilerplate code for
 // generic _mutating_ AST traversal.
@@ -1323,4 +1324,17 @@ void GenericTraverser::emitErrorMessages(ostream &out, const char* delimit){
     for (auto &i : traversalErrors){
         out << i << delimit;
     }
+}
+
+bool GenericTraverser::noFurtherMRecur(AstNode *n){
+    if (predicate(n)){
+        mutatingVisitor(n);
+
+        if (recurSpec == GenericTraverser::NONRECUR){
+            currentPath.erase(currentPath.begin());
+            return true;
+        }
+    }
+
+    return false;
 }
