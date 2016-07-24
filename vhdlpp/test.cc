@@ -860,8 +860,15 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
 
     traverser(entity);
 
-    DotGraphGenerator()(entity->emit_strinfo_tree());
-    DotGraphGenerator()("graph foo", entity->emit_strinfo_tree());
+//    DotGraphGenerator()(entity->emit_strinfo_tree());
+//    DotGraphGenerator()("graph foo", entity->emit_strinfo_tree());
 
     REQUIRE(extractor.signals.size() == 2);
+
+    auto sIter = extractor.signals.begin();
+    REQUIRE(dynamic_cast<const Signal *>(*sIter)->name_ ==
+            perm_string::literal("f"));
+    ++sIter;
+    REQUIRE(dynamic_cast<const Signal *>(*sIter)->name_ ==
+            perm_string::literal("foo"));
 }

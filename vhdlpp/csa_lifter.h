@@ -19,7 +19,7 @@
 
 using namespace std;
 
-class CsaPromoter {
+class CsaLifter {
 public:
 
     int operator()(AstNode *n, const vector<AstNode*> &parents);

@@ -55,6 +55,9 @@ int SignalExtractor::worker(const AstNode *n){
             case ExpName::name_type_t::INDEXED_NAME:
                 s = currentScope->find_signal(name->name_);
                 if (s) {
+                    std::cout << "Signal refered with indexed name "
+                              << name->name_.str()
+                              << " was inserted" << endl;
                     signals.insert(s);
                 }
 
