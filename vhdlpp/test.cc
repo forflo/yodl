@@ -872,3 +872,7 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
     REQUIRE(dynamic_cast<const Signal *>(*sIter)->name_ ==
             perm_string::literal("foo"));
 }
+
+TEST_CASE("Simple csa lifter test", "[csa lifter]"){
+    
+}

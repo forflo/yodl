@@ -39,7 +39,7 @@ Architecture::Statement *CsaLifter::encapsulateCSA(const SignalAssignment *old){
     return replacement;
 }
 
-//
+// TODO: Implement
 Architecture::Statement *CsaLifter::encapsulateCCSA(
     const CondSignalAssignment *old){
 
