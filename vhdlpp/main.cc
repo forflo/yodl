@@ -55,6 +55,7 @@ const char COPYRIGHT[] =
 #include "stateful_lambda.h"
 #include "elsif_eliminator.h"
 #include "predicate_generators.h"
+#include "ifelse_case_converter.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -193,7 +194,15 @@ int main(int argc, char *argv[]) {
         static_cast<function<int (AstNode *)>>(elsifEliminator),
         GenericTraverser::RECUR);
 
+    BranchesToCases caseTransformer;
+
+    GenericTraverser caseTraverser(
+        makeTypePredicate<IfSequential>(),
+        static_cast<function<int (AstNode *)>>(caseTransformer),
+        GenericTraverser::NONRECUR);
+
     traverser(iter->second);
+    caseTraverser(iter->second);
 
     DotGraphGenerator()
         .setBlacklist({"node-pointer"})(
