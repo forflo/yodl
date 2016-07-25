@@ -63,6 +63,7 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     generic_mutating_traverser.o \
     loop_unroller.o \
 	elsif_eliminator.o \
+	ifelse_case_converter.o\
 	csa_lifter.o \
 	predicate_generators.o\
 	signal_extractor.o \

@@ -86,9 +86,11 @@ int BranchesToCases::operator()(AstNode *n){
                         dynamic_cast<IfSequential*>(i)));
 
                 delete i;
+                break;
             }
             Otherwise(){
                 newStmtList.push_back(i);
+                break;
             }
         } EndMatch;
     }

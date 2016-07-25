@@ -15,7 +15,7 @@ end ent;
 architecture beh of ent is
    signal result : std_logic_vector(n downto 0);
 begin
-   fooProc : process() is
+   fooProc : process is
       variable baz : natural := 4711;
    begin
       -- without else

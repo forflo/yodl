@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
     BranchesToCases caseTransformer;
 
     GenericTraverser caseTraverser(
-        makeTypePredicate<IfSequential>(),
+        makeTypePredicate<ProcessStatement>(),
         static_cast<function<int (AstNode *)>>(caseTransformer),
         GenericTraverser::NONRECUR);
 

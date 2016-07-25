@@ -2640,19 +2640,21 @@ selected_waveform_list
   ;
 
 list_of_statements
-  : list_of_statements sequential_statement
-      { std::list<SequentialStmt*>*tmp = $1;
+: list_of_statements sequential_statement
+{
+    std::list<SequentialStmt*>*tmp = $1;
     if($2)
         tmp->push_back($2);
-	$$ = tmp;
-      }
-  | sequential_statement
-      { std::list<SequentialStmt*>*tmp = new std::list<SequentialStmt*>;
+    $$ = tmp;
+}
+| sequential_statement
+{
+    std::list<SequentialStmt*>*tmp = new std::list<SequentialStmt*>;
     if($1)
         tmp->push_back($1);
-	$$ = tmp;
-      }
-  ;
+    $$ = tmp;
+}
+;
 
 sequence_of_statements
   : list_of_statements { $1 = $$; }
