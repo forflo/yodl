@@ -148,7 +148,7 @@ SignalSeqAssignment::~SignalSeqAssignment() {
 
 
 CaseSeqStmt::CaseSeqStmt(Expression *cond,
-        list<CaseSeqStmt::CaseStmtAlternative *> *ap)
+                         list<CaseSeqStmt::CaseStmtAlternative *> *ap)
     : cond_(cond) {
     if (ap) {
         alt_.splice(alt_.end(), *ap);

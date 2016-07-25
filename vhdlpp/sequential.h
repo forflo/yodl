@@ -252,7 +252,7 @@ public:
     class CaseStmtAlternative : public LineInfo, public AstNode {
     public:
         CaseStmtAlternative(list<Expression *> *exp,
-                list<SequentialStmt *> *stmts);
+                            list<SequentialStmt *> *stmts);
         ~CaseStmtAlternative();
         void dump(ostream& out, int indent) const;
         int elaborate_expr(Entity *ent,
@@ -288,7 +288,7 @@ public:
         CaseStmtAlternative& operator =(const CaseStmtAlternative&);
 
     public:
-        list<Expression *>     *exp_;
+        list<Expression *> *exp_;
         list<SequentialStmt *> stmts_;
     };
 
