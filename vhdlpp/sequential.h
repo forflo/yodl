@@ -123,7 +123,8 @@ public:
                  const list<IfSequential::Elsif *> &elsif,
                  const list<SequentialStmt *> &fa)
         : cond_(cond) , if_(tr)
-        , elsif_(elsif) , else_(fa) {}
+        , elsif_(elsif)
+        , else_(fa) {}
 
     IfSequential(Expression *cond,
         list<SequentialStmt *> *tr,
