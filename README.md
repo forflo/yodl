@@ -14,6 +14,56 @@ Thus my current for loop unroller does *not* support them.
 Furthermore I built appropriate infrastructure for AST traversals which is
 largely functor based and not very well documented at this point of time.
 
+As of now, I also accomplished:
+- elsif elimination. The elsif eliminator transforms 
+```vhdl
+    if (3=3) then
+      s1;
+    elsif (4=4) then
+      s2;
+    else 
+      s3;
+    end if;
+```
+  into
+```vhdl
+    if (3=3) then
+      s1;
+    else
+      if (4=4) then
+        s2;
+      else 
+        s3;
+      end if;
+    end if;
+```
+
+- if/else to case transformation. The functor BranchesToCases transforms
+```vhdl
+    if (3=3) then
+      s1;
+    else
+      if (4=4) then
+        s2;
+      else 
+        s3;
+      end if;
+    end if;
+```
+  into
+```vhdl
+  case (3=3) is
+    when TRUE => s1;
+    when FALSE => 
+      case (4=4) is
+        when TRUE => s2;
+        when FALSE => s3;
+      end case;
+  end case;
+```
+  Now the multiplexer structures that are modelled by if/elsif/else-clauses 
+  become obvious and are hopefully simple enough to translate to Cliffords RTLIL-API.
+  
 `A rant about VHDL's grammar: `. VHDL's grammar is utterly ambiguous. There are
 a lot of reduce/reduce (and even more shift/reduce) conflicts in the grammar.
 Reduce/reduce conflicts (in context LR(1)) usually is a very strong implication
