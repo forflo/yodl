@@ -92,7 +92,7 @@ end beh;
 
 The problem is that the alterations of VHDL's grammar also 
 affected how names (identifiers, array indexing, ...) are matched.
-The standard dictates that a name is specified as
+The standard dictates that a name is parsed as
 
 ```
 name ->   prefix ( expression {, expression } )
