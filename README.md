@@ -77,6 +77,47 @@ are some ugly twists that he had to make in order to unambiguously construct jus
 given input. I thought a bit and came to the conclusion that it might be best, to rewrite the parser by using
 one of bisons newer features: GLR, Generalized LR, an algorithm for ambiguous grammars. 
 
+As an example what the current parser cannot (and probably will never be able to) parse is:
+```vhdl
+architecture beh of ent is
+   -- some decls
+begin
+   -- this should be parsable, but produces syntax error
+   result <= foo(fnord => 3, foobar => 4)(3);
+   
+   -- this is parsable
+    result <= foo(4, 3)(3);
+end beh;
+```
+
+The problem is that the alterations of VHDL's grammar also 
+affected how names (identifiers, array indexing, ...) are matched.
+The standard dictates that a name is specified as
+
+```
+name ->   prefix ( expression {, expression } )
+        | prefix . suffix
+        | operator_symbol
+        | identifier
+        
+prefix -> name | function_call
+
+function_call -> name ( association_list )
+        
+suffix consists solely of terminal symbols
+```
+
+whereas `parse.y` specifies prefixes as
+
+    prefix -> name
+    
+and emulates function calls inside of expressions
+by misusing the
+
+    prefix ( expression {, expression } )
+    
+rule.
+
 ## Current milestone
 
 Be able to generate RTLIL from a subset
