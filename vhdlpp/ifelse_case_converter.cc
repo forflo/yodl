@@ -1,3 +1,5 @@
+// FM. MA
+////
 #include "ifelse_case_converter.h"
 #include "mach7_includes.h"
 #include "sequential.h"
@@ -35,35 +37,28 @@ CaseSeqStmt *BranchesToCases::makeCaseSeq(const Expression *cond,
 CaseSeqStmt *BranchesToCases::transformIfElse(const IfSequential *ifs){
     list<SequentialStmt *> tmpIf, tmpElse;
 
-    // transform all ifs to cases in else_
-    for (auto &i : ifs->if_){
+    auto pusher = [this](list<SequentialStmt*> &l, SequentialStmt *i){
         Match(i){
             Case(C<IfSequential>()){
-                tmpIf.push_back(
+                l.push_back(
                     transformIfElse(dynamic_cast<IfSequential *>(i)));
 
                 break;
             }
             Otherwise(){
-                tmpIf.push_back(i);
+                l.push_back(i);
                 break;
             }
         } EndMatch;
+    };
+
+    // transform all ifs to cases in else_
+    for (auto &i : ifs->if_){
+        pusher(tmpIf, i);
     }
 
     for (auto &i : ifs->else_){
-        Match(i){
-            Case(C<IfSequential>()){
-                tmpElse.push_back(
-                    transformIfElse(dynamic_cast<IfSequential *>(i)));
-
-                break;
-            }
-            Otherwise(){
-                tmpElse.push_back(i);
-                break;
-            }
-        } EndMatch;
+        pusher(tmpElse, i);
     }
 
     return makeCaseSeq(ifs->cond_, tmpIf, tmpElse);

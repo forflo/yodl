@@ -21,7 +21,6 @@ private:
     CaseSeqStmt *makeCaseSeq(const Expression *,
                              const std::list<SequentialStmt *> &,
                              const std::list<SequentialStmt *> &);
-    bool containsIfSequential(const std::list<SequentialStmt*> &);
 };
 
 #endif /* IVL_IFELSE_CASE */
