@@ -58,9 +58,8 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 entity adder is
-   generic(n : natural := 2);
-   port(A    : in  std_logic_vector(7 downto 0);
-        B    : in  std_logic_vector(7 downto 0);
+   port(a    : in  std_logic_vector(7 downto 0);
+        b    : in  std_logic_vector(7 downto 0);
         cin  : in  std_logic;
         cout : out std_logic;
         sum  : out std_logic_vector(7 downto 0));
