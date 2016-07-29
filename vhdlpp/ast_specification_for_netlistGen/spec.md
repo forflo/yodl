@@ -125,3 +125,36 @@ begin
     end if;
 end block fooBlock;
 ```
+
+## Expression desugaring in contexts other than signal/variable assignments
+
+Since everything outside of `concurrent_statment_list`s has to be statically
+evaluable, either globally or locally static, only expressions that occur
+inside of these (desugared) `concurrent_statement_list`s are considered by the 
+expression desugarer.
+The following lists contains all parents that a expression AST node can have.
+
+As mentioned above a desugared concurrent statement list only consists
+of following structures:
+- block statements
+- process statements
+- component instanciation statements
+
+First we consider block statements. Block statements consist of
+a declaration and a statement part. The declaration par can contain
+sole declarations as well als initializations. The latter contains
+expressions on the right hand side of the assignment operator.
+
+Since the statement part of block statements is equal to a 
+`concurrent_statements_list` we won't consider this rule here.
+
+A process statement can also contain a declaration part with
+declarations and initializations. As a consequence we have to add
+the proccess statement declaration part to the list of parents.
+
+### List
+
+- block -> block declaration part -> signal/variable initialization
+- block -> block statement part -> ...
+- process -> process declaration part -> signal/variable initialization
+- 
