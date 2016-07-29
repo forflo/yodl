@@ -92,6 +92,9 @@ all: dep vhdlpp
 test: $O
 	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $O test.cc $(LIBS) $(YOSYS_MISC)
 
+ast_dumper: $0 ast_dumper.o
+	$(CXX) -o ast_dumper $(LDFLAGS) ast_dumper.o $O $(LIBS)
+
 check: all
 
 clean:
