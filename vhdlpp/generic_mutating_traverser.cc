@@ -141,11 +141,13 @@ void GenericTraverser::traverseMutating(ComponentBase *n){
 
                     for (auto &i : entityArchs)
                         traverseMutating(i.second);
+                    break;
                 }
                 Otherwise(){
                     traversalMessages.push_back("ComponentBase detected");
 
                     if(noFurtherMRecur(n)) { return ; }
+                    break;
                 }
             } EndMatch;
             break;
