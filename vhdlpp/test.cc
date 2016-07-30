@@ -965,3 +965,58 @@ TEST_CASE("Simple csa lifter test", "[csa lifter]"){
     // There must be 3 processes containing 3 wait statements
     REQUIRE(cnt.environment == 6);
 }
+
+TEST_CASE("Nested blocks csa lifter test", "[csa lifter]"){
+    int rc1;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc1 = ParserUtil::parse_source_file(
+        "vhdl_testfiles/process_lifting_test_blocks.vhd",
+        perm_string(), context);
+
+    REQUIRE(rc1 == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+
+    auto iterator = context->design_entities.begin();
+    auto entity = iterator->second;
+    REQUIRE(entity != NULL);
+
+    CsaLifter lifter;
+
+    GenericTraverser traverser(
+        makeNaryTypePredicate<Architecture, Entity, BlockStatement>(),
+        lifter,
+        GenericTraverser::RECUR);
+
+    traverser(entity);
+
+    StatefulLambda<int> cnt(
+        0, static_cast<function<int (const AstNode *, int &)>>(
+            [](const AstNode *, int &env) -> int { env++; return 0; }));
+
+    GenericTraverser counter(
+        makeNaryTypePredicate<ProcessStatement, WaitStmt>(),
+        static_cast<function<int(const AstNode *)>>(
+            [&cnt](const AstNode *n) -> int { return cnt(n); }),
+        GenericTraverser::RECUR);
+
+    counter(entity);
+
+    // There must be 3 processes containing 3 wait statements
+    REQUIRE(cnt.environment == 12);
+
+    GenericTraverser counter2(
+        makeNaryTypePredicate<BlockStatement>(),
+        static_cast<function<int(const AstNode *)>>(
+            [&cnt](const AstNode *n) -> int { return cnt(n); }),
+        GenericTraverser::RECUR);
+
+    cnt.reset();
+    counter2(entity);
+
+    REQUIRE(cnt.environment == 2);
+}
