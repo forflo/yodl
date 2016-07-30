@@ -180,7 +180,9 @@ void GenericTraverser::traverseMutating(Architecture *n){
 
             if(noFurtherMRecur(n)) { return ; }
 
-            for (auto &i : statements)
+            Architecture *temp = dynamic_cast<Architecture*>(n);
+
+            for (auto &i : temp->statements_)
                 traverseMutating(i);
 
             if (componentInst)
