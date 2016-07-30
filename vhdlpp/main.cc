@@ -56,6 +56,7 @@ const char COPYRIGHT[] =
 #include "elsif_eliminator.h"
 #include "predicate_generators.h"
 #include "ifelse_case_converter.h"
+#include "csa_lifter.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -185,33 +186,22 @@ int main(int argc, char *argv[]) {
     cout << "There are " <<  cont->design_entities.size() << " entities\n";
 
     auto iter = cont->design_entities.begin();
+    auto entity = iter->second;
     cout << "Entity found!\n";
 
-    ElsifEliminator elsifEliminator;
+    CsaLifter lifter;
 
     GenericTraverser traverser(
-        makeTypePredicate<IfSequential>(),
-        static_cast<function<int (AstNode *)>>(elsifEliminator),
+        makeNaryTypePredicate<Architecture, Entity, BlockStatement>(),
+        lifter,
         GenericTraverser::RECUR);
 
-    BranchesToCases caseTransformer;
-
-    GenericTraverser caseTraverser(
-        makeTypePredicate<ProcessStatement>(),
-        static_cast<function<int (AstNode *)>>(caseTransformer),
-        GenericTraverser::NONRECUR);
-
-    traverser(iter->second);
-    caseTraverser(iter->second);
+    traverser(entity);
 
     DotGraphGenerator()
         .setBlacklist({"node-pointer"})(
             std::cout, "foobar",
-            dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
-
-    DotGraphGenerator()(
-        std::cout,
-        dynamic_cast<Entity*>(iter->second)->emit_strinfo_tree());
+            dynamic_cast<Entity*>(entity)->emit_strinfo_tree());
 
     cout << "\n\n";
 

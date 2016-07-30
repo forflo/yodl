@@ -1,4 +1,8 @@
 // FM. MA
+// This is just a simple test suite so I
+// don't care about deleting parsers or
+// parser contexts
+////
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -35,6 +39,7 @@
 #include "predicate_generators.h"
 #include "signal_extractor.h"
 #include "elsif_eliminator.h"
+#include "csa_lifter.h"
 
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
@@ -874,10 +879,6 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
             perm_string::literal("foo"));
 }
 
-//TEST_CASE("Simple csa lifter test", "[csa lifter]"){
-//
-//}
-
 TEST_CASE("ElsifEliminator test", "[elsif eliminator]"){
     int rc1;
 
@@ -919,4 +920,39 @@ TEST_CASE("ElsifEliminator test", "[elsif eliminator]"){
 
     // I manually counted the if statements in the desugared AST...
     REQUIRE(cnt.environment == 8);
+}
+
+TEST_CASE("Simple csa lifter test", "[csa lifter]"){
+    int rc1;
+
+    StandardTypes *std_types = (new StandardTypes())->init();
+    StandardFunctions *std_funcs = (new StandardFunctions())->init();
+    ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
+
+    rc1 = ParserUtil::parse_source_file(
+        "vhdl_testfiles/elsif_eliminator_nested_test.vhd",
+        perm_string(), context);
+
+    REQUIRE(rc1 == 0);
+    REQUIRE(context->parse_errors  == 0);
+    REQUIRE(context->parse_errors  == 0);
+
+    auto iterator = context->design_entities.begin();
+    auto entity = iterator->second;
+    REQUIRE(entity != NULL);
+
+    CsaLifter lifter;
+
+    GenericTraverser traverser(
+        makeNaryTypePredicate<Architecture, Entity, BlockStatement>(),
+        lifter,
+        GenericTraverser::RECUR);
+
+    traverser(entity);
+
+    DotGraphGenerator()
+        .setBlacklist({"node-pointer"})(
+            std::cout, "foobar",
+            dynamic_cast<Entity*>(entity)->emit_strinfo_tree());
+
 }

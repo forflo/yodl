@@ -56,15 +56,18 @@ int CsaLifter::modStmtList(std::list<Architecture::Statement*> &statements){
                     encapsulateCSA(
                         dynamic_cast<const SignalAssignment*>(i)));
                 delete(i);
+                break;
             }
             Case(C<CondSignalAssignment>()){
                 newList.push_back(
                     encapsulateCCSA(
                         dynamic_cast<const CondSignalAssignment*>(i)));
                 delete(i);
+                break;
             }
             Otherwise(){
                 newList.push_back(i);
+                break;
             }
         } EndMatch;
     }

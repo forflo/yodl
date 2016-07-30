@@ -25,6 +25,7 @@ using namespace std;
    Architecture> */
 class CsaLifter {
 public:
+    CsaLifter() = default;
 
     int operator()(AstNode *n, const vector<AstNode*> &parents);
 
