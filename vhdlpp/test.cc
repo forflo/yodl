@@ -930,7 +930,7 @@ TEST_CASE("Simple csa lifter test", "[csa lifter]"){
     ParserContext *context = (new ParserContext(std_types, std_funcs))->init();
 
     rc1 = ParserUtil::parse_source_file(
-        "vhdl_testfiles/elsif_eliminator_nested_test.vhd",
+        "vhdl_testfiles/process_lifting_test.vhd",
         perm_string(), context);
 
     REQUIRE(rc1 == 0);
@@ -950,9 +950,18 @@ TEST_CASE("Simple csa lifter test", "[csa lifter]"){
 
     traverser(entity);
 
-    DotGraphGenerator()
-        .setBlacklist({"node-pointer"})(
-            std::cout, "foobar",
-            dynamic_cast<Entity*>(entity)->emit_strinfo_tree());
+    StatefulLambda<int> cnt(
+        0, static_cast<function<int (const AstNode *, int &)>>(
+            [](const AstNode *, int &env) -> int { env++; return 0; }));
 
+    GenericTraverser counter(
+        makeNaryTypePredicate<ProcessStatement, WaitStmt>(),
+        static_cast<function<int(const AstNode *)>>(
+            [&cnt](const AstNode *n) -> int { return cnt(n); }),
+        GenericTraverser::RECUR);
+
+    counter(entity);
+
+    // There must be 3 processes containing 3 wait statements
+    REQUIRE(cnt.environment == 6);
 }

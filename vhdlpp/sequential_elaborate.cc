@@ -309,5 +309,9 @@ private:
         return 0;   // nothing to be elaborated
     }
 
-    return expr_->elaborate_expr(ent, scope, 0);
+    // FM. MA: Quickfix
+    if (expr_)
+        return expr_->elaborate_expr(ent, scope, 0);
+    else
+        return 0;
 }

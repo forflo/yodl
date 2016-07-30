@@ -705,7 +705,8 @@ int WaitStmt::emit(ostream& out, Entity *ent, ScopeBase *scope) {
         return 0;       // no expression to be emitted
     }
 
-    errors += expr_->emit(out, ent, scope);
+    if (expr_)
+        errors += expr_->emit(out, ent, scope);
     out << ");" << endl;
 
     return errors;

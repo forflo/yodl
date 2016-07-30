@@ -33,9 +33,6 @@ Architecture::Statement *CsaLifter::encapsulateCSA(const SignalAssignment *old){
 
     replacement->statements_.push_back(finalWait);
 
-    replacement = new ProcessStatement(
-        perm_string::literal(""), *currentScope, 0, 0);
-
     return replacement;
 }
 

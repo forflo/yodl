@@ -226,6 +226,7 @@ void WaitStmt::dump(ostream& out, int indent) const {
 
     if (type_ != FINAL) {
         out << setw(indent + 3) << "" << "expression: ";
-        expr_->dump(out, indent + 3);
+        if (expr_)
+            expr_->dump(out, indent + 3);
     }
 }

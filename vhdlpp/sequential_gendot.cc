@@ -19,7 +19,8 @@ SimpleTree<map<string, string>> *WaitStmt::emit_strinfo_tree(void) const {
                     (stringstream{} << this)).str()},
             {"wait-type", "TODO"}});
 
-    result->forest = { expr_->emit_strinfo_tree()};
+    if (expr_)
+        result->forest = { expr_->emit_strinfo_tree()};
 
     for (auto &i : sens_list_)
         result->forest.push_back(i->emit_strinfo_tree());
