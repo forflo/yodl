@@ -1,48 +1,49 @@
-simpleName . name ::= simple_name
-operatorName . name ::= operator_symbol
-charName . name ::= character_literal
-selectedName . name ::= selected_name
-indexedName . name ::= indexed_name
-sliceName . name ::= slice_name
-attrName . name ::= attribute_name
+simpleName . name ::= simple_name;
+operatorName . name ::= operator_symbol;
+charName . name ::= character_literal;
+selectedName . name ::= selected_name;
+indexedName . name ::= indexed_name;
+sliceName . name ::= slice_name;
+attrName . name ::= attribute_name;
 
 functionCallNyadic . function_call ::= name;
 functionCallPolyadic . function_call ::= name "(" [association_element] ")";
 
 separator nonempty association_element ",";
+separator nonempty expression ",";
 
 assocElementPositional . association_element ::= actual_part;
-assocElementNamedParam . association_element ::= formal_part "=>"  actual_part;
+assocElementNamedParam . association_element ::= formal_part "=>" actual_part;
 
 formalSingle . formal_part ::= name;
 formalIndexed . formal_part ::= name "(" name ")";
 
-actual_part ::=
-actual_designator
-| name "(" actual_designator ")"
+actualPartD . actual_part ::= actual_designator;
+actualFoo. acutal_part ::= name "(" actual_designator ")";
 
 expressionName . expression ::= name ;
 expressionNumber . expression ::= number;
 
-expressionDesignator . actual_designator ::= expression
-nameDesignator ::= name
+expressionDesignator . actual_designator ::= expression;
+nameDesignator . acutal_designator ::= name;
 
 namePrefix . prefix ::= name;
 functionPrefix . prefix ::= function_call;
 
-selected_name ::= prefix "." suffix;
+selectedName . selected_name ::= prefix "." suffix;
 
 allSuffix . suffix ::= "all";
 nameSuffix . suffix ::= simple_name;
 
-attributeName . attribute_name ::= prefix "'" attribute_designator [ "(" expression ")" ]
+attributeName . attribute_name ::= prefix "'" attribute_designator;
+attributeNameIndexed . attribute_name ::= prefix "'" attribute_designator "(" expression ")";
 
-sliceName . slice_name ::= prefix "(" discrete_range ")"
+sliceName . slice_name ::= prefix "(" discrete_range ")";
 
-indexedName . indexed_name ::= prefix "(" expression { "," expression } ")"
+indexedName . indexed_name ::= prefix "(" [expression] ")";
 
-charLiteral . character_literal ::= "'" Char "'"
+charLiteral . character_literal ::= "'" Char "'";
 
-graphicChar . graphic_character ::= Char
-operatorSymbol . operator_symbol ::= String
-simpleName . simple_name ::= Ident
+graphicChar . graphic_character ::= Char;
+operatorSymbol . operator_symbol ::= String;
+simpleName . simple_name ::= Ident;
