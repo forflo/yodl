@@ -1,0 +1,49 @@
+simpleName . name ::= simple_name
+operator. name ::= operator_symbol
+charName . name ::= character_literal
+selectedName. name ::= selected_name
+indexedName. name ::= indexed_name
+sliceName . name ::= slice_name
+attrName. name ::= attribute_name
+
+function_call ::=
+name [ "(" association_list ")" ]
+
+association_list ::=
+association_element { , association_element }
+
+association_element ::=
+[ formal_part (=>) ] actual_part
+
+formal_part ::=
+name
+| name "(" name ")"
+
+actual_part ::=
+actual_designator
+| name "(" actual_designator ")"
+
+expression ::= name | number
+
+actual_designator ::=
+expression
+| name
+
+prefix ::= name | function_call
+
+selected_name ::= prefix "." suffix
+
+suffix ::= "all"
+
+attribute_name ::= prefix "'" attribute_designator [ "(" expression ")" ]
+
+slice_name ::= prefix "(" discrete_range ")"
+
+indexed_name ::= prefix "(" expression { "," expression } ")"
+
+
+character_literal ::= "'" Char "'"
+
+graphic_character ::= Char
+operator_symbol ::= String
+simple_name ::= Ident
