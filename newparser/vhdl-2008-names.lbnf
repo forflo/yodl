@@ -46,4 +46,4 @@ charLiteral . character_literal ::= "'" Char "'";
 
 graphicChar . graphic_character ::= Char;
 operatorSymbol . operator_symbol ::= String;
-simpleName . simple_name ::= Ident;
+simpleName . simple-name ::= Ident;
