@@ -1,49 +1,48 @@
 simpleName . name ::= simple_name
-operator. name ::= operator_symbol
+operatorName . name ::= operator_symbol
 charName . name ::= character_literal
-selectedName. name ::= selected_name
-indexedName. name ::= indexed_name
+selectedName . name ::= selected_name
+indexedName . name ::= indexed_name
 sliceName . name ::= slice_name
-attrName. name ::= attribute_name
+attrName . name ::= attribute_name
 
-function_call ::=
-name [ "(" association_list ")" ]
+functionCallNyadic . function_call ::= name;
+functionCallPolyadic . function_call ::= name "(" [association_element] ")";
 
-association_list ::=
-association_element { , association_element }
+separator nonempty association_element ",";
 
-association_element ::=
-[ formal_part (=>) ] actual_part
+assocElementPositional . association_element ::= actual_part;
+assocElementNamedParam . association_element ::= formal_part "=>"  actual_part;
 
-formal_part ::=
-name
-| name "(" name ")"
+formalSingle . formal_part ::= name;
+formalIndexed . formal_part ::= name "(" name ")";
 
 actual_part ::=
 actual_designator
 | name "(" actual_designator ")"
 
-expression ::= name | number
+expressionName . expression ::= name ;
+expressionNumber . expression ::= number;
 
-actual_designator ::=
-expression
-| name
+expressionDesignator . actual_designator ::= expression
+nameDesignator ::= name
 
-prefix ::= name | function_call
+namePrefix . prefix ::= name;
+functionPrefix . prefix ::= function_call;
 
-selected_name ::= prefix "." suffix
+selected_name ::= prefix "." suffix;
 
-suffix ::= "all"
+allSuffix . suffix ::= "all";
+nameSuffix . suffix ::= simple_name;
 
-attribute_name ::= prefix "'" attribute_designator [ "(" expression ")" ]
+attributeName . attribute_name ::= prefix "'" attribute_designator [ "(" expression ")" ]
 
-slice_name ::= prefix "(" discrete_range ")"
+sliceName . slice_name ::= prefix "(" discrete_range ")"
 
-indexed_name ::= prefix "(" expression { "," expression } ")"
+indexedName . indexed_name ::= prefix "(" expression { "," expression } ")"
 
+charLiteral . character_literal ::= "'" Char "'"
 
-character_literal ::= "'" Char "'"
-
-graphic_character ::= Char
-operator_symbol ::= String
-simple_name ::= Ident
+graphicChar . graphic_character ::= Char
+operatorSymbol . operator_symbol ::= String
+simpleName . simple_name ::= Ident
