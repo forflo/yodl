@@ -13,10 +13,7 @@ separator nonempty Association_element ",";
 separator nonempty Expression ",";
 
 AssocElementPositional . Association_element ::= Actual_part;
-AssocElementNamedParam . Association_element ::= Formal_part "=>" Actual_part;
-
-FormalSingle . Formal_part ::= Name;
-FormalIndexed . Formal_part ::= Name "(" Name ")";
+AssocElementNamedParam . Association_element ::= Name "=>" Actual_part;
 
 ActualPartD . Actual_part ::= Actual_designator;
 ActualFoo. Acutal_part ::= Name "(" Actual_designator ")";
@@ -46,3 +43,5 @@ CharLiteral . Character_literal ::= "'" Char "'";
 GraphicChar . Graphic_character ::= Char;
 OperatorSymbol . Operator_symbol ::= String;
 SimpleName . Simple_name ::= Ident;
+
+token Decimal_Literal ('d' 'u' 'm' 'm' 'y');

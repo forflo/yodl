@@ -1,0 +1,1314 @@
+Absolute_Pathname ::= "." Partial_Pathname
+
+AbstractLiteral . Abstract_Literal ::= Decimal_Literal;
+AbstractLiteral . Abstract_Literal ::= Based_Literal;
+
+Access_Type_Definition ::=
+Access Subtype_Indication
+
+Actual_Designator ::= "inertial" Expression;
+Actual_Designator ::= Expression;
+Actual_Designator ::= Name;
+Actual_Designator ::= Subtype_Indication;
+Actual_Designator ::= "open";
+
+Actual_Parameter_Part ::= Parameter_Association_List;
+
+Actual_part ::= Actual_Designator;
+Actual_part ::= Name "(" Actual_Designator ")";
+Actual_part ::= Type_Mark "(" Actual_Designator ")";
+
+Plus . Adding_Operator ::= "+";
+Minus . Adding_Operator ::= "-";
+Concat . Adding_Operator ::= "&";
+
+Aggregate ::= "(" Element_Association { , Element_Association } ")";
+
+Alias_Declaration ::=
+Alias Alias_Designator [ : Subtype_Indication ] Is Name [ Signature ] ;
+
+Alias_Designator ::=
+Identifier | Character_Literal | Operator_Symbol
+
+Allocator ::=
+New Subtype_Indication
+| New Qualified_Expression
+
+Architecture_Body ::=
+Architecture Identifier Of Entity_Name Is
+Architecture_Declarative_Part
+Begin
+Architecture_Statement_Part
+End [ Architecture ] [ Architecture_Simple_Name ] ;
+
+Architecture_Declarative_Part ::=
+{ Block_Declarative_Item }
+
+Architecture_Statement_Part ::=
+{ Concurrent_Statement }
+
+Array_Constraint ::=
+Index_Constraint [ Array_Element_Constraint ]
+| ( Open ) [ Array_Element_Constraint ]
+
+Array_Element_Constraint ::=
+Element_Constraint
+
+Array_Element_Resolution ::=
+Resolution_Indication
+
+Array_Type_Definition ::=
+Unbounded_Array_Definition | Constrained_Array_Definition
+
+Assertion ::=
+Assert Condition
+[ Report Expression ]
+[ Severity Expression ]
+
+Assertion_Statement ::=
+[ Label : ] Assertion ;
+
+Association_Element ::=
+[ Formal_Part => ] Actual_Part
+
+Association_List ::=
+Association_Element { , Association_Element }
+
+Attribute_Declaration ::=
+Attribute Identifier : Type_Mark ;
+
+Attribute_Designator ::=
+Attribute_Simple_Name
+
+Attribute_Name ::=
+Prefix [ Signature ] ' Attribute_Designator [ ( Expression ) ]
+
+Attribute_Specification ::=
+Attribute Attribute_Designator Of Entity_Specification Is Expression ;
+
+Base ::=
+Integer
+
+Base_Specifier ::=
+B | O | X | Ub | Uo | Ux | Sb | So | Sx | D
+
+Based_Integer ::=
+Extended_Digit { [ Underline ] Extended_Digit }
+
+Based_Literal ::=
+Base # Based_Integer [ . Based_Integer ] # [ Exponent ]
+
+Basic_Character ::=
+Basic_Graphic_Character | Format_Effector
+
+Basic_Graphic_Character ::=
+Upper_Case_Letter | Digit | Special_Character| Space_Character
+
+Basic_Identifier ::=
+Letter { [ Underline ] Letter_Or_Digit }
+
+Binding_Indication ::=
+[ Use Entity_Aspect ] [ Generic_Map_Aspect ] [ Port_Map_Aspect ]
+
+Bit_String_Literal ::=
+[ Integer ] Base_Specifier " [ Bit_Value ] "
+
+Bit_Value ::=
+Graphic_Character { [ Underline ] Graphic_Character }
+
+Block_Configuration ::=
+For Block_Specification
+{ Use_Clause }
+{ Configuration_Item } End For ;
+
+Block_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Body
+| Subprogram_Instantiation_Declaration
+| Package_Declaration
+| Package_Body
+| Package_Instantiation_Declaration
+| Type_Declaration
+| Subtype_Declaration
+| Constant_Declaration
+| Signal_Declaration
+| Shared_Variable_Declaration
+| File_Declaration
+| Alias_Declaration
+| Component_Declaration
+| Attribute_Declaration
+| Attribute_Specification
+| Configuration_Specification
+| Disconnection_Specification
+| Use_Clause
+| Group_Template_Declaration
+| Group_Declaration
+| Psl_Property_Declaration
+| Psl_Sequence_Declaration
+| Psl_Clock_Declaration
+
+Block_Declarative_Part ::=
+{ Block_Declarative_Item }
+
+Block_Header ::=
+[ Generic_Clause [ Generic_Map_Aspect ; ] ]
+[ Port_Clause [ Port_Map_Aspect ; ] ]
+
+Block_Specification ::=
+Architecture_Name
+| Block_Statement_Label
+| Generate_Statement_Label [ ( Generate_Specification ) ]
+
+Block_Statement ::=
+Block_Label :
+Block [ ( Guard_Condition ) ] [ Is ] Block_Header
+Block_Declarative_Part
+Begin
+Block_Statement_Part End Block [ Block_Label ] ;
+
+Block_Statement_Part ::=
+{ Concurrent_Statement }
+
+Case_Generate_Alternative ::=
+When [ Alternative_Label : ] Choices =>
+Generate_Statement_Body
+
+Case_Generate_Statement ::=
+Generate_Label :
+Case Expression Generate Case_Generate_Alternative
+{ Case_Generate_Alternative }
+End Generate [ Generate_Label ] ;
+
+Case_Statement ::=
+[ Case_Label : ]
+Case [ ? ] Expression Is Case_Statement_Alternative
+{ Case_Statement_Alternative }
+End Case [ ? ] [ Case_Label ] ;
+
+Case_Statement_Alternative ::=
+When Choices =>
+Sequence_Of_Statements
+
+Character_Literal ::=
+' Graphic_Character '
+
+Choice ::=
+Simple_Expression
+| Discrete_Range
+| Element_Simple_Name
+| Others
+
+Choices ::=
+Choice { | Choice }
+
+Component_Configuration ::=
+For Component_Specification
+[ Binding_Indication ; ]
+{ Verification_Unit_Binding_Indication ; } [ Block_Configuration ]
+End For ;
+
+Component_Declaration ::=
+Component Identifier [ Is ]
+[ Local_Generic_Clause ]
+[ Local_Port_Clause ]
+End Component [ Component_Simple_Name ] ;
+
+Component_Instantiation_Statement ::=
+Instantiation_Label :
+Instantiated_Unit
+[ Generic_Map_Aspect ] [ Port_Map_Aspect ] ;
+
+Component_Specification ::=
+Instantiation_List : Component_Name
+
+Composite_Type_Definition ::=
+Array_Type_Definition
+| Record_Type_Definition
+
+Compound_Configuration_Specification ::=
+For Component_Specification Binding_Indication ;
+Verification_Unit_Binding_Indication ;
+{ Verification_Unit_Binding_Indication ; } End For ;
+
+Concurrent_Assertion_Statement ::=
+[ Label : ] [ Postponed ] Assertion ;
+
+Concurrent_Conditional_Signal_Assignment ::=
+Target <= [ Guarded ] [ Delay_Mechanism ] Conditional_Waveforms ;
+
+Concurrent_Procedure_Call_Statement ::=
+[ Label : ] [ Postponed ] Procedure_Call ;
+
+Concurrent_Selected_Signal_Assignment ::=
+With Expression Select [ ? ] Target <= [ Guarded ] [ Delay_Mechanism ] Selected_Waveforms ;
+
+Concurrent_Signal_Assignment_Statement ::=
+[ Label : ] [ Postponed ] Concurrent_Simple_Signal_Assignment
+| [ Label : ] [ Postponed ] Concurrent_Conditional_Signal_Assignment
+| [ Label : ] [ Postponed ] Concurrent_Selected_Signal_Assignment
+
+Concurrent_Simple_Signal_Assignment ::=
+Target <= [ Guarded ] [ Delay_Mechanism ] Waveform ;
+
+Concurrent_Statement ::=
+Block_Statement
+| Process_Statement
+| Concurrent_Procedure_Call_Statement
+| Concurrent_Assertion_Statement
+| Concurrent_Signal_Assignment_Statement
+| Component_Instantiation_Statement
+| Generate_Statement
+| Psl_Psl_Directive
+
+_ . Condition ::= Expression
+
+
+--
+-- 10.2 Wait statement
+--
+
+Condition_Clause ::= "Until" Condition
+
+Condition_Operator ::= "??"
+
+Conditional_Expressions ::=
+Expression When Condition
+{ Else Expression When Condition } [ Else Expression ]
+
+Conditional_Force_Assignment ::=
+Target <= Force [ Force_Mode ] Conditional_Expressions ;
+
+Conditional_Signal_Assignment ::=
+Conditional_Waveform_Assignment
+| Conditional_Force_Assignment
+
+Conditional_Variable_Assignment ::=
+Target := Conditional_Expressions ;
+
+Conditional_Waveform_Assignment ::=
+Target <= [ Delay_Mechanism ] Conditional_Waveforms ;
+
+Conditional_Waveforms ::=
+Waveform When Condition
+{ Else Waveform When Condition } [ Else Waveform ]
+
+Configuration_Declaration ::=
+Configuration Identifier Of Entity_Name Is
+Configuration_Declarative_Part
+{ Verification_Unit_Binding_Indication ; } Block_Configuration
+End [ Configuration ] [ Configuration_Simple_Name ] ;
+
+Configuration_Declarative_Item ::=
+Use_Clause
+| Attribute_Specification
+| Group_Declaration
+
+Configuration_Declarative_Part ::=
+{ Configuration_Declarative_Item }
+
+Configuration_Item ::=
+Block_Configuration
+| Component_Configuration
+
+Configuration_Specification ::=
+Simple_Configuration_Specification
+| Compound_Configuration_Specification
+
+Constant_Declaration ::=
+Constant Identifier_List : Subtype_Indication [ := Expression ] ;
+
+Constrained_Array_Definition ::=
+Array Index_Constraint Of Element_Subtype_Indication
+
+Constraint ::=
+Range_Constraint
+| Array_Constraint
+| Record_Constraint
+
+Context_Clause ::=
+{ Context_Item }
+
+Context_Declaration ::=
+Context Identifier Is
+Context_Clause
+End [ Context ] [ Context_Simple_Name ] ;
+
+Context_Item ::=
+Library_Clause
+| Use_Clause
+| Context_Reference
+
+Context_Reference ::=
+Context Selected_Name { , Selected_Name } ;
+
+token Decimal_Literal ('d' 'u' 'm' 'm' 'y');
+
+Delay_Mechanism ::=
+Transport
+| [ Reject Time_Expression ] Inertial
+
+Design_File ::=
+Design_Unit { Design_Unit }
+
+Design_Unit ::=
+Context_Clause Library_Unit
+
+Designator ::=
+Identifier | Operator_Symbol
+
+Direction ::=
+To | Downto
+
+Disconnection_Specification ::=
+Disconnect Guarded_Signal_Specification After Time_Expression ;
+
+Discrete_Range ::=
+Discrete_Subtype_Indication | Range
+
+Element_Association ::=
+[ Choices => ] Expression
+
+Element_Constraint ::=
+Array_Constraint
+| Record_Constraint
+
+Element_Declaration ::=
+Identifier_List : Element_Subtype_Definition ;
+
+Element_Resolution ::=
+Array_Element_Resolution | Record_Resolution
+
+Element_Subtype_Definition ::=
+Subtype_Indication
+
+Entity_Aspect ::=
+Entity Entity_Name [ ( Architecture_Identifier ) ]
+| Configuration Configuration_Name
+| Open
+
+Entity_Class ::=
+Entity
+| Architecture
+| Configuration
+| Procedure
+| Function
+| Package
+| Type
+| Subtype
+| Constant
+| Signal
+| Variable
+| Component
+| Label
+| Literal
+| Units
+| Group
+| File
+| Property
+| Sequence
+
+Entity_Class_Entry ::=
+Entity_Class [ <> ]
+
+Entity_Class_Entry_List ::=
+Entity_Class_Entry { , Entity_Class_Entry }
+
+Entity_Declaration ::=
+Entity Identifier Is
+Entity_Header
+Entity_Declarative_Part [ Begin
+Entity_Statement_Part ]
+End [ Entity ] [ Entity_Simple_Name ] ;
+
+Entity_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Body
+| Subprogram_Instantiation_Declaration
+| Package_Declaration
+| Package_Body
+| Package_Instantiation_Declaration
+| Type_Declaration
+| Subtype_Declaration
+| Constant_Declaration
+| Signal_Declaration
+| Shared_Variable_Declaration
+| File_Declaration
+| Alias_Declaration
+| Attribute_Declaration
+| Attribute_Specification
+| Disconnection_Specification
+| Use_Clause
+| Group_Template_Declaration
+| Group_Declaration
+| Psl_Property_Declaration
+| Psl_Sequence_Declaration
+| Psl_Clock_Declaration
+
+Entity_Declarative_Part ::=
+{ Entity_Declarative_Item }
+
+Entity_Designator ::=
+Entity_Tag [ Signature ]
+
+Entity_Header ::=
+[ Formal_Generic_Clause ] [ Formal_Port_Clause ]
+
+Entity_Name_List ::=
+Entity_Designator { , Entity_Designator }
+| Others
+| All
+
+Entity_Specification ::=
+Entity_Name_List : Entity_Class
+
+Entity_Statement ::=
+Concurrent_Assertion_Statement
+| Passive_Concurrent_Procedure_Call_Statement
+| Passive_Process_Statement
+| Psl_Psl_Directive
+
+Entity_Statement_Part ::=
+{ Entity_Statement }
+
+Entity_Tag ::=
+Simple_Name | Character_Literal | Operator_Symbol
+
+Enumeration_Literal ::=
+Identifier | Character_Literal
+
+Enumeration_Type_Definition ::=
+( Enumeration_Literal { , Enumeration_Literal } )
+
+Exit_Statement ::=
+[ Label : ] Exit [ Loop_Label ] [ When Condition ] ;
+
+Exponent ::=
+E [ + ] Integer | E – Integer
+
+Expression ::=
+Condition_Operator Primary
+| Logical_Expression
+
+Extended_Digit ::=
+Digit | Letter
+
+Extended_Identifier ::=
+\ Graphic_Character { Graphic_Character } \
+
+External_Name ::=
+External_Constant_Name
+| External_Signal_Name
+| External_Variable_Name
+
+External_Constant_Name ::=
+<< Constant External_Pathname : Subtype_Indication >>
+
+External_Signal_Name ::=
+<< Signal External_Pathname : Subtype_Indication >>
+
+External_Variable_Name ::=
+<< Variable External_Pathname : Subtype_Indication >>
+
+External_Pathname ::=
+Package_Pathname
+| Absolute_Pathname
+| Relative_Pathname
+
+Factor ::=
+Primary [ ** Primary ]
+| Abs Primary
+| Not Primary
+| Logical_Operator Primary
+
+File_Declaration ::=
+File Identifier_List : Subtype_Indication [ File_Open_Information ] ;
+
+File_Logical_Name ::=
+String_Expression
+
+File_Open_Information ::=
+[ Open File_Open_Kind_Expression ] Is File_Logical_Name
+
+File_Type_Definition ::=
+File Of Type_Mark
+
+Floating_Type_Definition ::=
+Range_Constraint
+
+For_Generate_Statement ::=
+Generate_Label :
+For Generate_Parameter_Specification Generate Generate_Statement_Body
+End Generate [ Generate_Label ] ;
+
+Force_Mode ::=
+In | Out
+
+Formal_Designator ::=
+Generic_Name
+| Port_Name
+| Parameter_Name
+
+Formal_Parameter_List ::=
+Parameter_Interface_List
+
+Formal_Part ::=
+Formal_Designator
+| Function_Name ( Formal_Designator )
+| Type_Mark ( Formal_Designator )
+
+Full_Type_Declaration ::=
+Type Identifier Is Type_Definition ;
+
+Function_Call ::=
+Function_Name [ ( Actual_Parameter_Part ) ]
+
+Function_Specification ::=
+[ Pure | Impure ] Function Designator
+Subprogram_Header
+[ [ Parameter ] ( Formal_Parameter_List ) ] Return Type_Mark
+
+Generate_Specification ::=
+Static_Discrete_Range
+| Static_Expression
+| Alternative_Label
+
+Generate_Statement ::=
+For_Generate_Statement
+| If_Generate_Statement
+| Case_Generate_Statement
+
+Generate_Statement_Body ::=
+[ Block_Declarative_Part
+Begin ]
+{ Concurrent_Statement }
+[ End [ Alternative_Label ] ; ]
+
+Generic_Clause ::=
+Generic ( Generic_List ) ;
+
+Generic_List ::=
+Generic_Interface_List
+
+Generic_Map_Aspect ::=
+Generic Map ( Generic_Association_List )
+
+Graphic_Character ::=
+Basic_Graphic_Character | Lower_Case_Letter | Other_Special_Character
+
+Group_Constituent ::=
+Name | Character_Literal
+
+Group_Constituent_List ::=
+Group_Constituent { , Group_Constituent }
+
+Group_Declaration ::=
+Group Identifier : Group_Template_Name ( Group_Constituent_List ) ;
+
+Group_Template_Declaration ::=
+Group Identifier Is ( Entity_Class_Entry_List ) ;
+
+Guarded_Signal_Specification ::=
+Guarded_Signal_List : Type_Mark
+
+Identifier ::=
+Basic_Identifier | Extended_Identifier
+
+Identifier_List ::=
+Identifier { , Identifier }
+
+If_Generate_Statement ::=
+Generate_Label :
+If [ Alternative_Label : ] Condition Generate Generate_Statement_Body
+{ Elsif [ Alternative_Label : ] Condition Generate Generate_Statement_Body }
+[ Else [ Alternative_Label : ] Generate Generate_Statement_Body ]
+End Generate [ Generate_Label ] ;
+
+If_Statement ::=
+[ If_Label : ]
+If Condition Then Sequence_Of_Statements
+{ Elsif Condition Then Sequence_Of_Statements }
+[ Else Sequence_Of_Statements ]
+End If [ If_Label ] ;
+
+Incomplete_Type_Declaration ::=
+Type Identifier ;
+
+Index_Constraint ::=
+( Discrete_Range { , Discrete_Range } )
+
+Index_Subtype_Definition ::=
+Type_Mark Range <>
+
+Indexed_Name ::=
+Prefix ( Expression { , Expression } )
+
+Instantiated_Unit ::=
+[ Component ] Component_Name
+| Entity Entity_Name [ ( Architecture_Identifier ) ]
+| Configuration Configuration_Name
+
+Instantiation_List ::=
+Instantiation_Label { , Instantiation_Label }
+| Others
+| All
+
+Integer ::=
+Digit { [ Underline ] Digit }
+
+Integer_Type_Definition ::=
+Range_Constraint
+
+Interface_Constant_Declaration ::=
+[ Constant ] Identifier_List : [ In ] Subtype_Indication [ := Static_Expression ]
+
+Interface_Declaration ::=
+Interface_Object_Declaration
+| Interface_Type_Declaration
+| Interface_Subprogram_Declaration
+| Interface_Package_Declaration
+
+Interface_Element ::=
+Interface_Declaration
+
+Interface_File_Declaration ::=
+File Identifier_List : Subtype_Indication
+
+Interface_Function_Specification ::=
+[ Pure | Impure ] Function Designator
+[ [ Parameter ] ( Formal_Parameter_List ) ] Return Type_Mark
+
+Interface_Incomplete_Type_Declaration ::=
+Type Identifier
+
+Interface_List ::=
+Interface_Element { ; Interface_Element }
+
+Interface_Object_Declaration ::=
+Interface_Constant_Declaration
+| Interface_Signal_Declaration
+| Interface_Variable_Declaration
+| Interface_File_Declaration
+
+Interface_Package_Declaration ::=
+Package Identifier Is
+New Uninstantiated_Package_Name Interface_Package_Generic_Map_Aspect
+
+Interface_Package_Generic_Map_Aspect ::=
+Generic_Map_Aspect
+| Generic Map ( <> )
+| Generic Map ( Default )
+
+Interface_Procedure_Specification ::=
+Procedure Designator
+[ [ Parameter ] ( Formal_Parameter_List ) ]
+
+Interface_Signal_Declaration ::=
+[ Signal ] Identifier_List : [ Mode ] Subtype_Indication [ Bus ] [ := Static_Expression ]
+
+Interface_Subprogram_Declaration ::=
+Interface_Subprogram_Specification [ Is Interface_Subprogram_Default ]
+
+Interface_Subprogram_Default ::=
+Subprogram_Name | <>
+
+Interface_Subprogram_Specification ::=
+Interface_Procedure_Specification | Interface_Function_Specification
+
+Interface_Type_Declaration ::=
+Interface_Incomplete_Type_Declaration
+
+Interface_Variable_Declaration ::=
+[ Variable ] Identifier_List : [ Mode ] Subtype_Indication [ := Static_Expression ]
+
+Iteration_Scheme ::=
+While Condition
+| For Loop_Parameter_Specification
+
+Label ::=
+Identifier
+
+Letter ::=
+Upper_Case_Letter | Lower_Case_Letter
+
+Letter_Or_Digit ::=
+Letter | Digit
+
+Library_Clause ::=
+Library Logical_Name_List ;
+
+Library_Unit ::=
+Primary_Unit
+| Secondary_Unit
+
+Literal ::=
+Numeric_Literal
+| Enumeration_Literal
+| String_Literal
+| Bit_String_Literal
+| Null
+
+Logical_Expression ::=
+Relation { And Relation }
+| Relation { Or Relation }
+| Relation { Xor Relation }
+| Relation [ Nand Relation ]
+| Relation [ Nor Relation ]
+| Relation { Xnor Relation }
+
+Logical_Name ::=
+Identifier
+
+Logical_Name_List ::=
+Logical_Name { , Logical_Name }
+
+Logical_Operator ::=
+And | Or | Nand | Nor | Xor | Xnor
+
+Loop_Statement ::=
+[ Loop_Label : ]
+[ Iteration_Scheme ] Loop Sequence_Of_Statements
+End Loop [ Loop_Label ] ;
+
+Miscellaneous_Operator ::=
+** | Abs | Not
+
+Mode ::=
+In | Out | Inout | Buffer | Linkage
+
+Multiplying_Operator ::=
+* | / | Mod | Rem
+
+Name ::=
+Simple_Name
+| Operator_Symbol
+| Character_Literal
+| Selected_Name
+| Indexed_Name
+| Slice_Name
+| Attribute_Name
+| External_Name
+
+Next_Statement ::=
+[ Label : ] Next [ Loop_Label ] [ When Condition ] ;
+
+Null_Statement ::=
+[ Label : ] Null ;
+
+Numeric_Literal ::=
+Abstract_Literal | Physical_Literal
+
+Object_Declaration ::=
+Constant_Declaration
+| Signal_Declaration
+| Variable_Declaration
+| File_Declaration
+
+Operator_Symbol ::=
+String_Literal
+
+Package_Body ::=
+Package Body Package_Simple_Name Is
+Package_Body_Declarative_Part
+End [ Package Body ] [ Package_Simple_Name ] ;
+
+Package_Body_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Body
+| Subprogram_Instantiation_Declaration
+| Package_Declaration
+| Package_Body
+| Package_Instantiation_Declaration
+| Type_Declaration
+| Subtype_Declaration
+| Constant_Declaration
+| Variable_Declaration
+| File_Declaration
+| Alias_Declaration
+| Attribute_Declaration
+| Attribute_Specification
+| Use_Clause
+| Group_Template_Declaration
+| Group_Declaration
+
+Package_Body_Declarative_Part ::=
+{ Package_Body_Declarative_Item }
+
+Package_Declaration ::=
+Package Identifier Is
+Package_Header
+Package_Declarative_Part
+End [ Package ] [ Package_Simple_Name ] ;
+
+Package_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Instantiation_Declaration
+| Package_Declaration
+| Package_Instantiation_Declaration
+| Type_Declaration
+| Subtype_Declaration
+| Constant_Declaration
+| Signal_Declaration
+| Variable_Declaration
+| File_Declaration
+| Alias_Declaration
+| Component_Declaration
+| Attribute_Declaration
+| Attribute_Specification
+| Disconnection_Specification
+| Use_Clause
+| Group_Template_Declaration
+| Group_Declaration
+| Psl_Property_Declaration
+| Psl_Sequence_Declaration
+
+Package_Declarative_Part ::=
+{ Package_Declarative_Item }
+
+Package_Header ::=
+[ Generic_Clause
+[ Generic_Map_Aspect ; ] ]
+
+Package_Instantiation_Declaration ::=
+Package Identifier Is New Uninstantiated_Package_Name
+[ Generic_Map_Aspect ] ;
+
+Package_Pathname ::=
+@ Library_Logical_Name . { Package_Simple_Name . } Simple_Name
+
+Parameter_Specification ::=
+Identifier In Discrete_Range
+
+Partial_Pathname ::= { Pathname_Element "." } Simple_Name
+
+Pathname_Element ::=
+  Simple_Name
+| Component_Instantiation_Label
+| Block_Label
+| Generate_Statement_Label [ ( Static_Expression ) ]
+| Package_Simple_Name
+
+PhysicalLiteral . Physical_Literal ::= Unit_Name
+PhysicalLiteral . Physical_Literal ::= Abstract_Literal Unit_Name
+
+Physical_Type_Definition ::=
+Range_Constraint
+Units
+Primary_Unit_Declaration
+{ Secondary_Unit_Declaration }
+End Units [ Physical_Type_Simple_Name ]
+
+Port_Clause ::=
+Port ( Port_List ) ;
+
+Port_List ::=
+Port_Interface_List
+
+Port_Map_Aspect ::=
+Port Map ( Port_Association_List )
+
+Prefix ::=
+Name | Function_Call
+
+Primary ::=
+Name
+| Literal
+| Aggregate
+| Function_Call
+| Qualified_Expression | Type_Conversion
+| Allocator
+| ( Expression )
+
+Primary_Unit ::=
+Entity_Declaration
+| Configuration_Declaration
+| Package_Declaration
+| Package_Instantiation_Declaration | Context_Declaration
+| Psl_Verification_Unit
+
+Primary_Unit_Declaration ::=
+Identifier ;
+
+Procedure_Call ::=
+Procedure_Name [ ( Actual_Parameter_Part ) ]
+
+Procedure_Call_Statement ::=
+[ Label : ] Procedure_Call ;
+
+Procedure_Specification ::=
+Procedure Designator
+Subprogram_Header
+[ [ Parameter ] ( Formal_Parameter_List ) ]
+
+Process_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Body
+| Subprogram_Instantiation_Declaration
+| Package_Declaration
+| Package_Body
+| Package Instantiation_Declaration
+| Type_Declaration
+| Subtype_Declaration
+| Constant_Declaration
+| Variable_Declaration
+| File_Declaration
+| Alias_Declaration
+| Attribute_Declaration
+| Attribute_Specification
+| Use_Clause
+| Group_Template_Declaration
+| Group_Declaration
+
+Process_Declarative_Part ::=
+{ Process_Declarative_Item }
+
+Process_Sensitivity_List ::=
+All | Sensitivity_List
+
+Process_Statement ::=
+[ Process_Label : ]
+[ Postponed ] Process [ ( Process_Sensitivity_List ) ] [ Is ] Process_Declarative_Part
+Begin
+Process_Statement_Part
+End [ Postponed ] Process [ Process_Label ] ;
+
+Process_Statement_Part ::=
+{ Sequential_Statement }
+
+Protected_Type_Body ::=
+Protected Body
+Protected_Type_Body_Declarative_Part
+End Protected Body [ Protected_Type_Simple Name ]
+
+Protected_Type_Body_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Body
+| Subprogram_Instantiation_Declaration
+| Package_Declaration
+| Package_Body
+| Package_Instantiation_Declaration
+| Type_Declaration
+| Subtype_Declaration
+| Constant_Declaration
+| Variable_Declaration
+| File_Declaration
+| Alias_Declaration
+| Attribute_Declaration
+| Attribute_Specification
+| Use_Clause
+| Group_Template_Declaration
+| Group_Declaration
+
+Protected_Type_Body_Declarative_Part ::=
+{ Protected_Type_Body_Declarative_Item }
+
+Protected_Type_Declaration ::=
+Protected
+Protected_Type_Declarative_Part
+End Protected [ Protected_Type_Simple_Name ]
+
+Protected_Type_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Instantiation_Declaration | Attribute_Specification
+| Use_Clause
+
+Protected_Type_Declarative_Part ::=
+{ Protected_Type_Declarative_Item }
+
+Protected_Type_Definition ::=
+Protected_Type_Declaration
+| Protected_Type_Body
+
+Qualified_Expression ::=
+Type_Mark ' ( Expression )
+| Type_Mark ' Aggregate
+
+Range ::=
+Range_Attribute_Name
+| Simple_Expression Direction Simple_Expression
+
+Range_Constraint ::=
+Range Range
+
+Record_Constraint ::=
+( Record_Element_Constraint { , Record_Element_Constraint } )
+
+Record_Element_Constraint ::=
+Record_Element_Simple_Name Element_Constraint
+
+Record_Element_Resolution ::=
+Record_Element_Simple_Name Resolution_Indication
+
+Record_Resolution ::=
+Record_Element_Resolution { , Record_Element_Resolution }
+
+Record_Type_Definition ::=
+Record
+Element_Declaration
+{ Element_Declaration }
+End Record [ Record_Type_Simple_Name ]
+
+Relation ::=
+Shift_Expression [ Relational_Operator Shift_Expression ]
+
+Relational_Operator ::=
+= | /= | < | <= | > | >= | ?= | ?/= | ?< | ?<= | ?> | ?>=
+
+Relative_Pathname ::=
+{ ^ . } Partial_Pathname
+
+Report_Statement ::=
+[ Label : ]
+Report Expression
+[ Severity Expression ] ;
+
+Resolution_Indication ::=
+Resolution_Function_Name
+| ( Element_Resolution )
+
+Return_Statement ::=
+[ Label : ] Return [ Expression ] ;
+
+Scalar_Type_Definition ::=
+Enumeration_Type_Definition
+| Integer_Type_Definition
+| Floating_Type_Definition
+| Physical_Type_Definition
+
+Secondary_Unit ::=
+Architecture_Body
+| Package_Body
+
+Secondary_Unit_Declaration ::=
+Identifier = Physical_Literal ;
+
+Selected_Expressions ::=
+{ Expression When Choices , }
+Expression When Choices
+
+Selected_Force_Assignment ::=
+With Expression Select [ ? ]
+Target <= Force [ Force_Mode ] Selected_Expressions ;
+
+Selected_Name ::=
+Prefix . Suffix
+
+Selected_Signal_Assignment ::=
+Selected_Waveform_Assignment
+| Selected_Force_Assignment
+
+Selected_Variable_Assignment ::=
+With Expression Select [ ? ]
+Target := Selected_Expressions ;
+
+Selected_Waveform_Assignment ::=
+With Expression Select [ ? ]
+Target <= [ Delay_Mechanism ] Selected_Waveforms ;
+
+Selected_Waveforms ::=
+{ Waveform When Choices , } Waveform When Choices
+
+Sensitivity_Clause ::=
+On Sensitivity_List
+
+Sensitivity_List ::=
+Signal_Name { , Signal_Name }
+
+Sequence_Of_Statements ::=
+{ Sequential_Statement }
+
+Sequential_Statement ::=
+Wait_Statement
+| Assertion_Statement
+| Report_Statement
+| Signal_Assignment_Statement
+| Variable_Assignment_Statement
+| Procedure_Call_Statement
+| If_Statement
+| Case_Statement
+| Loop_Statement
+| Next_Statement
+| Exit_Statement
+| Return_Statement
+| Null_Statement
+
+Shift_Expression ::=
+Simple_Expression [ Shift_Operator Simple_Expression ]
+
+Shift_Operator ::=
+Sll | Srl | Sla | Sra | Rol | Ror
+
+Sign ::=
++ | –
+
+Signal_Assignment_Statement ::=
+[ Label : ] Simple_Signal_Assignment
+| [ Label : ] Conditional_Signal_Assignment
+| [ Label : ] Selected_Signal_Assignment
+
+Signal_Declaration ::=
+Signal Identifier_List : Subtype_Indication [ Signal_Kind ] [ := Expression ] ;
+
+Signal_Kind ::=
+Register | Bus
+
+Signal_List ::=
+Signal_Name { , Signal_Name }
+| Others
+| All
+
+Signature ::=
+[ [ Type_Mark { , Type_Mark } ] [ Return Type_Mark ] ]
+
+Simple_Configuration_Specification ::=
+For Component_Specification Binding_Indication ; [ End For ; ]
+
+Simple_Expression ::=
+[ Sign ] Term { Adding_Operator Term }
+
+Simple_Force_Assignment ::=
+Target <= Force [ Force_Mode ] Expression ;
+
+Simple_Name ::=
+Identifier
+
+Simple_Release_Assignment ::=
+Target <= Release [ Force_Mode ] ;
+
+Simple_Signal_Assignment ::=
+Simple_Waveform_Assignment
+| Simple_Force_Assignment
+| Simple_Release_Assignment
+
+Simple_Waveform_Assignment ::=
+Target <= [ Delay_Mechanism ] Waveform ;
+
+Simple_Variable_Assignment ::=
+Target := Expression ;
+
+Slice_Name ::=
+Prefix ( Discrete_Range )
+
+String_Literal ::=
+" { Graphic_Character } "
+
+Subprogram_Body ::=
+Subprogram_Specification Is
+Subprogram_Declarative_Part
+Begin
+Subprogram_Statement_Part
+End [ Subprogram_Kind ] [ Designator ] ;
+
+Subprogram_Declaration ::=
+Subprogram_Specification ;
+
+Subprogram_Declarative_Item ::=
+Subprogram_Declaration
+| Subprogram_Body
+| Subprogram_Instantiation_Declaration
+| Package_Declaration
+| Package_Body
+| Package_Instantiation_Declaration
+| Type_Declaration
+| Subtype_Declaration
+| Constant_Declaration
+| Variable_Declaration
+| File_Declaration
+| Alias_Declaration
+| Attribute_Declaration
+| Attribute_Specification
+| Use_Clause
+| Group_Template_Declaration
+| Group_Declaration
+
+Subprogram_Declarative_Part ::=
+{ Subprogram_Declarative_Item }
+
+Subprogram_Header ::=
+[ Generic ( Generic_List ) [ Generic_Map_Aspect ] ]
+
+Subprogram_Instantiation_Declaration ::=
+Subprogram_Kind Identifier Is New Uninstantiated_Subprogram_Name [ Signature ] [ Generic_Map_Aspect ] ;
+
+Subprogram_Kind ::=
+Procedure
+| Function
+
+Subprogram_Specification ::=
+Procedure_Specification
+| Function_Specification
+
+Subprogram_Statement_Part ::=
+{ Sequential_Statement }
+
+Subtype_Declaration ::=
+Subtype Identifier Is Subtype_Indication ;
+
+Subtype_Indication ::=
+[ Resolution_Indication ] Type_Mark [ Constraint ]
+
+Suffix ::=
+Simple_Name
+| Character_Literal
+| Operator_Symbol
+| All
+
+Target ::=
+Name | Aggregate
+
+Term ::=
+Factor { Multiplying_Operator Factor }
+
+Timeout_Clause ::=
+For Time_Expression
+
+Tool_Directive ::=
+` Identifier { Graphic_Character }
+
+Type_Conversion ::=
+Type_Mark ( Expression )
+
+Type_Declaration ::=
+Full_Type_Declaration
+| Incomplete_Type_Declaration
+
+Type_Definition ::=
+Scalar_Type_Definition
+| Composite_Type_Definition
+| Access_Type_Definition
+| File_Type_Definition
+| Protected_Type_Definition
+
+Type_Mark ::=
+Type_Name | Subtype_Name
+
+Unbounded_Array_Definition ::=
+Array ( Index_Subtype_Definition { , Index_Subtype_Definition } )
+Of Element_Subtype_Indication
+
+Use_Clause ::=
+Use Selected_Name { , Selected_Name } ;
+
+Variable_Assignment_Statement ::=
+[ Label : ] Simple_Variable_Assignment
+| [ Label : ] Conditional_Variable_Assignment
+| [ Label : ] Selected_Variable_Assignment
+
+Variable_Declaration ::=
+[ Shared ] Variable Identifier_List : Subtype_Indication [ := Expression ] ;
+
+Verification_Unit_Binding_Indication ::=
+Use Vunit Verification_Unit_List
+
+Verification_Unit_List ::=
+Verification_Unit_Name { , Verification_Unit_Name }
+
+Wait_Statement ::=
+[ Label : ] Wait [ Sensitivity_Clause ] [ Condition_Clause ] [ Timeout_Clause ] ;
+
+Waveform ::=
+Waveform_Element { , Waveform_Element }
+| Unaffected
+
+Waveform_Element ::=
+Value_Expression [ After Time_Expression ]
+| Null [ After Time_Expression ]
