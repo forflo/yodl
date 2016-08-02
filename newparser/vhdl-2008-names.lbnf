@@ -45,3 +45,5 @@ OperatorSymbol . Operator_symbol ::= String;
 SimpleName . Simple_name ::= Ident;
 
 token Decimal_Literal ('d' 'u' 'm' 'm' 'y');
+
+token Base_Spec ('B' | 'U' 'x');

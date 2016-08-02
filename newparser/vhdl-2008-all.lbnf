@@ -1,3 +1,5 @@
+comment "--";
+
 Absolute_Pathname ::= "." Partial_Pathname
 
 AbstractLiteral . Abstract_Literal ::= Decimal_Literal;
@@ -6,120 +8,141 @@ AbstractLiteral . Abstract_Literal ::= Based_Literal;
 Access_Type_Definition ::=
 Access Subtype_Indication
 
-Actual_Designator ::= "inertial" Expression;
-Actual_Designator ::= Expression;
-Actual_Designator ::= Name;
-Actual_Designator ::= Subtype_Indication;
-Actual_Designator ::= "open";
+ActualDesignatorInertial . Actual_Designator ::= "inertial" Expression;
+ActualDesignatorExp . Actual_Designator ::= Expression;
+ActualDesignatorName . Actual_Designator ::= Name;
+ActualDesignatorSubtype . Actual_Designator ::= Subtype_Indication;
+ActualDesignatorOpen . Actual_Designator ::= "open";
 
-Actual_Parameter_Part ::= Parameter_Association_List;
+_ . Actual_Parameter_Part ::= Parameter_Association_List;
 
-Actual_part ::= Actual_Designator;
-Actual_part ::= Name "(" Actual_Designator ")";
-Actual_part ::= Type_Mark "(" Actual_Designator ")";
+_ . Actual_part ::= Actual_Designator;
+ActualPartName . Actual_part ::= Name "(" Actual_Designator ")";
+ActualPartMark . Actual_part ::= Type_Mark "(" Actual_Designator ")";
 
 Plus . Adding_Operator ::= "+";
 Minus . Adding_Operator ::= "-";
 Concat . Adding_Operator ::= "&";
 
-Aggregate ::= "(" Element_Association { , Element_Association } ")";
+separator Element_Association ",";
+Aggregate ::= "(" [Element_Association] ")";
 
-Alias_Declaration ::=
-Alias Alias_Designator [ : Subtype_Indication ] Is Name [ Signature ] ;
+AliasDecl . Alias_Declaration ::=
+          "alias" Alias_Designator "is" "name";
+AliasDeclSig . Alias_Declaration ::=
+             "alias" Alias_Designator "is" "name" Signature;
+AliasDeclType . Alias_Declaration ::=
+              "Alias" Alias_Designator ":" Subtype_Indication "is" "name";
+AliasDeclTypeSig . Alias_Declaration ::=
+                 "Alias" Alias_Designator ":" Subtype_Indication "is" "name" Signature ;
 
-Alias_Designator ::=
-Identifier | Character_Literal | Operator_Symbol
+AliasDesignatorId . Alias_Designator ::= Identifier;
+AliasDesignatorChar . Alias_Designator ::= Character_Literal;
+AliasDesignatorOp . Alias_Designator ::= Operator_Symbol;
 
-Allocator ::=
-New Subtype_Indication
-| New Qualified_Expression
+AllocatorSubtype . Allocator ::= New Subtype_Indication;
+AllocatorQualified . Allocator ::= New Qualified_Expression;
 
-Architecture_Body ::=
-Architecture Identifier Of Entity_Name Is
-Architecture_Declarative_Part
-Begin
-Architecture_Statement_Part
-End [ Architecture ] [ Architecture_Simple_Name ] ;
+ArchitectureBody . Architecture_Body ::=
+                 "architecture" Identifier "of" Entity_Name
+                 "is" Architecture_Declarative_Part
+                 "begin" Architecture_Statement_Part "end";
+ArchitectureBodyEA . Architecture_Body ::=
+                 "architecture" Identifier "of" Entity_Name
+                 "is" Architecture_Declarative_Part
+                 "begin" Architecture_Statement_Part "end" "architecture"
+ArchitectureBodyEID . Architecture_Body ::=
+                 "architecture" Identifier "of" Entity_Name
+                 "is" Architecture_Declarative_Part
+                 "begin" Architecture_Statement_Part "end" Simple_Name;
+ArchitectureBodyEAID . Architecture_Body ::=
+                 "architecture" Identifier "of" Entity_Name
+                 "is" Architecture_Declarative_Part
+                 "begin" Architecture_Statement_Part "end" "architecture" Simple_Name;
 
-Architecture_Declarative_Part ::=
-{ Block_Declarative_Item }
+terminator Block_Declarative_Item "";
+terminator Concurrent_Statement "";
 
-Architecture_Statement_Part ::=
-{ Concurrent_Statement }
+Architecture_Declarative_Part ::= [Block_Declarative_Item];
+Architecture_Statement_Part ::= [Concurrent_Statement];
 
-Array_Constraint ::=
-Index_Constraint [ Array_Element_Constraint ]
-| ( Open ) [ Array_Element_Constraint ]
+ArrayConstraintIdxcP . Array_Constraint ::= Index_Constraint Array_Element_Constraint;
+ArrayConstraintIdxc . Array_Constraint ::= Index_Constraint;
+ArrayConstraintOpenP . Array_Constraint ::= "(" "Open" ")" Array_Element_Constraint;
+ArrayConstraintOpen . Array_Constraint ::= "(" "Open" ")";
 
-Array_Element_Constraint ::=
-Element_Constraint
+_ . Array_Element_Constraint ::= Element_Constraint
 
-Array_Element_Resolution ::=
-Resolution_Indication
+_ . Array_Element_Resolution ::= Resolution_Indication
 
-Array_Type_Definition ::=
-Unbounded_Array_Definition | Constrained_Array_Definition
+ArrayUnboundedDef . Array_Type_Definition ::= Unbounded_Array_Definition
+ArrayConstrainedDef . Array_Type_Definition ::= Constrained_Array_Definition
 
-Assertion ::=
-Assert Condition
-[ Report Expression ]
-[ Severity Expression ]
+Assertion . Assertion ::= "assert" Condition;
+Assertion . Assertion ::= "assert" Condition Report Expression;
+Assertion . Assertion ::= "assert" Condition Severity Expression;
+Assertion . Assertion ::= "assert" Condition Report Expression Severity Expression;
 
-Assertion_Statement ::=
-[ Label : ] Assertion ;
+LabeledAssertionStatement . Assertion_Statement ::= Label ":" Assertion ;
+AssertionStatement . Assertion_Statement ::= Assertion ;
 
-Association_Element ::=
-[ Formal_Part => ] Actual_Part
+AssocElementBinary . Association_Element ::= Formal_Part "=>" Actual_Part;
+AssocElementUnary . Association_Element ::= Actual_Part;
 
-Association_List ::=
-Association_Element { , Association_Element }
+separator AssociationElement ",";
 
-Attribute_Declaration ::=
-Attribute Identifier : Type_Mark ;
+_ . Association_List ::= [AssociationElement];
 
-Attribute_Designator ::=
-Attribute_Simple_Name
+_ . Attribute_Declaration ::= Attribute Identifier ":" Type_Mark ";";
 
-Attribute_Name ::=
-Prefix [ Signature ] ' Attribute_Designator [ ( Expression ) ]
+_ . Attribute_Designator ::= Simple_Name;
 
-Attribute_Specification ::=
-Attribute Attribute_Designator Of Entity_Specification Is Expression ;
+AttributeName . Attribute_Name ::= Prefix "'" Attribute_Designator;
+AttributeName . Attribute_Name ::= Prefix Signature "'" Attribute_Designator;
+AttributeName . Attribute_Name ::= Prefix "'" Attribute_Designator "(" Expression ")";
+AttributeName . Attribute_Name ::= Prefix Signature "'" Attribute_Designator "(" Expression ")";
 
-Base ::=
-Integer
+AttrSpec . Attribute_Specification ::= "attribute" Attribute_Designator "of"
+                        Entity_Specification "is" Expression ";";
 
-Base_Specifier ::=
-B | O | X | Ub | Uo | Ux | Sb | So | Sx | D
+_ . Base ::= Integer;
 
-Based_Integer ::=
-Extended_Digit { [ Underline ] Extended_Digit }
+token Base_Specifier ('B' | 'O' | 'X' | 'U' 'b' | 'U' 'o' | 'U' 'x' |
+                      'S' 'b' | 'S' 'o' | 'S' 'x' | 'D');
 
-Based_Literal ::=
-Base # Based_Integer [ . Based_Integer ] # [ Exponent ]
+-- TODO: Implement
+--
+-- Based_Integer ::= Extended_Digit { [ Underline ] Extended_Digit };
+-- Based_Literal ::= Base # Based_Integer [ . Based_Integer ] # [ Exponent ]
+-- Basic_Character ::= Basic_Graphic_Character | Format_Effector
+-- Basic_Graphic_Character ::= Upper_Case_Letter | Digit | Special_Character| Space_Character
+-- Bit_String_Literal ::= [ Integer ] Base_Specifier " [ Bit_Value ] "
+-- Bit_Value ::= Graphic_Character { [ Underline ] Graphic_Character }
 
-Basic_Character ::=
-Basic_Graphic_Character | Format_Effector
+token Based_integer ('d');
+token Based_Literal ('d');
+token Basic_Character ('d');
+token Basic_Graphic_Character ('d');
+token Bit_String_Literal ('d');
+token Bit_Value ('d');
 
-Basic_Graphic_Character ::=
-Upper_Case_Letter | Digit | Special_Character| Space_Character
+BindingIndE . Binding_Indication ::= "use" Entity_Aspect ;
+BindingIndEG . Binding_Indication ::= "use" Entity_Aspect  Generic_Map_Aspect ;
+BindingIndEP . Binding_Indication ::= "use" Entity_Aspect  Port_Map_Aspect;
+BindingIndEGP . Binding_Indication ::= "use" Entity_Aspect  Generic_Map_Aspect  Port_Map_Aspect;
+BindingIndG . Binding_Indication ::= Generic_Map_Aspect ;
+BindingIndGP . Binding_Indication ::= Generic_Map_Aspect  Port_Map_Aspect;
+BindingIndP . Binding_Indication ::= Port_Map_Aspect;
+BindingInd . Binding_Indication ::= ;
 
-Basic_Identifier ::=
-Letter { [ Underline ] Letter_Or_Digit }
+terminator Use_Clause "";
+terminator Configuration_Item "";
 
-Binding_Indication ::=
-[ Use Entity_Aspect ] [ Generic_Map_Aspect ] [ Port_Map_Aspect ]
+Block_Configuration ::= "for" Block_Specification [Use_Clause] [Configuration_Item] "end" "for" ;
 
-Bit_String_Literal ::=
-[ Integer ] Base_Specifier " [ Bit_Value ] "
-
-Bit_Value ::=
-Graphic_Character { [ Underline ] Graphic_Character }
-
-Block_Configuration ::=
-For Block_Specification
-{ Use_Clause }
-{ Configuration_Item } End For ;
+--
+-- TODO
+--
 
 Block_Declarative_Item ::=
 Subprogram_Declaration
@@ -143,16 +166,24 @@ Subprogram_Declaration
 | Use_Clause
 | Group_Template_Declaration
 | Group_Declaration
-| Psl_Property_Declaration
-| Psl_Sequence_Declaration
-| Psl_Clock_Declaration
 
-Block_Declarative_Part ::=
-{ Block_Declarative_Item }
+-- PSL stuff has been omitted
+
+terminator Block_Declarative_Item "";
+
+_ . Block_Declarative_Part ::= [Block_Declarative_Item];
 
 Block_Header ::=
-[ Generic_Clause [ Generic_Map_Aspect ; ] ]
-[ Port_Clause [ Port_Map_Aspect ; ] ]
+[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
+[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
+[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
+[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
+
+_ . BH_temp ::= Generic_Clause Generic_Map_Aspect ";";
+_ . BH_temp ::= Generic_Clause ";" ;
+
+_ . BH_temp2 ::= Port_Clause ";"
+_ . BH_temp2 ::= Port_Clause ";"
 
 Block_Specification ::=
 Architecture_Name
@@ -315,7 +346,7 @@ Simple_Configuration_Specification
 | Compound_Configuration_Specification
 
 Constant_Declaration ::=
-Constant Identifier_List : Subtype_Indication [ := Expression ] ;
+Constant [Identifier] : Subtype_Indication [ := Expression ] ;
 
 Constrained_Array_Definition ::=
 Array Index_Constraint Of Element_Subtype_Indication
@@ -373,7 +404,7 @@ Array_Constraint
 | Record_Constraint
 
 Element_Declaration ::=
-Identifier_List : Element_Subtype_Definition ;
+[Identifier] : Element_Subtype_Definition ;
 
 Element_Resolution ::=
 Array_Element_Resolution | Record_Resolution
@@ -384,7 +415,7 @@ Subtype_Indication
 Entity_Aspect ::=
 Entity Entity_Name [ ( Architecture_Identifier ) ]
 | Configuration Configuration_Name
-| Open
+| "open"
 
 Entity_Class ::=
 Entity
@@ -492,8 +523,6 @@ Condition_Operator Primary
 Extended_Digit ::=
 Digit | Letter
 
-Extended_Identifier ::=
-\ Graphic_Character { Graphic_Character } \
 
 External_Name ::=
 External_Constant_Name
@@ -521,7 +550,7 @@ Primary [ ** Primary ]
 | Logical_Operator Primary
 
 File_Declaration ::=
-File Identifier_List : Subtype_Indication [ File_Open_Information ] ;
+File [Identifier] : Subtype_Indication [ File_Open_Information ] ;
 
 File_Logical_Name ::=
 String_Expression
@@ -613,8 +642,15 @@ Guarded_Signal_List : Type_Mark
 Identifier ::=
 Basic_Identifier | Extended_Identifier
 
-Identifier_List ::=
-Identifier { , Identifier }
+-- Basic_Identifier ::=
+-- Letter { [ Underline ] Letter_Or_Digit }
+-- Extended_Identifier ::=
+-- \ Graphic_Character { Graphic_Character } \
+
+token Basic_Identifier ('d');
+token Extended_Identifier ('d');
+
+separator Identifier ",";
 
 If_Generate_Statement ::=
 Generate_Label :
@@ -659,7 +695,7 @@ Integer_Type_Definition ::=
 Range_Constraint
 
 Interface_Constant_Declaration ::=
-[ Constant ] Identifier_List : [ In ] Subtype_Indication [ := Static_Expression ]
+[ Constant ] [Identifier] : [ In ] Subtype_Indication [ := Static_Expression ]
 
 Interface_Declaration ::=
 Interface_Object_Declaration
@@ -671,7 +707,7 @@ Interface_Element ::=
 Interface_Declaration
 
 Interface_File_Declaration ::=
-File Identifier_List : Subtype_Indication
+File [Identifier] : Subtype_Indication
 
 Interface_Function_Specification ::=
 [ Pure | Impure ] Function Designator
@@ -703,7 +739,7 @@ Procedure Designator
 [ [ Parameter ] ( Formal_Parameter_List ) ]
 
 Interface_Signal_Declaration ::=
-[ Signal ] Identifier_List : [ Mode ] Subtype_Indication [ Bus ] [ := Static_Expression ]
+[ Signal ] [Identifier] : [ Mode ] Subtype_Indication [ Bus ] [ := Static_Expression ]
 
 Interface_Subprogram_Declaration ::=
 Interface_Subprogram_Specification [ Is Interface_Subprogram_Default ]
@@ -718,7 +754,7 @@ Interface_Type_Declaration ::=
 Interface_Incomplete_Type_Declaration
 
 Interface_Variable_Declaration ::=
-[ Variable ] Identifier_List : [ Mode ] Subtype_Indication [ := Static_Expression ]
+[ Variable ] [Identifier] : [ Mode ] Subtype_Indication [ := Static_Expression ]
 
 Iteration_Scheme ::=
 While Condition
@@ -1146,7 +1182,7 @@ Signal_Assignment_Statement ::=
 | [ Label : ] Selected_Signal_Assignment
 
 Signal_Declaration ::=
-Signal Identifier_List : Subtype_Indication [ Signal_Kind ] [ := Expression ] ;
+Signal [Identifier] : Subtype_Indication [ Signal_Kind ] [ := Expression ] ;
 
 Signal_Kind ::=
 Register | Bus
@@ -1294,7 +1330,7 @@ Variable_Assignment_Statement ::=
 | [ Label : ] Selected_Variable_Assignment
 
 Variable_Declaration ::=
-[ Shared ] Variable Identifier_List : Subtype_Indication [ := Expression ] ;
+[ Shared ] Variable [Identifier] : Subtype_Indication [ := Expression ] ;
 
 Verification_Unit_Binding_Indication ::=
 Use Vunit Verification_Unit_List
