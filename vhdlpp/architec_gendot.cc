@@ -157,21 +157,21 @@ SimpleTree<map<string, string>> *ProcessStatement::emit_strinfo_tree() const {
 
 
     // From base Scope
-    for (auto &i : old_signals_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
+//    for (auto &i : old_signals_)
+//        result->forest.push_back(i.second->emit_strinfo_tree());
 
     for (auto &i : new_signals_)
         result->forest.push_back(i.second->emit_strinfo_tree());
-    for (auto &i : old_variables_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
+//    for (auto &i : old_variables_)
+//        result->forest.push_back(i.second->emit_strinfo_tree());
     for (auto &i : new_variables_)
         result->forest.push_back(i.second->emit_strinfo_tree());
-    for (auto &i : old_components_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
+//    for (auto &i : old_components_)
+//        result->forest.push_back(i.second->emit_strinfo_tree());
     for (auto &i : new_components_)
         result->forest.push_back(i.second->emit_strinfo_tree());
-    for (auto &i : use_types_)
-        result->forest.push_back(i.second->emit_strinfo_tree());
+//    for (auto &i : use_types_)
+//        result->forest.push_back(i.second->emit_strinfo_tree());
     for (auto &i : cur_types_)
         result->forest.push_back(i.second->emit_strinfo_tree());
 

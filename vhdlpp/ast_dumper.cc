@@ -80,6 +80,7 @@ const char *work_path = "ivl_vhdl_work";
 const char *dump_libraries_path       = 0;
 const char *debug_log_path            = 0;
 
+bool    only_dump_arch = false;
 bool     debug_elaboration = false;
 ofstream debug_log_file;
 
@@ -91,10 +92,10 @@ void main_parse_arguments(int argc, char *argv[]){
 #   define NOTICE         "NOTICE\n"
 
     int opt;
-    while ((opt = getopt(argc, argv, "L:vVw:")) != EOF) {
+    while ((opt = getopt(argc, argv, "A")) != EOF) {
         switch (opt) {
-        case 'L':
-            library_add_directory(optarg);
+        case 'A':
+            only_dump_arch = true;
             break;
 
         case 'v':
@@ -182,6 +183,18 @@ int main(int argc, char *argv[]) {
     }
 
     /* Playground */
+
+    if (only_dump_arch){
+        auto iter = cont->design_entities.begin();
+        auto iter2 = dynamic_cast<Entity*>(iter->second)->arch_.begin();
+
+        DotGraphGenerator()
+            .setBlacklist({"node-pointer"})(
+                std::cout, "foobar",
+                dynamic_cast<Architecture *>(iter2->second)->emit_strinfo_tree());
+
+        return 0;
+    }
 
     auto iter = cont->design_entities.begin();
     DotGraphGenerator()

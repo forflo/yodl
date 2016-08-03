@@ -1,3 +1,6 @@
+-- BNFC could use a rule for BNF's optional brackets
+--
+
 comment "--";
 
 Absolute_Pathname ::= "." Partial_Pathname
@@ -72,7 +75,6 @@ ArrayConstraintOpenP . Array_Constraint ::= "(" "Open" ")" Array_Element_Constra
 ArrayConstraintOpen . Array_Constraint ::= "(" "Open" ")";
 
 _ . Array_Element_Constraint ::= Element_Constraint
-
 _ . Array_Element_Resolution ::= Resolution_Indication
 
 ArrayUnboundedDef . Array_Type_Definition ::= Unbounded_Array_Definition
@@ -173,22 +175,20 @@ terminator Block_Declarative_Item "";
 
 _ . Block_Declarative_Part ::= [Block_Declarative_Item];
 
-Block_Header ::=
-[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
-[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
-[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
-[ BH_temp ] [ Port_Clause [ Port_Map_Aspect ; ] ]
+BlockHeader . Block_Header ::= ;
+BlockHeaderGeneric . Block_Header ::= BH_temp;
+BlockHeaderPortmap . Block_Header ::= BH_temp2;
+BlockHeaderGenericPortmap . Block_Header ::= BH_temp BH_temp2;
 
-_ . BH_temp ::= Generic_Clause Generic_Map_Aspect ";";
-_ . BH_temp ::= Generic_Clause ";" ;
+GenClauseGenMap . BH_temp ::= Generic_Clause Generic_Map_Aspect ";";
+GenClause . BH_temp ::= Generic_Clause ";" ;
+PortClausePortMap . BH_temp2 ::= Port_Clause Port_Map_Aspect";"
+PortClause . BH_temp2 ::= Port_Clause ";"
 
-_ . BH_temp2 ::= Port_Clause ";"
-_ . BH_temp2 ::= Port_Clause ";"
-
-Block_Specification ::=
-Architecture_Name
-| Block_Statement_Label
-| Generate_Statement_Label [ ( Generate_Specification ) ]
+Block_Specification ::= Architecture_Name
+Block_Specification ::= Block_Statement_Label
+Block_Specification ::= Generate_Statement_Label;
+Block_Specification ::= Generate_Statement_Label "(" Generate_Specification ")";
 
 Block_Statement ::=
 Block_Label :
@@ -197,52 +197,60 @@ Block_Declarative_Part
 Begin
 Block_Statement_Part End Block [ Block_Label ] ;
 
-Block_Statement_Part ::=
-{ Concurrent_Statement }
+terminator Concurrent_Statement "";
+separator Case_Generate_Alternative "";
 
-Case_Generate_Alternative ::=
-When [ Alternative_Label : ] Choices =>
-Generate_Statement_Body
+Block_Statement_Part ::= [Concurrent_Statement];
+
+CaseGenerateAlt . Case_Genreate_Alternative ::=
+                "when" Label ":" Choices "=>" Generate_Statement_Body;
+CaseGenerateAlt . Case_Genreate_Alternative ::=
+                "when" Choices "=>" Generate_Statement_Body;
 
 Case_Generate_Statement ::=
-Generate_Label :
-Case Expression Generate Case_Generate_Alternative
-{ Case_Generate_Alternative }
-End Generate [ Generate_Label ] ;
+CaseGenerateStmt . Case_Generate_Statement ::=
+                 Label ":" "case" Expression "generate"
+                 [Case_Generate_Alternative] "end" "generate";
+CaseGenerateStmtLbl . Case_Generate_Statement ::=
+                    Label ":" "case" Expression "generate"
+                    [Case_Generate_Alternative] "end" "generate" Label ;
 
-Case_Statement ::=
-[ Case_Label : ]
-Case [ ? ] Expression Is Case_Statement_Alternative
-{ Case_Statement_Alternative }
-End Case [ ? ] [ Case_Label ] ;
 
-Case_Statement_Alternative ::=
-When Choices =>
-Sequence_Of_Statements
+CaseSimpleStmt . Case_Statement ::= "case" Expression "is" [Case_Statement_Alternative] "end" "case";
+CaseQStmt . Case_Statement ::= "case" "?" Expression "is" [Case_Statement_Alternative] "end" "case" "?";
+LabeledCaseStmt . Case_Statement ::= Label ":" "case" Expression "is" [Case_Statement_Alternative] "end" "case" Label ] ;
+LabeledCaseQStmt . Case_Statement ::= Label ":" "case" "?" Expression "is" [Case_Statement_Alternative] "end" "case" "?" Label;
 
-Character_Literal ::=
-' Graphic_Character '
+separator Case_Statement_Alternative "";
+Case_Statement_Alternative ::= "when" [Choice] => Sequence_Of_Statements
 
-Choice ::=
-Simple_Expression
-| Discrete_Range
-| Element_Simple_Name
-| Others
+Character_Literal ::= "'" Graphic_Character "'"
 
-Choices ::=
-Choice { | Choice }
+separator nonempty Choice "|";
+ExpChoice . Choice ::= Simple_Expression;
+RangeChoice . Choice ::= Discrete_Range;
+NameChoice . Choice ::= Simple_Name;
+OthersChoice . Choice ::= "others";
 
-Component_Configuration ::=
-For Component_Specification
-[ Binding_Indication ; ]
-{ Verification_Unit_Binding_Indication ; } [ Block_Configuration ]
-End For ;
+terminator Verification_Unit_Binding_Indication ";";
 
-Component_Declaration ::=
-Component Identifier [ Is ]
-[ Local_Generic_Clause ]
-[ Local_Port_Clause ]
-End Component [ Component_Simple_Name ] ;
+SimpleComConfig . Component_Configuration ::=
+                "for" Component_Specification [Verification_Unit_Binding_Indication]
+                "end" "for" ;
+BindingComConfig . Component_Configuration ::=
+                 "for" Component_Specification Binding_Indication ";"
+                 [Verification_Unit_Binding_Indication] "end" "for" ;
+BlockComConfig . Component_Configuration ::=
+               "for" Component_Specification [Verification_Unit_Binding_Indication]
+               Block_Configuration "end" "for" ;
+BindingBlockComConfig . Component_Configuration ::=
+                      "for" Component_Specification Binding_Indication ";"
+                      [Verification_Unit_Binding_Indication] Block_Configuration
+                      "end" "for" ;
+
+Component_Declaration ::= "oomponent" Identifier "is" [ Local_Generic_Clause ] [ Local_Port_Clause ] "end" "component" [ Component_Simple_Name ] ;
+
+Component_Declaration ::= "oomponent" Identifier [ Local_Generic_Clause ] [ Local_Port_Clause ] "end" "component" [ Component_Simple_Name ] ;
 
 Component_Instantiation_Statement ::=
 Instantiation_Label :
@@ -760,8 +768,7 @@ Iteration_Scheme ::=
 While Condition
 | For Loop_Parameter_Specification
 
-Label ::=
-Identifier
+_ . Label ::= Identifier
 
 Letter ::=
 Upper_Case_Letter | Lower_Case_Letter
@@ -1146,11 +1153,11 @@ Selected_Waveforms ::=
 Sensitivity_Clause ::=
 On Sensitivity_List
 
-Sensitivity_List ::=
-Signal_Name { , Signal_Name }
+separator nonempty Signal_Name ",";
+Sensitivity_List ::= [Signal_Name];
 
-Sequence_Of_Statements ::=
-{ Sequential_Statement }
+terminator Sequential_Statement "";
+Sequence_Of_Statements ::= [Sequential_Statement];
 
 Sequential_Statement ::=
 Wait_Statement
@@ -1173,8 +1180,7 @@ Simple_Expression [ Shift_Operator Simple_Expression ]
 Shift_Operator ::=
 Sll | Srl | Sla | Sra | Rol | Ror
 
-Sign ::=
-+ | –
+Sign ::= "+" | "–"
 
 Signal_Assignment_Statement ::=
 [ Label : ] Simple_Signal_Assignment
