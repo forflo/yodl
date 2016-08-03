@@ -10,19 +10,24 @@
 using namespace Yosys::RTLIL;
 
 int NetlistGenerator::operator()(Entity *entity){
+    working = entity;
+
     if (result == NULL)
         result = new Module();
 
     for (auto &i : entity->ports_){
         if (!i->type->type_match(
                 &entity->context_->global_types->primitive_STDLOGIC)){
-            std::cout << "Type error in netlist generator";
-            std::cout << "Types other than std_logic are not supported";
+            std::cout << "Type error in netlist generator"
+                      << endl;
+            std::cout << "Types other than std_logic are not supported"
+                      << endl;
             return 1;
         }
 
         if (i->expr) {
-            std::cout << "Netlist generator doesn't support default values";
+            std::cout
+                << "Netlist generator doesn't support default values";
             return 1;
         }
     }
@@ -34,7 +39,7 @@ int NetlistGenerator::operator()(Entity *entity){
         result->addWire(string("\\") + i->name.str());
     }
 
-    return traverseConcStmts(arch->statements_);
+    return traverseConcStmts(&arch->statements_);
 }
 
 int NetlistGenerator::traverseConcStmts(
@@ -43,7 +48,7 @@ int NetlistGenerator::traverseConcStmts(
 
     int errors = 0;
 
-    for (auto &i : stmts){
+    for (auto &i : *stmts){
         Match(i){
             Case(C<BlockStatement>()){
                 errors += traverseBlockStatement(
@@ -69,9 +74,51 @@ int NetlistGenerator::traverseConcStmts(
 }
 
 int NetlistGenerator::traverseBlockStatement(BlockStatement *block){
+    // traverse decl part
+    currentScope = block;
 
+    return traverseConcStmts(block->concurrent_stmts_);
 }
 
-int NetlistGenerator::traverseProcessStatement(BlockStatement *proc){
+int NetlistGenerator::traverseProcessStatement(ProcessStatement *proc){
+    using namespace mch;
+    currentScope = proc;
 
+    int errors = 0;
+
+    for (auto &i : proc->statements_){
+        Match(i){
+            Case(C<SignalSeqAssignment>()){
+                SignalSeqAssignment *a =
+                    dynamic_cast<SignalSeqAssignment*>(i);
+
+                const VType *ltype = a->lval_->probe_type(
+                    working, currentScope);
+
+                if (!ltype->type_match(
+                        &working->context_->
+                        global_types->primitive_STDLOGIC)){
+                    std::cout << "traverseProcessStatement" << endl;
+                    std::cout << "Type error in netlist generator"
+                              << endl;
+                    std::cout << "Types other than std_logic "
+                        "are not supported" << endl;
+                    return 1;
+                }
+
+                break;
+            }
+            Case(C<CaseSeqStmt>()){
+
+                break;
+            }
+            Otherwise(){
+                std::cout << "This statement type is not supported"
+                          << endl;
+                break;
+            }
+        } EndMatch;
+    }
+
+    return errors;
 }

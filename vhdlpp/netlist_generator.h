@@ -25,6 +25,9 @@ private:
     int traverseAssignment(SignalSeqAssignment *);
 
     Yosys::RTLIL::Module *result;
+
+    Entity *working;
+    ScopeBase *currentScope;
 };
 
 #endif /* IVL_NETLIST_GENERATOR */
