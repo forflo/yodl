@@ -19,6 +19,8 @@ public:
 
     int operator()(Entity *);
 
+    Yosys::RTLIL::Module *result;
+
 private:
     int traverseConcStmts(std::list<Architecture::Statement*> *);
     int traverseBlockStatement(BlockStatement *);
@@ -27,12 +29,9 @@ private:
     int traverseCase(CaseSeqStmt *);
     int traverseAssignment(SignalSeqAssignment *);
 
-    int traverseExpression(Expression *);
-
     int executeSignalAssignment(SignalSeqAssignment *);
-    Yosys::RTLIL::Wire *executeExpression(Expression *exp);
+    Yosys::RTLIL::SigSpec *executeExpression(Expression *exp);
 
-    Yosys::RTLIL::Module *result;
 
     std::map<const char *,
              std::stack<Yosys::RTLIL::SigSpec *>> previousAssigns;

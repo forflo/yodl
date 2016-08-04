@@ -10,6 +10,9 @@
 using namespace Yosys::RTLIL;
 
 int NetlistGenerator::operator()(Entity *entity){
+    Yosys::log_streams.push_back(&std::cout);
+    Yosys::log_error_stderr = true;
+
     working = entity;
 
     if (result == NULL)
@@ -80,11 +83,6 @@ int NetlistGenerator::traverseBlockStatement(BlockStatement *block){
     return traverseConcStmts(block->concurrent_stmts_);
 }
 
-int NetlistGenerator::traverseExpression(Expression *exp){
-
-    return 0;
-}
-
 int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
     const VType *ltype = a->lval_->probe_type(
         working, currentScope);
@@ -115,12 +113,13 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
     }
 
     const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
+    string s = signalId;
     Expression *tmp = *a->waveform_.begin();
     using namespace mch;
 
-    Wire *w_res = executeExpression(tmp);
+    SigSpec *res = executeExpression(tmp);
 
-    result->connect(result->wire(signalId), w_res);
+    result->connect(result->wire("\\" + s), res);
 
     return 0;
 }
@@ -189,12 +188,14 @@ SigSpec *NetlistGenerator::executeExpression(Expression *exp){
         }
         Case(C<ExpName>()){
             ExpName *n = dynamic_cast<ExpName *>(exp);
-            Wire *w = result->wire(n->name_.str());
+            // ugly, but neccessary because of the perm_strings are
+            string strT = n->name_.str();
+            Wire *w = result->wire("\\" + strT);
 
             if (w){
                 return new SigSpec(w);
             } else {
-                return new SigSpec(result->addWire(n->name_.str()));
+                return new SigSpec(result->addWire("\\" + strT));
             }
         }
         Otherwise(){

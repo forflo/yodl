@@ -18,6 +18,9 @@ const char COPYRIGHT[] =
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+#include <kernel/yosys.h>
+#include <kernel/rtlil.h>
+#include <backends/ilang/ilang_backend.h>
 
 #include <fstream>
 #include <cstdio>
@@ -57,6 +60,7 @@ const char COPYRIGHT[] =
 #include "predicate_generators.h"
 #include "ifelse_case_converter.h"
 #include "csa_lifter.h"
+#include "netlist_generator.h"
 
 #if defined(HAVE_GETOPT_H)
 # include <getopt.h>
@@ -73,6 +77,8 @@ const char COPYRIGHT[] =
 
 using namespace std;
 using namespace mch;
+using namespace Yosys::ILANG_BACKEND;
+using namespace Yosys::RTLIL;
 
 
 bool verbose_flag = false;
@@ -202,6 +208,15 @@ int main(int argc, char *argv[]) {
         .setBlacklist({"node-pointer"})(
             std::cout, "foobar",
             dynamic_cast<Entity*>(entity)->emit_strinfo_tree());
+
+    NetlistGenerator netgen;
+
+    netgen(entity);
+
+    Design *d = new Design();
+    d->add(netgen.result);
+
+    dump_design(std::cout, d, false);
 
     cout << "\n\n";
 
