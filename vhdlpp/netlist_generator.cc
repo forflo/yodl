@@ -118,10 +118,20 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
     Expression *tmp = *a->waveform_.begin();
     using namespace mch;
 
-    Match(tmp){
+    Wire *w_res = executeExpression(tmp);
+
+    result->connect(result->wire(signalId), w_res);
+
+    return 0;
+}
+
+SigSpec *NetlistGenerator::executeExpression(Expression *exp){
+    using namespace mch;
+
+    Match(exp){
         Case(C<ExpCharacter>()){
             SigSpec *tmpSig;
-            switch(dynamic_cast<ExpCharacter *>(tmp)->value_){
+            switch(dynamic_cast<ExpCharacter *>(exp)->value_){
             case '0':
                 tmpSig = new SigSpec(Const(State::S0));
                 break;
@@ -136,20 +146,64 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
                 break;
             }
 
-            result->connect(result->wire(signalId), tmpSig);
-            if (!previousAssigns[signalId].empty())
-                previousAssigns[signalId].pop();
-
-            previousAssigns[signalId].push(tmpSig);
+            return tmpSig;
 
             break;
+        }
+        Case(C<ExpLogical>()){
+            ExpLogical *t = dynamic_cast<ExpLogical *>(exp);
+
+            Cell *c;
+            SigSpec *out = new SigSpec();
+
+            switch(t->fun_){
+            case ExpLogical::fun_t::AND:
+                c = result->addCell(NEW_ID, "$and");
+                break;
+            case ExpLogical::fun_t::OR:
+                c = result->addCell(NEW_ID, "$or");
+                break;
+            case ExpLogical::fun_t::NAND:
+                c = result->addCell(NEW_ID, "$nand");
+                break;
+            case ExpLogical::fun_t::NOR:
+                c = result->addCell(NEW_ID, "$nor");
+                break;
+            case ExpLogical::fun_t::XOR:
+                c = result->addCell(NEW_ID, "$xor");
+                break;
+            case ExpLogical::fun_t::XNOR:
+                c = result->addCell(NEW_ID, "$xnor");
+                break;
+            }
+
+            c->setPort("\\A", executeExpression(t->operand1_));
+            c->setPort("\\B", executeExpression(t->operand2_));
+
+            c->setPort("\\Y", out);
+
+            c->fixup_parameters();
+
+            return out;
+            break;
+        }
+        Case(C<ExpName>()){
+            ExpName *n = dynamic_cast<ExpName *>(exp);
+            Wire *w = result->wire(n->name_.str());
+
+            if (w){
+                return new SigSpec(w);
+            } else {
+                return new SigSpec(result->addWire(n->name_.str()));
+            }
         }
         Otherwise(){
-            std::cout << "Could not execute sig assignment wires"
-                      << endl;
+            std::cout << "This kind of expression fails exec Expr!"
+                      << std::endl;
+            return NULL;
             break;
         }
-    } EndMatch
+    } EndMatch;
 
     return 0;
 }

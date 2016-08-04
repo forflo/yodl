@@ -29,6 +29,9 @@ private:
 
     int traverseExpression(Expression *);
 
+    int executeSignalAssignment(SignalSeqAssignment *);
+    Yosys::RTLIL::Wire *executeExpression(Expression *exp);
+
     Yosys::RTLIL::Module *result;
 
     std::map<const char *,
