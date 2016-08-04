@@ -80,6 +80,80 @@ int NetlistGenerator::traverseBlockStatement(BlockStatement *block){
     return traverseConcStmts(block->concurrent_stmts_);
 }
 
+int NetlistGenerator::traverseExpression(Expression *exp){
+
+    return 0;
+}
+
+int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
+    const VType *ltype = a->lval_->probe_type(
+        working, currentScope);
+
+    if (!ltype->type_match(
+            &working->context_->
+            global_types->primitive_STDLOGIC)){
+        std::cout << "traverseProcessStatement" << endl;
+        std::cout << "Type error in netlist generator"
+                  << endl;
+        std::cout << "Types other than std_logic "
+            "are not supported" << endl;
+        return 1;
+    }
+
+    if (a->waveform_.size() != 1){
+        std::cout << "waveform only allowed to contain one expression"
+                  << endl;
+        return 1;
+    }
+
+    if (!(*a->waveform_.begin())->probe_type(
+            working,currentScope)->type_match(
+                &working->context_->global_types->
+                primitive_STDLOGIC)){
+        std::cout << "rval must be STDLOGIC" << endl;
+        return 1;
+    }
+
+    const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
+    Expression *tmp = *a->waveform_.begin();
+    using namespace mch;
+
+    Match(tmp){
+        Case(C<ExpCharacter>()){
+            SigSpec *tmpSig;
+            switch(dynamic_cast<ExpCharacter *>(tmp)->value_){
+            case '0':
+                tmpSig = new SigSpec(Const(State::S0));
+                break;
+            case '1':
+                tmpSig = new SigSpec(Const(State::S1));
+                break;
+            case 'z':
+                tmpSig = new SigSpec(Const(State::Sz));
+                break;
+            case '-':
+                tmpSig = new SigSpec(Const(State::Sa));
+                break;
+            }
+
+            result->connect(result->wire(signalId), tmpSig);
+            if (!previousAssigns[signalId].empty())
+                previousAssigns[signalId].pop();
+
+            previousAssigns[signalId].push(tmpSig);
+
+            break;
+        }
+        Otherwise(){
+            std::cout << "Could not execute sig assignment wires"
+                      << endl;
+            break;
+        }
+    } EndMatch
+
+    return 0;
+}
+
 int NetlistGenerator::traverseProcessStatement(ProcessStatement *proc){
     using namespace mch;
     currentScope = proc;
@@ -89,22 +163,10 @@ int NetlistGenerator::traverseProcessStatement(ProcessStatement *proc){
     for (auto &i : proc->statements_){
         Match(i){
             Case(C<SignalSeqAssignment>()){
-                SignalSeqAssignment *a =
+                SignalSeqAssignment *tmp =
                     dynamic_cast<SignalSeqAssignment*>(i);
 
-                const VType *ltype = a->lval_->probe_type(
-                    working, currentScope);
-
-                if (!ltype->type_match(
-                        &working->context_->
-                        global_types->primitive_STDLOGIC)){
-                    std::cout << "traverseProcessStatement" << endl;
-                    std::cout << "Type error in netlist generator"
-                              << endl;
-                    std::cout << "Types other than std_logic "
-                        "are not supported" << endl;
-                    return 1;
-                }
+                errors += executeSignalAssignment(tmp);
 
                 break;
             }

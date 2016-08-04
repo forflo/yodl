@@ -5,7 +5,10 @@
 #include <kernel/rtlil.h>
 
 #include <list>
+#include <map>
+#include <stack>
 
+#include <StringHeap.h>
 #include <entity.h>
 #include <architec.h>
 #include <sequential.h>
@@ -24,7 +27,12 @@ private:
     int traverseCase(CaseSeqStmt *);
     int traverseAssignment(SignalSeqAssignment *);
 
+    int traverseExpression(Expression *);
+
     Yosys::RTLIL::Module *result;
+
+    std::map<const char *,
+             std::stack<Yosys::RTLIL::SigSpec *>> previousAssigns;
 
     Entity *working;
     ScopeBase *currentScope;
