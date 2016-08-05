@@ -124,12 +124,3 @@ end behv;
 -- end behv;
 ----
 
-
-for i in 0 to 10 loop
-
-   if (i = 0) then
-      next;
-   end if;
-
-   foo <= "1001";
-end loop;
