@@ -1159,28 +1159,27 @@ Sensitivity_List ::= [Signal_Name];
 terminator Sequential_Statement "";
 Sequence_Of_Statements ::= [Sequential_Statement];
 
-Sequential_Statement ::=
-Wait_Statement
-| Assertion_Statement
-| Report_Statement
-| Signal_Assignment_Statement
-| Variable_Assignment_Statement
-| Procedure_Call_Statement
-| If_Statement
-| Case_Statement
-| Loop_Statement
-| Next_Statement
-| Exit_Statement
-| Return_Statement
-| Null_Statement
+SeqStmtWait . Sequential_Statement ::= Wait_Statement;
+SeqStmtAssert . Sequential_Statement ::= Assertion_Statement;
+SeqStmtReport . Sequential_Statement ::= Report_Statement;
+SeqStmtSigass . Sequential_Statement ::= Signal_Assignment_Statement;
+SeqStmtVarass . Sequential_Statement ::= Variable_Assignment_Statement;
+SeqStmtProc . Sequential_Statement ::= Procedure_Call_Statement;
+SeqStmtIf . Sequential_Statement ::= If_Statement;
+SeqStmtCase . Sequential_Statement ::= Case_Statement;
+SeqStmtLoop . Sequential_Statement ::= Loop_Statement;
+SeqStmtNext . Sequential_Statement ::= Next_Statement;
+SeqStmtExit . Sequential_Statement ::= Exit_Statement;
+SeqStmtRet . Sequential_Statement ::= Return_Statement;
+SeqStmtNull . Sequential_Statement ::= Null_Statement;
 
-Shift_Expression ::=
-Simple_Expression [ Shift_Operator Simple_Expression ]
+SimpleExprU . Shift_Expression ::= Simple_Expression;
+SimpleExprB . Shift_Expression ::= Simple_Expression Shift_Operator Simple_Expression;
 
-Shift_Operator ::=
-Sll | Srl | Sla | Sra | Rol | Ror
+-- TODO: Sll | Srl | Sla | Sra | Rol | Ror
+token Shift_Operator ('d');
 
-Sign ::= "+" | "–"
+token Sign ('+' | '-');
 
 Signal_Assignment_Statement ::=
 [ Label : ] Simple_Signal_Assignment
@@ -1190,13 +1189,13 @@ Signal_Assignment_Statement ::=
 Signal_Declaration ::=
 Signal [Identifier] : Subtype_Indication [ Signal_Kind ] [ := Expression ] ;
 
-Signal_Kind ::=
-Register | Bus
+SigKindReg . Signal_Kind ::= Register;
+SigKindBus . Signal_Kind ::= Bus
 
-Signal_List ::=
-Signal_Name { , Signal_Name }
-| Others
-| All
+separator nonempty Signal_Name ",";
+SigListNames . Signal_List ::= [Signal_Name] ";";
+SigListOthers . Signal_List ::= "others";
+SigListAll . Signal_List ::= "all";
 
 Signature ::=
 [ [ Type_Mark { , Type_Mark } ] [ Return Type_Mark ] ]
@@ -1204,28 +1203,27 @@ Signature ::=
 Simple_Configuration_Specification ::=
 For Component_Specification Binding_Indication ; [ End For ; ]
 
-Simple_Expression ::=
-[ Sign ] Term { Adding_Operator Term }
+_ . SExpTem ::= Adding_Operator Term;
+terminator SExpTerm "";
+Simple_Expression ::= Sign Term [SExpTerm];
+Simple_Expression ::= Term [SExpTerm];
 
-Simple_Force_Assignment ::=
-Target <= Force [ Force_Mode ] Expression ;
+SimpleForceAssign . Simple_Force_Assignment ::= Target "<=" "force" Expression ";";
+SimpleForceAssignFm . Simple_Force_Assignment ::= Target "<=" "force" Force_Mode Expression ";";
 
-Simple_Name ::=
-Identifier
+_ . Simple_Name ::= Identifier;
 
-Simple_Release_Assignment ::=
-Target <= Release [ Force_Mode ] ;
+SimpleReleaseAssign . Simple_Release_Assignment ::= Target "<=" Release ";"
+SimpleReleaseAssign . Simple_Release_Assignment ::= Target "<=" Release Force_Mode ";"
 
-Simple_Signal_Assignment ::=
-Simple_Waveform_Assignment
-| Simple_Force_Assignment
-| Simple_Release_Assignment
+SimpleSigAssignWave . Simple_Signal_Assignment ::= Simple_Waveform_Assignment;
+SimpleSigAssignForce . Simple_Signal_Assignment ::= Simple_Force_Assignment;
+SimpleSigAssignRelease . Simple_Signal_Assignment ::= Simple_Release_Assignment;
 
-Simple_Waveform_Assignment ::=
-Target <= [ Delay_Mechanism ] Waveform ;
+SimpleWavAssignD . Simple_Waveform_Assignment ::= Target "<=" Delay_Mechanism Waveform ;
+SimpleWavAssign  . Simple_Waveform_Assignment ::= Target "<=" Waveform ;
 
-Simple_Variable_Assignment ::=
-Target := Expression ;
+SimpleVarAssign . Simple_Variable_Assignment ::= Target ":=" Expression ";";
 
 SliceName . Slice_Name ::= Prefix "(" Discrete_Range ")";
 
