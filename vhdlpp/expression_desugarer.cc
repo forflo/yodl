@@ -8,6 +8,10 @@ function<bool (const AstNode*)> ExpressionDesugarer::getTypePredicate(void){
 }
 
 int ExpressionDesugarer::desugarSignalAssignment(SignalSeqAssignment *s){
+    Expression *lval = s->lval_;
+    Expression *rval
+    
+    Match()
 
     return 0;
 }

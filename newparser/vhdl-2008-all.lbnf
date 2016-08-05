@@ -109,7 +109,7 @@ AttrSpec . Attribute_Specification ::= "attribute" Attribute_Designator "of"
 
 _ . Base ::= Integer;
 
-token Base_Specifier ('B' | 'O' | 'X' | 'U' 'b' | 'U' 'o' | 'U' 'x' |
+token Base_Specifier "("'B' | 'O' | 'X' | 'U' 'b' | 'U' 'o' | 'U' 'x' |
                       'S' 'b' | 'S' 'o' | 'S' 'x' | 'D');
 
 -- TODO: Implement
@@ -121,12 +121,12 @@ token Base_Specifier ('B' | 'O' | 'X' | 'U' 'b' | 'U' 'o' | 'U' 'x' |
 -- Bit_String_Literal ::= [ Integer ] Base_Specifier " [ Bit_Value ] "
 -- Bit_Value ::= Graphic_Character { [ Underline ] Graphic_Character }
 
-token Based_integer ('d');
-token Based_Literal ('d');
-token Basic_Character ('d');
-token Basic_Graphic_Character ('d');
-token Bit_String_Literal ('d');
-token Bit_Value ('d');
+token Based_integer "("'d');
+token Based_Literal "("'d');
+token Basic_Character "("'d');
+token Basic_Graphic_Character "("'d');
+token Bit_String_Literal "("'d');
+token Bit_Value "("'d');
 
 BindingIndE . Binding_Indication ::= "use" Entity_Aspect ;
 BindingIndEG . Binding_Indication ::= "use" Entity_Aspect  Generic_Map_Aspect ;
@@ -192,7 +192,7 @@ Block_Specification ::= Generate_Statement_Label "(" Generate_Specification ")";
 
 Block_Statement ::=
 Block_Label :
-Block [ ( Guard_Condition ) ] [ Is ] Block_Header
+Block [ "(" Guard_Condition ")" ] [ Is ] Block_Header
 Block_Declarative_Part
 Begin
 Block_Statement_Part End Block [ Block_Label ] ;
@@ -380,7 +380,7 @@ Library_Clause
 Context_Reference ::=
 Context Selected_Name { , Selected_Name } ;
 
-token Decimal_Literal ('d' 'u' 'm' 'm' 'y');
+token Decimal_Literal "("'d' 'u' 'm' 'm' 'y');
 
 Delay_Mechanism ::=
 Transport
@@ -395,8 +395,8 @@ Context_Clause Library_Unit
 Designator ::=
 Identifier | Operator_Symbol
 
-Direction ::=
-To | Downto
+Direction ::= "to";
+Direction ::= "downto";
 
 Disconnection_Specification ::=
 Disconnect Guarded_Signal_Specification After Time_Expression ;
@@ -417,97 +417,98 @@ Element_Declaration ::=
 Element_Resolution ::=
 Array_Element_Resolution | Record_Resolution
 
-Element_Subtype_Definition ::=
-Subtype_Indication
+_ . Element_Subtype_Definition ::= Subtype_Indication;
 
 Entity_Aspect ::=
-Entity Entity_Name [ ( Architecture_Identifier ) ]
+Entity Entity_Name [ "(" Architecture_Identifier ")" ]
 | Configuration Configuration_Name
 | "open"
 
-Entity_Class ::=
-Entity
-| Architecture
-| Configuration
-| Procedure
-| Function
-| Package
-| Type
-| Subtype
-| Constant
-| Signal
-| Variable
-| Component
-| Label
-| Literal
-| Units
-| Group
-| File
-| Property
-| Sequence
+-- TODO: This probably is incorrect!!! FM. MA
+EntityClassEnt . Entity_Class ::= Entity;
+EntityClassArch . Entity_Class ::= Architecture;
+EntityClassConf . Entity_Class ::= Configuration;
+EntityClassProc . Entity_Class ::= Procedure;
+EntityClassFunc . Entity_Class ::= Function;
+EntityClassPack . Entity_Class ::= Package;
+EntityClassType . Entity_Class ::= Type;
+EntityClassSubt . Entity_Class ::= Subtype;
+EntityClassConst . Entity_Class ::= Constant;
+EntityClassSig . Entity_Class ::= Signal;
+EntityClassVar . Entity_Class ::= Variable;
+EntityClassComp . Entity_Class ::= Component;
+EntityClassLab . Entity_Class ::= Label;
+EntityClassLiteral . Entity_Class ::= Literal;
+EntityClassUnits . Entity_Class ::= Units;
+EntityClassGroup . Entity_Class ::= Group;
+EntityClassFile . Entity_Class ::= File;
+EntityClassProp . Entity_Class ::= Property;
+EntityClassSequence . Entity_Class ::= Sequence;
 
-Entity_Class_Entry ::=
-Entity_Class [ <> ]
+EntityClassEntryBox . Entity_Class_Entry ::= Entity_Class "<>";
+EntityClassEntry . Entity_Class_Entry ::= Entity_Class;
 
-Entity_Class_Entry_List ::=
-Entity_Class_Entry { , Entity_Class_Entry }
+separator Entity_Class_Entry ",";
+Entity_Class_Entry_List ::= [Entity_Class_Entry];
 
-Entity_Declaration ::=
-Entity Identifier Is
-Entity_Header
-Entity_Declarative_Part [ Begin
-Entity_Statement_Part ]
-End [ Entity ] [ Entity_Simple_Name ] ;
+EntityDecl . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part "end"  ";";
+EntityDeclLabel . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part "end"  Simple_Name  ";";
+EntityDeclE . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part "end"  "entity"   ";";
+EntityDeclELabel . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part "end"  "entity"   Simple_Name  ";";
+EntityDeclS . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part  "begin" Entity_Statement_Part  "end" ";";
+EntityDeclSLabel . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part  "begin" Entity_Statement_Part  "end"  Simple_Name  ";";
+EntityDeclSE . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part  "begin" Entity_Statement_Part  "end"  "entity"   ";";
+EntityDeclSELabel . Entity_Declaration ::= "entity" Identifier "is" Entity_Header Entity_Declarative_Part  "begin" Entity_Statement_Part  "end"  "entity"   Simple_Name  ";";
 
-Entity_Declarative_Item ::=
-Subprogram_Declaration
-| Subprogram_Body
-| Subprogram_Instantiation_Declaration
-| Package_Declaration
-| Package_Body
-| Package_Instantiation_Declaration
-| Type_Declaration
-| Subtype_Declaration
-| Constant_Declaration
-| Signal_Declaration
-| Shared_Variable_Declaration
-| File_Declaration
-| Alias_Declaration
-| Attribute_Declaration
-| Attribute_Specification
-| Disconnection_Specification
-| Use_Clause
-| Group_Template_Declaration
-| Group_Declaration
-| Psl_Property_Declaration
-| Psl_Sequence_Declaration
-| Psl_Clock_Declaration
+EntityDeclItermSubprogDecl . Entity_Declarative_Iterm ::= Subprogram_Declaration;
+EntityDeclItermSubprogBody . Entity_Declarative_Iterm ::= Subprogram_Body;
+EntityDeclItermSubprogInst . Entity_Declarative_Iterm ::= Subprogram_Instantiation_Declaration;
+EntityDeclItermPackageDecl . Entity_Declarative_Iterm ::= Package_Declaration;
+EntityDeclItermPackageBody . Entity_Declarative_Iterm ::= Package_Body;
+EntityDeclItermPackageInst . Entity_Declarative_Iterm ::= Package_Instantiation_Declaration;
+EntityDeclItermTypeDecl . Entity_Declarative_Iterm ::= Type_Declaration;
+EntityDeclItermSubtypeDecl . Entity_Declarative_Iterm ::= Subtype_Declaration;
+EntityDeclItermConstDecl . Entity_Declarative_Iterm ::= Constant_Declaration;
+EntityDeclItermSigDecl . Entity_Declarative_Iterm ::= Signal_Declaration;
+EntityDeclItermShared . Entity_Declarative_Iterm ::= Shared_Variable_Declaration;
+EntityDeclItermFile . Entity_Declarative_Iterm ::= File_Declaration;
+EntityDeclItermAlias . Entity_Declarative_Iterm ::= Alias_Declaration;
+EntityDeclItermAttrDecl . Entity_Declarative_Iterm ::= Attribute_Declaration;
+EntityDeclItermAttrSpec . Entity_Declarative_Iterm ::= Attribute_Specification;
+EntityDeclItermDisconn . Entity_Declarative_Iterm ::= Disconnection_Specification;
+EntityDeclItermUse . Entity_Declarative_Iterm ::= Use_Clause;
+EntityDeclItermGroupTemp . Entity_Declarative_Iterm ::= Group_Template_Declaration;
+EntityDeclItermGroup . Entity_Declarative_Iterm ::= Group_Declaration;
+EntityDeclItermPSLProp . Entity_Declarative_Iterm ::= Psl_Property_Declaration;
+EntityDeclItermPSLSeq . Entity_Declarative_Iterm ::= Psl_Sequence_Declaration;
+EntityDeclItermPSLClock . Entity_Declarative_Iterm ::= Psl_Clock_Declaration;
 
-Entity_Declarative_Part ::=
-{ Entity_Declarative_Item }
 
-Entity_Designator ::=
-Entity_Tag [ Signature ]
+Entity_Declarative_Part ::= { Entity_Declarative_Item };
 
-Entity_Header ::=
-[ Formal_Generic_Clause ] [ Formal_Port_Clause ]
+EntityDesignator . Entity_Designator ::= Entity_Tag;
+EntityDesignator . Entity_Designator ::= Entity_Tag Signature;
 
-Entity_Name_List ::=
-Entity_Designator { , Entity_Designator }
-| Others
-| All
+EntityHeader . Entity_Header ::= ;
+EntityHeaderP . Entity_Header ::= Formal_Port_Clause;
+EntityHeaderG . Entity_Header ::= Formal_Generic_Clause ;
+EntityHeaderGP . Entity_Header ::= Formal_Generic_Clause Formal_Port_Clause;
 
-Entity_Specification ::=
-Entity_Name_List : Entity_Class
+separator nonempty Entity_Designator ",";
 
-Entity_Statement ::=
-Concurrent_Assertion_Statement
-| Passive_Concurrent_Procedure_Call_Statement
-| Passive_Process_Statement
-| Psl_Psl_Directive
+EntityNameList . Entity_Name_List ::= [Entity_Designator];
+EntityNameList . Entity_Name_List ::= "others";
+EntityNameList . Entity_Name_List ::= "all";
 
-Entity_Statement_Part ::=
-{ Entity_Statement }
+EntitySpec . Entity_Specification ::= Entity_Name_List ":" Entity_Class;
+
+EntityStmtConc . Entity_Statement ::= Concurrent_Assertion_Statement;
+EntityStmtPassiveConc . Entity_Statement ::= Passive_Concurrent_Procedure_Call_Statement;
+EntityStmtPassiveProc . Entity_Statement ::= Passive_Process_Statement;
+EntityStmtPSL . Entity_Statement ::= Psl_Psl_Directive;
+
+terminator Entity_Statement "";
+_ . Entity_Statement_Part ::= [Entity_Statement];
 
 Entity_Tag ::=
 Simple_Name | Character_Literal | Operator_Symbol
@@ -516,7 +517,7 @@ Enumeration_Literal ::=
 Identifier | Character_Literal
 
 Enumeration_Type_Definition ::=
-( Enumeration_Literal { , Enumeration_Literal } )
+( Enumeration_Literal { , Enumeration_Literal } ")"
 
 Exit_Statement ::=
 [ Label : ] Exit [ Loop_Label ] [ When Condition ] ;
@@ -524,85 +525,70 @@ Exit_Statement ::=
 Exponent ::=
 E [ + ] Integer | E – Integer
 
-Expression ::=
-Condition_Operator Primary
-| Logical_Expression
+ExpCondition . Expression ::= Condition_Operator Primary;
+ExpLogical . Expression ::= Logical_Expression;
 
-Extended_Digit ::=
-Digit | Letter
+ExtDigitDig . Extended_Digit ::= Digit;
+ExtDigitLetter . Extended_Digit ::= Letter;
 
 
-External_Name ::=
-External_Constant_Name
-| External_Signal_Name
-| External_Variable_Name
+ExternalNameConst . External_Name ::= External_Constant_Name;
+ExternalNameSig . External_Name ::= External_Signal_Name;
+ExternalNameVar . External_Name ::= External_Variable_Name;
 
-External_Constant_Name ::=
-<< Constant External_Pathname : Subtype_Indication >>
+ExtConstName . External_Constant_Name ::= "<<" Constant External_Pathname ":" Subtype_Indication ">>";
 
-External_Signal_Name ::=
-<< Signal External_Pathname : Subtype_Indication >>
+ExtSigName . External_Signal_Name ::= "<<" Signal External_Pathname ":" Subtype_Indication ">>";
 
-External_Variable_Name ::=
-<< Variable External_Pathname : Subtype_Indication >>
+ExtVarName . External_Variable_Name ::= "<<" Variable External_Pathname ":" Subtype_Indication ">>";
 
-External_Pathname ::=
-Package_Pathname
-| Absolute_Pathname
-| Relative_Pathname
+ExternalPathnamePackage . External_Pathname ::= Package_Pathname;
+ExternalPathnameAbsolute . External_Pathname ::= Absolute_Pathname;
+ExternalPathnameRelative . External_Pathname ::= Relative_Pathname;
 
-Factor ::=
-Primary [ ** Primary ]
-| Abs Primary
-| Not Primary
-| Logical_Operator Primary
+FactorPow . Factor ::= Primary "**" Primary;
+_ . Factor ::= Primary ;
+FactorAbs . Factor ::= "abs" Primary;
+FactorNot . Factor ::= "not" Primary;
+FactorLog . Factor ::= Logical_Operator Primary;
 
-File_Declaration ::=
-File [Identifier] : Subtype_Indication [ File_Open_Information ] ;
+FileDecl . File_Declaration ::= "file" [Identifier] ":" Subtype_Indication;
+FileDeclOpeninfo . File_Declaration ::= "file" [Identifier] ":" Subtype_Indication File_Open_Information;
 
-File_Logical_Name ::=
-String_Expression
+_ . File_Logical_Name ::= Expression;
 
-File_Open_Information ::=
-[ Open File_Open_Kind_Expression ] Is File_Logical_Name
+FileOpenInfo . File_Open_Information ::= "is" File_Logical_Name;
+FileOpenInfoOpen . File_Open_Information ::= "open" File_Open_Kind_Expression "is" File_Logical_Name;
 
-File_Type_Definition ::=
-File Of Type_Mark
+FileTypDef . File_Type_Definition ::= "file" "of" Type_Mark;
 
-Floating_Type_Definition ::=
-Range_Constraint
+_ . Floating_Type_Definition ::= Range_Constraint;
 
-For_Generate_Statement ::=
-Generate_Label :
-For Generate_Parameter_Specification Generate Generate_Statement_Body
-End Generate [ Generate_Label ] ;
+ForGenStmt . For_Generate_Statement ::= Label ":" "for" Generate_Parameter_Specification "generate" Generate_Statement_Body "end" "generate";
+ForGenStmt . For_Generate_Statement ::= Label ":" "for" Generate_Parameter_Specification "generate" Generate_Statement_Body "end" "generate" Generate_Label;
 
-Force_Mode ::=
-In | Out
+ForceModeIn . Force_Mode ::= "In";
+ForceModeOut . Force_Mode ::= "Out";
 
-Formal_Designator ::=
-Generic_Name
-| Port_Name
-| Parameter_Name
+FormalDesignatorGeneric . Formal_Designator ::= Generic_Name;
+FormalDesignatorPort . Formal_Designator ::= Port_Name;
+FormalDesignatorParam . Formal_Designator ::= Parameter_Name;
 
-Formal_Parameter_List ::=
-Parameter_Interface_List
+_ . Formal_Parameter_List ::= Parameter_Interface_List;
 
-Formal_Part ::=
-Formal_Designator
-| Function_Name ( Formal_Designator )
-| Type_Mark ( Formal_Designator )
+FormalPartFd . Formal_Part ::= Formal_Designator;
+FormalPartFunc . Formal_Part ::= Function_Name "(" Formal_Designator ")";
+FormalPartType . Formal_Part ::= Type_Mark "(" Formal_Designator ")";
 
-Full_Type_Declaration ::=
-Type Identifier Is Type_Definition ;
+FullTypeDecl . Full_Type_Declaration ::= "type" Identifier "is" Type_Definition ";";
 
-Function_Call ::=
-Function_Name [ ( Actual_Parameter_Part ) ]
+FuncCallNyad . Function_Call ::= Function_Name;
+FuncCallPolyad . Function_Call ::= Function_Name "(" Actual_Parameter_Part ")"
 
 Function_Specification ::=
 [ Pure | Impure ] Function Designator
 Subprogram_Header
-[ [ Parameter ] ( Formal_Parameter_List ) ] Return Type_Mark
+[ [ Parameter ] "(" Formal_Parameter_List ")" ] Return Type_Mark
 
 Generate_Specification ::=
 Static_Discrete_Range
@@ -621,13 +607,13 @@ Begin ]
 [ End [ Alternative_Label ] ; ]
 
 Generic_Clause ::=
-Generic ( Generic_List ) ;
+Generic "(" Generic_List ")" ;
 
 Generic_List ::=
 Generic_Interface_List
 
 Generic_Map_Aspect ::=
-Generic Map ( Generic_Association_List )
+Generic Map "(" Generic_Association_List ")"
 
 Graphic_Character ::=
 Basic_Graphic_Character | Lower_Case_Letter | Other_Special_Character
@@ -639,13 +625,11 @@ Group_Constituent_List ::=
 Group_Constituent { , Group_Constituent }
 
 Group_Declaration ::=
-Group Identifier : Group_Template_Name ( Group_Constituent_List ) ;
+Group Identifier : Group_Template_Name "(" Group_Constituent_List ")" ;
 
-Group_Template_Declaration ::=
-Group Identifier Is ( Entity_Class_Entry_List ) ;
+Group_Template_Declaration ::= Group Identifier "is" "(" Entity_Class_Entry_List ")" ;
 
-Guarded_Signal_Specification ::=
-Guarded_Signal_List : Type_Mark
+Guarded_Signal_Specification ::= Guarded_Signal_List ":" Type_Mark;
 
 Identifier ::=
 Basic_Identifier | Extended_Identifier
@@ -655,40 +639,44 @@ Basic_Identifier | Extended_Identifier
 -- Extended_Identifier ::=
 -- \ Graphic_Character { Graphic_Character } \
 
-token Basic_Identifier ('d');
-token Extended_Identifier ('d');
+token Basic_Identifier "("'d');
+token Extended_Identifier "("'d');
 
 separator Identifier ",";
 
-If_Generate_Statement ::=
-Generate_Label :
-If [ Alternative_Label : ] Condition Generate Generate_Statement_Body
-{ Elsif [ Alternative_Label : ] Condition Generate Generate_Statement_Body }
-[ Else [ Alternative_Label : ] Generate Generate_Statement_Body ]
-End Generate [ Generate_Label ] ;
+If_Generate_Statement ::= Label ":" "if" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] [ ElseGenPart ] "end" "Generate" [ Generate_Label ] ";"
+If_Generate_Statement ::= Label ":" "if" [ Alternative_Label ":" ] Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] [ ElseGenPart ] "end" "Generate" [ Generate_Label ] ";"
+If_Generate_Statement ::= Label ":" "if" [ Alternative_Label ":" ] Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] [ ElseGenPart ] "end" "Generate" [ Generate_Label ] ";"
+If_Generate_Statement ::= Label ":" "if" [ Alternative_Label ":" ] Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] [ ElseGenPart ] "end" "Generate" [ Generate_Label ] ";"
 
-If_Statement ::=
-[ If_Label : ]
-If Condition Then Sequence_Of_Statements
-{ Elsif Condition Then Sequence_Of_Statements }
-[ Else Sequence_Of_Statements ]
-End If [ If_Label ] ;
+separator Elsif_Generate_Parts "";
+ElsifGenPartsLab . Elsif_Generate_Parts ::= "elsif" Alternative_Label ":" Condition "generate" Generate_Statement_Body;
+ElsifGenParts . Elsif_Generate_Parts ::= "elsif" Condition "generate" Generate_Statement_Body;
 
-Incomplete_Type_Declaration ::=
-Type Identifier ;
+ElseGenPartLabel . Else_Gen_Part ::= "else" Alternative_Label ":" Generate Generate_Statement_Body;
+ElseGenPart . Else_Gen_Part ::= "else" Generate Generate_Statement_Body;
 
-Index_Constraint ::=
-( Discrete_Range { , Discrete_Range } )
+IfStatement . If_Statement ::= "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "end" "if" ";"
+IfStatementL . If_Statement ::= [ Label ":" ] "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "end" "if" [ Label ] ";"
+IfStatementE . If_Statement ::= "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "else" [Sequential_Statement] "end" "if" ";"
+IfStatementLE . If_Statement ::= [ Label ":" ] "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "else" [Sequential_Statement] "end" "if" [ Label ] ";"
 
-Index_Subtype_Definition ::=
-Type_Mark Range <>
+terminator Elsif_Parts "";
+ElsifParts . Elsif_Parts ::= "elsif" Condition "then" [Sequential_Statement]
 
-Indexed_Name ::=
-Prefix ( Expression { , Expression } )
+IncompleteTypeDef . Incomplete_Type_Declaration ::= Type Identifier ";";
+
+separator nonempty Discrete_Range ",";
+IndexConstraint . Index_Constraint ::= "(" [Discrete_Range] ")";
+
+IndexSubtDef . Index_Subtype_Definition ::= Type_Mark "range" "<>";
+
+separator nonempty Expression ",";
+Indexed_Name ::= Prefix "(" [Expression] ")";
 
 Instantiated_Unit ::=
 [ Component ] Component_Name
-| Entity Entity_Name [ ( Architecture_Identifier ) ]
+| Entity Entity_Name [ "(" Architecture_Identifier ")" ]
 | Configuration Configuration_Name
 
 Instantiation_List ::=
@@ -719,7 +707,7 @@ File [Identifier] : Subtype_Indication
 
 Interface_Function_Specification ::=
 [ Pure | Impure ] Function Designator
-[ [ Parameter ] ( Formal_Parameter_List ) ] Return Type_Mark
+[ [ Parameter ] "(" Formal_Parameter_List ")" ] Return Type_Mark
 
 Interface_Incomplete_Type_Declaration ::=
 Type Identifier
@@ -739,12 +727,12 @@ New Uninstantiated_Package_Name Interface_Package_Generic_Map_Aspect
 
 Interface_Package_Generic_Map_Aspect ::=
 Generic_Map_Aspect
-| Generic Map ( <> )
-| Generic Map ( Default )
+| Generic Map "(" <> ")"
+| Generic Map "(" Default ")"
 
 Interface_Procedure_Specification ::=
 Procedure Designator
-[ [ Parameter ] ( Formal_Parameter_List ) ]
+[ [ Parameter ] "(" Formal_Parameter_List ")" ]
 
 Interface_Signal_Declaration ::=
 [ Signal ] [Identifier] : [ Mode ] Subtype_Indication [ Bus ] [ := Static_Expression ]
@@ -927,7 +915,7 @@ Pathname_Element ::=
   Simple_Name
 | Component_Instantiation_Label
 | Block_Label
-| Generate_Statement_Label [ ( Static_Expression ) ]
+| Generate_Statement_Label [ "(" Static_Expression ")" ]
 | Package_Simple_Name
 
 PhysicalLiteral . Physical_Literal ::= Unit_Name
@@ -941,13 +929,13 @@ Primary_Unit_Declaration
 End Units [ Physical_Type_Simple_Name ]
 
 Port_Clause ::=
-Port ( Port_List ) ;
+Port "(" Port_List ")" ;
 
 Port_List ::=
 Port_Interface_List
 
 Port_Map_Aspect ::=
-Port Map ( Port_Association_List )
+Port Map "(" Port_Association_List ")"
 
 Prefix ::=
 Name | Function_Call
@@ -959,7 +947,7 @@ Name
 | Function_Call
 | Qualified_Expression | Type_Conversion
 | Allocator
-| ( Expression )
+| "(" Expression ")"
 
 Primary_Unit ::=
 Entity_Declaration
@@ -972,7 +960,7 @@ Primary_Unit_Declaration ::=
 Identifier ;
 
 Procedure_Call ::=
-Procedure_Name [ ( Actual_Parameter_Part ) ]
+Procedure_Name [ "(" Actual_Parameter_Part ")" ]
 
 Procedure_Call_Statement ::=
 [ Label : ] Procedure_Call ;
@@ -980,7 +968,7 @@ Procedure_Call_Statement ::=
 Procedure_Specification ::=
 Procedure Designator
 Subprogram_Header
-[ [ Parameter ] ( Formal_Parameter_List ) ]
+[ [ Parameter ] "(" Formal_Parameter_List ")" ]
 
 Process_Declarative_Item ::=
 Subprogram_Declaration
@@ -1009,7 +997,7 @@ All | Sensitivity_List
 
 Process_Statement ::=
 [ Process_Label : ]
-[ Postponed ] Process [ ( Process_Sensitivity_List ) ] [ Is ] Process_Declarative_Part
+[ Postponed ] Process [ "(" Process_Sensitivity_List ")" ] [ Is ] Process_Declarative_Part
 Begin
 Process_Statement_Part
 End [ Postponed ] Process [ Process_Label ] ;
@@ -1062,18 +1050,18 @@ Protected_Type_Declaration
 | Protected_Type_Body
 
 Qualified_Expression ::=
-Type_Mark ' ( Expression )
+Type_Mark ' "(" Expression ")"
 | Type_Mark ' Aggregate
 
 Range ::=
-Range_Attribute_Name
-| Simple_Expression Direction Simple_Expression
+Range_Attribute_Na
+
 
 Range_Constraint ::=
 Range Range
 
 Record_Constraint ::=
-( Record_Element_Constraint { , Record_Element_Constraint } )
+( Record_Element_Constraint { , Record_Element_Constraint } ")"
 
 Record_Element_Constraint ::=
 Record_Element_Simple_Name Element_Constraint
@@ -1106,7 +1094,7 @@ Report Expression
 
 Resolution_Indication ::=
 Resolution_Function_Name
-| ( Element_Resolution )
+| "(" Element_Resolution ")"
 
 Return_Statement ::=
 [ Label : ] Return [ Expression ] ;
@@ -1150,8 +1138,9 @@ Target <= [ Delay_Mechanism ] Selected_Waveforms ;
 Selected_Waveforms ::=
 { Waveform When Choices , } Waveform When Choices
 
-Sensitivity_Clause ::=
-On Sensitivity_List
+-- TODO: MARK here continue
+
+_ . Sensitivity_Clause ::= "on" Sensitivity_List;
 
 separator nonempty Signal_Name ",";
 Sensitivity_List ::= [Signal_Name];
@@ -1177,9 +1166,9 @@ SimpleExprU . Shift_Expression ::= Simple_Expression;
 SimpleExprB . Shift_Expression ::= Simple_Expression Shift_Operator Simple_Expression;
 
 -- TODO: Sll | Srl | Sla | Sra | Rol | Ror
-token Shift_Operator ('d');
+token Shift_Operator "("'d');
 
-token Sign ('+' | '-');
+token Sign "("'+' | '-');
 
 Signal_Assignment_Statement ::=
 [ Label : ] Simple_Signal_Assignment
@@ -1259,7 +1248,7 @@ Subprogram_Declarative_Part ::=
 { Subprogram_Declarative_Item }
 
 Subprogram_Header ::=
-[ Generic ( Generic_List ) [ Generic_Map_Aspect ] ]
+[ Generic "(" Generic_List ")" [ Generic_Map_Aspect ] ]
 
 Subprogram_Instantiation_Declaration ::=
 Subprogram_Kind Identifier Is New Uninstantiated_Subprogram_Name [ Signature ] [ Generic_Map_Aspect ] ;
