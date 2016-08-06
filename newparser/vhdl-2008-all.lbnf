@@ -1067,86 +1067,86 @@ Range ::=
 Range_Attribute_Na
 
 
-Range_Constraint ::=
-Range Range
+Range_Constraint ::= Range Range;
 
-Record_Constraint ::=
-( Record_Element_Constraint { , Record_Element_Constraint } ")"
+Record_Constraint ::= "(" [Record_Element_Constraint] ")";
 
-Record_Element_Constraint ::=
-Record_Element_Simple_Name Element_Constraint
+separator Record_Element_Constraint ",";
+Record_Element_Constraint ::= Simple_Name Element_Constraint;
 
-Record_Element_Resolution ::=
-Record_Element_Simple_Name Resolution_Indication
+Record_Element_Resolution ::= Simple_Name Resolution_Indication;
 
-Record_Resolution ::=
-Record_Element_Resolution { , Record_Element_Resolution }
 
-Record_Type_Definition ::=
-Record
-Element_Declaration
-{ Element_Declaration }
-End Record [ Record_Type_Simple_Name ]
+separator nonempty Record_Element_Resolution ",";
+_ . Record_Resolution ::= [Record_Element_Resolution];
 
-Relation ::=
-Shift_Expression [ Relational_Operator Shift_Expression ]
+terminator Element_Declaration "";
+RecordTypeDef . Record_Type_Definition ::= "record"                       "end" "record" ;
+RecordTypeDef . Record_Type_Definition ::= "record"                       "end" "record"  Simple_Name ;
+RecordTypeDef . Record_Type_Definition ::= "record" Element_Declaration "end" "record" ;
+RecordTypeDef . Record_Type_Definition ::= "record" Element_Declaration "end" "record"  Simple_Name ;
 
+RelationU . Relation ::= Shift_Expression ;
+RelationB . Relation ::= Shift_Expression Relational_Operator Shift_Expression;
+
+
+
+-- TODO: Impl!
+Relative_Pathname ::= { ^ . } Partial_Pathname;
 Relational_Operator ::=
 = | /= | < | <= | > | >= | ?= | ?/= | ?< | ?<= | ?> | ?>=
 
-Relative_Pathname ::=
-{ ^ . } Partial_Pathname
+-- End TODO
 
-Report_Statement ::=
-[ Label : ]
-Report Expression
-[ Severity Expression ] ;
+ReportStmt . Report_Statement ::=             "report" Expression  ";";
+ReportStmtSev . Report_Statement ::=             "report" Expression  "severity" Expression  ";";
+ReportStmtL . Report_Statement ::=  Label ":"  "report" Expression  ";";
+ReportStmtLSEV . Report_Statement ::=  Label ":"  "report" Expression  "severity" Expression  ";";
 
 Resolution_Indication ::=
-Resolution_Function_Name
-| "(" Element_Resolution ")"
+ResolutionInd . Resolution_Indication ::= Resolution_Function_Name;
+ResolutionInd . Resolution_Indication ::= "(" Element_Resolution ")";
 
-Return_Statement ::=
-[ Label : ] Return [ Expression ] ;
+RetStmt . Return_Statement ::=               "return"  ";";
+RetStmtE . Return_Statement ::=               "return" Expression ";";
+RetStmtL . Return_Statement ::= Label ":" "return"  ";";
+RetStmtLE . Return_Statement ::= Label ":" "return" Expression ";";
 
-Scalar_Type_Definition ::=
-Enumeration_Type_Definition
-| Integer_Type_Definition
-| Floating_Type_Definition
-| Physical_Type_Definition
+ScalarTypeDefEnum . Scalar_Type_Definition ::= Enumeration_Type_Definition;
+ScalarTypeDefInt . Scalar_Type_Definition ::= Integer_Type_Definition;
+ScalarTypeDefFloat . Scalar_Type_Definition ::= Floating_Type_Definition;
+ScalarTypeDefPhys . Scalar_Type_Definition ::= Physical_Type_Definition;
 
 Secondary_Unit ::=
-Architecture_Body
-| Package_Body
+SecondaryUnitArch . Secondary_Unit ::= Architecture_Body;
+SecondaryUnitBody . Secondary_Unit ::= Package_Body;
 
-Secondary_Unit_Declaration ::=
-Identifier = Physical_Literal ;
+SecUnitDelc . Secondary_Unit_Declaration ::= Identifier "=" Physical_Literal ";";
 
-Selected_Expressions ::=
-{ Expression When Choices , }
-Expression When Choices
+_ . Selected_Expressions ::= [Selected_Expression];
 
-Selected_Force_Assignment ::=
-With Expression Select [ ? ]
-Target <= Force [ Force_Mode ] Selected_Expressions ;
+separator nonempty Selected_Expression ",";
+SelectedExpression . Selected_Expression ::= Expression "when" [Choice];
 
-Selected_Name ::=
-Prefix . Suffix
+Selected_Force_Assignment ::= "with" Expression "select" [ "?" ] Target "<=" "force" [ Force_Mode ] Selected_Expressions ";";
 
-Selected_Signal_Assignment ::=
-Selected_Waveform_Assignment
-| Selected_Force_Assignment
+SelectedName . Selected_Name ::= Prefix "." Suffix;
 
-Selected_Variable_Assignment ::=
-With Expression Select [ ? ]
-Target := Selected_Expressions ;
+SelectedSigAssign . Selected_Signal_Assignment ::= Selected_Waveform_Assignment;
+SelectedSigAssign . Selected_Signal_Assignment ::= Selected_Force_Assignment;
 
-Selected_Waveform_Assignment ::=
-With Expression Select [ ? ]
-Target <= [ Delay_Mechanism ] Selected_Waveforms ;
+SelectedVarAssign . Selected_Variable_Assignment ::= "with" Expression "select" Target ":=" Selected_Expressions ";";
+SelectedVarAssignQ . Selected_Variable_Assignment ::= "with" Expression "select" "?" Target ":=" Selected_Expressions ";";
 
-Selected_Waveforms ::=
-{ Waveform When Choices , } Waveform When Choices
+SelectedWavAssign . Selected_Waveform_Assignment ::= "with" Expression "select"         Target "<="                   Selected_Waveforms ";";
+SelectedWavAssignD . Selected_Waveform_Assignment ::= "with" Expression "select"        Target "<="  Delay_Mechanism  Selected_Waveforms ";";
+SelectedWavAssignQ . Selected_Waveform_Assignment ::= "with" Expression "select"   "?"  Target "<="                   Selected_Waveforms ";";
+SelectedWavAssignQD . Selected_Waveform_Assignment ::= "with" Expression "select"  "?"  Target "<="  Delay_Mechanism  Selected_Waveforms ";";
+
+_ . Selected_Waveforms ::= [Selected_Waveform];
+
+separator nonempty Selected_Waveform ",";
+SelectedWaveform . Selected_Waveform ::= Waveform "when" [Choice];
 
 -- TODO: MARK here continue
 
@@ -1189,10 +1189,10 @@ SigAssStmtLCond . Signal_Assignment_Statement ::= Label ":" Conditional_Signal_A
 SigAssStmtSel . Signal_Assignment_Statement ::= Selected_Signal_Assignment;
 SigAssStmtLSel . Signal_Assignment_Statement ::= Label ":" Selected_Signal_Assignment;
 
-Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication ";"
-Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication [ Signal_Kind ] [ ":=" Expression ] ";"
-Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication [ Signal_Kind ] [ ":=" Expression ] ";"
-Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication [ Signal_Kind ] [ ":=" Expression ] ";"
+SignalDecl . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication ";"
+SignalDeclE . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication ":=" Expression ";"
+SignalDeclK . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication Signal_Kind ";"
+SignalDeclKE . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication Signal_Kind ":=" Expression ";"
 
 SigKindReg . Signal_Kind ::= Register;
 SigKindBus . Signal_Kind ::= Bus
