@@ -796,8 +796,7 @@ Relation { And Relation }
 | Relation [ Nor Relation ]
 | Relation { Xnor Relation }
 
-Logical_Name ::=
-Identifier
+_ . Logical_Name ::= Identifier;
 
 Logical_Name_List ::=
 Logical_Name { , Logical_Name }
@@ -880,126 +879,117 @@ Package_Header
 Package_Declarative_Part
 End [ Package ] [ Package_Simple_Name ] ;
 
-Package_Declarative_Item ::=
-Subprogram_Declaration
-| Subprogram_Instantiation_Declaration
-| Package_Declaration
-| Package_Instantiation_Declaration
-| Type_Declaration
-| Subtype_Declaration
-| Constant_Declaration
-| Signal_Declaration
-| Variable_Declaration
-| File_Declaration
-| Alias_Declaration
-| Component_Declaration
-| Attribute_Declaration
-| Attribute_Specification
-| Disconnection_Specification
-| Use_Clause
-| Group_Template_Declaration
-| Group_Declaration
-| Psl_Property_Declaration
-| Psl_Sequence_Declaration
+PackDeclItemSd . Package_Declarative_Item ::= Subprogram_Declaration;
+PackDeclItemSi . Package_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+PackDeclItemPd . Package_Declarative_Item ::= Package_Declaration;
+PackDeclItemPi . Package_Declarative_Item ::= Package_Instantiation_Declaration;
+PackDeclItemTd . Package_Declarative_Item ::= Type_Declaration;
+PackDeclItemSde . Package_Declarative_Item ::= Subtype_Declaration;
+PackDeclItemCd . Package_Declarative_Item ::= Constant_Declaration;
+PackDeclItemSigd . Package_Declarative_Item ::= Signal_Declaration;
+PackDeclItemVard . Package_Declarative_Item ::= Variable_Declaration;
+PackDeclItemFd . Package_Declarative_Item ::= File_Declaration;
+PackDeclItemAld . Package_Declarative_Item ::= Alias_Declaration;
+PackDeclItemComd . Package_Declarative_Item ::= Component_Declaration;
+PackDeclItemAttD . Package_Declarative_Item ::= Attribute_Declaration;
+PackDeclItemAttS . Package_Declarative_Item ::= Attribute_Specification;
+PackDeclItemDs . Package_Declarative_Item ::= Disconnection_Specification;
+PackDeclItemUseC . Package_Declarative_Item ::= Use_Clause;
+PackDeclItemGt . Package_Declarative_Item ::= Group_Template_Declaration;
+PackDeclItemGd . Package_Declarative_Item ::= Group_Declaration;
+PackDeclItemPPd . Package_Declarative_Item ::= Psl_Property_Declaration;
+PackDeclItemPSD . Package_Declarative_Item ::= Psl_Sequence_Declaration;
 
-Package_Declarative_Part ::=
-{ Package_Declarative_Item }
+terminator Package_Declarative_Item "";
+Package_Declarative_Part ::= [Package_Declarative_Item];
 
-Package_Header ::=
-[ Generic_Clause
-[ Generic_Map_Aspect ; ] ]
+PackageHeader . Package_Header ::= ;
+PackageHeader . Package_Header ::=  Generic_Clause ";";
+PackageHeader . Package_Header ::=  Generic_Clause  Generic_Map_Aspect ";"  ;
 
-Package_Instantiation_Declaration ::=
-Package Identifier Is New Uninstantiated_Package_Name
-[ Generic_Map_Aspect ] ;
+PackInstDecl . Package_Instantiation_Declaration ::= "package" Identifier "is" "new" Uninstantiated_Package_Name ";";
+PackInstDeclMap . Package_Instantiation_Declaration ::= "package" Identifier "is" "new" Uninstantiated_Package_Name Generic_Map_Aspect ";";
 
-Package_Pathname ::=
-@ Library_Logical_Name . { Package_Simple_Name . } Simple_Name
+-- TODO: impl
+Package_Pathname ::= "@" Logical_Name "." { Simple_Name "." } Simple_Name;
+-- ENDTODO
 
-Parameter_Specification ::=
-Identifier In Discrete_Range
+ParamSpec . Parameter_Specification ::= Identifier "in" Discrete_Range;
 
 Partial_Pathname ::= { Pathname_Element "." } Simple_Name
 
-Pathname_Element ::=
-  Simple_Name
-| Component_Instantiation_Label
-| Block_Label
-| Generate_Statement_Label [ "(" Static_Expression ")" ]
-| Package_Simple_Name
+PathnameElemSname . Pathname_Element ::= Simple_Name;
+PathnameElemComp . Pathname_Element ::= Component_Instantiation_Label;
+PathnameElemBlock . Pathname_Element ::= Block_Label;
+PathnameElemGen . Pathname_Element ::= Generate_Statement_Label ;
+PathnameElemGenE . Pathname_Element ::= Generate_Statement_Label "(" Static_Expression ")";
+PathnameElemPack . Pathname_Element ::= Package_Simple_Name;
 
-PhysicalLiteral . Physical_Literal ::= Unit_Name
-PhysicalLiteral . Physical_Literal ::= Abstract_Literal Unit_Name
+PhysicalLiteral . Physical_Literal ::= Name;
+PhysicalLiteral . Physical_Literal ::= Abstract_Literal Name;
 
-Physical_Type_Definition ::=
-Range_Constraint
-Units
-Primary_Unit_Declaration
-{ Secondary_Unit_Declaration }
-End Units [ Physical_Type_Simple_Name ]
+-- TODO: impl
+Physical_Type_Definition ::= Range_Constraint "units" Primary_Unit_Declaration { Secondary_Unit_Declaration } "end" "units" [ Physical_Type_Simple_Name ];
+-- ENDTODO
 
-Port_Clause ::=
-Port "(" Port_List ")" ;
+PortClause . Port_Clause ::= Port "(" Port_List ")" ";";
 
-Port_List ::=
-Port_Interface_List
+_ . Port_List ::= Port_Interface_List;
 
-Port_Map_Aspect ::=
-Port Map "(" Port_Association_List ")"
+PortMapAspect . Port_Map_Aspect ::= "port" "map" "(" Port_Association_List ")";
 
-Prefix ::=
-Name | Function_Call
+PrefixName . Prefix ::= Name;
+PrefixFcall . Prefix ::= Function_Call;
 
-Primary ::=
-Name
-| Literal
-| Aggregate
-| Function_Call
-| Qualified_Expression | Type_Conversion
-| Allocator
-| "(" Expression ")"
+PrimName . Primary ::= Name;
+PrimLit . Primary ::= Literal;
+PrimAggr . Primary ::= Aggregate;
+PrimFcall . Primary ::= Function_Call;
+PrimQexp . Primary ::= Qualified_Expression;
+PrimCast . Primary ::= Type_Conversion;
+PrimAlloc . Primary ::= Allocator;
+PrimParen . Primary ::= "(" Expression ")";
 
-Primary_Unit ::=
-Entity_Declaration
-| Configuration_Declaration
-| Package_Declaration
-| Package_Instantiation_Declaration | Context_Declaration
-| Psl_Verification_Unit
+PrimaryUnit . Primary_Unit ::= Entity_Declaration;
+PrimaryUnit . Primary_Unit ::= Configuration_Declaration;
+PrimaryUnit . Primary_Unit ::= Package_Declaration;
+PrimaryUnit . Primary_Unit ::= Package_Instantiation_Declaration
+PrimaryUnit . Primary_Unit ::= Context_Declaration;
+PrimaryUnit . Primary_Unit ::= Psl_Verification_Unit;
 
-Primary_Unit_Declaration ::=
-Identifier ;
+_ . Primary_Unit_Declaration ::= Identifier ";";
 
-Procedure_Call ::=
-Procedure_Name [ "(" Actual_Parameter_Part ")" ]
+ProcedureCall       . Procedure_Call ::= Procedure_Name;
+ProcedureCallActual . Procedure_Call ::= Procedure_Name [ "(" Actual_Parameter_Part ")" ];
 
-Procedure_Call_Statement ::=
-[ Label : ] Procedure_Call ;
+ProcCallStmt . Procedure_Call_Statement ::=  Procedure_Call ";";
+ProcCallStmtL . Procedure_Call_Statement ::= Label ":" Procedure_Call ";";
 
-Procedure_Specification ::=
-Procedure Designator
-Subprogram_Header
-[ [ Parameter ] "(" Formal_Parameter_List ")" ]
+ProcSpec . Procedure_Specification ::= "procedure" Designator Subprogram_Header ;
+ProcSpecFp . Procedure_Specification ::= "procedure" Designator Subprogram_Header "(" Formal_Parameter_List ")";
+ProcSpecParamFP . Procedure_Specification ::= "procedure" Designator Subprogram_Header [ Parameter ] "(" Formal_Parameter_List ")";
 
-Process_Declarative_Item ::=
-Subprogram_Declaration
-| Subprogram_Body
-| Subprogram_Instantiation_Declaration
-| Package_Declaration
-| Package_Body
-| Package Instantiation_Declaration
-| Type_Declaration
-| Subtype_Declaration
-| Constant_Declaration
-| Variable_Declaration
-| File_Declaration
-| Alias_Declaration
-| Attribute_Declaration
-| Attribute_Specification
-| Use_Clause
-| Group_Template_Declaration
-| Group_Declaration
+ProcDeclItemSd . Process_Declarative_Item ::= Subprogram_Declaration;
+ProcDeclItemSb . Process_Declarative_Item ::= Subprogram_Body;
+ProcDeclItemSi . Process_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+ProcDeclItemPd . Process_Declarative_Item ::= Package_Declaration;
+ProcDeclItemPb . Process_Declarative_Item ::= Package_Body;
+ProcDeclItemPi . Process_Declarative_Item ::= Package Instantiation_Declaration;
+ProcDeclItemTd . Process_Declarative_Item ::= Type_Declaration;
+ProcDeclItemSd . Process_Declarative_Item ::= Subtype_Declaration;
+ProcDeclItemCd . Process_Declarative_Item ::= Constant_Declaration;
+ProcDeclItemVd . Process_Declarative_Item ::= Variable_Declaration;
+ProcDeclItemFd . Process_Declarative_Item ::= File_Declaration;
+ProcDeclItemAd . Process_Declarative_Item ::= Alias_Declaration;
+ProcDeclItemAttd . Process_Declarative_Item ::= Attribute_Declaration;
+ProcDeclItemAtts . Process_Declarative_Item ::= Attribute_Specification;
+ProcDeclItemUc . Process_Declarative_Item ::= Use_Clause;
+ProcDeclItemGt . Process_Declarative_Item ::= Group_Template_Declaration;
+ProcDeclItemGd . Process_Declarative_Item ::= Group_Declaration;
 
-Process_Declarative_Part ::= { Process_Declarative_Item }
+
+terminator Process_Declarative_Item "";
+Process_Declarative_Part ::= [Process_Declarative_Item]
 
 ProcSensListAll . Process_Sensitivity_List ::= "all";
 ProcSensList . Process_Sensitivity_List ::= Sensitivity_List;
