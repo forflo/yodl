@@ -999,69 +999,70 @@ Subprogram_Declaration
 | Group_Template_Declaration
 | Group_Declaration
 
-Process_Declarative_Part ::=
-{ Process_Declarative_Item }
+Process_Declarative_Part ::= { Process_Declarative_Item }
 
-Process_Sensitivity_List ::=
-All | Sensitivity_List
+ProcSensListAll . Process_Sensitivity_List ::= "all";
+ProcSensList . Process_Sensitivity_List ::= Sensitivity_List;
 
-Process_Statement ::=
-[ Process_Label : ]
-[ Postponed ] Process [ "(" Process_Sensitivity_List ")" ] [ Is ] Process_Declarative_Part
-Begin
-Process_Statement_Part
-End [ Postponed ] Process [ Process_Label ] ;
+ProcessStmt      . Process_Statement ::=                               "process"                                               Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"           ";";
+ProcessStmtIs    . Process_Statement ::=                               "process"                                       "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"           ";";
+ProcessStmtS     . Process_Statement ::=                               "process"  "(" Process_Sensitivity_List ")"           Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"           ";";
+ProcessStmtSIs   . Process_Statement ::=                               "process"  "(" Process_Sensitivity_List ")"   "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"           ";";
+ProcessStmtP     . Process_Statement ::=                "postponed"  "process"                                               Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"           ";";
+ProcessStmtPIs   . Process_Statement ::=                "postponed"  "process"                                       "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"           ";";
+ProcessStmtPS    . Process_Statement ::=                "postponed"  "process"  "(" Process_Sensitivity_List ")"           Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"           ";";
+ProcessStmtPSIs  . Process_Statement ::=                "postponed"  "process"  "(" Process_Sensitivity_List ")"   "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"           ";";
+ProcessStmtL     . Process_Statement ::=  Label ":"                  "process"                                               Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"  Label  ";";
+ProcessStmtLIs   . Process_Statement ::=  Label ":"                  "process"                                       "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"  Label  ";";
+ProcessStmtLS    . Process_Statement ::=  Label ":"                  "process"  "(" Process_Sensitivity_List ")"           Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"  Label  ";";
+ProcessStmtLSIs  . Process_Statement ::=  Label ":"                  "process"  "(" Process_Sensitivity_List ")"   "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"                 "process"  Label  ";";
+ProcessStmtLP    . Process_Statement ::=  Label ":"   "postponed"  "process"                                               Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"  Label  ";";
+ProcessStmtLPIs  . Process_Statement ::=  Label ":"   "postponed"  "process"                                       "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"  Label  ";";
+ProcessStmtLPS   . Process_Statement ::=  Label ":"   "postponed"  "process"  "(" Process_Sensitivity_List ")"           Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"  Label  ";";
+ProcessStmtLPSIs . Process_Statement ::=  Label ":"   "postponed"  "process"  "(" Process_Sensitivity_List ")"   "is"  Process_Declarative_Part "begin" Process_Statement_Part "end"  "postponed"  "process"  Label  ";";
 
-Process_Statement_Part ::=
-{ Sequential_Statement }
+Process_Statement_Part ::= [Sequential_Statement];
 
-Protected_Type_Body ::=
-Protected Body
-Protected_Type_Body_Declarative_Part
-End Protected Body [ Protected_Type_Simple Name ]
+ProtTypeBody . Protected_Type_Body ::= "protected" "body" Protected_Type_Body_Declarative_Part "end" "protected" "body" ;
+ProtTypeBody . Protected_Type_Body ::= "protected" "body" Protected_Type_Body_Declarative_Part "end" "protected" "body" Simple Name;
 
-Protected_Type_Body_Declarative_Item ::=
-Subprogram_Declaration
-| Subprogram_Body
-| Subprogram_Instantiation_Declaration
-| Package_Declaration
-| Package_Body
-| Package_Instantiation_Declaration
-| Type_Declaration
-| Subtype_Declaration
-| Constant_Declaration
-| Variable_Declaration
-| File_Declaration
-| Alias_Declaration
-| Attribute_Declaration
-| Attribute_Specification
-| Use_Clause
-| Group_Template_Declaration
-| Group_Declaration
+ProtTypeBodyDeclItemSd . Protected_Type_Body_Declarative_Item ::= Subprogram_Declaration;
+ProtTypeBodyDeclItemSb . Protected_Type_Body_Declarative_Item ::= Subprogram_Body;
+ProtTypeBodyDeclItemSi . Protected_Type_Body_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+ProtTypeBodyDeclItemPd . Protected_Type_Body_Declarative_Item ::= Package_Declaration;
+ProtTypeBodyDeclItemPe . Protected_Type_Body_Declarative_Item ::= Package_Body;
+ProtTypeBodyDeclItemPi . Protected_Type_Body_Declarative_Item ::= Package_Instantiation_Declaration;
+ProtTypeBodyDeclItemTd . Protected_Type_Body_Declarative_Item ::= Type_Declaration;
+ProtTypeBodyDeclItemSd . Protected_Type_Body_Declarative_Item ::= Subtype_Declaration;
+ProtTypeBodyDeclItemCd . Protected_Type_Body_Declarative_Item ::= Constant_Declaration;
+ProtTypeBodyDeclItemVd . Protected_Type_Body_Declarative_Item ::= Variable_Declaration;
+ProtTypeBodyDeclItemFd . Protected_Type_Body_Declarative_Item ::= File_Declaration;
+ProtTypeBodyDeclItemAd . Protected_Type_Body_Declarative_Item ::= Alias_Declaration;
+ProtTypeBodyDeclItemAtd . Protected_Type_Body_Declarative_Item ::= Attribute_Declaration;
+ProtTypeBodyDeclItemAS . Protected_Type_Body_Declarative_Item ::= Attribute_Specification;
+ProtTypeBodyDeclItemUc . Protected_Type_Body_Declarative_Item ::= Use_Clause;
+ProtTypeBodyDeclItemGt . Protected_Type_Body_Declarative_Item ::= Group_Template_Declaration;
+ProtTypeBodyDeclItemGd . Protected_Type_Body_Declarative_Item ::= Group_Declaration;
 
-Protected_Type_Body_Declarative_Part ::=
-{ Protected_Type_Body_Declarative_Item }
+separator Protected_Type_Body_Declarative_Item "";
+Protected_Type_Body_Declarative_Part ::= [Protected_Type_Body_Declarative_Item];
 
-Protected_Type_Declaration ::=
-Protected
-Protected_Type_Declarative_Part
-End Protected [ Protected_Type_Simple_Name ]
+ProtTypeDecl . Protected_Type_Declaration ::= "protected" Protected_Type_Declarative_Part "end" "protected" ;
+ProtTypeDecl . Protected_Type_Declaration ::= "protected" Protected_Type_Declarative_Part "end" "protected" [ Protected_Type_Simple_Name ];
 
-Protected_Type_Declarative_Item ::=
-Subprogram_Declaration
-| Subprogram_Instantiation_Declaration | Attribute_Specification
-| Use_Clause
+ProtTypeDeclItemSd . Protected_Type_Declarative_Item ::= Subprogram_Declaration;
+ProtTypeDeclItemSi . Protected_Type_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+ProtTypeDeclItemAttr . Protected_Type_Declarative_Item ::= Attribute_Specification;
+ProtTypeDeclItemUse . Protected_Type_Declarative_Item ::= Use_Clause;
 
-Protected_Type_Declarative_Part ::=
-{ Protected_Type_Declarative_Item }
+separator Protected_Type_Declarative_Item "";
+_ . Protected_Type_Declarative_Part ::= [Protected_Type_Declarative_Item];
 
-Protected_Type_Definition ::=
-Protected_Type_Declaration
-| Protected_Type_Body
+ProtectedTypeDef. Protected_Type_Definition ::= Protected_Type_Declaration;
+ProtectedTypeDef. Protected_Type_Definition ::= Protected_Type_Body;
 
-Qualified_Expression ::=
-Type_Mark ' "(" Expression ")"
-| Type_Mark ' Aggregate
+QualifiedExpExp . Qualified_Expression ::= Type_Mark "'" "(" Expression ")";
+QualifiedExpAggr . Qualified_Expression ::= Type_Mark "'" Aggregate;
 
 Range ::=
 Range_Attribute_Na
@@ -1090,11 +1091,9 @@ RelationU . Relation ::= Shift_Expression ;
 RelationB . Relation ::= Shift_Expression Relational_Operator Shift_Expression;
 
 
-
 -- TODO: Impl!
 Relative_Pathname ::= { ^ . } Partial_Pathname;
-Relational_Operator ::=
-= | /= | < | <= | > | >= | ?= | ?/= | ?< | ?<= | ?> | ?>=
+token Relational_Operator (= | /= | < | <= | > | >= | ?= | ?/= | ?< | ?<= | ?> | ?>=);
 
 -- End TODO
 
@@ -1128,7 +1127,10 @@ _ . Selected_Expressions ::= [Selected_Expression];
 separator nonempty Selected_Expression ",";
 SelectedExpression . Selected_Expression ::= Expression "when" [Choice];
 
-Selected_Force_Assignment ::= "with" Expression "select" [ "?" ] Target "<=" "force" [ Force_Mode ] Selected_Expressions ";";
+SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"         Target "<=" "force"                Selected_Expressions ";";
+SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"         Target "<=" "force"  Force_Mode  Selected_Expressions ";";
+SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"  "?"  Target "<=" "force"                Selected_Expressions ";";
+SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"  "?"  Target "<=" "force"  Force_Mode  Selected_Expressions ";";
 
 SelectedName . Selected_Name ::= Prefix "." Suffix;
 
@@ -1147,8 +1149,6 @@ _ . Selected_Waveforms ::= [Selected_Waveform];
 
 separator nonempty Selected_Waveform ",";
 SelectedWaveform . Selected_Waveform ::= Waveform "when" [Choice];
-
--- TODO: MARK here continue
 
 _ . Sensitivity_Clause ::= "on" Sensitivity_List;
 
