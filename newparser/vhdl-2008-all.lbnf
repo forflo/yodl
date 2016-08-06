@@ -180,17 +180,19 @@ GenClause . BH_temp ::= Generic_Clause ";" ;
 PortClausePortMap . BH_temp2 ::= Port_Clause Port_Map_Aspect";"
 PortClause . BH_temp2 ::= Port_Clause ";"
 
-Block_Specification ::= Architecture_Name
-Block_Specification ::= Block_Statement_Label
-Block_Specification ::= Generate_Statement_Label;
-Block_Specification ::= Generate_Statement_Label "(" Generate_Specification ")";
+BlockSpecArch . Block_Specification ::= Architecture_Name;
+BlockSpecBlock . Block_Specification ::= Block_Statement_Label;
+BlockSpecGen . Block_Specification ::= Generate_Statement_Label;;
+BlockSpecGenSpec . Block_Specification ::= Generate_Statement_Label "(" Generate_Specification ")";;
 
-Block_Statement ::=
-Block_Label :
-Block [ "(" Guard_Condition ")" ] [ Is ] Block_Header
-Block_Declarative_Part
-Begin
-Block_Statement_Part End Block [ Block_Label ] ;
+BlockStmt . Block_Statement ::= Label ":" "block"                            Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block" ";";
+BlockStmtL . Block_Statement ::= Label ":" "block"                            Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block"  Label ";";
+BlockStmtI . Block_Statement ::= Label ":" "block"                      "is"  Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block" ";";
+BlockStmtIL . Block_Statement ::= Label ":" "block"                      "is"  Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block"  Label ";";
+BlockStmtC . Block_Statement ::= Label ":" "block"  "(" Condition ")"         Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block" ";";
+BlockStmtCL . Block_Statement ::= Label ":" "block"  "(" Condition ")"         Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block"  Label ";";
+BlockStmtCI . Block_Statement ::= Label ":" "block"  "(" Condition ")"   "is"  Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block" ";";
+BlockStmtCIL . Block_Statement ::= Label ":" "block"  "(" Condition ")"   "is"  Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block"  Label ";";
 
 terminator Concurrent_Statement "";
 separator Case_Generate_Alternative "";
@@ -1174,17 +1176,23 @@ SimpleExprU . Shift_Expression ::= Simple_Expression;
 SimpleExprB . Shift_Expression ::= Simple_Expression Shift_Operator Simple_Expression;
 
 -- TODO: Sll | Srl | Sla | Sra | Rol | Ror
-token Shift_Operator "("'d');
+token Shift_Operator ('d');
 
-token Sign "("'+' | '-');
+token Sign ('+' | '-');
 
-Signal_Assignment_Statement ::=
-[ Label : ] Simple_Signal_Assignment
-| [ Label : ] Conditional_Signal_Assignment
-| [ Label : ] Selected_Signal_Assignment
+SigAssStmtSimple . Signal_Assignment_Statement ::= Simple_Signal_Assignment;
+SigAssStmtLSimple . Signal_Assignment_Statement ::= Label ":" Simple_Signal_Assignment;
 
-Signal_Declaration ::=
-Signal [Identifier] : Subtype_Indication [ Signal_Kind ] [ := Expression ] ;
+SigAssStmtCond . Signal_Assignment_Statement ::= Conditional_Signal_Assignment;
+SigAssStmtLCond . Signal_Assignment_Statement ::= Label ":" Conditional_Signal_Assignment;
+
+SigAssStmtSel . Signal_Assignment_Statement ::= Selected_Signal_Assignment;
+SigAssStmtLSel . Signal_Assignment_Statement ::= Label ":" Selected_Signal_Assignment;
+
+Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication ";"
+Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication [ Signal_Kind ] [ ":=" Expression ] ";"
+Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication [ Signal_Kind ] [ ":=" Expression ] ";"
+Signal_Declaration ::= Signal [Identifier] ":" Subtype_Indication [ Signal_Kind ] [ ":=" Expression ] ";"
 
 SigKindReg . Signal_Kind ::= Register;
 SigKindBus . Signal_Kind ::= Bus
@@ -1194,8 +1202,9 @@ SigListNames . Signal_List ::= [Signal_Name] ";";
 SigListOthers . Signal_List ::= "others";
 SigListAll . Signal_List ::= "all";
 
-Signature ::=
-[ [ Type_Mark { , Type_Mark } ] [ Return Type_Mark ] ]
+separator Type_Mark ",";
+Sig . Signature ::= [Type_Mark] ;
+Sig . Signature ::= [Type_Mark] "return" Type_Mark;
 
 Simple_Configuration_Specification ::=
 For Component_Specification Binding_Indication ; [ End For ; ]
@@ -1252,11 +1261,12 @@ SubprogramDeclItem . Subprogram_Declarative_Item ::= Use_Clause;
 SubprogramDeclItem . Subprogram_Declarative_Item ::= Group_Template_Declaration;
 SubprogramDeclItem . Subprogram_Declarative_Item ::= Group_Declaration;
 
-Subprogram_Declarative_Part ::=
-{ Subprogram_Declarative_Item }
+terminator Subprogram_Declarative_Item "";
+_ . Subprogram_Declarative_Part ::= [Subprogram_Declarative_Item];
 
-Subprogram_Header ::=
-[ Generic "(" Generic_List ")" [ Generic_Map_Aspect ] ]
+SubprogramHeader . Subprogram_Header ::= ;
+SubprogramHeaderGen . Subprogram_Header ::= "generic" "(" Generic_List ")";
+SubprogramHeaderGenAsp . Subprogram_Header ::= "generic" "(" Generic_List ")" Generic_Map_Aspect;
 
 Subprogram_Instantiation_Declaration ::=
 Subprogram_Kind Identifier Is New Uninstantiated_Subprogram_Name [ Signature ] [ Generic_Map_Aspect ] ;
