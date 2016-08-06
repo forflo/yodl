@@ -142,32 +142,27 @@ terminator Configuration_Item "";
 
 Block_Configuration ::= "for" Block_Specification [Use_Clause] [Configuration_Item] "end" "for" ;
 
---
--- TODO
---
-
-Block_Declarative_Item ::=
-Subprogram_Declaration
-| Subprogram_Body
-| Subprogram_Instantiation_Declaration
-| Package_Declaration
-| Package_Body
-| Package_Instantiation_Declaration
-| Type_Declaration
-| Subtype_Declaration
-| Constant_Declaration
-| Signal_Declaration
-| Shared_Variable_Declaration
-| File_Declaration
-| Alias_Declaration
-| Component_Declaration
-| Attribute_Declaration
-| Attribute_Specification
-| Configuration_Specification
-| Disconnection_Specification
-| Use_Clause
-| Group_Template_Declaration
-| Group_Declaration
+BlockDeclItemSubDecl . Block_Declarative_Item ::= Subprogram_Declaration;
+BlockDeclItemSubBody . Block_Declarative_Item ::= Subprogram_Body;
+BlockDeclItemSubInst . Block_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+BlockDeclItemPackDecl . Block_Declarative_Item ::= Package_Declaration;
+BlockDeclItemPackBody . Block_Declarative_Item ::= Package_Body;
+BlockDeclItemPackInst . Block_Declarative_Item ::= Package_Instantiation_Declaration;
+BlockDeclItemTypeDecl . Block_Declarative_Item ::= Type_Declaration;
+BlockDeclItemStypeDecl . Block_Declarative_Item ::= Subtype_Declaration;
+BlockDeclItemConstDecl . Block_Declarative_Item ::= Constant_Declaration;
+BlockDeclItemSigDecl . Block_Declarative_Item ::= Signal_Declaration;
+BlockDeclItemShared . Block_Declarative_Item ::= Shared_Variable_Declaration;
+BlockDeclItemFile . Block_Declarative_Item ::= File_Declaration;
+BlockDeclItemAlias . Block_Declarative_Item ::= Alias_Declaration;
+BlockDeclItemComp . Block_Declarative_Item ::= Component_Declaration;
+BlockDeclItemAttrDecl . Block_Declarative_Item ::= Attribute_Declaration;
+BlockDeclItemAttrSpec . Block_Declarative_Item ::= Attribute_Specification;
+BlockDeclItemConfigSpec . Block_Declarative_Item ::= Configuration_Specification;
+BlockDeclItemDisconn . Block_Declarative_Item ::= Disconnection_Specification;
+BlockDeclItemUse . Block_Declarative_Item ::= Use_Clause;
+BlockDeclItemGroupT . Block_Declarative_Item ::= Group_Template_Declaration;
+BlockDeclItemGroup . Block_Declarative_Item ::= Group_Declaration
 
 -- PSL stuff has been omitted
 
@@ -262,12 +257,11 @@ Instantiation_List : Component_Name
 
 Composite_Type_Definition ::=
 Array_Type_Definition
-| Record_Type_Definition
+Record_Type_Definition
 
 Compound_Configuration_Specification ::=
-"for" Component_Specification Binding_Indication ;
-Verification_Unit_Binding_Indication ;
-{ Verification_Unit_Binding_Indication ; } End For ;
+                                     "for" Component_Specification Binding_Indication ";" Verification_Unit_Binding_Indication
+                                     ";" [Verification_Unit_Binding_Indication] "end" "for" ";"
 
 ConcAssertStmt . Concurrent_Assertion_Statement ::= "postponed" Assertion ";"
 ConcAssertStmtL . Concurrent_Assertion_Statement ::= Label ":" "postponed" Assertion ";"
