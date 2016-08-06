@@ -265,36 +265,46 @@ Array_Type_Definition
 | Record_Type_Definition
 
 Compound_Configuration_Specification ::=
-For Component_Specification Binding_Indication ;
+"for" Component_Specification Binding_Indication ;
 Verification_Unit_Binding_Indication ;
 { Verification_Unit_Binding_Indication ; } End For ;
 
-Concurrent_Assertion_Statement ::=
-[ Label : ] [ Postponed ] Assertion ;
+ConcAssertStmt . Concurrent_Assertion_Statement ::= "postponed" Assertion ";"
+ConcAssertStmtL . Concurrent_Assertion_Statement ::= Label ":" "postponed" Assertion ";"
 
-Concurrent_Conditional_Signal_Assignment ::=
-Target <= [ Guarded ] [ Delay_Mechanism ] Conditional_Waveforms ;
+ConcCondSigAssign . Concurrent_Conditional_Signal_Assignment ::= Target "<="                           Conditional_Waveforms ";"
+ConcCondSigAssignD . Concurrent_Conditional_Signal_Assignment ::= Target "<="           Delay_Mechanism Conditional_Waveforms ";"
+ConcCondSigAssignG . Concurrent_Conditional_Signal_Assignment ::= Target "<=" "guarded"                 Conditional_Waveforms ";"
+ConcCondSigAssignGD . Concurrent_Conditional_Signal_Assignment ::= Target "<=" "guarded" Delay_Mechanism Conditional_Waveforms ";"
 
-Concurrent_Procedure_Call_Statement ::=
-[ Label : ] [ Postponed ] Procedure_Call ;
+ConcProcCallStmt . Concurrent_Procedure_Call_Statement ::= Procedure_Call ";"
+ConcProcCallStmtL . Concurrent_Procedure_Call_Statement ::=  Label ":"   Procedure_Call ";"
+ConcProcCallStmtP . Concurrent_Procedure_Call_Statement ::=  "postponed"  Procedure_Call ";"
+ConcProcCallStmtLP . Concurrent_Procedure_Call_Statement ::=  Label ":"   "postponed"  Procedure_Call ";"
 
-Concurrent_Selected_Signal_Assignment ::=
-With Expression Select [ ? ] Target <= [ Guarded ] [ Delay_Mechanism ] Selected_Waveforms ;
+ConcSelSigAssign . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="                                   Selected_Waveforms ";"
+ConcSelSigAssignD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="                Delay_Mechanism  Selected_Waveforms ";"
+ConcSelSigAssignG . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="  "guarded"                      Selected_Waveforms ";"
+ConcSelSigAssignGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";"
+ConcSelSigAssignQ . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                                   Selected_Waveforms ";"
+ConcSelSigAssignQD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                Delay_Mechanism  Selected_Waveforms ";"
+ConcSelSigAssignGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"                      Selected_Waveforms ";"
+ConcSelSigAssignQGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";"
 
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Simple_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Simple_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Simple_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtS . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtSL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtSP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtSPL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Simple_Signal_Assignment;
 
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Conditional_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Conditional_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Conditional_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtC . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtCL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtCP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtCPL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Conditional_Signal_Assignment;
 
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=   Concurrent_Selected_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Selected_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Selected_Signal_Assignment;
-ConcSigAssignStmt . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Selected_Signal_Assignment;
+ConcSigAssignStmtSe . Concurrent_Signal_Assignment_Statement ::=   Concurrent_Selected_Signal_Assignment;
+ConcSigAssignStmtSeL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Selected_Signal_Assignment;
+ConcSigAssignStmtSeP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Selected_Signal_Assignment;
+ConcSigAssignStmtSePL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Selected_Signal_Assignment;
 
 Concurrent_Simple_Signal_Assignment ::=
 Target <= [ Guarded ] [ Delay_Mechanism ] Waveform ;
