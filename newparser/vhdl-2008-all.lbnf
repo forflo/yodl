@@ -574,8 +574,8 @@ FileTypDef . File_Type_Definition ::= "file" "of" Type_Mark;
 
 _ . Floating_Type_Definition ::= Range_Constraint;
 
-ForGenStmt . For_Generate_Statement ::= Label ":" "for" Generate_Parameter_Specification "generate" Generate_Statement_Body "end" "generate";
-ForGenStmt . For_Generate_Statement ::= Label ":" "for" Generate_Parameter_Specification "generate" Generate_Statement_Body "end" "generate" Generate_Label;
+ForGenStmt . For_Generate_Statement ::= Label ":" "for" Parameter_Specification "generate" Generate_Statement_Body "end" "generate";
+ForGenStmt . For_Generate_Statement ::= Label ":" "for" Parameter_Specification "generate" Generate_Statement_Body "end" "generate" Generate_Label;
 
 ForceModeIn . Force_Mode ::= "In";
 ForceModeOut . Force_Mode ::= "Out";
@@ -690,68 +690,83 @@ Instantiated_Unit ::=
 | Configuration Configuration_Name
 
 Instantiation_List ::=
-Instantiation_Label { , Instantiation_Label }
-| Others
-| All
+InstList . Instantiation_List ::= Instantiation_Label { , Instantiation_Label }
+InstList . Instantiation_List ::= "others"
+InstList . Instantiation_List ::= "all"
 
+-- TODO
 Integer ::=
 Digit { [ Underline ] Digit }
 
-Integer_Type_Definition ::=
-Range_Constraint
+_ . Integer_Type_Definition ::= Range_Constraint;
 
-Interface_Constant_Declaration ::=
-[ Constant ] [Identifier] : [ In ] Subtype_Indication [ := Static_Expression ]
+InterConstDecl . Interface_Constant_Declaration ::= [Identifier] : "in" Subtype_Indication ;
+InterConstDecl . Interface_Constant_Declaration ::= [Identifier] : "in" Subtype_Indication ":=" Static_Expression;
+InterConstDecl . Interface_Constant_Declaration ::= "constant" [Identifier] : "in" Subtype_Indication ;
+InterConstDecl . Interface_Constant_Declaration ::= "constant" [Identifier] : "in" Subtype_Indication ":=" Static_Expression;
 
 Interface_Declaration ::=
-Interface_Object_Declaration
-| Interface_Type_Declaration
-| Interface_Subprogram_Declaration
-| Interface_Package_Declaration
+InterfaceDecl . Interface_Declaration ::= Interface_Object_Declaration;
+InterfaceDecl . Interface_Declaration ::= Interface_Type_Declaration;
+InterfaceDecl . Interface_Declaration ::= Interface_Subprogram_Declaration;
+InterfaceDecl . Interface_Declaration ::= Interface_Package_Declaration;
 
-Interface_Element ::=
-Interface_Declaration
+_ . Interface_Element ::= Interface_Declaration;
 
-Interface_File_Declaration ::=
-File [Identifier] : Subtype_Indication
+Interface_File_Declaration ::= File [Identifier] ":" Subtype_Indication;
 
-Interface_Function_Specification ::=
-[ Pure | Impure ] Function Designator
-[ [ Parameter ] "(" Formal_Parameter_List ")" ] Return Type_Mark
+Interface_Function_Specification ::= "function" Designator  "return" Type_Mark;
+Interface_Function_Specification ::= "function" Designator  "(" Formal_Parameter_List ")" "return" Type_Mark;
+Interface_Function_Specification ::= "function" Designator "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
+Interface_Function_Specification ::= "function" Designator "return" Type_Mark;
+Interface_Function_Specification ::= "pure" "function" Designator "return" Type_Mark;
+Interface_Function_Specification ::= "impure" "function" Designator "return" Type_Mark;
+Interface_Function_Specification ::= "pure" "function" Designator  "(" Formal_Parameter_List ")" "return" Type_Mark;
+Interface_Function_Specification ::= "impure" "function" Designator  "(" Formal_Parameter_List ")" "return" Type_Mark;
+Interface_Function_Specification ::= "pure" "function" Designator "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
+Interface_Function_Specification ::= "impure" "function" Designator "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
 
-Interface_Incomplete_Type_Declaration ::=
-Type Identifier
+_ . Interface_Incomplete_Type_Declaration ::= type Identifier;
 
-Interface_List ::=
-Interface_Element { ; Interface_Element }
+separator nonempty Interface_Element ";";
+Interface_List ::= [Interface_Element]
 
 Interface_Object_Declaration ::=
-Interface_Constant_Declaration
-| Interface_Signal_Declaration
-| Interface_Variable_Declaration
-| Interface_File_Declaration
+InterObjDeclConst . Interface_Object_Declaration ::= Interface_Constant_Declaration;
+InterObjDeclSig . Interface_Object_Declaration ::= Interface_Signal_Declaration;
+InterObjDeclVar . Interface_Object_Declaration ::= Interface_Variable_Declaration;
+InterObjDeclFile . Interface_Object_Declaration ::= Interface_File_Declaration;
 
-Interface_Package_Declaration ::=
-Package Identifier Is
-New Uninstantiated_Package_Name Interface_Package_Generic_Map_Aspect
+InterPackDecl . Interface_Package_Declaration ::= "package" Identifier "is" "new" Name Interface_Package_Generic_Map_Aspect;
 
-Interface_Package_Generic_Map_Aspect ::=
-Generic_Map_Aspect
-| Generic Map "(" <> ")"
-| Generic Map "(" Default ")"
+InterPackGenMapAspectG . Interface_Package_Generic_Map_Aspect ::= Generic_Map_Aspect;
+InterPackGenMapAspectB . Interface_Package_Generic_Map_Aspect ::= Generic Map "(" "<>" ")";
+InterPackGenMapAspectD . Interface_Package_Generic_Map_Aspect ::= Generic Map "(" "default" ")";
 
-Interface_Procedure_Specification ::=
-Procedure Designator
-[ [ Parameter ] "(" Formal_Parameter_List ")" ]
+Interface_Procedure_Specification ::= "procedure" Designator [ [ "parameter" ] "(" Formal_Parameter_List ")" ]
 
-Interface_Signal_Declaration ::=
-[ Signal ] [Identifier] : [ Mode ] Subtype_Indication [ Bus ] [ := Static_Expression ]
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":"      Subtype_Indication                                     ;
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":"      Subtype_Indication       ":=" Static_Expression;
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":"      Subtype_Indication "bus"                           ;
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":"      Subtype_Indication "bus" ":=" Static_Expression;
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":" Mode Subtype_Indication                                     ;
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":" Mode Subtype_Indication       ":=" Static_Expression;
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":" Mode Subtype_Indication "bus"                           ;
+InterSigDecl . Interface_Signal_Declaration ::=        [Identifier] ":" Mode Subtype_Indication "bus" ":=" Static_Expression;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":"          Subtype_Indication                                     ;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":"          Subtype_Indication           ":=" Static_Expression;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":"          Subtype_Indication "bus"                           ;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":"          Subtype_Indication "bus" ":=" Static_Expression;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":" Mode Subtype_Indication                                     ;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":" Mode Subtype_Indication           ":=" Static_Expression;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":" Mode Subtype_Indication "bus"                           ;
+InterSigDecl . Interface_Signal_Declaration ::= signal [Identifier] ":" Mode Subtype_Indication "bus" ":=" Static_Expression;
 
-Interface_Subprogram_Declaration ::=
-Interface_Subprogram_Specification [ Is Interface_Subprogram_Default ]
+InterfaceSubDecl . Interface_Subprogram_Declaration ::= Interface_Subprogram_Specification ;
+InterfaceSubDeclDefault . Interface_Subprogram_Declaration ::= Interface_Subprogram_Specification "is" Interface_Subprogram_Default;
 
-Interface_Subprogram_Default ::=
-Subprogram_Name | <>
+InterfaceSubDefaultName . Interface_Subprogram_Default ::= Name;
+InterfaceSubDefaultBox . Interface_Subprogram_Default ::= "<>";
 
 Interface_Subprogram_Specification ::=
 Interface_Procedure_Specification | Interface_Function_Specification
@@ -762,122 +777,132 @@ Interface_Incomplete_Type_Declaration
 Interface_Variable_Declaration ::=
 [ Variable ] [Identifier] : [ Mode ] Subtype_Indication [ := Static_Expression ]
 
-Iteration_Scheme ::=
-While Condition
-| For Loop_Parameter_Specification
+IterSchemeWhile . Iteration_Scheme ::= "while" Condition;
+IterSchemeFor . Iteration_Scheme ::= "for" Parameter_Specification;
 
 _ . Label ::= Identifier
 
 Letter ::=
 Upper_Case_Letter | Lower_Case_Letter
 
-Letter_Or_Digit ::=
-Letter | Digit
+LetterOrDigitLetter . Letter_Or_Digit ::= Letter
+LetterOrDigitDigit . Letter_Or_Digit ::= Digit
 
-Library_Clause ::=
-Library Logical_Name_List ;
+LibClause . Library_Clause ::= Library Logical_Name_List ";"
 
-Library_Unit ::=
-Primary_Unit
-| Secondary_Unit
+LibUnitPrim . Library_Unit ::= Primary_Unit;
+LibUnitSec . Library_Unit ::= Secondary_Unit;
 
 Literal ::=
-Numeric_Literal
-| Enumeration_Literal
-| String_Literal
-| Bit_String_Literal
-| Null
+LiteralNum . Literal ::= Numeric_Literal;
+LiteralEnum . Literal ::= Enumeration_Literal;
+LiteralStr . Literal ::= String_Literal;
+LiteralBitstr . Literal ::= Bit_String_Literal;
+LiteralNull . Literal ::= "null";
 
-Logical_Expression ::=
-Relation { And Relation }
-| Relation { Or Relation }
-| Relation { Xor Relation }
-| Relation [ Nand Relation ]
-| Relation [ Nor Relation ]
-| Relation { Xnor Relation }
+-- TODO:
+LogExpr . Logical_Expression ::= Relation { And Relation };
+LogExpr . Logical_Expression ::= Relation { Or Relation };
+LogExpr . Logical_Expression ::= Relation { Xor Relation };
+LogExpr . Logical_Expression ::= Relation [ Nand Relation ];
+LogExpr . Logical_Expression ::= Relation [ Nor Relation ];
+LogExpr . Logical_Expression ::= Relation { Xnor Relation };
 
 _ . Logical_Name ::= Identifier;
 
-Logical_Name_List ::=
-Logical_Name { , Logical_Name }
+separator nonempty Logical_Name ",";
+Logical_Name_List ::= [Logical_Name];
 
-Logical_Operator ::=
-And | Or | Nand | Nor | Xor | Xnor
+LogOpAnd . Logical_Operator ::= "and";
+LogOpOr . Logical_Operator ::= "or";
+LogOpNand . Logical_Operator ::= "nand";
+LogOpNor . Logical_Operator ::= "nor";
+LogOpXor . Logical_Operator ::= "xor";
+LogOpXnor . Logical_Operator ::= "xnor";
 
-Loop_Statement ::=
-[ Loop_Label : ]
-[ Iteration_Scheme ] Loop Sequence_Of_Statements
-End Loop [ Loop_Label ] ;
+LoopStmt . Loop_Statement ::=                                "loop" Sequence_Of_Statements "end" "loop"           ";";
+LoopStmtL . Loop_Statement ::=                                "loop" Sequence_Of_Statements "end" "loop"  Label  ";";
+LoopStmtI . Loop_Statement ::=              Iteration_Scheme  "loop" Sequence_Of_Statements "end" "loop"           ";";
+LoopStmtIL . Loop_Statement ::=              Iteration_Scheme  "loop" Sequence_Of_Statements "end" "loop"  Label  ";";
+LoopStmtL . Loop_Statement ::=  Label ":"                     "loop" Sequence_Of_Statements "end" "loop"           ";";
+LoopStmtLL  . Loop_Statement ::=  Label ":"                     "loop" Sequence_Of_Statements "end" "loop"  Label  ";";
+LoopStmtLI  . Loop_Statement ::=  Label ":"   Iteration_Scheme  "loop" Sequence_Of_Statements "end" "loop"           ";";
+LoopStmtLIL . Loop_Statement ::=  Label ":"   Iteration_Scheme  "loop" Sequence_Of_Statements "end" "loop"  Label  ";";
 
-Miscellaneous_Operator ::=
-** | Abs | Not
+MiscOp . Miscellaneous_Operator ::= "**";
+MiscOp . Miscellaneous_Operator ::= "Abs";
+MiscOp . Miscellaneous_Operator ::= "Not";
 
-Mode ::=
-In | Out | Inout | Buffer | Linkage
+Mode ::= "In" | "Out" | "Inout" | "Buffer" | "Linkage";
 
-Multiplying_Operator ::=
-* | / | Mod | Rem
+MultOpMul . Multiplying_Operator ::= "*";
+MultOpDiv . Multiplying_Operator ::= "/";
+MultOpMod . Multiplying_Operator ::= "mod";
+MultOpRem . Multiplying_Operator ::= "Rem";
 
-Name ::=
-Simple_Name
-| Operator_Symbol
-| Character_Literal
-| Selected_Name
-| Indexed_Name
-| Slice_Name
-| Attribute_Name
-| External_Name
+NameSimple . Name ::= Simple_Name;
+NameOperator . Name ::= Operator_Symbol;
+NameChar . Name ::= Character_Literal;
+NameSelected . Name ::= Selected_Name;
+NameIndexed . Name ::= Indexed_Name;
+NamSlice . Name ::= Slice_Name;
+NameAttr . Name ::= Attribute_Name;
+NameExt . Name ::= External_Name;
 
-Next_Statement ::=
-[ Label : ] Next [ Loop_Label ] [ When Condition ] ;
+-- second label is for loops
+NextStmt . Next_Statement ::=               "next"                                ";";
+NextStmtC . Next_Statement ::=               "next"            "when" Condition  ";";
+NextStmtL . Next_Statement ::=               "next"  Label                       ";";
+NextStmtLC . Next_Statement ::=               "next"  Label   "when" Condition  ";";
+NextStmtL . Next_Statement ::=  Label ":"  "next"                                ";";
+NextStmtLC . Next_Statement ::=  Label ":"  "next"            "when" Condition  ";";
+NextStmtLL . Next_Statement ::=  Label ":"  "next"  Label                       ";";
+NextStmtLLC . Next_Statement ::=  Label ":"  "next"  Label   "when" Condition  ";";
 
-Null_Statement ::=
-[ Label : ] Null ;
+NullStmt . Null_Statement ::= ":" "null" ";";
+NullStmtLab . Null_Statement ::= Label ":" "null" ";";
 
-Numeric_Literal ::=
-Abstract_Literal | Physical_Literal
+NumLiteralAbstract . Numeric_Literal ::= Abstract_Literal;
+NumLiteralPhysical . Numeric_Literal ::= Physical_Literal;
 
-Object_Declaration ::=
-Constant_Declaration
-| Signal_Declaration
-| Variable_Declaration
-| File_Declaration
+ObjDeclConst . Object_Declaration ::= Constant_Declaration;
+ObjDeclSig . Object_Declaration ::= Signal_Declaration;
+ObjDeclVar . Object_Declaration ::= Variable_Declaration;
+ObjDeclFile . Object_Declaration ::= File_Declaration;
 
-Operator_Symbol ::=
-String_Literal
+-- TODO: Token!
+_ . Operator_Symbol ::= String_Literal;
 
-Package_Body ::=
-Package Body Package_Simple_Name Is
-Package_Body_Declarative_Part
-End [ Package Body ] [ Package_Simple_Name ] ;
+PackBody . Package_Body ::= "package" "body" Simple_Name "is" Package_Body_Declarative_Part "end"                                      ";";
+PackBodyL . Package_Body ::= "package" "body" Simple_Name "is" Package_Body_Declarative_Part "end"                       Simple_Name  ";";
+PackBodyP . Package_Body ::= "package" "body" Simple_Name "is" Package_Body_Declarative_Part "end"  "package" "body"                  ";";
+PackBodyPL . Package_Body ::= "package" "body" Simple_Name "is" Package_Body_Declarative_Part "end"  "package" "body"   Simple_Name  ";";
 
-Package_Body_Declarative_Item ::=
-Subprogram_Declaration
-| Subprogram_Body
-| Subprogram_Instantiation_Declaration
-| Package_Declaration
-| Package_Body
-| Package_Instantiation_Declaration
-| Type_Declaration
-| Subtype_Declaration
-| Constant_Declaration
-| Variable_Declaration
-| File_Declaration
-| Alias_Declaration
-| Attribute_Declaration
-| Attribute_Specification
-| Use_Clause
-| Group_Template_Declaration
-| Group_Declaration
+PackBodyDeclItemSDecl . Package_Body_Declarative_Item ::= Subprogram_Declaration;
+PackBodyDeclItemSBody . Package_Body_Declarative_Item ::= Subprogram_Body;
+PackBodyDeclItemSInst . Package_Body_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+PackBodyDeclItemPDecl . Package_Body_Declarative_Item ::= Package_Declaration;
+PackBodyDeclItemPBody . Package_Body_Declarative_Item ::= Package_Body;
+PackBodyDeclItemPInst . Package_Body_Declarative_Item ::= Package_Instantiation_Declaration;
+PackBodyDeclItemTDecl . Package_Body_Declarative_Item ::= Type_Declaration;
+PackBodyDeclItemSDecl . Package_Body_Declarative_Item ::= Subtype_Declaration;
+PackBodyDeclItemCDecl . Package_Body_Declarative_Item ::= Constant_Declaration;
+PackBodyDeclItemVDecl . Package_Body_Declarative_Item ::= Variable_Declaration;
+PackBodyDeclItemFDecl . Package_Body_Declarative_Item ::= File_Declaration;
+PackBodyDeclItemADecl . Package_Body_Declarative_Item ::= Alias_Declaration;
+PackBodyDeclItemAtDecl . Package_Body_Declarative_Item ::= Attribute_Declaration;
+PackBodyDeclItemASpec . Package_Body_Declarative_Item ::= Attribute_Specification;
+PackBodyDeclItemUC . Package_Body_Declarative_Item ::= Use_Clause;
+PackBodyDeclItemGT . Package_Body_Declarative_Item ::= Group_Template_Declaration;
+PackBodyDeclItemGDecl . Package_Body_Declarative_Item ::= Group_Declaration;
 
-Package_Body_Declarative_Part ::=
-{ Package_Body_Declarative_Item }
+separator Package_Body_Declarative_Item "";
+_ . Package_Body_Declarative_Part ::= [Package_Body_Declarative_Item];
 
-Package_Declaration ::=
-Package Identifier Is
-Package_Header
-Package_Declarative_Part
-End [ Package ] [ Package_Simple_Name ] ;
+PackageDecl . Package_Declaration ::= "package" Identifier "is" Package_Header Package_Declarative_Part "end"                        ";";
+PackageDecl . Package_Declaration ::= "package" Identifier "is" Package_Header Package_Declarative_Part "end"           Simple_Name  ";";
+PackageDecl . Package_Declaration ::= "package" Identifier "is" Package_Header Package_Declarative_Part "end" "package"              ";";
+PackageDecl . Package_Declaration ::= "package" Identifier "is" Package_Header Package_Declarative_Part "end" "package" Simple_Name  ";";
 
 PackDeclItemSd . Package_Declarative_Item ::= Subprogram_Declaration;
 PackDeclItemSi . Package_Declarative_Item ::= Subprogram_Instantiation_Declaration;
@@ -1146,7 +1171,7 @@ separator nonempty Signal_Name ",";
 Sensitivity_List ::= [Signal_Name];
 
 terminator Sequential_Statement "";
-Sequence_Of_Statements ::= [Sequential_Statement];
+_ . Sequence_Of_Statements ::= [Sequential_Statement];
 
 SeqStmtWait . Sequential_Statement ::= Wait_Statement;
 SeqStmtAssert . Sequential_Statement ::= Assertion_Statement;
