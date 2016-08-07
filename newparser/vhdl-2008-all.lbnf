@@ -245,21 +245,32 @@ BindingBlockComConfig . Component_Configuration ::=
                       [Verification_Unit_Binding_Indication] Block_Configuration
                       "end" "for" ;
 
-Component_Declaration ::= "oomponent" Identifier "is" [ Local_Generic_Clause ] [ Local_Port_Clause ] "end" "component" [ Component_Simple_Name ] ;
+CompDecl      . Component_Declaration ::= "component" Identifier                                   "end" "component"             ";"
+CompDeclN     . Component_Declaration ::= "component" Identifier                                   "end" "component" simple_name ";"
+CompDeclP     . Component_Declaration ::= "component" Identifier                       Port_Clause "end" "component"             ";"
+CompDeclPN    . Component_Declaration ::= "component" Identifier                       Port_Clause "end" "component" Simple_Name ";"
+CompDeclG     . Component_Declaration ::= "component" Identifier       Generic_Clause              "end" "component"             ";"
+CompDeclGN    . Component_Declaration ::= "component" Identifier       Generic_Clause              "end" "component" Simple_Name ";"
+CompDeclGP    . Component_Declaration ::= "component" Identifier       Generic_Clause  Port_Clause "end" "component"             ";"
+CompDeclGPN   . Component_Declaration ::= "component" Identifier       Generic_Clause  Port_Clause "end" "component" Simple_Name ";"
+CompDeclI     . Component_Declaration ::= "component" Identifier "is"                              "end" "component"             ";"
+CompDeclIN    . Component_Declaration ::= "component" Identifier "is"                              "end" "component" Simple_Name ";"
+CompDeclIP    . Component_Declaration ::= "component" Identifier "is"                  Port_Clause "end" "component"             ";"
+CompDeclIPN   . Component_Declaration ::= "component" Identifier "is"                  Port_Clause "end" "component" Simple_Name ";"
+CompDeclIG    . Component_Declaration ::= "component" Identifier "is"  Generic_Clause              "end" "component"             ";"
+CompDeclIGN   . Component_Declaration ::= "component" Identifier "is"  Generic_Clause              "end" "component" Simple_Name ";"
+CompDeclIGP   . Component_Declaration ::= "component" Identifier "is"  Generic_Clause  Port_Clause "end" "component"             ";"
+CompDeclIGPN  . Component_Declaration ::= "component" Identifier "is"  Generic_Clause  Port_Clause "end" "component" Simple_Name ";"
 
-Component_Declaration ::= "oomponent" Identifier [ Local_Generic_Clause ] [ Local_Port_Clause ] "end" "component" [ Component_Simple_Name ] ;
+CompInstStmt . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit                                            ";"
+CompInstStmtP . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit                        Port_Map_Aspect ";"
+CompInstStmtG . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit Generic_Map_Aspect                     ";"
+CompInstStmtGP . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit Generic_Map_Aspect Port_Map_Aspect ";"
 
-Component_Instantiation_Statement ::=
-Instantiation_Label :
-Instantiated_Unit
-[ Generic_Map_Aspect ] [ Port_Map_Aspect ] ;
+CompSpec . Component_Specification ::= Instantiation_List ":" Name;
 
-Component_Specification ::=
-Instantiation_List : Component_Name
-
-Composite_Type_Definition ::=
-Array_Type_Definition
-Record_Type_Definition
+CompTypeDefArr . Composite_Type_Definition ::= Array_Type_Definition;
+CompTypeDefRec . Composite_Type_Definition ::= Record_Type_Definition;
 
 Compound_Configuration_Specification ::=
                                      "for" Component_Specification Binding_Indication ";" Verification_Unit_Binding_Indication
@@ -286,24 +297,24 @@ ConcSelSigAssignQ . Concurrent_Selected_Signal_Assignment ::= "with" Expression 
 ConcSelSigAssignQD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                Delay_Mechanism  Selected_Waveforms ";"
 ConcSelSigAssignGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"                      Selected_Waveforms ";"
 ConcSelSigAssignQGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";"
-
 ConcSigAssignStmtS . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Simple_Signal_Assignment;
 ConcSigAssignStmtSL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Simple_Signal_Assignment;
 ConcSigAssignStmtSP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Simple_Signal_Assignment;
 ConcSigAssignStmtSPL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Simple_Signal_Assignment;
-
 ConcSigAssignStmtC . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Conditional_Signal_Assignment;
 ConcSigAssignStmtCL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Conditional_Signal_Assignment;
 ConcSigAssignStmtCP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Conditional_Signal_Assignment;
 ConcSigAssignStmtCPL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Conditional_Signal_Assignment;
-
 ConcSigAssignStmtSe . Concurrent_Signal_Assignment_Statement ::=   Concurrent_Selected_Signal_Assignment;
 ConcSigAssignStmtSeL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Selected_Signal_Assignment;
 ConcSigAssignStmtSeP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Selected_Signal_Assignment;
 ConcSigAssignStmtSePL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Selected_Signal_Assignment;
 
-Concurrent_Simple_Signal_Assignment ::=
-Target <= [ Guarded ] [ Delay_Mechanism ] Waveform ;
+
+ConcSimpleSigAss . Concurrent_Simple_Signal_Assignment ::= Target "<="                                   Waveform ";"
+ConcSimpleSigAssD . Concurrent_Simple_Signal_Assignment ::= Target "<="               [ Delay_Mechanism ] Waveform ";"
+ConcSimpleSigAssG . Concurrent_Simple_Signal_Assignment ::= Target "<=" [ "guarded" ]                     Waveform ";"
+ConcSimpleSigAssGD . Concurrent_Simple_Signal_Assignment ::= Target "<=" [ "guarded" ] [ Delay_Mechanism ] Waveform ";"
 
 ConcurrentStmtBlock . Concurrent_Statement ::= Block_Statement;
 ConcurrentStmtProc . Concurrent_Statement ::= Process_Statement;
@@ -382,10 +393,10 @@ ConstraintRecord . Constraint ::= Record_Constraint;
 separator Context_Item "";
 _ . Context_Clause ::= [Context_Item];
 
-Context_Declaration ::=
-Context Identifier Is
-Context_Clause
-End [ Context ] [ Context_Simple_Name ] ;
+ContextDecl . Context_Declaration ::= "context" Identifier "is"" Context_Clause "end"                               ";";
+ContextDecl . Context_Declaration ::= "context" Identifier "is"" Context_Clause "end"               [ Simple_Name ] ";";
+ContextDecl . Context_Declaration ::= "context" Identifier "is"" Context_Clause "end" [ "context" ]                 ";";
+ContextDecl . Context_Declaration ::= "context" Identifier "is"" Context_Clause "end" [ "context" ] [ Simple_Name ] ";";
 
 ContextItemLib . Context_Item ::= Library_Clause;
 ContextItemUse . Context_Item ::= Use_Clause;
@@ -506,9 +517,9 @@ EntityHeaderGP . Entity_Header ::= Formal_Generic_Clause Formal_Port_Clause;
 
 separator nonempty Entity_Designator ",";
 
-EntityNameList . Entity_Name_List ::= [Entity_Designator];
-EntityNameList . Entity_Name_List ::= "others";
-EntityNameList . Entity_Name_List ::= "all";
+EntityNameListD . Entity_Name_List ::= [Entity_Designator];
+EntityNameListO . Entity_Name_List ::= "others";
+EntityNameListA . Entity_Name_List ::= "all";
 
 EntitySpec . Entity_Specification ::= Entity_Name_List ":" Entity_Class;
 
@@ -520,20 +531,21 @@ EntityStmtPSL . Entity_Statement ::= Psl_Psl_Directive;
 terminator Entity_Statement "";
 _ . Entity_Statement_Part ::= [Entity_Statement];
 
-Entity_Tag ::=
-Simple_Name | Character_Literal | Operator_Symbol
+EntityTagName . Entity_Tag ::= Simple_Name;
+EntityTagChar . Entity_Tag ::= Character_Literal;
+EntityTagOp . Entity_Tag ::= Operator_Symbol;
 
-Enumeration_Literal ::=
-Identifier | Character_Literal
+EnumLit . Enumeration_Literal ::= Identifier;
+EnumLit . Enumeration_Literal ::= Character_Literal;
 
-Enumeration_Type_Definition ::=
-( Enumeration_Literal { , Enumeration_Literal } ")"
+separator nonempty Enumeration_Literal ",";
+Enumeration_Type_Definition ::= "(" [Enumeration_Literal] ")";
 
-Exit_Statement ::=
-[ Label : ] Exit [ Loop_Label ] [ When Condition ] ;
+ExitStmt . Exit_Statement ::= [ Label ":" ] "exit" [ Label ] [ "when" Condition ] ";";
 
-Exponent ::=
-E [ + ] Integer | E – Integer
+ExponentPlus . Exponent ::= "e" "+" Integer;
+Exponent . Exponent ::= "e" Integer;
+ExponentMinus . Exponent ::= "e" "–" Integer;
 
 ExpCondition . Expression ::= Condition_Operator Primary;
 ExpLogical . Expression ::= Logical_Expression;
@@ -557,7 +569,7 @@ ExternalPathnameAbsolute . External_Pathname ::= Absolute_Pathname;
 ExternalPathnameRelative . External_Pathname ::= Relative_Pathname;
 
 FactorPow . Factor ::= Primary "**" Primary;
-_ . Factor ::= Primary ;
+_ . Factor ::= Primary ; -- TODO: check
 FactorAbs . Factor ::= "abs" Primary;
 FactorNot . Factor ::= "not" Primary;
 FactorLog . Factor ::= Logical_Operator Primary;
@@ -575,7 +587,7 @@ FileTypDef . File_Type_Definition ::= "file" "of" Type_Mark;
 _ . Floating_Type_Definition ::= Range_Constraint;
 
 ForGenStmt . For_Generate_Statement ::= Label ":" "for" Parameter_Specification "generate" Generate_Statement_Body "end" "generate";
-ForGenStmt . For_Generate_Statement ::= Label ":" "for" Parameter_Specification "generate" Generate_Statement_Body "end" "generate" Generate_Label;
+ForGenStmtL . For_Generate_Statement ::= Label ":" "for" Parameter_Specification "generate" Generate_Statement_Body "end" "generate" Generate_Label;
 
 ForceModeIn . Force_Mode ::= "In";
 ForceModeOut . Force_Mode ::= "Out";
@@ -595,54 +607,56 @@ FullTypeDecl . Full_Type_Declaration ::= "type" Identifier "is" Type_Definition 
 FuncCallNyad . Function_Call ::= Function_Name;
 FuncCallPolyad . Function_Call ::= Function_Name "(" Actual_Parameter_Part ")"
 
-Function_Specification ::=
-[ Pure | Impure ] Function Designator
-Subprogram_Header
-[ [ Parameter ] "(" Formal_Parameter_List ")" ] Return Type_Mark
+FuncSpec . Function_Specification ::= "function" Designator          Subprogram_Header "return" Type_Mark;
+FuncSpec . Function_Specification ::= "function" Designator          Subprogram_Header "(" Formal_Parameter_List ")" "return" Type_Mark;
+FuncSpec . Function_Specification ::= "function" Designator          Subprogram_Header "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
+FuncSpec . Function_Specification ::= "function" Designator          Subprogram_Header "return" Type_Mark;
+FuncSpec . Function_Specification ::= "pure" "function" Designator   Subprogram_Header "return" Type_Mark;
+FuncSpec . Function_Specification ::= "impure" "function" Designator Subprogram_Header "return" Type_Mark;
+FuncSpec . Function_Specification ::= "pure" "function" Designator   Subprogram_Header "(" Formal_Parameter_List ")" "return" Type_Mark;
+FuncSpec . Function_Specification ::= "impure" "function" Designator Subprogram_Header "(" Formal_Parameter_List ")" "return" Type_Mark;
+FuncSpec . Function_Specification ::= "pure" "function" Designator   Subprogram_Header "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
+FuncSpec . Function_Specification ::= "impure" "function" Designator Subprogram_Header "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
 
 Generate_Specification ::=
-Static_Discrete_Range
-| Static_Expression
-| Alternative_Label
+GenerateSpec . Generate_Specification ::= Static_Discrete_Range;
+GenerateSpec . Generate_Specification ::= Static_Expression;
+GenerateSpec . Generate_Specification ::= Alternative_Label;
 
-Generate_Statement ::=
-For_Generate_Statement
-| If_Generate_Statement
-| Case_Generate_Statement
+GenStmtFor . Generate_Statement ::= For_Generate_Statement;
+GenStmtIf . Generate_Statement ::= If_Generate_Statement;
+GenStmtCase . Generate_Statement ::= Case_Generate_Statement;
 
-Generate_Statement_Body ::=
-[ Block_Declarative_Part
-Begin ]
-{ Concurrent_Statement }
-[ End [ Alternative_Label ] ; ]
+GenStmtBody . Generate_Statement_Body ::=                                    [Concurrent_Statement]                        ;
+GenStmtBodyE . Generate_Statement_Body ::=                                    [Concurrent_Statement] "end"  ";";
+GenStmtBodyEL . Generate_Statement_Body ::=                                    [Concurrent_Statement] "end" Label ";";
+GenStmtBodyB . Generate_Statement_Body ::= Block_Declarative_Part "begin" [Concurrent_Statement]                        ;
+GenStmtBodyBE . Generate_Statement_Body ::= Block_Declarative_Part "begin" [Concurrent_Statement] "end"  ";";
+GenStmtBodyBEL . Generate_Statement_Body ::= Block_Declarative_Part "begin" [Concurrent_Statement] "end" Label ";";
 
-Generic_Clause ::=
-Generic "(" Generic_List ")" ;
+GenericClause . Generic_Clause ::= "generic" "(" Generic_List ")" ;
 
-Generic_List ::=
-Generic_Interface_List
+_ . Generic_List ::= Interface_List;
 
-Generic_Map_Aspect ::=
-Generic Map "(" Generic_Association_List ")"
+GenMapAspect . Generic_Map_Aspect ::= "generic" "map" "(" Association_List ")";
 
-Graphic_Character ::=
-Basic_Graphic_Character | Lower_Case_Letter | Other_Special_Character
+-- TODO: Token!
+Graphic_Character ::= Basic_Graphic_Character | Lower_Case_Letter | Other_Special_Character
 
-Group_Constituent ::=
-Name | Character_Literal
+GroupConstituentName . Group_Constituent ::= Name;
+GroupConstituentCharlit . Group_Constituent ::= Character_Literal;
 
-Group_Constituent_List ::=
-Group_Constituent { , Group_Constituent }
+separator nonempty Group_Constituent ",";
+_ . Group_Constituent_List ::= [Group_Constituent];
 
-Group_Declaration ::=
-Group Identifier : Group_Template_Name "(" Group_Constituent_List ")" ;
+GroupDecl . Group_Declaration ::= "group" Identifier ":" Group_Template_Name "(" Group_Constituent_List ")" ;
 
-Group_Template_Declaration ::= Group Identifier "is" "(" Entity_Class_Entry_List ")" ;
+GroupTempDecl . Group_Template_Declaration ::= "group" Identifier "is" "(" Entity_Class_Entry_List ")" ;
 
 Guarded_Signal_Specification ::= Guarded_Signal_List ":" Type_Mark;
 
-Identifier ::=
-Basic_Identifier | Extended_Identifier
+IdentifierBasic . Identifier ::= Basic_Identifier;
+IdentifierExtended . Identifier ::= Extended_Identifier;
 
 -- Basic_Identifier ::=
 -- Letter { [ Underline ] Letter_Or_Digit }
@@ -667,9 +681,9 @@ ElseGenPartLabel . Else_Gen_Part ::= "else" Alternative_Label ":" Generate Gener
 ElseGenPart . Else_Gen_Part ::= "else" Generate Generate_Statement_Body;
 
 IfStatement . If_Statement ::= "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "end" "if" ";"
-IfStatementL . If_Statement ::= [ Label ":" ] "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "end" "if" [ Label ] ";"
+IfStatementL . If_Statement ::= Label ":" "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "end" "if" Label ";"
 IfStatementE . If_Statement ::= "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "else" [Sequential_Statement] "end" "if" ";"
-IfStatementLE . If_Statement ::= [ Label ":" ] "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "else" [Sequential_Statement] "end" "if" [ Label ] ";"
+IfStatementLE . If_Statement ::= Label ":" "if" Condition "then" [Sequential_Statement] [Elsif_Parts] "else" [Sequential_Statement] "end" "if" Label ";"
 
 terminator Elsif_Parts "";
 ElsifParts . Elsif_Parts ::= "elsif" Condition "then" [Sequential_Statement]
@@ -684,10 +698,11 @@ IndexSubtDef . Index_Subtype_Definition ::= Type_Mark "range" "<>";
 separator nonempty Expression ",";
 Indexed_Name ::= Prefix "(" [Expression] ")";
 
-Instantiated_Unit ::=
-[ Component ] Component_Name
-| Entity Entity_Name [ "(" Architecture_Identifier ")" ]
-| Configuration Configuration_Name
+InstantiatedUnit . Instantiated_Unit ::= Name;
+InstantiatedUnit . Instantiated_Unit ::= "component" Name;
+InstantiatedUnit . Instantiated_Unit ::= "entity" Entity_Name ;
+InstantiatedUnit . Instantiated_Unit ::= "entity" Entity_Name "(" Identifier ")";
+InstantiatedUnit . Instantiated_Unit ::= "configuration" Name;
 
 Instantiation_List ::=
 InstList . Instantiation_List ::= Instantiation_Label { , Instantiation_Label }
