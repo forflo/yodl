@@ -30,6 +30,7 @@ FunctionPrefix . Prefix ::= Function_call;
 SelectedName . Selected_name ::= Prefix "." Suffix;
 
 AllSuffix . Suffix ::= "all";
+AllSuffixfoo . Suffix ::= "foobar" "all";
 NameSuffix . Suffix ::= Simple_name;
 
 AttributeName . Attribute_name ::= Prefix "'" Name;

@@ -3,13 +3,12 @@
 
 comment "--";
 
-Absolute_Pathname ::= "." Partial_Pathname
+AbsPathname . Absolute_Pathname ::= "." Partial_Pathname;
 
-AbstractLiteral . Abstract_Literal ::= Decimal_Literal;
-AbstractLiteral . Abstract_Literal ::= Based_Literal;
+AbstractLitDec . Abstract_Literal ::= Decimal_Literal;
+AbstractLitBased . Abstract_Literal ::= Based_Literal;
 
-Access_Type_Definition ::=
-Access Subtype_Indication
+AccessTypeDef . Access_Type_Definition ::= "access" Subtype_Indication;
 
 ActualDesignatorInertial . Actual_Designator ::= "inertial" Expression;
 ActualDesignatorExp . Actual_Designator ::= Expression;
@@ -17,34 +16,30 @@ ActualDesignatorName . Actual_Designator ::= Name;
 ActualDesignatorSubtype . Actual_Designator ::= Subtype_Indication;
 ActualDesignatorOpen . Actual_Designator ::= "open";
 
-_ . Actual_Parameter_Part ::= Parameter_Association_List;
+_ . Actual_Parameter_Part ::= Association_List;
 
-_ . Actual_part ::= Actual_Designator;
-ActualPartName . Actual_part ::= Name "(" Actual_Designator ")";
-ActualPartMark . Actual_part ::= Type_Mark "(" Actual_Designator ")";
+ActualPartDesi . Actual_Part ::= Actual_Designator;
+ActualPartName . Actual_Part ::= Name "(" Actual_Designator ")";
+ActualPartMark . Actual_Part ::= Type_Mark "(" Actual_Designator ")";
 
-Plus . Adding_Operator ::= "+";
-Minus . Adding_Operator ::= "-";
-Concat . Adding_Operator ::= "&";
+AddingOpPlus . Adding_Operator ::= "+";
+AddingOpMinus . Adding_Operator ::= "-";
+AddingOpConcat . Adding_Operator ::= "&";
 
 separator Element_Association ",";
-Aggregate ::= "(" [Element_Association] ")";
+Aggregate . Aggregate ::= "(" [Element_Association] ")";
 
-AliasDecl . Alias_Declaration ::=
-          "alias" Alias_Designator "is" "name";
-AliasDeclSig . Alias_Declaration ::=
-             "alias" Alias_Designator "is" "name" Signature;
-AliasDeclType . Alias_Declaration ::=
-              "Alias" Alias_Designator ":" Subtype_Indication "is" "name";
-AliasDeclTypeSig . Alias_Declaration ::=
-                 "Alias" Alias_Designator ":" Subtype_Indication "is" "name" Signature ;
+AliasDecl . Alias_Declaration ::= "alias" Alias_Designator "is" "name";
+AliasDeclSig . Alias_Declaration ::= "alias" Alias_Designator "is" "name" Signature;
+AliasDeclType . Alias_Declaration ::= "Alias" Alias_Designator ":" Subtype_Indication "is" "name";
+AliasDeclTypeSig . Alias_Declaration ::= "Alias" Alias_Designator ":" Subtype_Indication "is" "name" Signature ;
 
 AliasDesignatorId . Alias_Designator ::= Identifier;
 AliasDesignatorChar . Alias_Designator ::= Character_Literal;
 AliasDesignatorOp . Alias_Designator ::= Operator_Symbol;
 
-AllocatorSubtype . Allocator ::= New Subtype_Indication;
-AllocatorQualified . Allocator ::= New Qualified_Expression;
+AllocatorSubtype . Allocator ::= "new" Subtype_Indication;
+AllocatorQualified . Allocator ::= "new" Qualified_Expression;
 
 ArchitectureBody . Architecture_Body ::=
                  "architecture" Identifier "of" Entity_Name
@@ -71,22 +66,22 @@ Architecture_Statement_Part ::= [Concurrent_Statement];
 
 ArrayConstraintIdxcP . Array_Constraint ::= Index_Constraint Array_Element_Constraint;
 ArrayConstraintIdxc . Array_Constraint ::= Index_Constraint;
-ArrayConstraintOpenP . Array_Constraint ::= "(" "Open" ")" Array_Element_Constraint;
-ArrayConstraintOpen . Array_Constraint ::= "(" "Open" ")";
+ArrayConstraintOpenP . Array_Constraint ::= "(" "open" ")" Array_Element_Constraint;
+ArrayConstraintOpen . Array_Constraint ::= "(" "open" ")";
 
-_ . Array_Element_Constraint ::= Element_Constraint
-_ . Array_Element_Resolution ::= Resolution_Indication
+ArrElemConstrElem . Array_Element_Constraint ::= Element_Constraint;
+ArrElemConstrRes . Array_Element_Resolution ::= Resolution_Indication;
 
-ArrayUnboundedDef . Array_Type_Definition ::= Unbounded_Array_Definition
-ArrayConstrainedDef . Array_Type_Definition ::= Constrained_Array_Definition
+ArrayUnboundedDef . Array_Type_Definition ::= Unbounded_Array_Definition;
+ArrayConstrainedDef . Array_Type_Definition ::= Constrained_Array_Definition;
 
 Assertion . Assertion ::= "assert" Condition;
-Assertion . Assertion ::= "assert" Condition Report Expression;
-Assertion . Assertion ::= "assert" Condition Severity Expression;
-Assertion . Assertion ::= "assert" Condition Report Expression Severity Expression;
+Assertion . Assertion ::= "assert" Condition "report" Expression;
+Assertion . Assertion ::= "assert" Condition "severity" Expression;
+Assertion . Assertion ::= "assert" Condition "report" Expression "severity" Expression;
 
-LabeledAssertionStatement . Assertion_Statement ::= Label ":" Assertion ;
-AssertionStatement . Assertion_Statement ::= Assertion ;
+AssertionStatementLabel . Assertion_Statement ::= Label ":" Assertion ";";
+AssertionStatement . Assertion_Statement ::= Assertion ";";
 
 AssocElementBinary . Association_Element ::= Formal_Part "=>" Actual_Part;
 AssocElementUnary . Association_Element ::= Actual_Part;
@@ -95,17 +90,16 @@ separator AssociationElement ",";
 
 _ . Association_List ::= [AssociationElement];
 
-_ . Attribute_Declaration ::= Attribute Identifier ":" Type_Mark ";";
+AttrDecl . Attribute_Declaration ::= "attribute" Identifier ":" Type_Mark ";";
 
 _ . Attribute_Designator ::= Simple_Name;
 
 AttributeName . Attribute_Name ::= Prefix "'" Attribute_Designator;
-AttributeName . Attribute_Name ::= Prefix Signature "'" Attribute_Designator;
-AttributeName . Attribute_Name ::= Prefix "'" Attribute_Designator "(" Expression ")";
-AttributeName . Attribute_Name ::= Prefix Signature "'" Attribute_Designator "(" Expression ")";
+AttributeNameSig . Attribute_Name ::= Prefix Signature "'" Attribute_Designator;
+AttributeNameExp . Attribute_Name ::= Prefix "'" Attribute_Designator "(" Expression ")";
+AttributeNameSigExp . Attribute_Name ::= Prefix Signature "'" Attribute_Designator "(" Expression ")";
 
-AttrSpec . Attribute_Specification ::= "attribute" Attribute_Designator "of"
-                        Entity_Specification "is" Expression ";";
+AttrSpec . Attribute_Specification ::= "attribute" Attribute_Designator "of" Entity_Specification "is" Expression ";";
 
 _ . Base ::= Integer;
 
@@ -128,14 +122,14 @@ token Basic_Graphic_Character "("'d');
 token Bit_String_Literal "("'d');
 token Bit_Value "("'d');
 
-BindingIndE . Binding_Indication ::= "use" Entity_Aspect ;
-BindingIndEG . Binding_Indication ::= "use" Entity_Aspect  Generic_Map_Aspect ;
-BindingIndEP . Binding_Indication ::= "use" Entity_Aspect  Port_Map_Aspect;
-BindingIndEGP . Binding_Indication ::= "use" Entity_Aspect  Generic_Map_Aspect  Port_Map_Aspect;
 BindingIndG . Binding_Indication ::= Generic_Map_Aspect ;
-BindingIndGP . Binding_Indication ::= Generic_Map_Aspect  Port_Map_Aspect;
+BindingIndGP . Binding_Indication ::= Generic_Map_Aspect Port_Map_Aspect;
 BindingIndP . Binding_Indication ::= Port_Map_Aspect;
 BindingInd . Binding_Indication ::= ;
+BindingIndE . Binding_Indication ::= "use" Entity_Aspect ;
+BindingIndEG . Binding_Indication ::= "use" Entity_Aspect Generic_Map_Aspect ;
+BindingIndEP . Binding_Indication ::= "use" Entity_Aspect Port_Map_Aspect;
+BindingIndEGP . Binding_Indication ::= "use" Entity_Aspect Generic_Map_Aspect Port_Map_Aspect;
 
 terminator Use_Clause "";
 terminator Configuration_Item "";
@@ -162,7 +156,7 @@ BlockDeclItemConfigSpec . Block_Declarative_Item ::= Configuration_Specification
 BlockDeclItemDisconn . Block_Declarative_Item ::= Disconnection_Specification;
 BlockDeclItemUse . Block_Declarative_Item ::= Use_Clause;
 BlockDeclItemGroupT . Block_Declarative_Item ::= Group_Template_Declaration;
-BlockDeclItemGroup . Block_Declarative_Item ::= Group_Declaration
+BlockDeclItemGroup . Block_Declarative_Item ::= Group_Declaration;
 
 -- PSL stuff has been omitted
 
@@ -176,14 +170,14 @@ BlockHeaderPortmap . Block_Header ::= BH_temp2;
 BlockHeaderGenericPortmap . Block_Header ::= BH_temp BH_temp2;
 
 GenClauseGenMap . BH_temp ::= Generic_Clause Generic_Map_Aspect ";";
-GenClause . BH_temp ::= Generic_Clause ";" ;
-PortClausePortMap . BH_temp2 ::= Port_Clause Port_Map_Aspect";"
-PortClause . BH_temp2 ::= Port_Clause ";"
+GenClause . BH_temp ::= Generic_Clause ";";
+PortClausePortMap . BH_temp2 ::= Port_Clause Port_Map_Aspect ";";
+PortClause . BH_temp2 ::= Port_Clause ";";
 
-BlockSpecArch . Block_Specification ::= Architecture_Name;
-BlockSpecBlock . Block_Specification ::= Block_Statement_Label;
-BlockSpecGen . Block_Specification ::= Generate_Statement_Label;;
-BlockSpecGenSpec . Block_Specification ::= Generate_Statement_Label "(" Generate_Specification ")";;
+BlockSpecArch . Block_Specification ::= Name;
+BlockSpecBlock . Block_Specification ::= Label;
+BlockSpecGen . Block_Specification ::= Label;
+BlockSpecGenSpec . Block_Specification ::= Label "(" Generate_Specification ")";;
 
 BlockStmt . Block_Statement ::= Label ":" "block"                            Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block" ";";
 BlockStmtL . Block_Statement ::= Label ":" "block"                            Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block"  Label ";";
@@ -194,56 +188,43 @@ BlockStmtCL . Block_Statement ::= Label ":" "block"  "(" Condition ")"         B
 BlockStmtCI . Block_Statement ::= Label ":" "block"  "(" Condition ")"   "is"  Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block" ";";
 BlockStmtCIL . Block_Statement ::= Label ":" "block"  "(" Condition ")"   "is"  Block_Header Block_Declarative_Part "begin" Block_Statement_Part "end" "block"  Label ";";
 
+terminator Verification_Unit_Binding_Indication ";";
 terminator Concurrent_Statement "";
 separator Case_Generate_Alternative "";
-
-Block_Statement_Part ::= [Concurrent_Statement];
-
-CaseGenerateAlt . Case_Genreate_Alternative ::=
-                "when" Label ":" Choices "=>" Generate_Statement_Body;
-CaseGenerateAlt . Case_Genreate_Alternative ::=
-                "when" Choices "=>" Generate_Statement_Body;
-
-Case_Generate_Statement ::=
-CaseGenerateStmt . Case_Generate_Statement ::=
-                 Label ":" "case" Expression "generate"
-                 [Case_Generate_Alternative] "end" "generate";
-CaseGenerateStmtLbl . Case_Generate_Statement ::=
-                    Label ":" "case" Expression "generate"
-                    [Case_Generate_Alternative] "end" "generate" Label ;
-
-
-CaseSimpleStmt . Case_Statement ::= "case" Expression "is" [Case_Statement_Alternative] "end" "case";
-CaseQStmt . Case_Statement ::= "case" "?" Expression "is" [Case_Statement_Alternative] "end" "case" "?";
-LabeledCaseStmt . Case_Statement ::= Label ":" "case" Expression "is" [Case_Statement_Alternative] "end" "case" Label ] ;
-LabeledCaseQStmt . Case_Statement ::= Label ":" "case" "?" Expression "is" [Case_Statement_Alternative] "end" "case" "?" Label;
-
 separator Case_Statement_Alternative "";
-Case_Statement_Alternative ::= "when" [Choice] => Sequence_Of_Statements
-
-Character_Literal ::= "'" Graphic_Character "'"
-
 separator nonempty Choice "|";
-ExpChoice . Choice ::= Simple_Expression;
-RangeChoice . Choice ::= Discrete_Range;
-NameChoice . Choice ::= Simple_Name;
-OthersChoice . Choice ::= "others";
 
-terminator Verification_Unit_Binding_Indication ";";
+_ . Block_Statement_Part ::= [Concurrent_Statement];
 
-SimpleComConfig . Component_Configuration ::=
-                "for" Component_Specification [Verification_Unit_Binding_Indication]
-                "end" "for" ;
-BindingComConfig . Component_Configuration ::=
-                 "for" Component_Specification Binding_Indication ";"
-                 [Verification_Unit_Binding_Indication] "end" "for" ;
-BlockComConfig . Component_Configuration ::=
-               "for" Component_Specification [Verification_Unit_Binding_Indication]
-               Block_Configuration "end" "for" ;
-BindingBlockComConfig . Component_Configuration ::=
-                      "for" Component_Specification Binding_Indication ";"
-                      [Verification_Unit_Binding_Indication] Block_Configuration
-                      "end" "for" ;
+CaseGenerateAltLabel . Case_Genreate_Alternative ::= "when" Label ":" Choices "=>" Generate_Statement_Body;
+CaseGenerateAlt      . Case_Genreate_Alternative ::= "when"           Choices "=>" Generate_Statement_Body;
+
+CaseGenerateStmt . Case_Generate_Statement ::= Label ":" "case" Expression "generate" [Case_Generate_Alternative] "end" "generate";
+CaseGenerateStmtLbl . Case_Generate_Statement ::= Label ":" "case" Expression "generate" [Case_Generate_Alternative] "end" "generate" Label ;
+
+
+CaseStmt       . Case_Statement ::=           "case"     Expression "is" [Case_Statement_Alternative] "end" "case"           ;
+CaseStmtQ      . Case_Statement ::=           "case" "?" Expression "is" [Case_Statement_Alternative] "end" "case" "?"       ;
+CaseStmtLabel  . Case_Statement ::= Label ":" "case"     Expression "is" [Case_Statement_Alternative] "end" "case"     Label ;
+CaseStmtQLabel . Case_Statement ::= Label ":" "case" "?" Expression "is" [Case_Statement_Alternative] "end" "case" "?" Label ;
+
+
+Case_Statement_Alternative ::= "when" [Choice] "=>" Sequence_Of_Statements;
+
+CharacterLiteral . Character_Literal ::= "'" Graphic_Character "'";
+
+
+ChoiceExp    . Choice ::= Simple_Expression;
+ChoiceRange  . Choice ::= Discrete_Range;
+ChoiceName   . Choice ::= Simple_Name;
+ChoiceOthers . Choice ::= "others";
+
+
+ComConfigSimple       . Component_Configuration ::= "for" Component_Specification [Verification_Unit_Binding_Indication] "end" "for" ;
+ComConfigBinding      . Component_Configuration ::= "for" Component_Specification Binding_Indication ";" [Verification_Unit_Binding_Indication] "end" "for" ;
+ComConfigBlock        . Component_Configuration ::= "for" Component_Specification [Verification_Unit_Binding_Indication] Block_Configuration "end" "for" ;
+ComConfigBindingBlock . Component_Configuration ::= "for" Component_Specification Binding_Indication
+                                                    ";" [Verification_Unit_Binding_Indication] Block_Configuration "end" "for" ;
 
 CompDecl      . Component_Declaration ::= "component" Identifier                                   "end" "component"             ";"
 CompDeclN     . Component_Declaration ::= "component" Identifier                                   "end" "component" simple_name ";"
@@ -262,9 +243,9 @@ CompDeclIGN   . Component_Declaration ::= "component" Identifier "is"  Generic_C
 CompDeclIGP   . Component_Declaration ::= "component" Identifier "is"  Generic_Clause  Port_Clause "end" "component"             ";"
 CompDeclIGPN  . Component_Declaration ::= "component" Identifier "is"  Generic_Clause  Port_Clause "end" "component" Simple_Name ";"
 
-CompInstStmt . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit                                            ";"
-CompInstStmtP . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit                        Port_Map_Aspect ";"
-CompInstStmtG . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit Generic_Map_Aspect                     ";"
+CompInstStmt   . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit                                    ";"
+CompInstStmtP  . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit                    Port_Map_Aspect ";"
+CompInstStmtG  . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit Generic_Map_Aspect                 ";"
 CompInstStmtGP . Component_Instantiation_Statement ::= Label ":" Instantiated_Unit Generic_Map_Aspect Port_Map_Aspect ";"
 
 CompSpec . Component_Specification ::= Instantiation_List ":" Name;
@@ -272,42 +253,42 @@ CompSpec . Component_Specification ::= Instantiation_List ":" Name;
 CompTypeDefArr . Composite_Type_Definition ::= Array_Type_Definition;
 CompTypeDefRec . Composite_Type_Definition ::= Record_Type_Definition;
 
-Compound_Configuration_Specification ::=
-                                     "for" Component_Specification Binding_Indication ";" Verification_Unit_Binding_Indication
-                                     ";" [Verification_Unit_Binding_Indication] "end" "for" ";"
+CompConfigSpec . Compound_Configuration_Specification ::= "for" Component_Specification Binding_Indication ";" Verification_Unit_Binding_Indication
+                                                          ";" [Verification_Unit_Binding_Indication] "end" "for" ";";
 
-ConcAssertStmt . Concurrent_Assertion_Statement ::= "postponed" Assertion ";"
-ConcAssertStmtL . Concurrent_Assertion_Statement ::= Label ":" "postponed" Assertion ";"
+ConcAssertStmt  . Concurrent_Assertion_Statement ::=           "postponed" Assertion ";";
+ConcAssertStmtL . Concurrent_Assertion_Statement ::= Label ":" "postponed" Assertion ";";
 
-ConcCondSigAssign . Concurrent_Conditional_Signal_Assignment ::= Target "<="                           Conditional_Waveforms ";"
-ConcCondSigAssignD . Concurrent_Conditional_Signal_Assignment ::= Target "<="           Delay_Mechanism Conditional_Waveforms ";"
-ConcCondSigAssignG . Concurrent_Conditional_Signal_Assignment ::= Target "<=" "guarded"                 Conditional_Waveforms ";"
-ConcCondSigAssignGD . Concurrent_Conditional_Signal_Assignment ::= Target "<=" "guarded" Delay_Mechanism Conditional_Waveforms ";"
+ConcCondSigAssign   . Concurrent_Conditional_Signal_Assignment ::= Target "<="                           Conditional_Waveforms ";";
+ConcCondSigAssignD  . Concurrent_Conditional_Signal_Assignment ::= Target "<="           Delay_Mechanism Conditional_Waveforms ";";
+ConcCondSigAssignG  . Concurrent_Conditional_Signal_Assignment ::= Target "<=" "guarded"                 Conditional_Waveforms ";";
+ConcCondSigAssignGD . Concurrent_Conditional_Signal_Assignment ::= Target "<=" "guarded" Delay_Mechanism Conditional_Waveforms ";";
 
-ConcProcCallStmt . Concurrent_Procedure_Call_Statement ::= Procedure_Call ";"
-ConcProcCallStmtL . Concurrent_Procedure_Call_Statement ::=  Label ":"   Procedure_Call ";"
-ConcProcCallStmtP . Concurrent_Procedure_Call_Statement ::=  "postponed"  Procedure_Call ";"
-ConcProcCallStmtLP . Concurrent_Procedure_Call_Statement ::=  Label ":"   "postponed"  Procedure_Call ";"
+ConcProcCallStmt   . Concurrent_Procedure_Call_Statement ::=                        Procedure_Call ";";
+ConcProcCallStmtP  . Concurrent_Procedure_Call_Statement ::=            "postponed" Procedure_Call ";";
+ConcProcCallStmtL  . Concurrent_Procedure_Call_Statement ::=  Label ":"             Procedure_Call ";";
+ConcProcCallStmtLP . Concurrent_Procedure_Call_Statement ::=  Label ":" "postponed" Procedure_Call ";";
 
-ConcSelSigAssign . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="                                   Selected_Waveforms ";"
-ConcSelSigAssignD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="                Delay_Mechanism  Selected_Waveforms ";"
-ConcSelSigAssignG . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="  "guarded"                      Selected_Waveforms ";"
-ConcSelSigAssignGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"         Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";"
-ConcSelSigAssignQ . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                                   Selected_Waveforms ";"
-ConcSelSigAssignQD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                Delay_Mechanism  Selected_Waveforms ";"
-ConcSelSigAssignGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"                      Selected_Waveforms ";"
-ConcSelSigAssignQGD . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";"
-ConcSigAssignStmtS . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Simple_Signal_Assignment;
-ConcSigAssignStmtSL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Simple_Signal_Assignment;
-ConcSigAssignStmtSP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Simple_Signal_Assignment;
-ConcSigAssignStmtSPL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Simple_Signal_Assignment;
-ConcSigAssignStmtC . Concurrent_Signal_Assignment_Statement ::=  Concurrent_Conditional_Signal_Assignment;
-ConcSigAssignStmtCL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Conditional_Signal_Assignment;
-ConcSigAssignStmtCP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Conditional_Signal_Assignment;
-ConcSigAssignStmtCPL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Conditional_Signal_Assignment;
-ConcSigAssignStmtSe . Concurrent_Signal_Assignment_Statement ::=   Concurrent_Selected_Signal_Assignment;
-ConcSigAssignStmtSeL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   Concurrent_Selected_Signal_Assignment;
-ConcSigAssignStmtSeP . Concurrent_Signal_Assignment_Statement ::=  "postponed"  Concurrent_Selected_Signal_Assignment;
+ConcSelSigAssign      . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="                               Selected_Waveforms ";";
+ConcSelSigAssignD     . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="              Delay_Mechanism  Selected_Waveforms ";";
+ConcSelSigAssignG     . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="  "guarded"                    Selected_Waveforms ";";
+ConcSelSigAssignGD    . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";";
+ConcSelSigAssignQ     . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                               Selected_Waveforms ";";
+ConcSelSigAssignQD    . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="              Delay_Mechanism  Selected_Waveforms ";";
+ConcSelSigAssignGD    . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"                    Selected_Waveforms ";";
+ConcSelSigAssignQGD   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";";
+
+ConcSigAssignStmtS    . Concurrent_Signal_Assignment_Statement ::=                           Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtSL   . Concurrent_Signal_Assignment_Statement ::=  Label ":"                Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtSP   . Concurrent_Signal_Assignment_Statement ::=              "postponed"  Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtSPL  . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Simple_Signal_Assignment;
+ConcSigAssignStmtC    . Concurrent_Signal_Assignment_Statement ::=                           Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtCL   . Concurrent_Signal_Assignment_Statement ::=  Label ":"                Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtCP   . Concurrent_Signal_Assignment_Statement ::=              "postponed"  Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtCPL  . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Conditional_Signal_Assignment;
+ConcSigAssignStmtSe   . Concurrent_Signal_Assignment_Statement ::=                           Concurrent_Selected_Signal_Assignment;
+ConcSigAssignStmtSeL  . Concurrent_Signal_Assignment_Statement ::=  Label ":"                Concurrent_Selected_Signal_Assignment;
+ConcSigAssignStmtSeP  . Concurrent_Signal_Assignment_Statement ::=              "postponed"  Concurrent_Selected_Signal_Assignment;
 ConcSigAssignStmtSePL . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Selected_Signal_Assignment;
 
 
