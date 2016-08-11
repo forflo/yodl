@@ -1148,50 +1148,50 @@ _ . Selected_Expressions ::= [Selected_Expression];
 separator nonempty Selected_Expression ",";
 SelectedExpression . Selected_Expression ::= Expression "when" [Choice];
 
-SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"         Target "<=" "force"                Selected_Expressions ";";
-SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"         Target "<=" "force"  Force_Mode  Selected_Expressions ";";
-SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"  "?"  Target "<=" "force"                Selected_Expressions ";";
-SelectedForceAssignment . Selected_Force_Assignment ::= "with" Expression "select"  "?"  Target "<=" "force"  Force_Mode  Selected_Expressions ";";
+SelectedForceAssignment00 . Selected_Force_Assignment ::= "with" Expression "select"       Target "<=" "force"              Selected_Expressions ";" ;
+SelectedForceAssignment01 . Selected_Force_Assignment ::= "with" Expression "select"       Target "<=" "force"  Force_Mode  Selected_Expressions ";" ;
+SelectedForceAssignment10 . Selected_Force_Assignment ::= "with" Expression "select"  "?"  Target "<=" "force"              Selected_Expressions ";" ;
+SelectedForceAssignment11 . Selected_Force_Assignment ::= "with" Expression "select"  "?"  Target "<=" "force"  Force_Mode  Selected_Expressions ";" ;
 
 SelectedName . Selected_Name ::= Prefix "." Suffix;
 
-SelectedSigAssign . Selected_Signal_Assignment ::= Selected_Waveform_Assignment;
-SelectedSigAssign . Selected_Signal_Assignment ::= Selected_Force_Assignment;
+SelectedSigAssignWave  . Selected_Signal_Assignment ::= Selected_Waveform_Assignment;
+SelectedSigAssignForce . Selected_Signal_Assignment ::= Selected_Force_Assignment;
 
-SelectedVarAssign . Selected_Variable_Assignment ::= "with" Expression "select" Target ":=" Selected_Expressions ";";
-SelectedVarAssignQ . Selected_Variable_Assignment ::= "with" Expression "select" "?" Target ":=" Selected_Expressions ";";
+SelectedVarAssign  . Selected_Variable_Assignment ::= "with" Expression "select"     Target ":=" Selected_Expressions ";" ;
+SelectedVarAssignQ . Selected_Variable_Assignment ::= "with" Expression "select" "?" Target ":=" Selected_Expressions ";" ;
 
-SelectedWavAssign . Selected_Waveform_Assignment ::= "with" Expression "select"         Target "<="                   Selected_Waveforms ";";
-SelectedWavAssignD . Selected_Waveform_Assignment ::= "with" Expression "select"        Target "<="  Delay_Mechanism  Selected_Waveforms ";";
-SelectedWavAssignQ . Selected_Waveform_Assignment ::= "with" Expression "select"   "?"  Target "<="                   Selected_Waveforms ";";
-SelectedWavAssignQD . Selected_Waveform_Assignment ::= "with" Expression "select"  "?"  Target "<="  Delay_Mechanism  Selected_Waveforms ";";
+SelectedWavAssign   . Selected_Waveform_Assignment ::= "with" Expression "select"       Target "<="                   Selected_Waveforms ";" ;
+SelectedWavAssignD  . Selected_Waveform_Assignment ::= "with" Expression "select"       Target "<="  Delay_Mechanism  Selected_Waveforms ";" ;
+SelectedWavAssignQ  . Selected_Waveform_Assignment ::= "with" Expression "select"  "?"  Target "<="                   Selected_Waveforms ";" ;
+SelectedWavAssignQD . Selected_Waveform_Assignment ::= "with" Expression "select"  "?"  Target "<="  Delay_Mechanism  Selected_Waveforms ";" ;
 
 _ . Selected_Waveforms ::= [Selected_Waveform];
 
 separator nonempty Selected_Waveform ",";
 SelectedWaveform . Selected_Waveform ::= Waveform "when" [Choice];
 
-_ . Sensitivity_Clause ::= "on" Sensitivity_List;
+SensitivityClause . Sensitivity_Clause ::= "on" Sensitivity_List;
 
-separator nonempty Signal_Name ",";
-Sensitivity_List ::= [Signal_Name];
+separator nonempty Name ",";
+SensList . Sensitivity_List ::= [Name];
 
 terminator Sequential_Statement "";
 _ . Sequence_Of_Statements ::= [Sequential_Statement];
 
-SeqStmtWait . Sequential_Statement ::= Wait_Statement;
+SeqStmtWait   . Sequential_Statement ::= Wait_Statement;
 SeqStmtAssert . Sequential_Statement ::= Assertion_Statement;
 SeqStmtReport . Sequential_Statement ::= Report_Statement;
 SeqStmtSigass . Sequential_Statement ::= Signal_Assignment_Statement;
 SeqStmtVarass . Sequential_Statement ::= Variable_Assignment_Statement;
-SeqStmtProc . Sequential_Statement ::= Procedure_Call_Statement;
-SeqStmtIf . Sequential_Statement ::= If_Statement;
-SeqStmtCase . Sequential_Statement ::= Case_Statement;
-SeqStmtLoop . Sequential_Statement ::= Loop_Statement;
-SeqStmtNext . Sequential_Statement ::= Next_Statement;
-SeqStmtExit . Sequential_Statement ::= Exit_Statement;
-SeqStmtRet . Sequential_Statement ::= Return_Statement;
-SeqStmtNull . Sequential_Statement ::= Null_Statement;
+SeqStmtProc   . Sequential_Statement ::= Procedure_Call_Statement;
+SeqStmtIf     . Sequential_Statement ::= If_Statement;
+SeqStmtCase   . Sequential_Statement ::= Case_Statement;
+SeqStmtLoop   . Sequential_Statement ::= Loop_Statement;
+SeqStmtNext   . Sequential_Statement ::= Next_Statement;
+SeqStmtExit   . Sequential_Statement ::= Exit_Statement;
+SeqStmtRet    . Sequential_Statement ::= Return_Statement;
+SeqStmtNull   . Sequential_Statement ::= Null_Statement;
 
 SimpleExprU . Shift_Expression ::= Simple_Expression;
 SimpleExprB . Shift_Expression ::= Simple_Expression Shift_Operator Simple_Expression;
@@ -1201,113 +1201,114 @@ token Shift_Operator ('d');
 
 token Sign ('+' | '-');
 
-SigAssStmtSimple . Signal_Assignment_Statement ::= Simple_Signal_Assignment;
+SigAssStmtSimple  . Signal_Assignment_Statement ::=           Simple_Signal_Assignment;
 SigAssStmtLSimple . Signal_Assignment_Statement ::= Label ":" Simple_Signal_Assignment;
 
-SigAssStmtCond . Signal_Assignment_Statement ::= Conditional_Signal_Assignment;
+SigAssStmtCond  . Signal_Assignment_Statement ::=           Conditional_Signal_Assignment;
 SigAssStmtLCond . Signal_Assignment_Statement ::= Label ":" Conditional_Signal_Assignment;
 
-SigAssStmtSel . Signal_Assignment_Statement ::= Selected_Signal_Assignment;
+SigAssStmtSel  . Signal_Assignment_Statement ::=           Selected_Signal_Assignment;
 SigAssStmtLSel . Signal_Assignment_Statement ::= Label ":" Selected_Signal_Assignment;
 
-SignalDecl . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication ";"
-SignalDeclE . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication ":=" Expression ";"
-SignalDeclK . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication Signal_Kind ";"
+SignalDecl   . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication                             ";"
+SignalDeclE  . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication             ":=" Expression ";"
+SignalDeclK  . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication Signal_Kind                 ";"
 SignalDeclKE . Signal_Declaration ::= "signal" [Identifier] ":" Subtype_Indication Signal_Kind ":=" Expression ";"
 
-SigKindReg . Signal_Kind ::= Register;
-SigKindBus . Signal_Kind ::= Bus
+SigKindReg . Signal_Kind ::= "register";
+SigKindBus . Signal_Kind ::= "bus";
 
-separator nonempty Signal_Name ",";
-SigListNames . Signal_List ::= [Signal_Name] ";";
+SigListNames  . Signal_List ::= [Name];
 SigListOthers . Signal_List ::= "others";
-SigListAll . Signal_List ::= "all";
+SigListAll    . Signal_List ::= "all";
 
 separator Type_Mark ",";
-Sig . Signature ::= [Type_Mark] ;
-Sig . Signature ::= [Type_Mark] "return" Type_Mark;
+Sig   . Signature ::=                                ;
+SigR  . Signature ::=             "return" Type_Mark ;
+SigT  . Signature ::= [Type_Mark]                    ;
+SigTR . Signature ::= [Type_Mark] "return" Type_Mark ;
 
-Simple_Configuration_Specification ::=
-For Component_Specification Binding_Indication ; [ End For ; ]
+SimpleConfigSpec0 . Simple_Configuration_Specification ::= "for" Component_Specification Binding_Indication ";"                 ;
+SimpleConfigSpec1 . Simple_Configuration_Specification ::= "for" Component_Specification Binding_Indication ";" "end" "for" ";" ;
 
-_ . SExpTem ::= Adding_Operator Term;
-terminator SExpTerm "";
-Simple_Expression ::= Sign Term [SExpTerm];
-Simple_Expression ::= Term [SExpTerm];
+SExpTemp . S_Exp_Temp ::= Adding_Operator Term;
+terminator SExpTermp "";
+SimpleExp0 . Simple_Expression ::= Sign Term [SExpTerm];
+SimpleExp1 . Simple_Expression ::=      Term [SExpTerm];
 
-SimpleForceAssign . Simple_Force_Assignment ::= Target "<=" "force" Expression ";";
-SimpleForceAssignFm . Simple_Force_Assignment ::= Target "<=" "force" Force_Mode Expression ";";
+SimpleForceAssign   . Simple_Force_Assignment ::= Target "<=" "force"            Expression ";" ;
+SimpleForceAssignFM . Simple_Force_Assignment ::= Target "<=" "force" Force_Mode Expression ";" ;
 
 _ . Simple_Name ::= Identifier;
 
-SimpleReleaseAssign . Simple_Release_Assignment ::= Target "<=" Release ";"
-SimpleReleaseAssign . Simple_Release_Assignment ::= Target "<=" Release Force_Mode ";"
+SimpleReleaseAssign0 . Simple_Release_Assignment ::= Target "<=" Release            ";"
+SimpleReleaseAssign1 . Simple_Release_Assignment ::= Target "<=" Release Force_Mode ";"
 
-SimpleSigAssignWave . Simple_Signal_Assignment ::= Simple_Waveform_Assignment;
-SimpleSigAssignForce . Simple_Signal_Assignment ::= Simple_Force_Assignment;
+SimpleSigAssignWave    . Simple_Signal_Assignment ::= Simple_Waveform_Assignment;
+SimpleSigAssignForce   . Simple_Signal_Assignment ::= Simple_Force_Assignment;
 SimpleSigAssignRelease . Simple_Signal_Assignment ::= Simple_Release_Assignment;
 
 SimpleWavAssignD . Simple_Waveform_Assignment ::= Target "<=" Delay_Mechanism Waveform ;
 SimpleWavAssign  . Simple_Waveform_Assignment ::= Target "<=" Waveform ;
 
-SimpleVarAssign . Simple_Variable_Assignment ::= Target ":=" Expression ";";
+SimpleVarAssign . Simple_Variable_Assignment ::= Target ":=" Expression ";" ;
 
 SliceName . Slice_Name ::= Prefix "(" Discrete_Range ")";
 
 -- TODO: Maybe token?
 String_Literal ::= " { Graphic_Character } "
 
-SubprogBody . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end"                           ;
-SubprogBodyD . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end"                 Designator;
-SubprogBodyS . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end" Subprogram_Kind           ;
-SubprogBodySD . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end" Subprogram_Kind Designator;
+SubprogBody   . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end"                            ";" ;
+SubprogBodyD  . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end"                 Designator ";" ;
+SubprogBodyS  . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end" Subprogram_Kind            ";" ;
+SubprogBodySD . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end" Subprogram_Kind Designator ";" ;
 
 _ . Subprogram_Declaration ::= Subprogram_Specification ";";
 
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Subprogram_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Subprogram_Body;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Subprogram_Instantiation_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Package_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Package_Body;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Package_Instantiation_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Type_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Subtype_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Constant_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Variable_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= File_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Alias_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Attribute_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Attribute_Specification;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Use_Clause;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Group_Template_Declaration;
-SubprogramDeclItem . Subprogram_Declarative_Item ::= Group_Declaration;
+SubprogramDeclItemSubD . Subprogram_Declarative_Item ::= Subprogram_Declaration;
+SubprogramDeclItemSubB . Subprogram_Declarative_Item ::= Subprogram_Body;
+SubprogramDeclItemSubI . Subprogram_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+SubprogramDeclItemPacD . Subprogram_Declarative_Item ::= Package_Declaration;
+SubprogramDeclItemPacB . Subprogram_Declarative_Item ::= Package_Body;
+SubprogramDeclItemPacI . Subprogram_Declarative_Item ::= Package_Instantiation_Declaration;
+SubprogramDeclItemTypD . Subprogram_Declarative_Item ::= Type_Declaration;
+SubprogramDeclItemStyp . Subprogram_Declarative_Item ::= Subtype_Declaration;
+SubprogramDeclItemConD . Subprogram_Declarative_Item ::= Constant_Declaration;
+SubprogramDeclItemVarD . Subprogram_Declarative_Item ::= Variable_Declaration;
+SubprogramDeclItemFilD . Subprogram_Declarative_Item ::= File_Declaration;
+SubprogramDeclItemAliD . Subprogram_Declarative_Item ::= Alias_Declaration;
+SubprogramDeclItemAttD . Subprogram_Declarative_Item ::= Attribute_Declaration;
+SubprogramDeclItemAttS . Subprogram_Declarative_Item ::= Attribute_Specification;
+SubprogramDeclItemUseC . Subprogram_Declarative_Item ::= Use_Clause;
+SubprogramDeclItemGroT . Subprogram_Declarative_Item ::= Group_Template_Declaration;
+SubprogramDeclItemGroD . Subprogram_Declarative_Item ::= Group_Declaration;
 
 terminator Subprogram_Declarative_Item "";
 _ . Subprogram_Declarative_Part ::= [Subprogram_Declarative_Item];
 
-SubprogramHeader . Subprogram_Header ::= ;
-SubprogramHeaderGen . Subprogram_Header ::= "generic" "(" Generic_List ")";
-SubprogramHeaderGenAsp . Subprogram_Header ::= "generic" "(" Generic_List ")" Generic_Map_Aspect;
+SubprogramHeader       . Subprogram_Header ::=                                                   ;
+SubprogramHeaderGen    . Subprogram_Header ::= "generic" "(" Generic_List ")"                    ;
+SubprogramHeaderGenAsp . Subprogram_Header ::= "generic" "(" Generic_List ")" Generic_Map_Aspect ;
 
-Subprogram_Instantiation_Declaration ::=
-Subprogram_Kind Identifier Is New Uninstantiated_Subprogram_Name [ Signature ] [ Generic_Map_Aspect ] ;
+SubInstDecl00 . Subprogram_Instantiation_Declaration ::= Subprogram_Kind Identifier "is" "new" Name                              ";" ;
+SubInstDecl01 . Subprogram_Instantiation_Declaration ::= Subprogram_Kind Identifier "is" "new" Name           Generic_Map_Aspect ";" ;
+SubInstDecl10 . Subprogram_Instantiation_Declaration ::= Subprogram_Kind Identifier "is" "new" Name Signature                    ";" ;
+SubInstDecl11 . Subprogram_Instantiation_Declaration ::= Subprogram_Kind Identifier "is" "new" Name Signature Generic_Map_Aspect ";" ;
 
-SubprogramKindProc . Subprogram_Kind ::= Procedure;
-SubprogramKindFunc . Subprogram_Kind ::= Function
+SubprogramKindProc . Subprogram_Kind ::= "procedure" ;
+SubprogramKindFunc . Subprogram_Kind ::= "function" ;
 
-Subprogram_Specification ::=
-SubprogramSpecProc . Procedure_Specification;
-SubprogramSpecFunc . Function_Specification;
+SubprogramSpecProc . Subprogram_Specification ::= Procedure_Specification;
+SubprogramSpecFunc . Subprogram_Specification ::= Function_Specification;
 
-terminator Sequential_Statement "";
 SubprogStmtPart . Subprogram_Statement_Part ::= [Sequential_Statement];
 
 SubtypeDecl . Subtype_Declaration ::= "subtype" Identifier "is" Subtype_Indication;
 
-SubtypeIndication   . Subtype_Indication ::=                       Type_Mark           ;
-SubtypeIndicationC  . Subtype_Indication ::=                       Type_Mark Constraint;
-SubtypeIndicationR  . Subtype_Indication ::= Resolution_Indication Type_Mark           ;
-SubtypeIndicationRC . Subtype_Indication ::= Resolution_Indication Type_Mark Constraint;
+SubtypeIndication   . Subtype_Indication ::=                       Type_Mark            ;
+SubtypeIndicationC  . Subtype_Indication ::=                       Type_Mark Constraint ;
+SubtypeIndicationR  . Subtype_Indication ::= Resolution_Indication Type_Mark            ;
+SubtypeIndicationRC . Subtype_Indication ::= Resolution_Indication Type_Mark Constraint ;
 
 SuffixName . Suffix ::= Simple_Name;
 SuffixChar . Suffix ::= Character_Literal;
@@ -1317,17 +1318,18 @@ SuffixAll  . Suffix ::= "all";
 TargetName . Target ::= Name;
 TargetAggr . Target ::= Aggregate;
 
+-- TODO: impl
 Term ::= Factor { Multiplying_Operator Factor };
 
-TimeoutClause . Timeout_Clause ::= "for" Time_Expression;
+TimeoutClause . Timeout_Clause ::= "for" Expression;
 
 terminator Graphic_Character "";
 ToolDir . Tool_Directive ::= "`" Identifier [Graphic_Character];
 
 TypeConv . Type_Conversion ::= Type_Mark "(" Expression ")";
 
-Type_Declaration ::= Full_Type_Declaration;
-Type_Declaration ::= Incomplete_Type_Declaration;
+TypeDeclF . Type_Declaration ::= Full_Type_Declaration;
+TypeDeclI . Type_Declaration ::= Incomplete_Type_Declaration;
 
 TypeDefinitionScal . Type_Definition ::= Scalar_Type_Definition;
 TypeDefinitionComp . Type_Definition ::= Composite_Type_Definition;
@@ -1335,11 +1337,10 @@ TypeDefinitionAcce . Type_Definition ::= Access_Type_Definition;
 TypeDefinitionFile . Type_Definition ::= File_Type_Definition;
 TypeDefinitionProt . Type_Definition ::= Protected_Type_Definition;
 
-TypeMarkType . Type_Mark ::= Type_Name;
-TypeMarkSubtype . Type_Mark ::= Subtype_Name;
+_ . Type_Mark ::= Name;
 
 separator nonempty Index_Subtype_Definition ",";
-UnboundArrDef . Unbounded_Array_Definition ::= "array" "(" [Index_Subtype_Definition] ")" "of" Element_Subtype_Indication;
+UnboundArrDef . Unbounded_Array_Definition ::= "array" "(" [Index_Subtype_Definition] ")" "of" Subtype_Indication;
 
 separator nonempty Selected_Name ",";
 UseClause . Use_Clause ::= "use" [Selected_Name];
@@ -1351,20 +1352,19 @@ VarAssignStmtCond  . Variable_Assignment_Statement ::=           Conditional_Var
 VarAssignStmtSeleL . Variable_Assignment_Statement ::= Label ":" Selected_Variable_Assignment;
 VarAssignStmtSele  . Variable_Assignment_Statement ::=           Selected_Variable_Assignment;
 
-VariableDecl    . Variable_Declaration ::=            Variable              ":" Subtype_Indication                 ;
-VariableDeclE   . Variable_Declaration ::=            Variable              ":" Subtype_Indication  ":=" Expression;
-VariableDeclI   . Variable_Declaration ::=            Variable  Identifier  ":" Subtype_Indication                 ;
-VariableDeclIE  . Variable_Declaration ::=            Variable  Identifier  ":" Subtype_Indication  ":=" Expression;
-VariableDeclS   . Variable_Declaration ::=  "shared"  Variable              ":" Subtype_Indication                 ;
-VariableDeclSE  . Variable_Declaration ::=  "shared"  Variable              ":" Subtype_Indication  ":=" Expression;
-VariableDeclSI  . Variable_Declaration ::=  "shared"  Variable  Identifier  ":" Subtype_Indication                 ;
-VariableDeclSIE . Variable_Declaration ::=  "shared"  Variable  Identifier  ":" Subtype_Indication  ":=" Expression;
+VariableDecl    . Variable_Declaration ::=            "variable"              ":" Subtype_Indication                  ;
+VariableDeclE   . Variable_Declaration ::=            "variable"              ":" Subtype_Indication  ":=" Expression ;
+VariableDeclI   . Variable_Declaration ::=            "variable"  Identifier  ":" Subtype_Indication                  ;
+VariableDeclIE  . Variable_Declaration ::=            "variable"  Identifier  ":" Subtype_Indication  ":=" Expression ;
+VariableDeclS   . Variable_Declaration ::=  "shared"  "variable"              ":" Subtype_Indication                  ;
+VariableDeclSE  . Variable_Declaration ::=  "shared"  "variable"              ":" Subtype_Indication  ":=" Expression ;
+VariableDeclSI  . Variable_Declaration ::=  "shared"  "variable"  Identifier  ":" Subtype_Indication                  ;
+VariableDeclSIE . Variable_Declaration ::=  "shared"  "variable"  Identifier  ":" Subtype_Indication  ":=" Expression ;
 
-VerifiUnitBindInd . Verification_Unit_Binding_Indication ::=
-                  "use" "vunit" Verification_Unit_List;
+VerifiUnitBindInd . Verification_Unit_Binding_Indication ::= "use" "vunit" Verification_Unit_List;
 
 separator nonempty Verification_Unit_List ",";
-_ . Verification_Unit_List ::= [Verification_Unit_Name];
+_ . Verification_Unit_List ::= [Name];
 
 WaitStmt     . Wait_Statement ::=             "wait"                                                         ;
 WaitStmtT    . Wait_Statement ::=             "wait"                                          Timeout_Clause ;
@@ -1384,10 +1384,10 @@ WaitStmtLSC  . Wait_Statement ::=  Label ":"  "wait"  Sensitivity_Clause   Condi
 WaitStmtLSCT . Wait_Statement ::=  Label ":"  "wait"  Sensitivity_Clause   Condition_Clause   Timeout_Clause ;
 
 separator nonempty Waveform_Element ",";
-WaveformList . Waveform ::= [Waveform_Element];
+WaveformList       . Waveform ::= [Waveform_Element];
 WaveformUnaffected . Waveform ::= "unaffected";
 
-WaveElemValue . Waveform_Element ::= Value_Expression;
-WaveElemValueAfter . Waveform_Element ::= Value_Expression "after" Time_Expression;
-WaveElemNull . Waveform_Element ::= "null";
-WaveElemNullAfter . Waveform_Element ::= "null" "after" Time_Expression;
+WaveElemValue      . Waveform_Element ::= Expression;
+WaveElemValueAfter . Waveform_Element ::= Expression "after" Expression;
+WaveElemNull       . Waveform_Element ::= "null";
+WaveElemNullAfter  . Waveform_Element ::= "null" "after" Expression;
