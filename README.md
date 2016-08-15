@@ -157,7 +157,7 @@ end behv;
 
 into that:
 
-![netlist](rtlil_code/first_netlist.png)
+![netlist](vhdlpp/rtlil_code/first_netlist.png)
 
 ## Current milestone
 
