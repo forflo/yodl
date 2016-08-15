@@ -149,6 +149,44 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
 
             break;
         }
+
+        Case(C<ExpRelation>()){
+            ExpRelation *t = dynamic_cast<ExpRelation *>(exp);
+
+            Cell *c;
+            Wire *out = result->addWire(NEW_ID);
+
+            switch(t->fun_){
+            case ExpRelation::fun_t::EQ:
+                c = result->addCell(NEW_ID, "$eq");
+                break;
+            case ExpRelation::fun_t::LT:
+                c = result->addCell(NEW_ID, "$lt");
+                break;
+            case ExpRelation::fun_t::GT:
+                c = result->addCell(NEW_ID, "$lt");
+                break;
+            case ExpRelation::fun_t::NEQ:
+                c = result->addCell(NEW_ID, "$ne"); // or $nex??
+                break;
+            case ExpRelation::fun_t::LE:
+                c = result->addCell(NEW_ID, "$le");
+                break;
+            case ExpRelation::fun_t::GE:
+                c = result->addCell(NEW_ID, "$ge");
+                break;
+            }
+
+            c->setPort("\\A", executeExpression(t->operand1_));
+            c->setPort("\\B", executeExpression(t->operand2_));
+
+            c->setPort("\\Y", out);
+
+            c->fixup_parameters();
+
+            return SigSpec(out);
+            break;
+        }
         Case(C<ExpLogical>()){
             ExpLogical *t = dynamic_cast<ExpLogical *>(exp);
 
