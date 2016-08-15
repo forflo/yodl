@@ -149,7 +149,19 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
 
             break;
         }
+        Case(C<ExpUNot>()){
+            ExpUNot *t = dynamic_cast<ExpUNot *>(exp);
 
+            Cell *c = result->addCell(NEW_ID, "$not");
+            Wire *out = result->addWire(NEW_ID);
+
+            c->setPort("\\A", executeExpression(t->operand1_));
+            c->setPort("\\Y", out);
+
+            c->fixup_parameters();
+            return SigSpec(out);
+            break;
+        }
         Case(C<ExpRelation>()){
             ExpRelation *t = dynamic_cast<ExpRelation *>(exp);
 
