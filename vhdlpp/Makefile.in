@@ -70,7 +70,6 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
 	generate_expander.o \
 	name_replacer.o \
 	netlist_generator.o \
-	expression_desugarer.o \
     path_finder.o \
     enum_overloads.o \
     parse_context.o  \

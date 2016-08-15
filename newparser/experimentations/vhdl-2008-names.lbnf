@@ -41,7 +41,6 @@ IndexedName . Indexed_name ::= Prefix "(" [Expression] ")";
 
 CharLiteral . Character_literal ::= "'" Char "'";
 
-_ . Identifier ::= Ident;
 
 GraphicChar . Graphic_character ::= Char;
 OperatorSymbol . Operator_symbol ::= String;

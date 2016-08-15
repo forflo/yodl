@@ -21,6 +21,7 @@ const char COPYRIGHT[] =
 #include <kernel/yosys.h>
 #include <kernel/rtlil.h>
 #include <backends/ilang/ilang_backend.h>
+#include <backends/dot/dot.h>
 
 #include <fstream>
 #include <cstdio>
@@ -33,6 +34,8 @@ const char COPYRIGHT[] =
 #include <map>
 #include <iostream>
 #include <math.h>
+
+#include <stdio.h>
 
 // code base specific includes
 #include "vhdlpp_config.h"
@@ -78,6 +81,7 @@ const char COPYRIGHT[] =
 using namespace std;
 using namespace mch;
 using namespace Yosys::ILANG_BACKEND;
+using namespace Yosys::DOT_BACKEND;
 using namespace Yosys::RTLIL;
 
 
@@ -215,6 +219,44 @@ int main(int argc, char *argv[]) {
 
     Design *d = new Design();
     d->add(netgen.result);
+
+    for (auto &i : netgen.result->wires_)
+        std::cout << "wire name: "
+                  << i.first.c_str()
+                  << " wire address: "
+                  << i.second << std::endl;
+
+    std::cout << std::endl;
+//    for (auto &i : netgen.result->connections_)
+//        std::cout << "driven: "
+//                  << i.first.as_bool()
+//                  << " driver: "
+//                  << i.second.as_bool() << std::endl;
+
+    FILE *f;
+    f = fopen("/home/florian/schrottplatz/fnord.output.dot", "w");
+    std::vector<std::pair<std::string, Selection>> color_selections;
+    std::vector<std::pair<std::string, Selection>> label_selections;
+
+    std::vector<Design*> libs;
+    uint32_t colorSeed = 0;
+    bool flag_width = false;
+    bool flag_signed = false;
+    bool flag_stretch = false;
+    bool flag_enum = false;
+    bool flag_abbreviate = true;
+    bool flag_notitle = false;
+    IdString colorattr;
+
+    if (!f){
+        std::cout << "File could not be opened!" << std::endl;
+        exit(1);
+    }
+    ShowWorker worker(f, d, libs, colorSeed, flag_width,
+                      flag_signed, flag_stretch, flag_enum,
+                      flag_abbreviate, flag_notitle,
+                      color_selections, label_selections,
+                      colorattr);
 
     dump_design(std::cout, d, false);
 

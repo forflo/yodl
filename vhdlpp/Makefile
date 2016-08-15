@@ -48,7 +48,7 @@ YOSYS_MISC = "-rdynamic"
 CPPFLAGS = $(INCLUDE_PATH) $(YOSYS_INCLUDES) $(YOSYS_CPP)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
 CXXFLAGS = "-ggdb" -Wall -Wextra -Wshadow  \
-            -g -O0 --std=c++14 $(CUSTOM)
+            -g --std=c++14 $(CUSTOM)
 LDFLAGS =   $(YOSYS_LIBS)
 LIBS = -lm -lbz2 -lz -lhistory -lreadline  -L/usr/local/lib
 
@@ -70,7 +70,6 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
 	generate_expander.o \
 	name_replacer.o \
 	netlist_generator.o \
-	expression_desugarer.o \
     path_finder.o \
     enum_overloads.o \
     parse_context.o  \

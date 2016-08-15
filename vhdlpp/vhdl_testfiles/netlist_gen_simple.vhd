@@ -8,6 +8,7 @@ entity adder is
         B        : in  std_logic;
         carryIn  : in  std_logic;
         carryOut : out std_logic;
+        fnord    : out std_logic;
         sum      : out std_logic);
 end adder;
 
@@ -18,4 +19,6 @@ begin
    carryOut <= (a and b) or
                (b and carryIn) or
                (a and carryIn);
+
+   fnord <= ('1' or '0') and '1';
 end behv;

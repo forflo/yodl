@@ -591,6 +591,7 @@ public:
     }
 
     const VType *fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *atype) const;
+    const VType *probe_type(Entity *ent, ScopeBase *scope) const;
     int elaborate_expr(Entity *ent, ScopeBase *scope, const VType *ltype);
     void write_to_stream(ostream& fd) const;
     int emit(ostream& out, Entity *ent, ScopeBase *scope) const;

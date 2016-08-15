@@ -30,7 +30,7 @@ private:
     int traverseAssignment(SignalSeqAssignment *);
 
     int executeSignalAssignment(SignalSeqAssignment *);
-    Yosys::RTLIL::SigSpec *executeExpression(Expression *exp);
+    Yosys::RTLIL::SigSpec executeExpression(Expression *exp);
 
 
     std::map<const char *,

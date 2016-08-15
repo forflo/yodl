@@ -117,31 +117,31 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
     Expression *tmp = *a->waveform_.begin();
     using namespace mch;
 
-    SigSpec *res = executeExpression(tmp);
+    SigSpec res = executeExpression(tmp);
 
     result->connect(result->wire("\\" + s), res);
 
     return 0;
 }
 
-SigSpec *NetlistGenerator::executeExpression(Expression *exp){
+SigSpec NetlistGenerator::executeExpression(Expression *exp){
     using namespace mch;
 
     Match(exp){
         Case(C<ExpCharacter>()){
-            SigSpec *tmpSig;
+            SigSpec tmpSig;
             switch(dynamic_cast<ExpCharacter *>(exp)->value_){
             case '0':
-                tmpSig = new SigSpec(Const(State::S0));
+                tmpSig = SigSpec(State::S0);
                 break;
             case '1':
-                tmpSig = new SigSpec(Const(State::S1));
+                tmpSig = SigSpec(State::S1);
                 break;
             case 'z':
-                tmpSig = new SigSpec(Const(State::Sz));
+                tmpSig = SigSpec(State::Sz);
                 break;
             case '-':
-                tmpSig = new SigSpec(Const(State::Sa));
+                tmpSig = SigSpec(State::Sa);
                 break;
             }
 
@@ -153,7 +153,7 @@ SigSpec *NetlistGenerator::executeExpression(Expression *exp){
             ExpLogical *t = dynamic_cast<ExpLogical *>(exp);
 
             Cell *c;
-            SigSpec *out = new SigSpec();
+            Wire *out = result->addWire(NEW_ID);
 
             switch(t->fun_){
             case ExpLogical::fun_t::AND:
@@ -183,7 +183,7 @@ SigSpec *NetlistGenerator::executeExpression(Expression *exp){
 
             c->fixup_parameters();
 
-            return out;
+            return SigSpec(out);
             break;
         }
         Case(C<ExpName>()){
@@ -193,20 +193,20 @@ SigSpec *NetlistGenerator::executeExpression(Expression *exp){
             Wire *w = result->wire("\\" + strT);
 
             if (w){
-                return new SigSpec(w);
+                return SigSpec(w);
             } else {
-                return new SigSpec(result->addWire("\\" + strT));
+                return SigSpec(result->addWire("\\" + strT));
             }
         }
         Otherwise(){
             std::cout << "This kind of expression fails exec Expr!"
                       << std::endl;
-            return NULL;
+            return SigSpec(State::S0);
             break;
         }
     } EndMatch;
 
-    return 0;
+    return SigSpec(State::S0);
 }
 
 int NetlistGenerator::traverseProcessStatement(ProcessStatement *proc){

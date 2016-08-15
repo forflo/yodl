@@ -342,6 +342,9 @@ int Expression::elaborate_expr(Entity *, ScopeBase *, const VType *) {
     return 1;
 }
 
+const VType *ExpCharacter::probe_type(Entity *, ScopeBase *scope) const {
+    return &scope->context_->global_types->primitive_STDLOGIC;
+}
 
 const VType *ExpBinary::probe_type(Entity *ent, ScopeBase *scope) const {
     const VType *t1 = operand1_->probe_type(ent, scope);
