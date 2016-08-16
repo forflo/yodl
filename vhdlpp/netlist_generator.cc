@@ -176,7 +176,7 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
                 c = result->addCell(NEW_ID, "$lt");
                 break;
             case ExpRelation::fun_t::GT:
-                c = result->addCell(NEW_ID, "$lt");
+                c = result->addCell(NEW_ID, "$gt");
                 break;
             case ExpRelation::fun_t::NEQ:
                 c = result->addCell(NEW_ID, "$ne"); // or $nex??
