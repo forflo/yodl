@@ -124,6 +124,40 @@ I did further research on the topic `parse all of VHDL 2008`. There
 is a [project](https://github.com/BNFC/bnfc) that automates away most of the hugely repetitive work of writing an compiler frontend. Moreover, I found a repository on github that contains a copy of VHDL-2008 bnf grammar. Sadly the author simply copy pasted it from the original reference manual. This is unformunate, because the BNF derivative the IEEE authors use in their manual is not at all copy paste friendly because of their glorious `semantic rule prefixes`.
 Hence the standard text contains grammar rules like: *package*_simple_name ::= foobar. A *package*_simple_name simply is a simple_name but prefixed for better understandability. Since there is no italic font for plain text files, I now manually have to check the complete grammar (1300 LoC) and remove the semantic prefixes.
 
+### 16. Aug 2016
+
+Today is a day to celebrate. First actual netlist has been created!
+Yodl translated this
+```
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity adder is
+   port(A        : in  std_logic;
+        B        : in  std_logic;
+        carryIn  : in  std_logic;
+        carryOut : out std_logic;
+        fnord    : out std_logic;
+        sum      : out std_logic);
+end adder;
+
+architecture behv of adder is
+begin
+--   sum      <= A xor B xor carryIn;
+   sum <= '0';
+   carryOut <= (a and b) or
+               (b and carryIn) or
+               (a and carryIn);
+
+   fnord <= ('1' or '0') and '1';
+end behv;
+```
+
+into that:
+
+![netlist](vhdlpp/rtlil_code/first_netlist.png)
 
 ## Current milestone
 
