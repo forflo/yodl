@@ -14,7 +14,7 @@ ActualDesignatorName . Actual_Designator ::= Name;
 ActualDesignatorSubtype . Actual_Designator ::= Subtype_Indication;
 ActualDesignatorOpen . Actual_Designator ::= "open";
 
-_ . Actual_Parameter_Part ::= Association_List;
+ActParPart . Actual_Parameter_Part ::= Association_List;
 
 ActualPartDesi . Actual_Part ::= Actual_Designator;
 ActualPartName . Actual_Part ::= Name "(" Actual_Designator ")";
@@ -25,7 +25,7 @@ AddingOpMinus . Adding_Operator ::= "-";
 AddingOpConcat . Adding_Operator ::= "&";
 
 separator Element_Association ",";
-Aggregate . Aggregate ::= "(" [Element_Association] ")";
+AggregateL . Aggregate ::= "(" [Element_Association] ")";
 
 AliasDecl . Alias_Declaration ::= "alias" Alias_Designator "is" "name";
 AliasDeclSig . Alias_Declaration ::= "alias" Alias_Designator "is" "name" Signature;
@@ -69,24 +69,24 @@ ArrElemConstrRes . Array_Element_Resolution ::= Resolution_Indication;
 ArrayUnboundedDef . Array_Type_Definition ::= Unbounded_Array_Definition;
 ArrayConstrainedDef . Array_Type_Definition ::= Constrained_Array_Definition;
 
-Assertion . Assertion ::= "assert" Condition;
-Assertion . Assertion ::= "assert" Condition "report" Expression;
-Assertion . Assertion ::= "assert" Condition "severity" Expression;
-Assertion . Assertion ::= "assert" Condition "report" Expression "severity" Expression;
+Assertion00 . Assertion ::= "assert" Condition                                           ;
+Assertion01 . Assertion ::= "assert" Condition "report"                       Expression ;
+Assertion10 . Assertion ::= "assert" Condition                     "severity" Expression ;
+Assertion11 . Assertion ::= "assert" Condition "report" Expression "severity" Expression ;
 
-AssertionStatementLabel . Assertion_Statement ::= Label ":" Assertion ";";
-AssertionStatement . Assertion_Statement ::= Assertion ";";
+AssertionStatementLabel . Assertion_Statement ::= Label ":" Assertion ";" ;
+AssertionStatement . Assertion_Statement ::= Assertion ";" ;
 
 AssocElementBinary . Association_Element ::= Formal_Part "=>" Actual_Part;
 AssocElementUnary . Association_Element ::= Actual_Part;
 
 separator Association_Element ",";
 
-_ . Association_List ::= [Association_Element];
+AssocList . Association_List ::= [Association_Element];
 
 AttrDecl . Attribute_Declaration ::= "attribute" Identifier ":" Type_Mark ";";
 
-_ . Attribute_Designator ::= Simple_Name;
+AttrDesig . Attribute_Designator ::= Simple_Name;
 
 AttributeName . Attribute_Name ::= Prefix "'" Attribute_Designator;
 AttributeNameSig . Attribute_Name ::= Prefix Signature "'" Attribute_Designator;
@@ -95,7 +95,7 @@ AttributeNameSigExp . Attribute_Name ::= Prefix Signature "'" Attribute_Designat
 
 AttrSpec . Attribute_Specification ::= "attribute" Attribute_Designator "of" Entity_Specification "is" Expression ";";
 
-_ . Base ::= Integer;
+BaseL . Base ::= Integer;
 
 token Base_Specifier ('B' | 'O' | 'X' | 'U' 'b' | 'U' 'o' | 'U' 'x' | 'S' 'b' | 'S' 'o' | 'S' 'x' | 'D');
 
@@ -155,7 +155,7 @@ BlockDeclItemGroup . Block_Declarative_Item ::= Group_Declaration;
 
 terminator Block_Declarative_Item "";
 
-_ . Block_Declarative_Part ::= [Block_Declarative_Item];
+BlockDeclPart . Block_Declarative_Part ::= [Block_Declarative_Item];
 
 BlockHeader . Block_Header ::= ;
 BlockHeaderGeneric . Block_Header ::= BH_temp;
@@ -165,7 +165,7 @@ BlockHeaderGenericPortmap . Block_Header ::= BH_temp BH_temp2;
 GenClauseGenMap . BH_temp ::= Generic_Clause Generic_Map_Aspect ";";
 GenClause . BH_temp ::= Generic_Clause ";";
 PortClausePortMap . BH_temp2 ::= Port_Clause Port_Map_Aspect ";";
-PortClause . BH_temp2 ::= Port_Clause ";";
+PortClause0       . BH_temp2 ::= Port_Clause ";";
 
 BlockSpecArch . Block_Specification ::= Name;
 BlockSpecBlock . Block_Specification ::= Label;
@@ -187,10 +187,10 @@ separator Case_Generate_Alternative "";
 separator Case_Statement_Alternative "";
 separator nonempty Choice "|";
 
-_ . Block_Statement_Part ::= [Concurrent_Statement];
+BlockStmtPart . Block_Statement_Part ::= [Concurrent_Statement];
 
-CaseGenerateAltLabel . Case_Generate_Alternative ::= "when" Label ":" [Choices] "=>" Generate_Statement_Body;
-CaseGenerateAlt      . Case_Generate_Alternative ::= "when"           [Choices] "=>" Generate_Statement_Body;
+CaseGenerateAltLabel . Case_Generate_Alternative ::= "when" Label ":" [Choice] "=>" Generate_Statement_Body;
+CaseGenerateAlt      . Case_Generate_Alternative ::= "when"           [Choice] "=>" Generate_Statement_Body;
 
 CaseGenerateStmt . Case_Generate_Statement ::= Label ":" "case" Expression "generate" [Case_Generate_Alternative] "end" "generate";
 CaseGenerateStmtLbl . Case_Generate_Statement ::= Label ":" "case" Expression "generate" [Case_Generate_Alternative] "end" "generate" Label ;
@@ -220,7 +220,7 @@ ComConfigBindingBlock . Component_Configuration ::= "for" Component_Specificatio
                                                     ";" [Verification_Unit_Binding_Indication] Block_Configuration "end" "for" ;
 
 CompDecl      . Component_Declaration ::= "component" Identifier                                   "end" "component"             ";";
-CompDeclN     . Component_Declaration ::= "component" Identifier                                   "end" "component" simple_name ";";
+CompDeclN     . Component_Declaration ::= "component" Identifier                                   "end" "component" Simple_Name ";";
 CompDeclP     . Component_Declaration ::= "component" Identifier                       Port_Clause "end" "component"             ";";
 CompDeclPN    . Component_Declaration ::= "component" Identifier                       Port_Clause "end" "component" Simple_Name ";";
 CompDeclG     . Component_Declaration ::= "component" Identifier       Generic_Clause              "end" "component"             ";";
@@ -262,23 +262,25 @@ ConcProcCallStmtP  . Concurrent_Procedure_Call_Statement ::=            "postpon
 ConcProcCallStmtL  . Concurrent_Procedure_Call_Statement ::=  Label ":"             Procedure_Call ";";
 ConcProcCallStmtLP . Concurrent_Procedure_Call_Statement ::=  Label ":" "postponed" Procedure_Call ";";
 
-ConcSelSigAssign      . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="                               Selected_Waveforms ";";
-ConcSelSigAssignD     . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="              Delay_Mechanism  Selected_Waveforms ";";
-ConcSelSigAssignG     . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="  "guarded"                    Selected_Waveforms ";";
-ConcSelSigAssignGD    . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";";
-ConcSelSigAssignQ     . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                               Selected_Waveforms ";";
-ConcSelSigAssignQD    . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="              Delay_Mechanism  Selected_Waveforms ";";
-ConcSelSigAssignGD    . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"                    Selected_Waveforms ";";
-ConcSelSigAssignQGD   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";";
+ConcSelSigAssign000   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="                               Selected_Waveforms ";";
+ConcSelSigAssign001   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="              Delay_Mechanism  Selected_Waveforms ";";
+ConcSelSigAssign010   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="  "guarded"                    Selected_Waveforms ";";
+ConcSelSigAssign011   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"       Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";";
+ConcSelSigAssign100   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="                               Selected_Waveforms ";";
+ConcSelSigAssign101   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="              Delay_Mechanism  Selected_Waveforms ";";
+ConcSelSigAssign110   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"                    Selected_Waveforms ";";
+ConcSelSigAssign111   . Concurrent_Selected_Signal_Assignment ::= "with" Expression "select"  "?"  Target "<="  "guarded"   Delay_Mechanism  Selected_Waveforms ";";
 
 ConcSigAssignStmtS    . Concurrent_Signal_Assignment_Statement ::=                           Concurrent_Simple_Signal_Assignment;
 ConcSigAssignStmtSL   . Concurrent_Signal_Assignment_Statement ::=  Label ":"                Concurrent_Simple_Signal_Assignment;
 ConcSigAssignStmtSP   . Concurrent_Signal_Assignment_Statement ::=              "postponed"  Concurrent_Simple_Signal_Assignment;
 ConcSigAssignStmtSPL  . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Simple_Signal_Assignment;
+
 ConcSigAssignStmtC    . Concurrent_Signal_Assignment_Statement ::=                           Concurrent_Conditional_Signal_Assignment;
 ConcSigAssignStmtCL   . Concurrent_Signal_Assignment_Statement ::=  Label ":"                Concurrent_Conditional_Signal_Assignment;
 ConcSigAssignStmtCP   . Concurrent_Signal_Assignment_Statement ::=              "postponed"  Concurrent_Conditional_Signal_Assignment;
 ConcSigAssignStmtCPL  . Concurrent_Signal_Assignment_Statement ::=  Label ":"   "postponed"  Concurrent_Conditional_Signal_Assignment;
+
 ConcSigAssignStmtSe   . Concurrent_Signal_Assignment_Statement ::=                           Concurrent_Selected_Signal_Assignment;
 ConcSigAssignStmtSeL  . Concurrent_Signal_Assignment_Statement ::=  Label ":"                Concurrent_Selected_Signal_Assignment;
 ConcSigAssignStmtSeP  . Concurrent_Signal_Assignment_Statement ::=              "postponed"  Concurrent_Selected_Signal_Assignment;
@@ -297,7 +299,7 @@ ConcurrentStmtAssign . Concurrent_Statement ::= Concurrent_Signal_Assignment_Sta
 ConcurrentStmtComp . Concurrent_Statement ::= Component_Instantiation_Statement;
 ConcurrentStmtGen . Concurrent_Statement ::= Generate_Statement;
 
-_ . Condition ::= Expression;
+ConditionL . Condition ::= Expression;
 
 
 CondClause . Condition_Clause ::= "Until" Condition;
@@ -337,14 +339,14 @@ ConfigDeclCI . Configuration_Declaration ::=
            "configuration" Identifier "of" Name "is" Configuration_Declarative_Part Configuration_Declaration_Temp Block_Configuration "end" "configuration" Simple_Name ";";
 
 terminator Verification_Unit_Binding_Indication ";";
-_ . Configuration_Declaration_Temp ::= [Verification_Unit_Binding_Indication];
+ConfigDeclTemp . Configuration_Declaration_Temp ::= [Verification_Unit_Binding_Indication];
 
 ConfigDeclItemUse   . Configuration_Declarative_Item ::= Use_Clause;
 ConfigDeclItemAttr  . Configuration_Declarative_Item ::= Attribute_Specification;
 ConfigDeclItemGroup . Configuration_Declarative_Item ::= Group_Declaration;
 
 separator Configuration_Declarative_Item "";
-_ . Configuration_Declarative_Part ::= [Configuration_Declarative_Item];
+ConfigDeclPart . Configuration_Declarative_Part ::= [Configuration_Declarative_Item];
 
 ConfigItemBlock . Configuration_Item ::= Block_Configuration;
 ConfigItemComp  . Configuration_Item ::= Component_Configuration;
@@ -362,7 +364,7 @@ ConstraintArray  . Constraint ::= Array_Constraint;
 ConstraintRecord . Constraint ::= Record_Constraint;
 
 separator Context_Item "";
-_ . Context_Clause ::= [Context_Item];
+ContextClause . Context_Clause ::= [Context_Item];
 
 ContextDecl00 . Context_Declaration ::= "context" Identifier "is" Context_Clause "end"                       ";";
 ContextDecl01 . Context_Declaration ::= "context" Identifier "is" Context_Clause "end"           Simple_Name ";";
@@ -384,7 +386,7 @@ DelayMechanismRej      . Delay_Mechanism ::= "reject" Expression "inertial";
 DelayMechanismInertial . Delay_Mechanism ::= "inertial";
 
 separator nonempty Design_Unit "";
-_ . Design_File ::= [Design_Unit];
+DesignFile . Design_File ::= [Design_Unit];
 
 DesignUnit . Design_Unit ::= Context_Clause Library_Unit;
 
@@ -410,12 +412,12 @@ ElementDecl . Element_Declaration ::= [Identifier] ":" Element_Subtype_Definitio
 ElementResolutionArr . Element_Resolution ::= Array_Element_Resolution;
 ElementResolutionRec . Element_Resolution ::= Record_Resolution;
 
-_ . Element_Subtype_Definition ::= Subtype_Indication;
+ElemSubDef . Element_Subtype_Definition ::= Subtype_Indication;
 
-EntityAspect . Entity_Aspect ::= "entity" Name;
-EntityAspect . Entity_Aspect ::= "entity" Name "(" Identifier ")";
-EntityAspect . Entity_Aspect ::= "configuration" Name;
-EntityAspect . Entity_Aspect ::= "open";
+EntityAspect00 . Entity_Aspect ::= "entity" Name;
+EntityAspect01 . Entity_Aspect ::= "entity" Name "(" Identifier ")";
+EntityAspect10 . Entity_Aspect ::= "configuration" Name;
+EntityAspect11 . Entity_Aspect ::= "open";
 
 EntityClassEnt      . Entity_Class ::= "entity";
 EntityClassArch     . Entity_Class ::= "architecture";
@@ -473,10 +475,10 @@ EntityDeclItermGroupTemp   . Entity_Declarative_Item ::= Group_Template_Declarat
 EntityDeclItermGroup       . Entity_Declarative_Item ::= Group_Declaration;
 
 terminator Entity_Declarative_Item "";
-_ . Entity_Declarative_Part ::= [Entity_Declarative_Item];
+EntDeclPart . Entity_Declarative_Part ::= [Entity_Declarative_Item];
 
-EntityDesignator . Entity_Designator ::= Entity_Tag;
-EntityDesignator . Entity_Designator ::= Entity_Tag Signature;
+EntityDesignator0 . Entity_Designator ::= Entity_Tag;
+EntityDesignator1 . Entity_Designator ::= Entity_Tag Signature;
 
 EntityHeader   . Entity_Header ::= ;
 EntityHeaderP  . Entity_Header ::= Port_Clause;
@@ -496,26 +498,26 @@ EntityStmtPassiveConc . Entity_Statement ::= Concurrent_Procedure_Call_Statement
 EntityStmtPassiveProc . Entity_Statement ::= Process_Statement;
 
 terminator Entity_Statement "";
-_ . Entity_Statement_Part ::= [Entity_Statement];
+EntStmtPart . Entity_Statement_Part ::= [Entity_Statement];
 
 EntityTagName . Entity_Tag ::= Simple_Name;
 EntityTagChar . Entity_Tag ::= Character_Literal;
 EntityTagOp   . Entity_Tag ::= Operator_Symbol;
 
-EnumLit . Enumeration_Literal ::= Identifier;
-EnumLit . Enumeration_Literal ::= Character_Literal;
+EnumLitId . Enumeration_Literal ::= Identifier;
+EnumLitCh . Enumeration_Literal ::= Character_Literal;
 
 separator nonempty Enumeration_Literal ",";
 EnumTypeDecl . Enumeration_Type_Definition ::= "(" [Enumeration_Literal] ")";
 
-ExitStmt   . Exit_Statement ::=           "exit"                        ";";
-ExitStmtW  . Exit_Statement ::=           "exit"       "when" Condition ";";
-ExitStmtL  . Exit_Statement ::=           "exit" Label                  ";";
-ExitStmtLW . Exit_Statement ::=           "exit" Label "when" Condition ";";
-ExitStmtL  . Exit_Statement ::= Label ":" "exit"                        ";";
-ExitStmtLW . Exit_Statement ::= Label ":" "exit"       "when" Condition ";";
-ExitStmtLL . Exit_Statement ::= Label ":" "exit" Label                  ";";
-ExitStmtLLW. Exit_Statement ::= Label ":" "exit" Label "when" Condition ";";
+ExitStmt000 . Exit_Statement ::=           "exit"                        ";";
+ExitStmt001 . Exit_Statement ::=           "exit"       "when" Condition ";";
+ExitStmt010 . Exit_Statement ::=           "exit" Label                  ";";
+ExitStmt011 . Exit_Statement ::=           "exit" Label "when" Condition ";";
+ExitStmt100 . Exit_Statement ::= Label ":" "exit"                        ";";
+ExitStmt101 . Exit_Statement ::= Label ":" "exit"       "when" Condition ";";
+ExitStmt110 . Exit_Statement ::= Label ":" "exit" Label                  ";";
+ExitStmt111 . Exit_Statement ::= Label ":" "exit" Label "when" Condition ";";
 
 ExponentPlus  . Exponent ::= "e" "+" Integer;
 Exponente      . Exponent ::= "e" Integer;
@@ -551,14 +553,14 @@ FactorLog . Factor ::= Logical_Operator Primary;
 FileDecl         . File_Declaration ::= "file" [Identifier] ":" Subtype_Indication;
 FileDeclOpeninfo . File_Declaration ::= "file" [Identifier] ":" Subtype_Indication File_Open_Information;
 
-_ . File_Logical_Name ::= Expression;
+FileLogName . File_Logical_Name ::= Expression;
 
 FileOpenInfo     . File_Open_Information ::= "is" File_Logical_Name;
 FileOpenInfoOpen . File_Open_Information ::= "open" Expression "is" File_Logical_Name;
 
 FileTypDef . File_Type_Definition ::= "file" "of" Type_Mark;
 
-_ . Floating_Type_Definition ::= Range_Constraint;
+FloatingTypeDef . Floating_Type_Definition ::= Range_Constraint;
 
 ForGenStmt  . For_Generate_Statement ::= Label ":" "for" Parameter_Specification "generate" Generate_Statement_Body "end" "generate";
 ForGenStmtL . For_Generate_Statement ::= Label ":" "for" Parameter_Specification "generate" Generate_Statement_Body "end" "generate" Label;
@@ -568,7 +570,7 @@ ForceModeOut . Force_Mode ::= "Out";
 
 FormalDesignator . Formal_Designator ::= Name;
 
-_ . Formal_Parameter_List ::= Interface_List;
+FormalParamList . Formal_Parameter_List ::= Interface_List;
 
 FormalPartFd   . Formal_Part ::= Formal_Designator;
 FormalPartFunc . Formal_Part ::= Name "(" Formal_Designator ")";
@@ -576,8 +578,8 @@ FormalPartType . Formal_Part ::= Type_Mark "(" Formal_Designator ")";
 
 FullTypeDecl . Full_Type_Declaration ::= "type" Identifier "is" Type_Definition ";";
 
-FuncCallNyad   . Function_Call ::= Function_Name;
-FuncCallPolyad . Function_Call ::= Function_Name "(" Actual_Parameter_Part ")";
+FuncCallNyad   . Function_Call ::= Name;
+FuncCallPolyad . Function_Call ::= Name "(" Actual_Parameter_Part ")";
 
 FuncSpec000 . Function_Specification ::=          "function" Designator Subprogram_Header                                           "return" Type_Mark;
 FuncSpec001 . Function_Specification ::=          "function" Designator Subprogram_Header             "(" Formal_Parameter_List ")" "return" Type_Mark;
@@ -608,7 +610,7 @@ GenStmtBodyBEL . Generate_Statement_Body ::= Block_Declarative_Part "begin" [Con
 
 GenericClause . Generic_Clause ::= "generic" "(" Generic_List ")" ;
 
-_ . Generic_List ::= Interface_List;
+GenList . Generic_List ::= Interface_List;
 
 GenMapAspect . Generic_Map_Aspect ::= "generic" "map" "(" Association_List ")";
 
@@ -620,7 +622,7 @@ GroupConstituentName    . Group_Constituent ::= Name;
 GroupConstituentCharlit . Group_Constituent ::= Character_Literal;
 
 separator nonempty Group_Constituent ",";
-_ . Group_Constituent_List ::= [Group_Constituent];
+GroupConstList . Group_Constituent_List ::= [Group_Constituent];
 
 GroupDecl . Group_Declaration ::= "group" Identifier ":" Name "(" Group_Constituent_List ")" ;
 
@@ -641,21 +643,21 @@ token Extended_Identifier ('d');
 
 separator Identifier ",";
 
-IfGenStmt000 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]             "end" "Generate"       ";";
-IfGenStmt001 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]             "end" "Generate" Label ";";
-IfGenStmt010 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] ElseGenPart "end" "Generate"       ";";
-IfGenStmt011 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] ElseGenPart "end" "Generate" Label ";";
-IfGenStmt100 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]             "end" "Generate"       ";";
-IfGenStmt101 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]             "end" "Generate" Label ";";
-IfGenStmt110 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] ElseGenPart "end" "Generate"       ";";
-IfGenStmt111 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] ElseGenPart "end" "Generate" Label ";";
+IfGenStmt000 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]               "end" "generate"       ";";
+IfGenStmt001 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]               "end" "generate" Label ";";
+IfGenStmt010 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] Else_Gen_Part "end" "generate"       ";";
+IfGenStmt011 . If_Generate_Statement ::= Label ":" "if"           Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] Else_Gen_Part "end" "generate" Label ";";
+IfGenStmt100 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]               "end" "generate"       ";";
+IfGenStmt101 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts]               "end" "generate" Label ";";
+IfGenStmt110 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] Else_Gen_Part "end" "generate"       ";";
+IfGenStmt111 . If_Generate_Statement ::= Label ":" "if" Label ":" Condition "generate" Generate_Statement_Body [Elsif_Generate_Parts] Else_Gen_Part "end" "generate" Label ";";
 
 separator Elsif_Generate_Parts "";
 ElsifGenPartsLab . Elsif_Generate_Parts ::= "elsif" Label ":" Condition "generate" Generate_Statement_Body;
 ElsifGenParts    . Elsif_Generate_Parts ::= "elsif"           Condition "generate" Generate_Statement_Body;
 
-ElseGenPartLabel . Else_Gen_Part ::= "else" Label ":" Generate Generate_Statement_Body;
-ElseGenPart      . Else_Gen_Part ::= "else"           Generate Generate_Statement_Body;
+ElseGenPartLabel . Else_Gen_Part ::= "else" Label ":" "generate" Generate_Statement_Body;
+ElseGenPart      . Else_Gen_Part ::= "else"           "generate" Generate_Statement_Body;
 
 IfStatement   . If_Statement ::=           "if" Condition "then" [Sequential_Statement] [Elsif_Parts]                               "end" "if"       ";";
 IfStatementL  . If_Statement ::= Label ":" "if" Condition "then" [Sequential_Statement] [Elsif_Parts]                               "end" "if" Label ";";
@@ -679,33 +681,33 @@ InstantiatedUnitN  . Instantiated_Unit ::= Name;
 InstantiatedUnitC  . Instantiated_Unit ::= "component" Name;
 InstantiatedUnitE  . Instantiated_Unit ::= "entity" Name ;
 InstantiatedUnitEI . Instantiated_Unit ::= "entity" Name "(" Identifier ")";
-InstantiatedUnitC  . Instantiated_Unit ::= "configuration" Name;
+InstantiatedUnitCO  . Instantiated_Unit ::= "configuration" Name;
 
-separator nonempty Instantiation_Label "";
-InstListI . Instantiation_List ::= [Instantiation_Label];
+separator nonempty Label "";
+InstListI . Instantiation_List ::= [Label];
 InstListO . Instantiation_List ::= "others";
 InstListA . Instantiation_List ::= "all";
 
 -- TODO: Token!
 -- Integer ::= Digit { [ Underline ] Digit }
 
-_ . Integer_Type_Definition ::= Range_Constraint;
+IntTypeDef . Integer_Type_Definition ::= Range_Constraint;
 
-InterConstDecl000 . Interface_Constant_Declaration ::=            [Identifier] ":"      Subtype_Indication                       ;
-InterConstDecl001 . Interface_Constant_Declaration ::=            [Identifier] ":"      Subtype_Indication ":=" Static_Expression;
-InterConstDecl010 . Interface_Constant_Declaration ::=            [Identifier] ":" "in" Subtype_Indication                       ;
-InterConstDecl011 . Interface_Constant_Declaration ::=            [Identifier] ":" "in" Subtype_Indication ":=" Static_Expression;
-InterConstDecl100 . Interface_Constant_Declaration ::= "constant" [Identifier] ":"      Subtype_Indication                       ;
-InterConstDecl101 . Interface_Constant_Declaration ::= "constant" [Identifier] ":"      Subtype_Indication ":=" Static_Expression;
-InterConstDecl110 . Interface_Constant_Declaration ::= "constant" [Identifier] ":" "in" Subtype_Indication                       ;
-InterConstDecl111 . Interface_Constant_Declaration ::= "constant" [Identifier] ":" "in" Subtype_Indication ":=" Static_Expression;
+InterConstDecl000 . Interface_Constant_Declaration ::=            [Identifier] ":"      Subtype_Indication                 ;
+InterConstDecl001 . Interface_Constant_Declaration ::=            [Identifier] ":"      Subtype_Indication ":=" Expression ;
+InterConstDecl010 . Interface_Constant_Declaration ::=            [Identifier] ":" "in" Subtype_Indication                 ;
+InterConstDecl011 . Interface_Constant_Declaration ::=            [Identifier] ":" "in" Subtype_Indication ":=" Expression ;
+InterConstDecl100 . Interface_Constant_Declaration ::= "constant" [Identifier] ":"      Subtype_Indication                 ;
+InterConstDecl101 . Interface_Constant_Declaration ::= "constant" [Identifier] ":"      Subtype_Indication ":=" Expression ;
+InterConstDecl110 . Interface_Constant_Declaration ::= "constant" [Identifier] ":" "in" Subtype_Indication                 ;
+InterConstDecl111 . Interface_Constant_Declaration ::= "constant" [Identifier] ":" "in" Subtype_Indication ":=" Expression ;
 
 InterfaceDeclObjDecl . Interface_Declaration ::= Interface_Object_Declaration;
 InterfaceDeclTypDecl . Interface_Declaration ::= Interface_Type_Declaration;
 InterfaceDeclSubDecl . Interface_Declaration ::= Interface_Subprogram_Declaration;
 InterfaceDeclPacDecl . Interface_Declaration ::= Interface_Package_Declaration;
 
-_ . Interface_Element ::= Interface_Declaration;
+InterfaceElement . Interface_Element ::= Interface_Declaration;
 
 InterfaceFileDecl . Interface_File_Declaration ::= "file" [Identifier] ":" Subtype_Indication;
 
@@ -721,10 +723,10 @@ InterFuncSpeci10 . Interface_Function_Specification ::= "impure" "function" Desi
 InterFuncSpecp11 . Interface_Function_Specification ::= "pure"   "function" Designator "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
 InterFuncSpeci11 . Interface_Function_Specification ::= "impure" "function" Designator "parameter" "(" Formal_Parameter_List ")" "return" Type_Mark;
 
-_ . Interface_Incomplete_Type_Declaration ::= "type" Identifier;
+InterIncTypeDef . Interface_Incomplete_Type_Declaration ::= "type" Identifier;
 
 separator nonempty Interface_Element ";";
-_ . Interface_List ::= [Interface_Element];
+InterfaceList . Interface_List ::= [Interface_Element];
 
 InterObjDeclConst . Interface_Object_Declaration ::= Interface_Constant_Declaration;
 InterObjDeclSig   . Interface_Object_Declaration ::= Interface_Signal_Declaration;
@@ -767,7 +769,7 @@ InterfaceSubDefaultBox  . Interface_Subprogram_Default ::= "<>";
 InterSubSpecProc . Interface_Subprogram_Specification ::= Interface_Procedure_Specification;
 InterSubSpecFunc . Interface_Subprogram_Specification ::= Interface_Function_Specification;
 
-_ . Interface_Type_Declaration ::= Interface_Incomplete_Type_Declaration;
+InterTypeDef . Interface_Type_Declaration ::= Interface_Incomplete_Type_Declaration;
 
 InterVarDecl000 . Interface_Variable_Declaration ::=            [Identifier] ":"      Subtype_Indication                 ;
 InterVarDecl001 . Interface_Variable_Declaration ::=            [Identifier] ":"      Subtype_Indication ":=" Expression ;
@@ -781,11 +783,15 @@ InterVarDecl111 . Interface_Variable_Declaration ::= "variable" [Identifier] ":"
 IterSchemeWhile . Iteration_Scheme ::= "while" Condition;
 IterSchemeFor   . Iteration_Scheme ::= "for" Parameter_Specification;
 
-_ . Label ::= Identifier;
+LabelL . Label ::= Identifier;
 
 -- TODO: Token
 -- Lett . Letter ::= Upper_Case_Letter | Lower_Case_Letter;
-Letter . Letter ::= Char;
+LetterL . Letter ::= Char;
+
+-- TODO: dummy
+token Lower_Case_Letter ('d');
+token Other_Special_Character ('d');
 
 LetterOrDigitLetter . Letter_Or_Digit ::= Letter;
 LetterOrDigitDigit  . Letter_Or_Digit ::= Digit;
@@ -802,10 +808,10 @@ LiteralBitstr . Literal ::= Bit_String_Literal;
 LiteralNull   . Literal ::= "null";
 
 -- TODO:
-LogExpr . Logical_Expression ::= Relation Logical_Operator Relation;
-LogExpr . Logical_Expression ::= Relation ;
+LogExprRelOp . Logical_Expression ::= Relation Logical_Operator Relation;
+LogExprRel   . Logical_Expression ::= Relation ;
 
-_ . Logical_Name ::= Identifier;
+LogicalName . Logical_Name ::= Identifier;
 
 separator nonempty Logical_Name ",";
 LogNameList . Logical_Name_List ::= [Logical_Name];
@@ -817,18 +823,18 @@ LogOpNor  . Logical_Operator ::= "nor";
 LogOpXor  . Logical_Operator ::= "xor";
 LogOpXnor . Logical_Operator ::= "xnor";
 
-LoopStmt    . Loop_Statement ::=                            "loop" Sequence_Of_Statements "end" "loop"       ";";
-LoopStmtL   . Loop_Statement ::=                            "loop" Sequence_Of_Statements "end" "loop" Label ";";
-LoopStmtI   . Loop_Statement ::=           Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop"       ";";
-LoopStmtIL  . Loop_Statement ::=           Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop" Label ";";
-LoopStmtL   . Loop_Statement ::= Label ":"                  "loop" Sequence_Of_Statements "end" "loop"       ";";
-LoopStmtLL  . Loop_Statement ::= Label ":"                  "loop" Sequence_Of_Statements "end" "loop" Label ";";
-LoopStmtLI  . Loop_Statement ::= Label ":" Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop"       ";";
-LoopStmtLIL . Loop_Statement ::= Label ":" Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop" Label ";";
+LoopStmt000 . Loop_Statement ::=                            "loop" Sequence_Of_Statements "end" "loop"       ";";
+LoopStmt001 . Loop_Statement ::=                            "loop" Sequence_Of_Statements "end" "loop" Label ";";
+LoopStmt010 . Loop_Statement ::=           Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop"       ";";
+LoopStmt011 . Loop_Statement ::=           Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop" Label ";";
+LoopStmt100 . Loop_Statement ::= Label ":"                  "loop" Sequence_Of_Statements "end" "loop"       ";";
+LoopStmt101 . Loop_Statement ::= Label ":"                  "loop" Sequence_Of_Statements "end" "loop" Label ";";
+LoopStmt110 . Loop_Statement ::= Label ":" Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop"       ";";
+LoopStmt111 . Loop_Statement ::= Label ":" Iteration_Scheme "loop" Sequence_Of_Statements "end" "loop" Label ";";
 
-MiscOp . Miscellaneous_Operator ::= "**";
-MiscOp . Miscellaneous_Operator ::= "Abs";
-MiscOp . Miscellaneous_Operator ::= "Not";
+MiscOpPow . Miscellaneous_Operator ::= "**";
+MiscOpAbs . Miscellaneous_Operator ::= "Abs";
+MiscOpNot . Miscellaneous_Operator ::= "Not";
 
 ModeIn      . Mode ::= "in";
 ModeOut     . Mode ::= "out";
@@ -851,14 +857,14 @@ NameAttr     . Name ::= Attribute_Name;
 NameExt      . Name ::= External_Name;
 
 -- second label is for loops
-NextStmt    . Next_Statement ::=           "next"                        ";";
-NextStmtC   . Next_Statement ::=           "next"       "when" Condition ";";
-NextStmtL   . Next_Statement ::=           "next" Label                  ";";
-NextStmtLC  . Next_Statement ::=           "next" Label "when" Condition ";";
-NextStmtL   . Next_Statement ::= Label ":" "next"                        ";";
-NextStmtLC  . Next_Statement ::= Label ":" "next"       "when" Condition ";";
-NextStmtLL  . Next_Statement ::= Label ":" "next" Label                  ";";
-NextStmtLLC . Next_Statement ::= Label ":" "next" Label "when" Condition ";";
+NextStmt000 . Next_Statement ::=           "next"                        ";" ;
+NextStmt001 . Next_Statement ::=           "next"       "when" Condition ";" ;
+NextStmt010 . Next_Statement ::=           "next" Label                  ";" ;
+NextStmt011 . Next_Statement ::=           "next" Label "when" Condition ";" ;
+NextStmt100 . Next_Statement ::= Label ":" "next"                        ";" ;
+NextStmt101 . Next_Statement ::= Label ":" "next"       "when" Condition ";" ;
+NextStmt110 . Next_Statement ::= Label ":" "next" Label                  ";" ;
+NextStmt111 . Next_Statement ::= Label ":" "next" Label "when" Condition ";" ;
 
 NullStmt    . Null_Statement ::=       ":" "null" ";";
 NullStmtLab . Null_Statement ::= Label ":" "null" ";";
@@ -872,7 +878,7 @@ ObjDeclVar   . Object_Declaration ::= Variable_Declaration;
 ObjDeclFile  . Object_Declaration ::= File_Declaration;
 
 -- TODO: Token!
-_ . Operator_Symbol ::= String_Literal;
+OperatorSymbol . Operator_Symbol ::= String_Literal;
 
 PackBody   . Package_Body ::= "package" "body" Simple_Name "is" Package_Body_Declarative_Part "end"                              ";";
 PackBodyL  . Package_Body ::= "package" "body" Simple_Name "is" Package_Body_Declarative_Part "end"                  Simple_Name ";";
@@ -886,7 +892,7 @@ PackBodyDeclItemPDecl  . Package_Body_Declarative_Item ::= Package_Declaration;
 PackBodyDeclItemPBody  . Package_Body_Declarative_Item ::= Package_Body;
 PackBodyDeclItemPInst  . Package_Body_Declarative_Item ::= Package_Instantiation_Declaration;
 PackBodyDeclItemTDecl  . Package_Body_Declarative_Item ::= Type_Declaration;
-PackBodyDeclItemSDecl  . Package_Body_Declarative_Item ::= Subtype_Declaration;
+PackBodyDeclItemSuDec  . Package_Body_Declarative_Item ::= Subtype_Declaration;
 PackBodyDeclItemCDecl  . Package_Body_Declarative_Item ::= Constant_Declaration;
 PackBodyDeclItemVDecl  . Package_Body_Declarative_Item ::= Variable_Declaration;
 PackBodyDeclItemFDecl  . Package_Body_Declarative_Item ::= File_Declaration;
@@ -898,7 +904,7 @@ PackBodyDeclItemGT     . Package_Body_Declarative_Item ::= Group_Template_Declar
 PackBodyDeclItemGDecl  . Package_Body_Declarative_Item ::= Group_Declaration;
 
 separator Package_Body_Declarative_Item "";
-_ . Package_Body_Declarative_Part ::= [Package_Body_Declarative_Item];
+PacakgeBodyDeclPart . Package_Body_Declarative_Part ::= [Package_Body_Declarative_Item];
 
 PackageDecl00 . Package_Declaration ::= "package" Identifier "is" Package_Header Package_Declarative_Part "end"                       ";";
 PackageDecl01 . Package_Declaration ::= "package" Identifier "is" Package_Header Package_Declarative_Part "end"           Simple_Name ";";
@@ -923,8 +929,6 @@ PackDeclItemDs . Package_Declarative_Item ::= Disconnection_Specification;
 PackDeclItemUseC . Package_Declarative_Item ::= Use_Clause;
 PackDeclItemGt . Package_Declarative_Item ::= Group_Template_Declaration;
 PackDeclItemGd . Package_Declarative_Item ::= Group_Declaration;
-PackDeclItemPPd . Package_Declarative_Item ::= Psl_Property_Declaration;
-PackDeclItemPSD . Package_Declarative_Item ::= Psl_Sequence_Declaration;
 
 terminator Package_Declarative_Item "";
 PackDeclPart . Package_Declarative_Part ::= [Package_Declarative_Item];
@@ -933,8 +937,8 @@ PackageHeader   . Package_Header ::=                                       ;
 PackageHeaderG  . Package_Header ::= Generic_Clause                    ";" ;
 PackageHeaderGA . Package_Header ::= Generic_Clause Generic_Map_Aspect ";" ;
 
-PackInstDecl    . Package_Instantiation_Declaration ::= "package" Identifier "is" "new" Uninstantiated_Package_Name                    ";";
-PackInstDeclMap . Package_Instantiation_Declaration ::= "package" Identifier "is" "new" Uninstantiated_Package_Name Generic_Map_Aspect ";";
+PackInstDecl    . Package_Instantiation_Declaration ::= "package" Identifier "is" "new" Name                    ";" ;
+PackInstDeclMap . Package_Instantiation_Declaration ::= "package" Identifier "is" "new" Name Generic_Map_Aspect ";" ;
 
 separator nonempty Simple_Name ".";
 PackPath . Package_Pathname ::= "@" Logical_Name "." [Simple_Name];
@@ -954,11 +958,11 @@ PhysicalLiteralA . Physical_Literal ::= Abstract_Literal Name;
 
 terminator Secondary_Unit_Declaration "";
 PhysicalTypeDecl0 . Physical_Type_Definition ::= Range_Constraint "units" Primary_Unit_Declaration [Secondary_Unit_Declaration] "end" "units"                           ;
-PhysicalTypeDecl1 . Physical_Type_Definition ::= Range_Constraint "units" Primary_Unit_Declaration [Secondary_Unit_Declaration] "end" "units" Physical_Type_Simple_Name ;
+PhysicalTypeDecl1 . Physical_Type_Definition ::= Range_Constraint "units" Primary_Unit_Declaration [Secondary_Unit_Declaration] "end" "units" Simple_Name ;
 
-PortClause . Port_Clause ::= port "(" Port_List ")" ";";
+PortClause . Port_Clause ::= "port" "(" Port_List ")" ";";
 
-_ . Port_List ::= Port_Interface_List;
+PortList . Port_List ::= Interface_List;
 
 PortMapAspect . Port_Map_Aspect ::= "port" "map" "(" Association_List ")";
 
@@ -980,7 +984,7 @@ PrimaryUnitPack  . Primary_Unit ::= Package_Declaration;
 PrimaryUnitPackI . Primary_Unit ::= Package_Instantiation_Declaration;
 PrimaryUnitCont  . Primary_Unit ::= Context_Declaration;
 
-_ . Primary_Unit_Declaration ::= Identifier ";";
+PrimUnitDecl . Primary_Unit_Declaration ::= Identifier ";";
 
 ProcedureCall       . Procedure_Call ::= Name                               ;
 ProcedureCallActual . Procedure_Call ::= Name "(" Actual_Parameter_Part ")" ;
@@ -992,18 +996,18 @@ ProcSpec        . Procedure_Specification ::= "procedure" Designator Subprogram_
 ProcSpecFp      . Procedure_Specification ::= "procedure" Designator Subprogram_Header             "(" Formal_Parameter_List ")" ;
 ProcSpecParamFP . Procedure_Specification ::= "procedure" Designator Subprogram_Header "parameter" "(" Formal_Parameter_List ")" ;
 
-ProcDeclItemSd . Process_Declarative_Item ::= Subprogram_Declaration;
-ProcDeclItemSb . Process_Declarative_Item ::= Subprogram_Body;
-ProcDeclItemSi . Process_Declarative_Item ::= Subprogram_Instantiation_Declaration;
-ProcDeclItemPd . Process_Declarative_Item ::= Package_Declaration;
-ProcDeclItemPb . Process_Declarative_Item ::= Package_Body;
-ProcDeclItemPi . Process_Declarative_Item ::= Package_Instantiation_Declaration;
-ProcDeclItemTd . Process_Declarative_Item ::= Type_Declaration;
-ProcDeclItemSd . Process_Declarative_Item ::= Subtype_Declaration;
-ProcDeclItemCd . Process_Declarative_Item ::= Constant_Declaration;
-ProcDeclItemVd . Process_Declarative_Item ::= Variable_Declaration;
-ProcDeclItemFd . Process_Declarative_Item ::= File_Declaration;
-ProcDeclItemAd . Process_Declarative_Item ::= Alias_Declaration;
+ProcDeclItemSd  . Process_Declarative_Item ::= Subprogram_Declaration;
+ProcDeclItemSb  . Process_Declarative_Item ::= Subprogram_Body;
+ProcDeclItemSi  . Process_Declarative_Item ::= Subprogram_Instantiation_Declaration;
+ProcDeclItemPd  . Process_Declarative_Item ::= Package_Declaration;
+ProcDeclItemPb  . Process_Declarative_Item ::= Package_Body;
+ProcDeclItemPi  . Process_Declarative_Item ::= Package_Instantiation_Declaration;
+ProcDeclItemTd  . Process_Declarative_Item ::= Type_Declaration;
+ProcDeclItemStd . Process_Declarative_Item ::= Subtype_Declaration;
+ProcDeclItemCd  . Process_Declarative_Item ::= Constant_Declaration;
+ProcDeclItemVd  . Process_Declarative_Item ::= Variable_Declaration;
+ProcDeclItemFd  . Process_Declarative_Item ::= File_Declaration;
+ProcDeclItemAd  . Process_Declarative_Item ::= Alias_Declaration;
 ProcDeclItemAttd . Process_Declarative_Item ::= Attribute_Declaration;
 ProcDeclItemAtts . Process_Declarative_Item ::= Attribute_Specification;
 ProcDeclItemUc . Process_Declarative_Item ::= Use_Clause;
@@ -1034,7 +1038,7 @@ ProcessStmtLPIs  . Process_Statement ::= Label ":" "postponed" "process"        
 ProcessStmtLPS   . Process_Statement ::= Label ":" "postponed" "process" "(" Process_Sensitivity_List ")"      Process_Declarative_Part "begin" Process_Statement_Part "end" "postponed" "process" Label ";";
 ProcessStmtLPSIs . Process_Statement ::= Label ":" "postponed" "process" "(" Process_Sensitivity_List ")" "is" Process_Declarative_Part "begin" Process_Statement_Part "end" "postponed" "process" Label ";";
 
-_ . Process_Statement_Part ::= [Sequential_Statement];
+ProcStmtPart . Process_Statement_Part ::= [Sequential_Statement];
 
 ProtTypeBody  . Protected_Type_Body ::= "protected" "body" Protected_Type_Body_Declarative_Part "end" "protected" "body"             ;
 ProtTypeBodyS . Protected_Type_Body ::= "protected" "body" Protected_Type_Body_Declarative_Part "end" "protected" "body" Simple_Name ;
@@ -1046,7 +1050,7 @@ ProtTypeBodyDeclItemPd . Protected_Type_Body_Declarative_Item ::= Package_Declar
 ProtTypeBodyDeclItemPe . Protected_Type_Body_Declarative_Item ::= Package_Body;
 ProtTypeBodyDeclItemPi . Protected_Type_Body_Declarative_Item ::= Package_Instantiation_Declaration;
 ProtTypeBodyDeclItemTd . Protected_Type_Body_Declarative_Item ::= Type_Declaration;
-ProtTypeBodyDeclItemSd . Protected_Type_Body_Declarative_Item ::= Subtype_Declaration;
+ProtTypeBodyDeclItemStd . Protected_Type_Body_Declarative_Item ::= Subtype_Declaration;
 ProtTypeBodyDeclItemCd . Protected_Type_Body_Declarative_Item ::= Constant_Declaration;
 ProtTypeBodyDeclItemVd . Protected_Type_Body_Declarative_Item ::= Variable_Declaration;
 ProtTypeBodyDeclItemFd . Protected_Type_Body_Declarative_Item ::= File_Declaration;
@@ -1069,7 +1073,7 @@ ProtTypeDeclItemAttr . Protected_Type_Declarative_Item ::= Attribute_Specificati
 ProtTypeDeclItemUse  . Protected_Type_Declarative_Item ::= Use_Clause;
 
 separator Protected_Type_Declarative_Item "";
-_ . Protected_Type_Declarative_Part ::= [Protected_Type_Declarative_Item];
+ProtectedTypeDeclPart . Protected_Type_Declarative_Part ::= [Protected_Type_Declarative_Item];
 
 ProtectedTypeDefTD . Protected_Type_Definition ::= Protected_Type_Declaration;
 ProtectedTypeDefTB . Protected_Type_Definition ::= Protected_Type_Body;
@@ -1090,7 +1094,7 @@ separator Record_Element_Constraint ",";
 RecElemResolution . Record_Element_Resolution ::= Simple_Name Resolution_Indication;
 
 separator nonempty Record_Element_Resolution ",";
-_ . Record_Resolution ::= [Record_Element_Resolution];
+RecordResolution . Record_Resolution ::= [Record_Element_Resolution];
 
 
 terminator Element_Declaration "";
@@ -1131,7 +1135,7 @@ SecondaryUnitBody . Secondary_Unit ::= Package_Body;
 
 SecUnitDelc . Secondary_Unit_Declaration ::= Identifier "=" Physical_Literal ";";
 
-_ . Selected_Expressions ::= [Selected_Expression];
+SelectedExpressions . Selected_Expressions ::= [Selected_Expression];
 
 separator nonempty Selected_Expression ",";
 SelectedExpression . Selected_Expression ::= Expression "when" [Choice];
@@ -1154,7 +1158,7 @@ SelectedWavAssignD  . Selected_Waveform_Assignment ::= "with" Expression "select
 SelectedWavAssignQ  . Selected_Waveform_Assignment ::= "with" Expression "select"  "?"  Target "<="                   Selected_Waveforms ";" ;
 SelectedWavAssignQD . Selected_Waveform_Assignment ::= "with" Expression "select"  "?"  Target "<="  Delay_Mechanism  Selected_Waveforms ";" ;
 
-_ . Selected_Waveforms ::= [Selected_Waveform];
+SelectedWaveforms . Selected_Waveforms ::= [Selected_Waveform];
 
 separator nonempty Selected_Waveform ",";
 SelectedWaveform . Selected_Waveform ::= Waveform "when" [Choice];
@@ -1165,7 +1169,7 @@ separator nonempty Name ",";
 SensList . Sensitivity_List ::= [Name];
 
 terminator Sequential_Statement "";
-_ . Sequence_Of_Statements ::= [Sequential_Statement];
+SequenceOfStatements . Sequence_Of_Statements ::= [Sequential_Statement];
 
 SeqStmtWait   . Sequential_Statement ::= Wait_Statement;
 SeqStmtAssert . Sequential_Statement ::= Assertion_Statement;
@@ -1227,7 +1231,7 @@ SimpleExp1 . Simple_Expression ::=      Term [S_Exp_Temp];
 SimpleForceAssign   . Simple_Force_Assignment ::= Target "<=" "force"            Expression ";" ;
 SimpleForceAssignFM . Simple_Force_Assignment ::= Target "<=" "force" Force_Mode Expression ";" ;
 
-_ . Simple_Name ::= Identifier;
+SimpleName . Simple_Name ::= Identifier;
 
 SimpleReleaseAssign0 . Simple_Release_Assignment ::= Target "<=" "release"            ";";
 SimpleReleaseAssign1 . Simple_Release_Assignment ::= Target "<=" "release" Force_Mode ";";
@@ -1244,14 +1248,14 @@ SimpleVarAssign . Simple_Variable_Assignment ::= Target ":=" Expression ";" ;
 SliceName . Slice_Name ::= Prefix "(" Discrete_Range ")";
 
 -- TODO: Maybe token?
-_ . String_Literal ::= String;
+StringLiteral . String_Literal ::= String;
 
 SubprogBody   . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end"                            ";" ;
 SubprogBodyD  . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end"                 Designator ";" ;
 SubprogBodyS  . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end" Subprogram_Kind            ";" ;
 SubprogBodySD . Subprogram_Body ::= Subprogram_Specification "is" Subprogram_Declarative_Part "begin" Subprogram_Statement_Part "end" Subprogram_Kind Designator ";" ;
 
-_ . Subprogram_Declaration ::= Subprogram_Specification ";";
+SubprogramDecl . Subprogram_Declaration ::= Subprogram_Specification ";";
 
 SubprogramDeclItemSubD . Subprogram_Declarative_Item ::= Subprogram_Declaration;
 SubprogramDeclItemSubB . Subprogram_Declarative_Item ::= Subprogram_Body;
@@ -1272,7 +1276,7 @@ SubprogramDeclItemGroT . Subprogram_Declarative_Item ::= Group_Template_Declarat
 SubprogramDeclItemGroD . Subprogram_Declarative_Item ::= Group_Declaration;
 
 terminator Subprogram_Declarative_Item "";
-_ . Subprogram_Declarative_Part ::= [Subprogram_Declarative_Item];
+SubprogramDeclPart . Subprogram_Declarative_Part ::= [Subprogram_Declarative_Item];
 
 SubprogramHeader       . Subprogram_Header ::=                                                   ;
 SubprogramHeaderGen    . Subprogram_Header ::= "generic" "(" Generic_List ")"                    ;
@@ -1326,7 +1330,7 @@ TypeDefinitionAcce . Type_Definition ::= Access_Type_Definition;
 TypeDefinitionFile . Type_Definition ::= File_Type_Definition;
 TypeDefinitionProt . Type_Definition ::= Protected_Type_Definition;
 
-_ . Type_Mark ::= Name;
+TypeMark . Type_Mark ::= Name;
 
 separator nonempty Index_Subtype_Definition ",";
 UnboundArrDef . Unbounded_Array_Definition ::= "array" "(" [Index_Subtype_Definition] ")" "of" Subtype_Indication;
@@ -1353,7 +1357,7 @@ VariableDeclSIE . Variable_Declaration ::=  "shared"  "variable"  Identifier  ":
 VerifiUnitBindInd . Verification_Unit_Binding_Indication ::= "use" "vunit" Verification_Unit_List;
 
 separator nonempty Verification_Unit_List ",";
-_ . Verification_Unit_List ::= [Name];
+VerificationUnitList . Verification_Unit_List ::= [Name];
 
 WaitStmt     . Wait_Statement ::=             "wait"                                                         ;
 WaitStmtT    . Wait_Statement ::=             "wait"                                          Timeout_Clause ;
