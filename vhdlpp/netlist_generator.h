@@ -15,6 +15,8 @@
 
 class NetlistGenerator {
 public:
+    enum class edge_spec { FALLING, RISING, UNDEF };
+
     NetlistGenerator() : result(0) {};
 
     int operator()(Entity *);
@@ -22,6 +24,9 @@ public:
     Yosys::RTLIL::Module *result;
 
 private:
+    std::pair<bool, NetlistGenerator::edge_spec>
+    containsSyncCondition(const Expression *e);
+
     int traverseConcStmts(std::list<Architecture::Statement*> *);
     int traverseBlockStatement(BlockStatement *);
     int traverseProcessStatement(ProcessStatement *);

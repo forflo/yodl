@@ -1,5 +1,6 @@
 #include <netlist_generator.h>
 #include <parse_context.h>
+#include <predicate_generators.h>
 
 #include <functional>
 #include <stateful_lambda.h>
@@ -9,6 +10,7 @@
 
 #include <sstream>
 #include <mach7_includes.h>
+#include <generic_traverser.h>
 
 using namespace Yosys::RTLIL;
 
@@ -32,7 +34,6 @@ namespace mch {
 
     template <> struct bindings<ExpFunc> {
         Members(ExpFunc::name_,
-                ExpFunc::def_,
                 ExpFunc::argv_);
     };
 
@@ -49,20 +50,33 @@ namespace mch {
     };
 };
 
-bool NetlistGenerator::containsSyncCondition(const Expression *e){
+std::pair<bool, NetlistGenerator::edge_spec>
+NetlistGenerator::containsSyncCondition(const Expression *e){
     using namespace mch;
 
-    StatefulLambda<bool> visitor(
-        false, static_cast<function<int (const AstNode *, bool &)>>(
-            [](const AstNode *n, bool &env) -> int {
-                var<perm_string> attrName, name;
+    StatefulLambda<std::pair<bool, NetlistGenerator::edge_spec>> visitor(
+        static_cast<function<int (const AstNode *,
+                                  std::pair<bool, NetlistGenerator::edge_spec>&)>>(
+                                      [](const AstNode *n,
+                                         std::pair<bool,
+                                         NetlistGenerator::edge_spec> &env) -> int {
+                var<perm_string> attrName, name, funcName;
                 var<char> charVal;
+                var<vector<Expression*>> params;
 
                 Match(n){
-                    Case(C<ExpFunc>()){
-                        // test if func only has one argument with type ExpName
-                        // and if func's name either is "rising_edge" or
-                        // "falling_edge"
+                    Case(C<ExpFunc>(funcName, params)){
+                        if (params.size() == 1 &&
+                            (!strcmp(funcName, "falling_edge") ||
+                             !strcmp(funcName, "rising_edge" ))) {
+                            env.first = true;
+                        }
+
+                        if (!strcmp(funcName, "falling_edge"))
+                            env.second = NetlistGenerator::edge_spec::FALLING;
+                        if (!strcmp(funcName, "rising_edge"))
+                            env.second = NetlistGenerator::edge_spec::RISING;
+
                         break;
                     }
                     // case 1
@@ -82,8 +96,13 @@ bool NetlistGenerator::containsSyncCondition(const Expression *e){
 
                         if ((charVal == '0' || charVal == '1') &&
                             (!strcmp(attrName, "event"))){
-                            env = true;
+                            env.first = true;
+                            if (charVal == '0')
+                                env.second = NetlistGenerator::edge_spec::FALLING;
+                            else
+                                env.second = NetlistGenerator::edge_spec::RISING;
                         }
+
 
                         break;
                     }
@@ -107,7 +126,12 @@ bool NetlistGenerator::containsSyncCondition(const Expression *e){
 
                         if ((charVal == '0' || charVal == '1') &&
                             (!strcmp(attrName, "stable"))){
-                            env = true;
+
+                            env.first = true;
+                            if (charVal == '0')
+                                env.second = NetlistGenerator::edge_spec::FALLING;
+                            else
+                                env.second = NetlistGenerator::edge_spec::RISING;
                         }
 
                         break;
@@ -130,7 +154,11 @@ bool NetlistGenerator::containsSyncCondition(const Expression *e){
 
                         if ((charVal == '0' || charVal == '1') &&
                             (!strcmp(attrName, "event"))){
-                            env = true;
+                            env.first = true;
+                            if (charVal == '0')
+                                env.second = NetlistGenerator::edge_spec::FALLING;
+                            else
+                                env.second = NetlistGenerator::edge_spec::RISING;
                         }
 
                         break;
@@ -153,7 +181,11 @@ bool NetlistGenerator::containsSyncCondition(const Expression *e){
 
                         if ((charVal == '0' || charVal == '1') &&
                             (!strcmp(attrName, "stable"))){
-                            env = true;
+                            env.first = true;
+                            if (charVal == '0')
+                                env.second = NetlistGenerator::edge_spec::FALLING;
+                            else
+                                env.second = NetlistGenerator::edge_spec::RISING;
                         }
                         break;
                     }
@@ -164,8 +196,17 @@ bool NetlistGenerator::containsSyncCondition(const Expression *e){
                 return 0;
             }));
 
-    return false;
-    //GenericTraverser();
+    GenericTraverser traverser(
+        makeTypePredicate<Expression>(),
+        static_cast<function <int (const AstNode *)>>(
+            [&visitor](const AstNode *tmp) -> int {
+                return visitor(tmp);
+            }),
+        GenericTraverser::RECUR);
+
+    traverser(e);
+
+    return visitor.environment;
 }
 
 int NetlistGenerator::operator()(Entity *entity){
