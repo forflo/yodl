@@ -1,6 +1,9 @@
 #include <netlist_generator.h>
 #include <parse_context.h>
 
+#include <functional>
+#include <stateful_lambda.h>
+
 #include <kernel/yosys.h>
 #include <kernel/rtlil.h>
 
@@ -8,6 +11,162 @@
 #include <mach7_includes.h>
 
 using namespace Yosys::RTLIL;
+
+namespace mch {
+    template <> struct bindings<ExpUNot> {
+        Members(ExpUNot::operand1_);
+    };
+
+    template <> struct bindings<ExpCharacter> {
+        Members(ExpCharacter::value_);
+    };
+
+    template <> struct bindings<ExpAttribute> {
+        Members(ExpAttribute::name_);
+    };
+
+    template <> struct bindings<ExpLogical> {
+        Members(ExpLogical::operand1_,
+                ExpLogical::operand2_);
+    };
+
+    template <> struct bindings<ExpFunc> {
+        Members(ExpFunc::name_,
+                ExpFunc::def_,
+                ExpFunc::argv_);
+    };
+
+    template <> struct bindings<ExpName> {
+        //TODO: add prefix
+        Members(//ExpName::prefix_, // unique_ptr<ExpName>
+                ExpName::name_,
+                ExpName::indices_);
+    };
+
+    template <> struct bindings<ExpRelation> {
+        Members(ExpRelation::operand1_,
+                ExpRelation::operand2_);
+    };
+};
+
+bool NetlistGenerator::containsSyncCondition(const Expression *e){
+    using namespace mch;
+
+    StatefulLambda<bool> visitor(
+        false, static_cast<function<int (const AstNode *, bool &)>>(
+            [](const AstNode *n, bool &env) -> int {
+                var<perm_string> attrName, name;
+                var<char> charVal;
+
+                Match(n){
+                    Case(C<ExpFunc>()){
+                        // test if func only has one argument with type ExpName
+                        // and if func's name either is "rising_edge" or
+                        // "falling_edge"
+                        break;
+                    }
+                    // case 1
+                    Case(C<ExpLogical>(
+                             C<ExpRelation>(
+                                 C<ExpName>(name),
+                                 C<ExpCharacter>(charVal)),
+                             C<ExpAttribute>(attrName))){
+
+                        // intentional fallthrough!
+                    }
+                    Case(C<ExpLogical>(
+                             C<ExpRelation>(
+                                 C<ExpCharacter>(charVal),
+                                 C<ExpName>(name)),
+                             C<ExpAttribute>(attrName))){
+
+                        if ((charVal == '0' || charVal == '1') &&
+                            (!strcmp(attrName, "event"))){
+                            env = true;
+                        }
+
+                        break;
+                    }
+
+                    // case 2
+                    Case(C<ExpLogical>(
+                             C<ExpRelation>(
+                                 C<ExpName>(name),
+                                 C<ExpCharacter>(charVal)),
+                             C<ExpUNot>(
+                                 C<ExpAttribute>(attrName)))){
+
+                        // intentional fallthough
+                    }
+                    Case(C<ExpLogical>(
+                             C<ExpRelation>(
+                                 C<ExpCharacter>(charVal),
+                                 C<ExpName>(name)),
+                             C<ExpUNot>(
+                                 C<ExpAttribute>(attrName)))){
+
+                        if ((charVal == '0' || charVal == '1') &&
+                            (!strcmp(attrName, "stable"))){
+                            env = true;
+                        }
+
+                        break;
+                    }
+
+                    // mirror cases for case 1
+                    Case(C<ExpLogical>(
+                             C<ExpAttribute>(attrName),
+                             C<ExpRelation>(
+                                 C<ExpName>(name),
+                                 C<ExpCharacter>(charVal)))){
+
+                        // intentional fallthrough!
+                    }
+                    Case(C<ExpLogical>(
+                             C<ExpAttribute>(attrName),
+                             C<ExpRelation>(
+                                 C<ExpCharacter>(charVal),
+                                 C<ExpName>(name)))){
+
+                        if ((charVal == '0' || charVal == '1') &&
+                            (!strcmp(attrName, "event"))){
+                            env = true;
+                        }
+
+                        break;
+                    }
+
+                    // mirror cases for case 2
+                    Case(C<ExpLogical>(
+                             C<ExpUNot>(
+                                 C<ExpAttribute>(attrName)),
+                             C<ExpRelation>(
+                                 C<ExpName>(name),
+                                 C<ExpCharacter>(charVal)))){
+                    }
+                    Case(C<ExpLogical>(
+                             C<ExpUNot>(
+                                 C<ExpAttribute>(attrName)),
+                             C<ExpRelation>(
+                                 C<ExpCharacter>(charVal),
+                                 C<ExpName>(name)))){
+
+                        if ((charVal == '0' || charVal == '1') &&
+                            (!strcmp(attrName, "stable"))){
+                            env = true;
+                        }
+                        break;
+                    }
+                    Otherwise(){
+                        return 0;
+                    }
+                } EndMatch;
+                return 0;
+            }));
+
+    return false;
+    //GenericTraverser();
+}
 
 int NetlistGenerator::operator()(Entity *entity){
     Yosys::log_streams.push_back(&std::cout);

@@ -47,6 +47,10 @@ public:
         return text_;
     }
 
+    string std_string() const {
+        return string(this->text_);
+    }
+
     operator const char * () const {
         return str();
     }
