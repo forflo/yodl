@@ -1,6 +1,7 @@
 #include <clock_edge_recognizer.h>
 #include <root_class.h>
 #include <mach7_includes.h>
+#include <iostream>
 
 namespace mch {
     template <> struct bindings<ExpUNot> {
@@ -49,7 +50,26 @@ void ClockEdgeRecognizer::reset(void){
 int ClockEdgeRecognizer::operator()(const AstNode *n){
     using namespace mch;
 
-    std::cout << "fnord";
+    auto checkHelper = [this](var<perm_string> attrName,
+                              var<char> charVal,
+                              const char *checkAttrName,
+                              var<ExpLogical::fun_t> logOp,
+                              var<ExpRelation::fun_t> relOp)
+        -> void {
+
+        if ((charVal == '0' || charVal == '1') &&
+            (relOp == ExpRelation::fun_t::EQ) &&
+            (logOp == ExpLogical::fun_t::AND) &&
+            (!strcmp(attrName, checkAttrName))){
+
+            containsClockEdge = true;
+            numberClockEdges++;
+            if (charVal == '0')
+                direction = NetlistGenerator::edge_spec::FALLING;
+            else
+                direction = NetlistGenerator::edge_spec::RISING;
+        }
+    };
 
     var<perm_string> attrName, name, funcName;
     var<char> charVal;
@@ -63,6 +83,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                 (!strcmp(funcName, "falling_edge") ||
                  !strcmp(funcName, "rising_edge" ))) {
                 containsClockEdge = true;
+                numberClockEdges++;
             }
 
             if (!strcmp(funcName, "falling_edge"))
@@ -82,7 +103,8 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                  C<ExpAttribute>(attrName),
                  logOp)){
 
-            // intentional fallthrough!
+            checkHelper(attrName, charVal, "event", logOp, relOp);
+            break;
         }
         Case(C<ExpLogical>(
                  C<ExpRelation>(
@@ -92,19 +114,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                  C<ExpAttribute>(attrName),
                  logOp)){
 
-            if ((charVal == '0' || charVal == '1') &&
-                (relOp == ExpRelation::fun_t::EQ) &&
-                (logOp == ExpLogical::fun_t::AND) &&
-                (!strcmp(attrName, "event"))){
-                containsClockEdge = true;
-                numberClockEdges++;
-                if (charVal == '0')
-                    direction = NetlistGenerator::edge_spec::FALLING;
-                else
-                    direction = NetlistGenerator::edge_spec::RISING;
-            }
-
-
+            checkHelper(attrName, charVal, "event", logOp, relOp);
             break;
         }
 
@@ -118,7 +128,8 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      C<ExpAttribute>(attrName)),
                  logOp)){
 
-            // intentional fallthough
+            checkHelper(attrName, charVal, "stable", logOp, relOp);
+            break;
         }
         Case(C<ExpLogical>(
                  C<ExpRelation>(
@@ -129,19 +140,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      C<ExpAttribute>(attrName)),
                  logOp)){
 
-            if ((charVal == '0' || charVal == '1') &&
-                (relOp == ExpRelation::fun_t::EQ) &&
-                (logOp == ExpLogical::fun_t::AND) &&
-                (!strcmp(attrName, "stable"))){
-
-                containsClockEdge = true;
-                numberClockEdges++;
-                if (charVal == '0')
-                    direction = NetlistGenerator::edge_spec::FALLING;
-                else
-                    direction = NetlistGenerator::edge_spec::RISING;
-            }
-
+            checkHelper(attrName, charVal, "stable", logOp, relOp);
             break;
         }
 
@@ -154,7 +153,8 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      relOp),
                  logOp)){
 
-            // intentional fallthrough!
+            checkHelper(attrName, charVal, "event", logOp, relOp);
+            break;
         }
         Case(C<ExpLogical>(
                  C<ExpAttribute>(attrName),
@@ -164,18 +164,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      relOp),
                  logOp)){
 
-            if ((charVal == '0' || charVal == '1') &&
-                (relOp == ExpRelation::fun_t::EQ) &&
-                (logOp == ExpLogical::fun_t::AND) &&
-                (!strcmp(attrName, "event"))){
-                numberClockEdges++;
-                containsClockEdge = true;
-                if (charVal == '0')
-                    direction = NetlistGenerator::edge_spec::FALLING;
-                else
-                    direction = NetlistGenerator::edge_spec::RISING;
-            }
-
+            checkHelper(attrName, charVal, "event", logOp, relOp);
             break;
         }
 
@@ -188,6 +177,9 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      C<ExpCharacter>(charVal),
                      relOp),
                  logOp)){
+
+            checkHelper(attrName, charVal, "stable", logOp, relOp);
+            break;
         }
         Case(C<ExpLogical>(
                  C<ExpUNot>(
@@ -198,22 +190,10 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      relOp),
                  logOp)){
 
-            if ((charVal == '0' || charVal == '1') &&
-                (relOp == ExpRelation::fun_t::EQ) &&
-                (logOp == ExpLogical::fun_t::AND) &&
-                (!strcmp(attrName, "stable"))){
-                numberClockEdges++;
-                containsClockEdge = true;
-                if (charVal == '0')
-                    direction = NetlistGenerator::edge_spec::FALLING;
-                else
-                    direction = NetlistGenerator::edge_spec::RISING;
-            }
+            checkHelper(attrName, charVal, "stable", logOp, relOp);
             break;
         }
-        Otherwise(){
-            return 0;
-        }
+        Otherwise(){ break; }
     } EndMatch;
     return 0;
 }
