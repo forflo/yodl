@@ -368,13 +368,6 @@ TEST_CASE("Test simple generic traversal", "[generic traverser]"){
         }));
 
     GenericTraverser traverser(
-        /*[=](const AstNode *node){
-            Match(node){
-                Case(C<BlockStatement>()){ return true; }
-                Otherwise(){ return false; }
-            } EndMatch;
-            return false; //without: compiler warning
-            },*/
         makeTypePredicate<BlockStatement>(),
         static_cast<function<int (const AstNode *)>>(
             [&state](const AstNode *a) -> int { return state(a); }),
