@@ -11,6 +11,7 @@ vhdlpp/vhdl_testfiles/*.cf
 vhdlpp/ast_dumper
 
 config.log
+config.h
 config.status
 configure
 autom4te.cache/
