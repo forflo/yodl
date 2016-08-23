@@ -11,7 +11,7 @@ public:
         , direction(NetlistGenerator::edge_spec::UNDEF)
         { }
 
-    int operator()(AstNode *);
+    int operator()(const Expression *);
     void reset(void);
 
     bool containsClockEdge;
@@ -20,8 +20,8 @@ public:
 
     // if containsClockEdge == true => at least one will be != NULL
     // if containsClockEdge == false => both will be NULL
-    ExpName *clockNameExp;
-    ExpFunc *clockFuncExp;
+    const ExpName *clockNameExp;
+    const ExpFunc *clockFuncExp;
 };
 
 #endif /* IVL_CLOCK_EDGE */

@@ -32,9 +32,7 @@ bool NetlistGenerator::isSyncCondition(const Expression *e){
     clockEdge(e);
 
     if (isBoolType &&
-        clockEdge.containsClockEdge &&
-
-        ){
+        clockEdge.containsClockEdge){
 
         return true;
     }
