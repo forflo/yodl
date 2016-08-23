@@ -11,6 +11,7 @@
 #include <sstream>
 #include <mach7_includes.h>
 #include <generic_traverser.h>
+#include <clock_edge_recognizer.h>
 
 using namespace Yosys::RTLIL;
 
@@ -23,6 +24,20 @@ using namespace Yosys::RTLIL;
 //     (eval(e) = 1 implies that clockEdge(e) = 1)
 bool NetlistGenerator::isSyncCondition(const Expression *e){
     using namespace mch;
+
+    bool isBoolType = e->probe_type(working, currentScope)->type_match(
+        &working->context_->global_types->primitive_STDLOGIC);
+
+    ClockEdgeRecognizer clockEdge;
+    clockEdge(e);
+
+    if (isBoolType &&
+        clockEdge.containsClockEdge &&
+
+        ){
+
+        return true;
+    }
 
     // TODO: Implement
     return false;

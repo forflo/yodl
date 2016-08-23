@@ -48,9 +48,9 @@ YOSYS_MISC = "-rdynamic"
 CPPFLAGS = $(INCLUDE_PATH) $(YOSYS_INCLUDES) $(YOSYS_CPP)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
 CXXFLAGS = "-ggdb" -Wall -Wextra -Wshadow  \
-            -00 --std=c++14 $(CUSTOM)
+            -O0 --std=c++14 $(CUSTOM)
 LDFLAGS =   $(YOSYS_LIBS)
-LIBS = -lm  -L/usr/local/lib
+LIBS = -lm -lbz2 -lz -lhistory -lreadline  -L/usr/local/lib
 
 M = StringHeap.o LineInfo.o
 

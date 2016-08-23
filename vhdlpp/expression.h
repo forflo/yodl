@@ -902,6 +902,7 @@ public:
     enum fun_t {
         AND, OR,
         NAND, NOR,
+        IFTHEN,       // IFTHEN is only needed internally
         XOR, XNOR
     };
 

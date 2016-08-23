@@ -66,6 +66,12 @@ bool ExpLogical::evaluate(Entity *ent, ScopeBase *scope, int64_t &val) const {
         break;
     case XNOR: val = static_cast<bool>(left) == static_cast<bool>(right);
         break;
+    case IFTHEN:
+        // a implies b
+        // can also be expressed in conjuncitive normal form like so:
+        // (not a) or (b)
+        val = (!static_cast<bool>(left)) || static_cast<bool>(right);
+        break;
     }
 
     return true;

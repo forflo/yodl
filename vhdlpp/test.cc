@@ -1071,6 +1071,9 @@ TEST_CASE("Clock edge detection test", "[clock edge]"){
             ),
         new ExpObjAttribute(NULL, perm_string::literal("fneeevent"), NULL));
 
+    Expression *complicated = new ExpArithmetic(
+        ExpArithmetic::fun_t::PLUS,
+        e4, e2);
 
     ClockEdgeRecognizer clockEdges;
 
@@ -1113,4 +1116,10 @@ TEST_CASE("Clock edge detection test", "[clock edge]"){
     REQUIRE(clockEdges.containsClockEdge == true);
     REQUIRE(clockEdges.numberClockEdges == 1);
     REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::FALLING);
+
+    clockEdges.reset();
+
+    clockEdges(complicated);
+    REQUIRE(clockEdges.containsClockEdge == true);
+    REQUIRE(clockEdges.numberClockEdges == 2);
 }
