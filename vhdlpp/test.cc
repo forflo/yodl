@@ -1024,9 +1024,51 @@ TEST_CASE("Nested blocks csa lifter test", "[csa lifter]"){
 TEST_CASE("Clock edge detection test", "[clock edge]"){
     Expression *clock_edge_f1 = new ExpFunc(
         perm_string::literal("rising_edge"),
-        {new ExpName(perm_string::literal("fooclk"))});
+        { new ExpName(perm_string::literal("fooclk")) });
 
     Expression *clock_edge_f2 = new ExpFunc(
         perm_string::literal("falling_edge"),
-        {new ExpName(perm_string::literal("foobarclk"))});
+        { new ExpName(perm_string::literal("foobarclk")) });
+
+    // correct
+    Expression *e1 = new ExpLogical(
+        ExpLogical::fun_t::AND,
+        new ExpRelation(
+            ExpRelation::fun_t::EQ,
+            new ExpName(perm_string::literal("fnordclock")),
+            new ExpCharacter('0')
+            ),
+        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
+
+    // incorrect
+    Expression *e2 = new ExpLogical(
+        ExpLogical::fun_t::AND,
+        new ExpRelation(
+            ExpRelation::fun_t::LE,
+            new ExpName(perm_string::literal("fnordclock")),
+            new ExpCharacter('0')
+            ),
+        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
+
+    // correct
+    Expression *e3 = new ExpLogical(
+        ExpLogical::fun_t::AND,
+        new ExpRelation(
+            ExpRelation::fun_t::EQ,
+            new ExpCharacter('0'),
+            new ExpName(perm_string::literal("fnordclock"))
+            ),
+        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
+
+    // incorrect
+    Expression *e4 = new ExpLogical(
+        ExpLogical::fun_t::AND,
+        new ExpRelation(
+            ExpRelation::fun_t::EQ,
+            new ExpCharacter('0'),
+            new ExpName(perm_string::literal("fnordclock"))
+            ),
+        new ExpObjAttribute(NULL, perm_string::literal("fneeevent"), NULL));
+
+    // TODO: write tests
 }

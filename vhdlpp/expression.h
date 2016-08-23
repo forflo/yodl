@@ -458,6 +458,10 @@ public:
 // DOT OK
 class ExpAttribute : public Expression {
 public:
+    explicit ExpAttribute(perm_string name)
+        : name_(name)
+        , args_(0) {}
+
     ExpAttribute(perm_string name, list<Expression *> *args);
     virtual ~ExpAttribute();
 
@@ -491,6 +495,12 @@ public:
 // DOT OK
 class ExpObjAttribute : public ExpAttribute {
 public:
+    explicit ExpObjAttribute(perm_string name)
+        : ExpAttribute(name)
+        , base_(0)
+        { }
+
+
     ExpObjAttribute(ExpName *base, perm_string name, list<Expression *> *args);
     ~ExpObjAttribute();
 
