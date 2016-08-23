@@ -8,7 +8,9 @@ lexor_keyword.cc
 parse.h
 parse.output
 vhdlpp/vhdl_testfiles/*.cf
+vhdlpp/ast_dumper
 
 config.log
 config.status
 configure
+autom4te.cache/

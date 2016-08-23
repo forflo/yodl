@@ -28,11 +28,11 @@
 #  endif
 #endif
 
-# define HAVE_GETOPT_H 1
+/* # undef HAVE_GETOPT_H */
 # define HAVE_INTTYPES_H 1
 /* # undef HAVE_LIBIBERTY_H */
 /* # undef HAVE_FCHMOD */
-# define HAVE_SYS_WAIT_H 1
+/* # undef HAVE_SYS_WAIT_H */
 
 #ifdef HAVE_INTTYPES_H
 # include  <inttypes.h>
