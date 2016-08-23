@@ -39,8 +39,8 @@
 #include "predicate_generators.h"
 #include "signal_extractor.h"
 #include "elsif_eliminator.h"
-#include "csa_lifter.h"
 #include "clock_edge_recognizer.h"
+#include "csa_lifter.h"
 
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
@@ -1020,6 +1020,8 @@ TEST_CASE("Nested blocks csa lifter test", "[csa lifter]"){
     counter2(entity);
 
     REQUIRE(cnt.environment == 2);
+
+    return ;
 }
 
 TEST_CASE("Clock edge detection test", "[clock edge]"){
@@ -1037,8 +1039,7 @@ TEST_CASE("Clock edge detection test", "[clock edge]"){
         new ExpRelation(
             ExpRelation::fun_t::EQ,
             new ExpName(perm_string::literal("fnordclock")),
-            new ExpCharacter('0')
-            ),
+            new ExpCharacter('0')),
         new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
 
     // incorrect
@@ -1077,6 +1078,20 @@ TEST_CASE("Clock edge detection test", "[clock edge]"){
 
     ClockEdgeRecognizer clockEdges;
 
+    clockEdges.reset();
+
+    clockEdges(clock_edge_f1);
+    REQUIRE(clockEdges.containsClockEdge == true);
+    REQUIRE(clockEdges.numberClockEdges == 1);
+    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::RISING);
+
+    clockEdges.reset();
+
+    clockEdges(clock_edge_f2);
+    REQUIRE(clockEdges.containsClockEdge == true);
+    REQUIRE(clockEdges.numberClockEdges == 1);
+    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::FALLING);
+
     clockEdges(e1);
     REQUIRE(clockEdges.containsClockEdge == true);
     REQUIRE(clockEdges.numberClockEdges == 1);
@@ -1102,20 +1117,6 @@ TEST_CASE("Clock edge detection test", "[clock edge]"){
     REQUIRE(clockEdges.containsClockEdge == false);
     REQUIRE(clockEdges.numberClockEdges == 0);
     REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::UNDEF);
-
-    clockEdges.reset();
-
-    clockEdges(clock_edge_f1);
-    REQUIRE(clockEdges.containsClockEdge == true);
-    REQUIRE(clockEdges.numberClockEdges == 1);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::RISING);
-
-    clockEdges.reset();
-
-    clockEdges(clock_edge_f2);
-    REQUIRE(clockEdges.containsClockEdge == true);
-    REQUIRE(clockEdges.numberClockEdges == 1);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::FALLING);
 
     clockEdges.reset();
 

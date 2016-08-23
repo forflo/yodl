@@ -86,6 +86,7 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
     var<ExpRelation::fun_t> relOp;
 
     Match(n){
+
         Case(C<ExpFunc>(funcName, params)){
             if (params.size() == 1 &&
                 (!strcmp(funcName, "falling_edge") ||
@@ -113,6 +114,8 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                  C<ExpAttribute>(attrName),
                  logOp)){
 
+            std::cout << "HERE" << std::endl;
+
             checkHelper(attrName, charVal,
                         dynamic_cast<const ExpName *>(
                             dynamic_cast<const ExpRelation *>(
@@ -130,6 +133,7 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                  C<ExpAttribute>(attrName),
                  logOp)){
 
+        std::cout << "HERE1" << std::endl;
             checkHelper(attrName, charVal,
                         dynamic_cast<const ExpName *>(
                             dynamic_cast<const ExpRelation *>(
@@ -150,6 +154,7 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                      C<ExpAttribute>(attrName)),
                  logOp)){
 
+        std::cout << "HERE3" << std::endl;
             checkHelper(attrName, charVal,
                         dynamic_cast<const ExpName *>(
                             dynamic_cast<const ExpRelation *>(
@@ -168,6 +173,7 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                      C<ExpAttribute>(attrName)),
                  logOp)){
 
+        std::cout << "HERE4" << std::endl;
             checkHelper(attrName, charVal,
                         dynamic_cast<const ExpName *>(
                             dynamic_cast<const ExpRelation *>(
