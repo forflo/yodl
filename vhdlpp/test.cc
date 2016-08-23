@@ -1020,3 +1020,13 @@ TEST_CASE("Nested blocks csa lifter test", "[csa lifter]"){
 
     REQUIRE(cnt.environment == 2);
 }
+
+TEST_CASE("Clock edge detection test", "[clock edge]"){
+    Expression *clock_edge_f1 = new ExpFunc(
+        perm_string::literal("rising_edge"),
+        {new ExpName(perm_string::literal("fooclk"))});
+
+    Expression *clock_edge_f2 = new ExpFunc(
+        perm_string::literal("falling_edge"),
+        {new ExpName(perm_string::literal("foobarclk"))});
+}

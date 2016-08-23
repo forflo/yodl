@@ -773,6 +773,14 @@ class ExpFunc : public Expression {
 public:
     explicit ExpFunc(perm_string nn);
 
+    // FM. MA: TODO: auslagern
+    ExpFunc(perm_string nn, const list<Expression *> &args)
+        : name_(nn) {
+        for (auto &i : args){
+            argv_.push_back(i);
+        }
+    }
+
     ExpFunc(perm_string nn, list<Expression *> *args);
     ~ExpFunc();
 
