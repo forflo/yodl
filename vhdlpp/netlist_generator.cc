@@ -15,9 +15,13 @@
 using namespace Yosys::RTLIL;
 
 
-std::pair<bool, NetlistGenerator::edge_spec>
-NetlistGenerator::isSyncCondition(const Expression *e){
+// to be a sync condition an expression has to fulfil
+// the following constraint:
+// isTypeOfBoolean(e) and
+// 
+bool NetlistGenerator::isSyncCondition(const Expression *e){
     using namespace mch;
+
 
 
     GenericTraverser traverser(
