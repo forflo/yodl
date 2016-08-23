@@ -172,12 +172,19 @@ bool ExpAttribute::evaluate_type_attr(const VType *type, Entity *ent,
             val = size;
             return true;
         }
-    }else if ((name_ == "left") && test_array_type(type))  {
+    } else if ((name_ == "left") && test_array_type(type))  {
         const VTypeArray *arr = dynamic_cast<const VTypeArray *> (type);
         return arr->dimension(0).msb()->evaluate(ent, scope, val);
-    }else if ((name_ == "right") && test_array_type(type))  {
+    } else if ((name_ == "right") && test_array_type(type))  {
         const VTypeArray *arr = dynamic_cast<const VTypeArray *> (type);
         return arr->dimension(0).lsb()->evaluate(ent, scope, val);
+
+    // FM. MA
+    // These attributes are only used in clock edge expressions and
+    // don't add any information. They can be considered to be always true
+    } else if ((name_ == "event") || (name_ == "stable")) {
+        val = 1;
+        return true;
     }
 
     return false;

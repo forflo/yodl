@@ -45,23 +45,31 @@ void ClockEdgeRecognizer::reset(void){
     containsClockEdge = false;
     numberClockEdges = 0;
     direction = NetlistGenerator::edge_spec::UNDEF;
+
+    clockNameExp = NULL;
+    clockFuncExp = NULL;
 }
 
-int ClockEdgeRecognizer::operator()(const AstNode *n){
+int ClockEdgeRecognizer::operator()(AstNode *n){
     using namespace mch;
 
     auto checkHelper = [this](var<perm_string> attrName,
                               var<char> charVal,
+                              ExpName *tmp,
                               const char *checkAttrName,
                               var<ExpLogical::fun_t> logOp,
                               var<ExpRelation::fun_t> relOp)
         -> void {
+        if (tmp == NULL)
+            std::cout << "ClockEdgeRecognizer checkHelper. Impossible!"
+                      << std::endl;
 
         if ((charVal == '0' || charVal == '1') &&
             (relOp == ExpRelation::fun_t::EQ) &&
             (logOp == ExpLogical::fun_t::AND) &&
             (!strcmp(attrName, checkAttrName))){
 
+            clockNameExp = tmp;
             containsClockEdge = true;
             numberClockEdges++;
             if (charVal == '0')
@@ -86,6 +94,8 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                 numberClockEdges++;
             }
 
+            clockFuncExp = dynamic_cast<ExpFunc*>(n);
+
             if (!strcmp(funcName, "falling_edge"))
                 direction = NetlistGenerator::edge_spec::FALLING;
             if (!strcmp(funcName, "rising_edge"))
@@ -103,7 +113,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                  C<ExpAttribute>(attrName),
                  logOp)){
 
-            checkHelper(attrName, charVal, "event", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand1_)
+                            ->operand1_),
+                        "event", logOp, relOp);
             break;
         }
         Case(C<ExpLogical>(
@@ -114,7 +130,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                  C<ExpAttribute>(attrName),
                  logOp)){
 
-            checkHelper(attrName, charVal, "event", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand1_)
+                            ->operand2_),
+                        "event", logOp, relOp);
             break;
         }
 
@@ -128,7 +150,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      C<ExpAttribute>(attrName)),
                  logOp)){
 
-            checkHelper(attrName, charVal, "stable", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand1_)
+                            ->operand1_),
+                        "stable", logOp, relOp);
             break;
         }
         Case(C<ExpLogical>(
@@ -140,7 +168,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      C<ExpAttribute>(attrName)),
                  logOp)){
 
-            checkHelper(attrName, charVal, "stable", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand1_)
+                            ->operand2_),
+                        "stable", logOp, relOp);
             break;
         }
 
@@ -153,7 +187,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      relOp),
                  logOp)){
 
-            checkHelper(attrName, charVal, "event", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand2_)
+                            ->operand1_),
+                        "event", logOp, relOp);
             break;
         }
         Case(C<ExpLogical>(
@@ -164,7 +204,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      relOp),
                  logOp)){
 
-            checkHelper(attrName, charVal, "event", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand2_)
+                            ->operand2_),
+                        "event", logOp, relOp);
             break;
         }
 
@@ -178,7 +224,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      relOp),
                  logOp)){
 
-            checkHelper(attrName, charVal, "stable", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand2_)
+                            ->operand1_),
+                        "stable", logOp, relOp);
             break;
         }
         Case(C<ExpLogical>(
@@ -190,7 +242,13 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                      relOp),
                  logOp)){
 
-            checkHelper(attrName, charVal, "stable", logOp, relOp);
+            checkHelper(attrName, charVal,
+                        dynamic_cast<ExpName *>(
+                            dynamic_cast<ExpRelation *>(
+                                dynamic_cast<ExpLogical *>(n)
+                                ->operand2_)
+                            ->operand2_),
+                        "stable", logOp, relOp);
             break;
         }
         Otherwise(){ break; }
