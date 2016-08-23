@@ -49,6 +49,8 @@ void ClockEdgeRecognizer::reset(void){
 int ClockEdgeRecognizer::operator()(const AstNode *n){
     using namespace mch;
 
+    std::cout << "fnord";
+
     var<perm_string> attrName, name, funcName;
     var<char> charVal;
     var<vector<Expression*>> params;

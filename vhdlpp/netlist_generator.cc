@@ -16,25 +16,16 @@ using namespace Yosys::RTLIL;
 
 
 // to be a sync condition an expression has to fulfil
-// the following constraint:
-// isTypeOfBoolean(e) and
-// 
+// the following formal constraint:
+//
+//     isTypeOfBoolean(e) and
+//     containsClockEdge(e) and
+//     (eval(e) = 1 implies that clockEdge(e) = 1)
 bool NetlistGenerator::isSyncCondition(const Expression *e){
     using namespace mch;
 
-
-
-    GenericTraverser traverser(
-        makeTypePredicate<Expression>(),
-        static_cast<function <int (const AstNode *)>>(
-            [&visitor](const AstNode *tmp) -> int {
-                return visitor(tmp);
-            }),
-        GenericTraverser::RECUR);
-
-    traverser(e);
-
-    return visitor.environment;
+    // TODO: Implement
+    return false;
 }
 
 int NetlistGenerator::operator()(Entity *entity){

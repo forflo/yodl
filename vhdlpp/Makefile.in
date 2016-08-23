@@ -69,6 +69,7 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
 	signal_extractor.o \
 	generate_expander.o \
 	name_replacer.o \
+	clock_edge_recognizer.o \
 	netlist_generator.o \
     path_finder.o \
     enum_overloads.o \

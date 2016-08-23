@@ -24,8 +24,7 @@ public:
     Yosys::RTLIL::Module *result;
 
 private:
-    std::pair<bool, NetlistGenerator::edge_spec>
-    containsSyncCondition(const Expression *e);
+    bool isSyncCondition(const Expression *e);
 
     int traverseConcStmts(std::list<Architecture::Statement*> *);
     int traverseBlockStatement(BlockStatement *);
