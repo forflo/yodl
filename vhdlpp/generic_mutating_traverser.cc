@@ -610,8 +610,10 @@ void GenericTraverser::traverseMutating(Expression *n){
                     if(noFurtherMRecur(n)) { return ; }
 
                     // descent
-                    for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
-                        traverseMutating(i);
+                    if (static_cast<list<Expression*> *>(attribArgs))
+                        for (auto &i :
+                                 *static_cast<list<Expression*> *>(attribArgs))
+                            traverseMutating(i);
 
                     traverseMutating(attribBase);
                     break;
@@ -623,8 +625,10 @@ void GenericTraverser::traverseMutating(Expression *n){
                     if(noFurtherMRecur(n)) { return ; }
 
                     // descent
-                    for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
-                        traverseMutating(i);
+                    if (static_cast<list<Expression*> *>(attribArgs))
+                        for (auto &i
+                                 : *static_cast<list<Expression*> *>(attribArgs))
+                            traverseMutating(i);
 
                     traversalMessages.push_back(
                         "[C<ExpTypeAttribute>] No recurse into attribTypeBase, "

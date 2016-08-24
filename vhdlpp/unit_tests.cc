@@ -103,7 +103,7 @@ TEST(FirstTestGroup, FirstTest){
 
     Expression *complicated = new ExpArithmetic(
         ExpArithmetic::fun_t::PLUS,
-        e4, e2);
+        e3, e1);
 
     ClockEdgeRecognizer clockEdges;
 
@@ -151,7 +151,16 @@ TEST(FirstTestGroup, FirstTest){
 
     clockEdges.reset();
 
-    clockEdges(complicated);
+    // TODO: requires GenericTraverser
+    GenericTraverser traverser(
+        makeTypePredicate<Expression>(),
+        static_cast<function<int (const AstNode *)>>(
+            [&clockEdges](const AstNode *n) -> int {
+                return clockEdges(n); }),
+        GenericTraverser::RECUR);
+
+    traverser(complicated);
+
     CHECK(clockEdges.containsClockEdge == true);
     CHECK(clockEdges.numberClockEdges == 2);
 }

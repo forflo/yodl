@@ -69,7 +69,7 @@ void ClockEdgeRecognizer::reset(void){
     clockFuncExp = NULL;
 }
 
-int ClockEdgeRecognizer::operator()(const Expression *n){
+int ClockEdgeRecognizer::operator()(const AstNode *n){
     using namespace simple_match;
     using namespace simple_match::placeholders;
 
@@ -113,6 +113,21 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                 direction = NetlistGenerator::edge_spec::RISING;
 
           },
+
+          /* the associated lambda only get's executed if n's
+             tree structure matches the following pattern:
+             (Words in parentheses are member names)
+
+             (n) has type ExpLogical
+              |
+              +-> (operand1_) has type ExpRelation
+              |   +-> (operand1_) has type ExpName
+              |   +-> (operand2_) has type ExpCharacter
+              |   |
+              |   +-> (fun_) Operator is EQ
+              +-> (operand2_) is type of ExpAttribute
+              |
+              +-> (fun_) Operator is AND */
           some<ExpLogical>(
               ds(some<ExpRelation>(
                      ds(some<ExpName>(ds(_x)),
@@ -143,7 +158,7 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                               dynamic_cast<const ExpRelation *>(
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand1_)
-                              ->operand1_),
+                              ->operand2_),
                           "event");
           },
 
@@ -179,87 +194,81 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                               dynamic_cast<const ExpRelation *>(
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand1_)
+                              ->operand2_),
+                          "stable");
+          },
+
+          some<ExpLogical>(
+              ds(some<ExpUNot>(
+                     ds(some<ExpAttribute>(ds(_x)))),
+                 some<ExpRelation>(
+                     ds(some<ExpCharacter>(ds(_x)),
+                        some<ExpName>(ds(_x)),
+                        ExpRelation::fun_t::EQ)),
+                 ExpLogical::fun_t::AND)),
+          [checkHelper,n](perm_string atr, char chr, perm_string){
+              checkHelper(atr, chr,
+                          dynamic_cast<const ExpName *>(
+                              dynamic_cast<const ExpRelation *>(
+                                  dynamic_cast<const ExpLogical *>(n)
+                                  ->operand2_)
+                              ->operand2_),
+                          "stable");
+          },
+
+          some<ExpLogical>(
+              ds(some<ExpUNot>(
+                     ds(some<ExpAttribute>(ds(_x)))),
+                 some<ExpRelation>(
+                     ds(some<ExpName>(ds(_x)),
+                        some<ExpCharacter>(ds(_x)),
+                        ExpRelation::fun_t::EQ)),
+                 ExpLogical::fun_t::AND)),
+          [checkHelper,n](perm_string atr, perm_string, char chr){
+              checkHelper(atr, chr,
+                          dynamic_cast<const ExpName *>(
+                              dynamic_cast<const ExpRelation *>(
+                                  dynamic_cast<const ExpLogical *>(n)
+                                  ->operand2_)
                               ->operand1_),
                           "stable");
           },
-          some(), [](const Expression &){std::cout << "dummy match!\n";},
-          none(), [](){std::cout << "dummy match!\n";}
-        );
 
-//        // mirror cases for case 1
-//        Case(C<ExpLogical>(
-//                 C<ExpAttribute>(attrName),
-//                 C<ExpRelation>(
-//                     C<ExpName>(name),
-//                     C<ExpCharacter>(charVal),
-//                     relOp),
-//                 logOp)){
-//
-//            checkHelper(attrName, charVal,
-//                        dynamic_cast<const ExpName *>(
-//                            dynamic_cast<const ExpRelation *>(
-//                                dynamic_cast<const ExpLogical *>(n)
-//                                ->operand2_)
-//                            ->operand1_),
-//                        "event", logOp, relOp);
-//            break;
-//        }
-//        Case(C<ExpLogical>(
-//                 C<ExpAttribute>(attrName),
-//                 C<ExpRelation>(
-//                     C<ExpCharacter>(charVal),
-//                     C<ExpName>(name),
-//                     relOp),
-//                 logOp)){
-//
-//            checkHelper(attrName, charVal,
-//                        dynamic_cast<const ExpName *>(
-//                            dynamic_cast<const ExpRelation *>(
-//                                dynamic_cast<const ExpLogical *>(n)
-//                                ->operand2_)
-//                            ->operand2_),
-//                        "event", logOp, relOp);
-//            break;
-//        }
-//
-//        // mirror cases for case 2
-//        Case(C<ExpLogical>(
-//                 C<ExpUNot>(
-//                     C<ExpAttribute>(attrName)),
-//                 C<ExpRelation>(
-//                     C<ExpName>(name),
-//                     C<ExpCharacter>(charVal),
-//                     relOp),
-//                 logOp)){
-//
-//            checkHelper(attrName, charVal,
-//                        dynamic_cast<const ExpName *>(
-//                            dynamic_cast<const ExpRelation *>(
-//                                dynamic_cast<const ExpLogical *>(n)
-//                                ->operand2_)
-//                            ->operand1_),
-//                        "stable", logOp, relOp);
-//            break;
-//        }
-//        Case(C<ExpLogical>(
-//                 C<ExpUNot>(
-//                     C<ExpAttribute>(attrName)),
-//                 C<ExpRelation>(
-//                     C<ExpCharacter>(charVal),
-//                     C<ExpName>(name),
-//                     relOp),
-//                 logOp)){
-//
-//            checkHelper(attrName, charVal,
-//                        dynamic_cast<const ExpName *>(
-//                            dynamic_cast<const ExpRelation *>(
-//                                dynamic_cast<const ExpLogical *>(n)
-//                                ->operand2_)
-//                            ->operand2_),
-//                        "stable", logOp, relOp);
-//            break;
-//        }
-//        Otherwise(){ break; }
-//    } EndMatch;
+          some<ExpLogical>(
+              ds(some<ExpAttribute>(ds(_x)),
+                 some<ExpRelation>(
+                     ds(some<ExpName>(ds(_x)),
+                        some<ExpCharacter>(ds(_x)),
+                        ExpRelation::fun_t::EQ)),
+                 ExpLogical::fun_t::AND)),
+          [checkHelper,n](perm_string atr, perm_string, char chr){
+              checkHelper(atr, chr,
+                          dynamic_cast<const ExpName *>(
+                              dynamic_cast<const ExpRelation *>(
+                                  dynamic_cast<const ExpLogical *>(n)
+                                  ->operand2_)
+                              ->operand1_),
+                          "stable");
+          },
+
+          some<ExpLogical>(
+              ds(some<ExpAttribute>(ds(_x)),
+                 some<ExpRelation>(
+                     ds(some<ExpCharacter>(ds(_x)),
+                        some<ExpName>(ds(_x)),
+                        ExpRelation::fun_t::EQ)),
+                 ExpLogical::fun_t::AND)),
+          [checkHelper,n](perm_string atr, char chr, perm_string){
+              checkHelper(atr, chr,
+                          dynamic_cast<const ExpName *>(
+                              dynamic_cast<const ExpRelation *>(
+                                  dynamic_cast<const ExpLogical *>(n)
+                                  ->operand2_)
+                              ->operand2_),
+                          "stable");
+          },
+          some(), [](const AstNode &){std::cout << "Don't know?!!\n";},
+          none(), [](){std::cout << "Null pointer was given!\n";});
+
     return 0;
 }

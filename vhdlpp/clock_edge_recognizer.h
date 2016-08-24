@@ -11,7 +11,7 @@ public:
         , direction(NetlistGenerator::edge_spec::UNDEF)
         { }
 
-    int operator()(const Expression *);
+    int operator()(const AstNode *);
     void reset(void);
 
     bool containsClockEdge;

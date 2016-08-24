@@ -602,8 +602,10 @@ void GenericTraverser::traverseConst(const Expression *n){
                     if(noFurtherRecur(n)){ return; }
 
                     // descent
-                    for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
-                        traverseConst(i);
+                    if (static_cast<list<Expression*> *>(attribArgs))
+                        for (auto &i :
+                                 *static_cast<list<Expression*> *>(attribArgs))
+                            traverseConst(i);
 
                     traverseConst(attribBase);
                     break;
@@ -615,8 +617,10 @@ void GenericTraverser::traverseConst(const Expression *n){
                     if(noFurtherRecur(n)){ return; }
 
                     // descent
-                    for (auto &i : *static_cast<list<Expression*> *>(attribArgs))
-                        traverseConst(i);
+                    if (static_cast<list<Expression*> *>(attribArgs))
+                        for (auto &i :
+                                 *static_cast<list<Expression*> *>(attribArgs))
+                            traverseConst(i);
 
                     traverseConst(attribTypeBase);
                     break;
