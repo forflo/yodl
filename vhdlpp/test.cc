@@ -52,6 +52,7 @@ bool verbose_flag = false;
 bool debug_elaboration = false;
 ofstream debug_log_file;
 
+/*
 TEST_CASE("Type predicate meta functions test", "[type predicates]"){
     ExpInteger *int1 = new ExpInteger(100);
     ExpString *str = new ExpString("fnord");
@@ -1016,6 +1017,7 @@ TEST_CASE("Nested blocks csa lifter test", "[csa lifter]"){
 
     return ;
 }
+*/
 
 TEST_CASE("Clock edge detection test", "[clock edge]"){
     Expression *clock_edge_f1 = new ExpFunc(

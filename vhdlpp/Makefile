@@ -28,7 +28,7 @@ vpath %.cc $(srcdir)/../libmisc
 vpath %.cc $(srcdir)
 
 CC = gcc
-CXX = g++
+CXX = clang++
 LEX = flex
 YACC = bison
 
@@ -47,10 +47,12 @@ YOSYS_MISC = "-rdynamic"
 
 CPPFLAGS = $(INCLUDE_PATH) $(YOSYS_INCLUDES) $(YOSYS_CPP)  -DHAVE_CONFIG_H
 # FM. MA Added $(CUSTOM)
-CXXFLAGS = "-ggdb" -Wall -Wextra -Wshadow  \
-            -O0 --std=c++14 $(CUSTOM)
+CXXFLAGS = "-ggdb" "-O0" "--std=c++14" "-g" -Wall -Wextra -Wshadow  \
+           $(CUSTOM)
 LDFLAGS =   $(YOSYS_LIBS)
 LIBS = -lm -lbz2 -lz -lhistory -lreadline  -L/usr/local/lib
+
+UNITTESTLIBS = -lCppUTest -lCppUTestExt
 
 M = StringHeap.o LineInfo.o
 
@@ -90,6 +92,9 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     $M
 
 all: dep vhdlpp
+
+unit-tests: $0
+	$(CXX) -o unit_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) $O unit_tests.cc $(LIBS) $(YOSYS_MISC) $(UNITTESTLIBS)
 
 test: $O
 	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $O test.cc $(LIBS) $(YOSYS_MISC)

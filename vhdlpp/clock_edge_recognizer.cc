@@ -88,6 +88,8 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
     Match(n){
 
         Case(C<ExpFunc>(funcName, params)){
+            clockFuncExp = dynamic_cast<const ExpFunc*>(n);
+
             if (params.size() == 1 &&
                 (!strcmp(funcName, "falling_edge") ||
                  !strcmp(funcName, "rising_edge" ))) {
@@ -95,7 +97,6 @@ int ClockEdgeRecognizer::operator()(const Expression *n){
                 numberClockEdges++;
             }
 
-            clockFuncExp = dynamic_cast<const ExpFunc*>(n);
 
             if (!strcmp(funcName, "falling_edge"))
                 direction = NetlistGenerator::edge_spec::FALLING;
