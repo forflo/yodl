@@ -34,7 +34,7 @@
 #include "elsif_eliminator.h"
 #include "clock_edge_recognizer.h"
 #include "csa_lifter.h"
-#inlcude "propcalc.h"
+#include "propcalc.h"
 
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/CommandLineTestRunner.h>
@@ -68,8 +68,32 @@ TEST(Propcalc, FirstTest){
             PropcalcTerm::IFTHEN,
             new PropcalcVar("A")));
 
-    proove(n);
+    PropcalcFormula *n2 = new PropcalcTerm(
+        new PropcalcConstant(true),
+        PropcalcTerm::OR,
+        new PropcalcTerm(
+            new PropcalcVar("B"),
+            PropcalcTerm::IFTHEN,
+            new PropcalcVar("A")));
 
+    PropcalcFormula *n3 = new PropcalcTerm(
+        new PropcalcVar("D"),
+        PropcalcTerm::OR,
+        new PropcalcTerm(
+            new PropcalcVar("C"),
+            PropcalcTerm::OR,
+            new PropcalcTerm(
+                new PropcalcVar("B"),
+                PropcalcTerm::IFTHEN,
+                new PropcalcVar("A"))));
+
+    auto mapping = std::map<string, bool>{{"A", true}, {"B", false}};
+    CHECK(PropcalcApi::evaluate(n, mapping) == true);
+
+    CHECK(PropcalcApi::proove(n3) == false);
+
+    CHECK(PropcalcApi::proove(n) == false);
+    CHECK(PropcalcApi::proove(n2) == true);
 };
 
 TEST(FirstTestGroup, FirstTest){

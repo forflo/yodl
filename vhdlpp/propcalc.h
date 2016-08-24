@@ -29,6 +29,13 @@ struct PropcalcTerm : PropcalcFormula {
         : l_(a), r_(b), op_(o) {}
 };
 
+struct PropcalcNot : PropcalcFormula {
+    PropcalcFormula *r_;
+    PropcalcNot(PropcalcFormula *f) : r_(f) {}
+};
+
+std::ostream &operator<<(std::ostream &, PropcalcFormula *);
+
 class PropcalcApi {
 public:
     static bool evaluate(PropcalcFormula *,
