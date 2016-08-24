@@ -124,22 +124,22 @@ std::ostream &operator<<(std::ostream &out, PropcalcFormula *form){
                       PropcalcTerm::operator_t op){
               switch(op){
               case PropcalcTerm::operator_t::AND:
-                  out << "((" << l << ")" << " & " << "(" << r << "))";
+                  out << "(" << l  << " & " << r << "))";
                   break;
               case PropcalcTerm::operator_t::OR:
-                  out << "((" << l << ")" << " | " << "(" << r << "))";
+                  out << "(" << l  << " | " << r << "))";
                   break;
               case PropcalcTerm::operator_t::NOR:
-                  out << "((" << l << ")" << " nor " << "(" << r << "))";
+                  out << "(" << l  << " nor " << r << "))";
                   break;
               case PropcalcTerm::operator_t::NAND:
-                  out << "((" << l << ")" << " nand " << "(" << r << "))";
+                  out << "(" << l  << " nand " << r << "))";
                   break;
               case PropcalcTerm::operator_t::XOR:
-                  out << "((" << l << ")" << " ^ " << "(" << r << "))";
+                  out << "(" << l  << " ^ " << r << "))";
                   break;
               case PropcalcTerm::operator_t::IFTHEN:
-                  out << "((" << l << ")" << " -> " << "(" << r << "))";
+                  out << "(" << l  << " -> " << r << "))";
                   break;
               default:
                   std::cout << "ERROR! Impossible condition\n";

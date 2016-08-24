@@ -94,6 +94,10 @@ TEST(Propcalc, FirstTest){
 
     CHECK(PropcalcApi::proove(n) == false);
     CHECK(PropcalcApi::proove(n2) == true);
+
+    stringstream s{};
+    s << n3;
+    CHECK(s.str() == "(D | (C | (B -> A))))))");
 };
 
 TEST(FirstTestGroup, FirstTest){
