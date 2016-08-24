@@ -8,6 +8,8 @@
 
 #include "simple_match/include/simple_match/simple_match.hpp"
 
+/* Binding customizations.
+   Visit https://github.com/jbandela/simple_match#tutorial */
 namespace simple_match {
     namespace customization {
         template<> struct tuple_adapter<ExpFunc>{
@@ -95,6 +97,16 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
         }
     };
 
+    /* Since a clock edge can have varioius forms in VHDL, we need to
+       check if the current Expression fit's any of them. For instance,
+       a clock edge specification could be given as:
+
+       - `clk = '1' and clk'event` or also as
+       - `not clk'stable and clk = '0'` (This would model a falling clock edge)
+
+       We need to check for all the permutations and extract the
+       according semantics. Because of this, the following code is not
+       very beautiful */
     match(n,
           some<ExpFunc>(ds(_x, _x)),
           [this,checkHelper,n](perm_string funcName, std::vector<Expression*> v){

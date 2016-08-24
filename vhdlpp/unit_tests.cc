@@ -34,6 +34,7 @@
 #include "elsif_eliminator.h"
 #include "clock_edge_recognizer.h"
 #include "csa_lifter.h"
+#inlcude "propcalc.h"
 
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/CommandLineTestRunner.h>
@@ -50,6 +51,24 @@ ofstream debug_log_file;
 
 TEST_GROUP(FirstTestGroup)
 {
+
+};
+
+TEST_GROUP(Propcalc){};
+
+TEST(Propcalc, FirstTest){
+    PropcalcFormula *n = new PropcalcTerm(
+        new PropcalcTerm(
+            new PropcalcVar("A"),
+            PropcalcTerm::AND,
+            new PropcalcVar("B")),
+        PropcalcTerm::OR,
+        new PropcalcTerm(
+            new PropcalcVar("B"),
+            PropcalcTerm::IFTHEN,
+            new PropcalcVar("A")));
+
+    proove(n);
 
 };
 
