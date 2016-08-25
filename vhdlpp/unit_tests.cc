@@ -100,7 +100,6 @@ TEST(SyncPredicate, SecondTest){
                 new ExpCharacter('0')),
             clockEdge);
 
-
     bool result;
 
     SyncCondPredicate syncPred2(NULL, NULL);
@@ -266,7 +265,7 @@ TEST(Propcalc, FirstTest){
     delete real;
 };
 
-IGNORE_TEST(FirstTestGroup, FirstTest){
+TEST(FirstTestGroup, FirstTest){
     Expression *clock_edge_f1 = new ExpFunc(
         perm_string::literal("rising_edge"),
         { new ExpName(perm_string::literal("fooclk")) });
