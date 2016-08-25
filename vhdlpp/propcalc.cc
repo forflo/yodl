@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <stdexcept>
+#include <expression.h>
 #include <vector>
 #include <iostream>
 
@@ -156,6 +157,18 @@ std::ostream &operator<<(std::ostream &out, PropcalcFormula *form){
           none(), [](){ return; });
 
     return out;
+}
+
+PropcalcTerm::operator_t PropcalcApi::fromExpLogical(ExpLogical::fun_t op){
+    switch(op){
+    case ExpLogical::fun_t::AND: return PropcalcTerm::operator_t::AND;
+    case ExpLogical::fun_t::OR: return PropcalcTerm::operator_t::OR;
+    case ExpLogical::fun_t::NOR: return PropcalcTerm::operator_t::NOR;
+    case ExpLogical::fun_t::XOR: return PropcalcTerm::operator_t::XOR;
+    case ExpLogical::fun_t::NAND: return PropcalcTerm::operator_t::NAND;
+    case ExpLogical::fun_t::XNOR: return PropcalcTerm::operator_t::XNOR;
+    case ExpLogical::fun_t::IFTHEN: return PropcalcTerm::operator_t::IFTHEN;
+    }
 }
 
 bool PropcalcApi::proveH(PropcalcFormula *form,

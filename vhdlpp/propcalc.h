@@ -1,6 +1,7 @@
 #ifndef IVL_PROPCALC
 #define IVL_PROPCALC
 
+#include <expression.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -35,7 +36,7 @@ struct PropcalcNot : PropcalcFormula {
 };
 
 /* This overload produces a textual representation of the
-   propositional formula passet to by reference. Note, that
+   propositional formula passed to by reference. Note, that
    the resulting representation is mostly compatible with
    SAGE's propcalc.formula("here formula") parser.
    For more details regarding SAGE, please visit:
@@ -48,7 +49,7 @@ public:
                          std::map<std::string, bool> &);
     static void extractNames(PropcalcFormula *, std::set<std::string> &);
     static bool prove(PropcalcFormula *form);
-
+    static PropcalcTerm::operator_t fromExpLogical(ExpLogical::fun_t);
 private:
     static bool proveH(PropcalcFormula *form,
                         std::vector<std::string> todo,
