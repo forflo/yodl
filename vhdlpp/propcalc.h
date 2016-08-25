@@ -41,10 +41,10 @@ public:
     static bool evaluate(PropcalcFormula *,
                          std::map<std::string, bool> &);
     static void extractNames(PropcalcFormula *, std::set<std::string> &);
-    static bool proove(PropcalcFormula *form);
+    static bool prove(PropcalcFormula *form);
 
 private:
-    static bool prooveH(PropcalcFormula *form,
+    static bool proveH(PropcalcFormula *form,
                         std::vector<std::string> todo,
                         std::map<std::string, bool> m);
 };

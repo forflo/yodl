@@ -87,15 +87,35 @@ TEST(Propcalc, FirstTest){
                 PropcalcTerm::IFTHEN,
                 new PropcalcVar("A"))));
 
+    PropcalcFormula *real =
+        new PropcalcTerm(
+            new PropcalcTerm(
+                new PropcalcTerm(
+                    new PropcalcVar("CLOCK"),
+                    PropcalcTerm::AND,
+                    new PropcalcVar("B")),
+                PropcalcTerm::XNOR,
+                new PropcalcConstant(true)),
+            PropcalcTerm::IFTHEN,
+            new PropcalcTerm(
+                new PropcalcVar("CLOCK"),
+                PropcalcTerm::XNOR,
+                new PropcalcConstant(true)));
+
     auto mapping = std::map<string, bool>{{"A", true}, {"B", false}};
     CHECK(PropcalcApi::evaluate(n, mapping) == true);
 
-    CHECK(PropcalcApi::proove(n3) == false);
+    CHECK(PropcalcApi::prove(n3) == false);
 
-    CHECK(PropcalcApi::proove(n) == false);
-    CHECK(PropcalcApi::proove(n2) == true);
+    CHECK(PropcalcApi::prove(n) == false);
+    CHECK(PropcalcApi::prove(n2) == true);
 
-    stringstream s{};
+    stringstream a;
+    a << real;
+    CHECK(a.str() == "(((CLOCK & B) <-> true) -> (CLOCK <-> true))");
+    CHECK(PropcalcApi::prove(real) == true);
+
+    stringstream s;
     s << n3;
     CHECK(s.str() == "(D | (C | (B -> A)))");
 

@@ -158,7 +158,7 @@ std::ostream &operator<<(std::ostream &out, PropcalcFormula *form){
     return out;
 }
 
-bool PropcalcApi::prooveH(PropcalcFormula *form,
+bool PropcalcApi::proveH(PropcalcFormula *form,
                           std::vector<std::string> todo,
                           std::map<std::string, bool> m){
     if (todo.size() > 0){
@@ -167,10 +167,10 @@ bool PropcalcApi::prooveH(PropcalcFormula *form,
         todo.erase(todo.begin());
 
         m[tmp] = true;
-        result = result && prooveH(form, todo, m);
+        result = result && proveH(form, todo, m);
 
         m[tmp] = false;
-        result = result && prooveH(form, todo, m);
+        result = result && proveH(form, todo, m);
         return result;
     } else if (todo.size() == 0) {
         return evaluate(form, m);
@@ -179,7 +179,7 @@ bool PropcalcApi::prooveH(PropcalcFormula *form,
     }
 }
 
-bool PropcalcApi::proove(PropcalcFormula *form){
+bool PropcalcApi::prove(PropcalcFormula *form){
     std::set<std::string> names;
     extractNames(form, names);
     std::vector<std::string> v;
@@ -187,5 +187,5 @@ bool PropcalcApi::proove(PropcalcFormula *form){
     for (auto &i: names)
         v.push_back(i);
 
-    return prooveH(form, v, {});
+    return proveH(form, v, {});
 }
