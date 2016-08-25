@@ -1,6 +1,8 @@
 #include <sync_condition_predicate.h>
 #include <clock_edge_recognizer.h>
+#include <predicate_generators.h>
 #include <generic_traverser.h>
+#include <parse_context.h>
 #include <propcalc.h>
 
 #include <tuple>
@@ -109,28 +111,50 @@ PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
 }
 
 
-/* WARNING: Only meant to work on Expressions of type BOOL! */
-bool SyncCondPredicate::operator()(const Expression *e){
-    ClockEdgeRecognizer clockEdge;
+// In order to be a sync condition, an expression has to fulfil
+// the following formal predicate:
+//
+// isSyncCondition(e) =
+//     isTypeOfBoolean(e) and
+//     containsClockEdge(e) and
+//     ((eval(e) = 1) -> (clockEdge(e) = 1))
+bool SyncCondPredicate::operator()(const Expression *exp){
+    ClockEdgeRecognizer clockEdges;
 
-    clockEdge(e);
-
-    if (clockEdge.fullClockSpecs.size() != 1)
-        return false; // NOTE: more than one clock spec currently not supported
-
-    const AstNode *edge = clockEdge.fullClockSpecs[0];
+    bool isBoolType = exp->probe_type(currentEntity, currentScope)->type_match(
+        &currentEntity->context_->global_types->primitive_STDLOGIC);
 
     GenericTraverser traverser(
-        [edge](const AstNode *n) -> bool {
-            return (n == edge ? true : false);
-        },
-        static_cast<function<
-        int (const AstNode *, const std::vector<const AstNode *> &)>>(
-            [](const AstNode *n, const std::vector<const AstNode *> &v) -> int {
-
-                return 0;
-            }),
+        makeTypePredicate<Expression>(),
+        static_cast<function<int (const AstNode *)>>(
+            [&clockEdges](const AstNode *n) -> int {
+                return clockEdges(n); }),
         GenericTraverser::RECUR);
 
-    return false;
+    if (clockEdges.fullClockSpecs.size() != 1)
+        return false; // NOTE: more than one clock spec currently not supported
+
+    PropcalcFormula *formula = fromExpression(
+        dynamic_cast<const Expression *>(
+            clockEdges.fullClockSpecs[0]), exp);
+
+    formula =
+        new PropcalcTerm(
+            new PropcalcTerm(
+                formula,
+                PropcalcTerm::XNOR,
+                new PropcalcConstant(true)),
+            PropcalcTerm::IFTHEN,
+            new PropcalcTerm(
+                new PropcalcVar("CLK"), //TODO: Remove hardcodedness!
+                PropcalcTerm::XNOR,
+                new PropcalcConstant(true)));
+
+    std::cout << "formula: " << formula << "\n";
+    std::cout << "proof of formula\n";
+
+    bool successfullyProven = PropcalcApi::prove(formula);
+    std::cout << (successfullyProven ? "true" : "false") << "\n";
+
+    return successfullyProven && isBoolType;
 }

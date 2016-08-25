@@ -15,13 +15,6 @@
 
 using namespace Yosys::RTLIL;
 
-
-// to be a sync condition an expression has to fulfil
-// the following formal constraint:
-//
-//     isTypeOfBoolean(e) and
-//     containsClockEdge(e) and
-//     (eval(e) = 1 implies that clockEdge(e) = 1)
 bool NetlistGenerator::isSyncCondition(const Expression *e){
     using namespace mch;
 
