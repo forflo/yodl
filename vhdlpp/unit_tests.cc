@@ -55,6 +55,7 @@ TEST_GROUP(FirstTestGroup) {};
 TEST_GROUP(Propcalc){};
 TEST_GROUP(SyncPredicate){};
 
+
 TEST(SyncPredicate, SecondTest){
     // semantically correct clock edge
     Expression *clockEdge = new ExpLogical(
@@ -65,7 +66,7 @@ TEST(SyncPredicate, SecondTest){
             new ExpName(perm_string::literal("fnordclock"))),
         new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
 
-    // not ((1 = 0 and 0 = 1) or ((foo = '0') and (clk = '1' and clk'event)))
+    // ((1 = 0 and 0 = 1) or ((foo = '0') and (clk = '1' and clk'event)))
     Expression *condition =
         new ExpLogical(
             ExpLogical::fun_t::OR,
@@ -89,9 +90,25 @@ TEST(SyncPredicate, SecondTest){
                     new ExpCharacter('0')),
                 clockEdge));
 
-    SyncCondPredicate syncPred(NULL, NULL);
-    bool result = syncPred(condition);
+    // ((foo = '0') and (clk = '1' and clk'event))
+    Expression *syncCondition =
+        new ExpLogical(
+            ExpLogical::fun_t::AND,
+            new ExpRelation(
+                ExpRelation::fun_t::GT,
+                new ExpName(perm_string::literal("foo")),
+                new ExpCharacter('0')),
+            clockEdge);
 
+
+    bool result;
+
+    SyncCondPredicate syncPred2(NULL, NULL);
+    result = syncPred2(syncCondition);
+    CHECK(result == true);
+
+    SyncCondPredicate syncPred(NULL, NULL);
+    result = syncPred(condition);
     CHECK(result == false);
 
     delete condition;
@@ -249,7 +266,7 @@ TEST(Propcalc, FirstTest){
     delete real;
 };
 
-TEST(FirstTestGroup, FirstTest){
+IGNORE_TEST(FirstTestGroup, FirstTest){
     Expression *clock_edge_f1 = new ExpFunc(
         perm_string::literal("rising_edge"),
         { new ExpName(perm_string::literal("fooclk")) });
