@@ -34,6 +34,7 @@
 #include "elsif_eliminator.h"
 #include "clock_edge_recognizer.h"
 #include "csa_lifter.h"
+#include "sync_condition_predicate.h"
 #include "propcalc.h"
 
 #include <CppUTest/TestHarness.h>
@@ -55,6 +56,29 @@ TEST_GROUP(FirstTestGroup)
 };
 
 TEST_GROUP(Propcalc){};
+TEST_GROUP(SyncPredicate){};
+
+// convert an Expression into a propositional calculus formula
+TEST(SyncPredicate, FirstTest){
+    Expression *e3 = new ExpLogical(
+        ExpLogical::fun_t::AND,
+        new ExpRelation(
+            ExpRelation::fun_t::EQ,
+            new ExpCharacter('1'),
+            new ExpName(perm_string::literal("fnordclock"))
+            ),
+        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
+
+    ClockEdgeRecognizer cer;
+    cer(e3);
+
+    SyncCondPredicate s;
+    PropcalcFormula *r = s.fromExpression(
+        dynamic_cast<const Expression *>(
+            cer.fullClockSpecs[cer.numberClockEdges - 1]), e3);
+
+    std::cout << r;
+}
 
 TEST(Propcalc, FirstTest){
     PropcalcFormula *n = new PropcalcTerm(

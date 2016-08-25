@@ -10,7 +10,7 @@ public:
 
     bool operator()(const Expression *e);
 
-private:
+public:
     PropcalcFormula *fromExpression(const Expression *,
                                     const Expression *);
 };
