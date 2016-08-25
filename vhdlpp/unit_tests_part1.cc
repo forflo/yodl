@@ -32,7 +32,6 @@
 #include "std_types.h"
 #include "std_funcs.h"
 #include "parse_context.h"
-#include "test.h"
 #include "root_class.h"
 #include "mach7_includes.h"
 #include "path_finder.h"
@@ -43,7 +42,6 @@
 #include "csa_lifter.h"
 
 #include <CppUTest/TestHarness.h>
-#include <unit_tests.h>
 
 TEST_GROUP(DefaultGroup){};
 
@@ -55,9 +53,9 @@ TEST(DefaultGroup, TypePredicateMetaFunctionsTest){
     function<bool (const AstNode *)> e1 =
         makeNaryTypePredicate<ExpInteger, ExpString>();
 
-    REQUIRE(e1(int1) == true);
-    REQUIRE(e1(str) == true);
-    REQUIRE(e1(real) == false);
+    CHECK(e1(int1) == true);
+    CHECK(e1(str) == true);
+    CHECK(e1(real) == false);
 
     delete int1;
     delete str;
@@ -78,20 +76,20 @@ TEST(DefaultGroup,Typepredicatecombinatorstest){
     auto e1 = t1 || t2;
     auto e2 = t1 && t2;
 
-    REQUIRE(e1(int1) == true);
-    REQUIRE(e1(str) == true);
-    REQUIRE(e1(real) == false);
+    CHECK(e1(int1) == true);
+    CHECK(e1(str) == true);
+    CHECK(e1(real) == false);
 
     // neither int1, str or real inherits
     // from both ExpInteger and ExpString
-    REQUIRE(e2(int1) == false);
-    REQUIRE(e2(str) == false);
-    REQUIRE(e2(real) == false);
+    CHECK(e2(int1) == false);
+    CHECK(e2(str) == false);
+    CHECK(e2(real) == false);
 
     auto e3 = ! e2;
-    REQUIRE(e3(int1) == true);
-    REQUIRE(e3(str) == true);
-    REQUIRE(e3(real) == true);
+    CHECK(e3(int1) == true);
+    CHECK(e3(str) == true);
+    CHECK(e3(real) == true);
 
     delete int1;
     delete str;
@@ -183,7 +181,7 @@ TEST(DefaultGroup,YosysRTLILconstruction){
 
 //    std::cout << ilangBuffer.str();
 
-    REQUIRE(ilangBuffer.str() != "");
+    CHECK(ilangBuffer.str() != "");
 }
 
 
@@ -197,9 +195,9 @@ TEST(DefaultGroup,Simpleblock){
     rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
                                        perm_string(), context);
 
-    REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors == 0);
-    REQUIRE(context->parse_sorrys == 0);
+    CHECK(rc == 0);
+    CHECK(context->parse_errors == 0);
+    CHECK(context->parse_sorrys == 0);
 }
 
 TEST(DefaultGroup,Simpleforloop){
@@ -213,11 +211,11 @@ TEST(DefaultGroup,Simpleforloop){
         "vhdl_testfiles/for_loop_simple.vhd",
         perm_string(), context);
 
-    REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors == 0);
-    REQUIRE(context->parse_sorrys == 0);
+    CHECK(rc == 0);
+    CHECK(context->parse_errors == 0);
+    CHECK(context->parse_sorrys == 0);
 
-    REQUIRE(context->design_entities.size() == 1);
+    CHECK(context->design_entities.size() == 1);
 
     auto iterator = context->design_entities.begin();
     auto entity1 = iterator->second;
@@ -241,12 +239,12 @@ TEST(DefaultGroup,Multipleparses){
     rc2 = ParserUtil::parse_source_file("vhdl_testfiles/adder.vhd",
                                         perm_string(), context1);
 
-    REQUIRE(rc1 == 0);
-    REQUIRE(rc2 == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context1->parse_sorrys == 0);
-    REQUIRE(context1->parse_sorrys == 0);
+    CHECK(rc1 == 0);
+    CHECK(rc2 == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context1->parse_sorrys == 0);
+    CHECK(context1->parse_sorrys == 0);
 }
 
 TEST(DefaultGroup,Simpleclonetest){
@@ -259,18 +257,18 @@ TEST(DefaultGroup,Simpleclonetest){
     rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
                                        perm_string(), context);
 
-    REQUIRE(rc == 0);
-    REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
+    CHECK(rc == 0);
+    CHECK(rc == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context->parse_errors  == 0);
 
-    REQUIRE(context->design_entities.size() == 1);
+    CHECK(context->design_entities.size() == 1);
 
     auto iterator = context->design_entities.begin();
-    REQUIRE(iterator->second != NULL);
+    CHECK(iterator->second != NULL);
 
     auto cloned_entity = iterator->second->clone();
-    REQUIRE(cloned_entity != NULL);
+    CHECK(cloned_entity != NULL);
 }
 
 TEST(DefaultGroup,Simpleclonetestwithdotgeneration){
@@ -283,19 +281,19 @@ TEST(DefaultGroup,Simpleclonetestwithdotgeneration){
     rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
                                        perm_string(), context);
 
-    REQUIRE(rc == 0);
-    REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors == 0);
-    REQUIRE(context->parse_errors == 0);
+    CHECK(rc == 0);
+    CHECK(rc == 0);
+    CHECK(context->parse_errors == 0);
+    CHECK(context->parse_errors == 0);
 
-    REQUIRE(context->design_entities.size() == 1);
+    CHECK(context->design_entities.size() == 1);
 
     auto iterator = context->design_entities.begin();
     auto entity1 = iterator->second;
-    REQUIRE(entity1 != NULL);
+    CHECK(entity1 != NULL);
 
     auto entity2 = iterator->second->clone();
-    REQUIRE(entity2 != NULL);
+    CHECK(entity2 != NULL);
 
     stringstream a{};
     stringstream b{};
@@ -306,8 +304,8 @@ TEST(DefaultGroup,Simpleclonetestwithdotgeneration){
     DotGraphGenerator()(a, "foo", entity1->emit_strinfo_tree());
     DotGraphGenerator()(b, "foo", entity2->emit_strinfo_tree());
 
-    REQUIRE((*tree1 == *tree2) == true);
-    REQUIRE(a.str() == b.str());
+    CHECK((*tree1 == *tree2) == true);
+    CHECK(a.str() == b.str());
 }
 
 TEST(DefaultGroup,Testequalityofsimpletree){
@@ -323,10 +321,10 @@ TEST(DefaultGroup,Testequalityofsimpletree){
                 {"bar", "foo"}}),
         empty_simple_tree());
 
-    REQUIRE((*tree1 == *tree2) == true);
+    CHECK((*tree1 == *tree2) == true);
 
     tree1->root["bar"] = "fnord";
-    REQUIRE((*tree1 == *tree2) == false);
+    CHECK((*tree1 == *tree2) == false);
 }
 
 TEST(DefaultGroup,Testsimplegenerictraversal){
@@ -340,16 +338,16 @@ TEST(DefaultGroup,Testsimplegenerictraversal){
     rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
                                        perm_string(), context);
 
-    REQUIRE(rc == 0);
-    REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors == 0);
-    REQUIRE(context->parse_errors == 0);
+    CHECK(rc == 0);
+    CHECK(rc == 0);
+    CHECK(context->parse_errors == 0);
+    CHECK(context->parse_errors == 0);
 
-    REQUIRE(context->design_entities.size() == 1);
+    CHECK(context->design_entities.size() == 1);
 
     auto iterator = context->design_entities.begin();
     auto entity1 = iterator->second;
-    REQUIRE(entity1 != NULL);
+    CHECK(entity1 != NULL);
 
     const AstNode *root = entity1;
 
@@ -369,7 +367,7 @@ TEST(DefaultGroup,Testsimplegenerictraversal){
         GenericTraverser::RECUR);
 
     traverser(root);
-    REQUIRE(state.environment == 2);
+    CHECK(state.environment == 2);
 }
 
 TEST(DefaultGroup,GenericTraverserclassconstructortest){
@@ -387,9 +385,9 @@ TEST(DefaultGroup,GenericTraverserclassconstructortest){
             [](const AstNode *) -> int { return 0; }),
         GenericTraverser::RECUR);
 
-    REQUIRE(traverserConst.isNaryTraverser() == false);
-    REQUIRE(traverserConst.wasError() == false);
-    REQUIRE(traverserConst.isMutatingTraverser() == false);
+    CHECK(traverserConst.isNaryTraverser() == false);
+    CHECK(traverserConst.wasError() == false);
+    CHECK(traverserConst.isMutatingTraverser() == false);
 
     GenericTraverser traverserMutating(
         [=](const AstNode *node){
@@ -403,9 +401,9 @@ TEST(DefaultGroup,GenericTraverserclassconstructortest){
                 return 0; }),
         GenericTraverser::RECUR);
 
-    REQUIRE(traverserMutating.isNaryTraverser() == false);
-    REQUIRE(traverserMutating.wasError() == false);
-    REQUIRE(traverserMutating.isMutatingTraverser() == true);
+    CHECK(traverserMutating.isNaryTraverser() == false);
+    CHECK(traverserMutating.wasError() == false);
+    CHECK(traverserMutating.isMutatingTraverser() == true);
 
     GenericTraverser traverserNary(
         [=](const AstNode *node){
@@ -421,9 +419,9 @@ TEST(DefaultGroup,GenericTraverserclassconstructortest){
                 -> int { return 0; }),
         GenericTraverser::RECUR);
 
-    REQUIRE(traverserNary.isNaryTraverser() == true);
-    REQUIRE(traverserNary.wasError() == false);
-    REQUIRE(traverserNary.isMutatingTraverser() == false);
+    CHECK(traverserNary.isNaryTraverser() == true);
+    CHECK(traverserNary.wasError() == false);
+    CHECK(traverserNary.isMutatingTraverser() == false);
 
     GenericTraverser traverserNaryMutating(
         [=](const AstNode *node){
@@ -439,9 +437,9 @@ TEST(DefaultGroup,GenericTraverserclassconstructortest){
                 -> int { return 0; }),
         GenericTraverser::RECUR);
 
-    REQUIRE(traverserNaryMutating.isNaryTraverser() == true);
-    REQUIRE(traverserNaryMutating.wasError() == false);
-    REQUIRE(traverserNaryMutating.isMutatingTraverser() == true);
+    CHECK(traverserNaryMutating.isNaryTraverser() == true);
+    CHECK(traverserNaryMutating.wasError() == false);
+    CHECK(traverserNaryMutating.isMutatingTraverser() == true);
 
 }
 
@@ -458,16 +456,16 @@ TEST(DefaultGroup,TestsimplegenerictraversalonclonedAST){
     rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
                                        perm_string(), context);
 
-    REQUIRE(rc == 0);
-    REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors == 0);
-    REQUIRE(context->parse_errors == 0);
+    CHECK(rc == 0);
+    CHECK(rc == 0);
+    CHECK(context->parse_errors == 0);
+    CHECK(context->parse_errors == 0);
 
-    REQUIRE(context->design_entities.size() == 1);
+    CHECK(context->design_entities.size() == 1);
 
     auto iterator = context->design_entities.begin();
     auto entity1 = iterator->second;
-    REQUIRE(entity1 != NULL);
+    CHECK(entity1 != NULL);
 
     const AstNode *root = entity1->clone();
 
@@ -498,7 +496,7 @@ TEST(DefaultGroup,TestsimplegenerictraversalonclonedAST){
         GenericTraverser::RECUR);
 
     traverser(root);
-    REQUIRE(state.environment == 2);
+    CHECK(state.environment == 2);
     traverser.emitTraversalMessages(cout, "\n");
     traverser.emitErrorMessages(cout, "\n");
 }
@@ -529,18 +527,18 @@ TEST(DefaultGroup,Testpathfinder){
     // check function PathFinder::getListOfchilds
     const std::list<AstNode *> childs1 =
         PathFinder::getListOfChilds(static_cast<AstNode *>(arith));
-    REQUIRE(childs1.front() == arith1);
-    REQUIRE(childs1.back() == arith2);
+    CHECK(childs1.front() == arith1);
+    CHECK(childs1.back() == arith2);
 
     const std::list<AstNode *> childs2 =
         PathFinder::getListOfChilds(static_cast<AstNode *>(arith1));
-    REQUIRE(childs2.front() == int1);
-    REQUIRE(childs2.back() == int2);
+    CHECK(childs2.front() == int1);
+    CHECK(childs2.back() == int2);
 
     const std::list<AstNode *> childs3 =
         PathFinder::getListOfChilds(static_cast<AstNode *>(arith2));
-    REQUIRE(childs3.front() == int3);
-    REQUIRE(childs3.back() == int4);
+    CHECK(childs3.front() == int3);
+    CHECK(childs3.back() == int4);
 
     // check pathFinder::findPath
     PathFinder pathFinder(1);
@@ -565,54 +563,54 @@ TEST(DefaultGroup,Testpathfinder){
     cout << pathFinderU;
 
     // 1-ary pathFinder
-    REQUIRE(pathFinder.getPaths().size() == 1);
-    REQUIRE(pathFinder.getPaths()[0].size() == 1);
-    REQUIRE(pathFinder.getPaths()[0][0] == arith);
+    CHECK(pathFinder.getPaths().size() == 1);
+    CHECK(pathFinder.getPaths()[0].size() == 1);
+    CHECK(pathFinder.getPaths()[0][0] == arith);
 
     // 2-ary pathFinder
-    REQUIRE(pathFinder2.getPaths().size() == 2);
-    REQUIRE(pathFinder2.getPaths()[0].size() == 2);
-    REQUIRE(pathFinder2.getPaths()[1].size() == 2);
+    CHECK(pathFinder2.getPaths().size() == 2);
+    CHECK(pathFinder2.getPaths()[0].size() == 2);
+    CHECK(pathFinder2.getPaths()[1].size() == 2);
 
-    REQUIRE(pathFinder2.getPaths()[0][0] == arith);
-    REQUIRE(pathFinder2.getPaths()[0][1] == arith1);
+    CHECK(pathFinder2.getPaths()[0][0] == arith);
+    CHECK(pathFinder2.getPaths()[0][1] == arith1);
 
-    REQUIRE(pathFinder2.getPaths()[1][0] == arith);
-    REQUIRE(pathFinder2.getPaths()[1][1] == arith2);
+    CHECK(pathFinder2.getPaths()[1][0] == arith);
+    CHECK(pathFinder2.getPaths()[1][1] == arith2);
 
     // 3-ary pathFinder
-    REQUIRE(pathFinder3.getPaths().size() == 4);
+    CHECK(pathFinder3.getPaths().size() == 4);
     for (int i = 0 ; i< 3; i++){
-        REQUIRE(pathFinder3.getPaths()[i].size() == 3);
+        CHECK(pathFinder3.getPaths()[i].size() == 3);
     }
 
-    REQUIRE(pathFinder3.getPaths()[0][0] == arith);
-    REQUIRE(pathFinder3.getPaths()[1][0] == arith);
-    REQUIRE(pathFinder3.getPaths()[2][0] == arith);
-    REQUIRE(pathFinder3.getPaths()[3][0] == arith);
+    CHECK(pathFinder3.getPaths()[0][0] == arith);
+    CHECK(pathFinder3.getPaths()[1][0] == arith);
+    CHECK(pathFinder3.getPaths()[2][0] == arith);
+    CHECK(pathFinder3.getPaths()[3][0] == arith);
 
-    REQUIRE(pathFinder3.getPaths()[0][1] == arith1);
-    REQUIRE(pathFinder3.getPaths()[1][1] == arith1);
-    REQUIRE(pathFinder3.getPaths()[2][1] == arith2);
-    REQUIRE(pathFinder3.getPaths()[3][1] == arith2);
+    CHECK(pathFinder3.getPaths()[0][1] == arith1);
+    CHECK(pathFinder3.getPaths()[1][1] == arith1);
+    CHECK(pathFinder3.getPaths()[2][1] == arith2);
+    CHECK(pathFinder3.getPaths()[3][1] == arith2);
 
-    REQUIRE(pathFinder3.getPaths()[0][2] == int1);
-    REQUIRE(pathFinder3.getPaths()[1][2] == int2);
-    REQUIRE(pathFinder3.getPaths()[2][2] == int3);
-    REQUIRE(pathFinder3.getPaths()[3][2] == int4);
+    CHECK(pathFinder3.getPaths()[0][2] == int1);
+    CHECK(pathFinder3.getPaths()[1][2] == int2);
+    CHECK(pathFinder3.getPaths()[2][2] == int3);
+    CHECK(pathFinder3.getPaths()[3][2] == int4);
 
     // 4-ary pathFinder
-    REQUIRE(pathFinder4.getPaths().size() == 0);
+    CHECK(pathFinder4.getPaths().size() == 0);
 
     // 3-ary pathFinder on unbalanced tree
-    REQUIRE(pathFinderU.getPaths()[0].size() == 3);
+    CHECK(pathFinderU.getPaths()[0].size() == 3);
 
-    REQUIRE(pathFinderU.getPaths()[0][0] == aUnb);
-    REQUIRE(pathFinderU.getPaths()[1][0] == aUnb);
-    REQUIRE(pathFinderU.getPaths()[0][1] == arith1);
-    REQUIRE(pathFinderU.getPaths()[1][1] == arith1);
-    REQUIRE(pathFinderU.getPaths()[0][2] == int1);
-    REQUIRE(pathFinderU.getPaths()[1][2] == int2);
+    CHECK(pathFinderU.getPaths()[0][0] == aUnb);
+    CHECK(pathFinderU.getPaths()[1][0] == aUnb);
+    CHECK(pathFinderU.getPaths()[0][1] == arith1);
+    CHECK(pathFinderU.getPaths()[1][1] == arith1);
+    CHECK(pathFinderU.getPaths()[0][2] == int1);
+    CHECK(pathFinderU.getPaths()[1][2] == int2);
 }
 
 TEST(DefaultGroup,NONRECURtest){
@@ -640,9 +638,9 @@ TEST(DefaultGroup,NONRECURtest){
 
     traverser(arith);
 
-    REQUIRE(stateLambda.environment == 1);
+    CHECK(stateLambda.environment == 1);
     stateLambda.reset();
-    REQUIRE(stateLambda.environment == 0);
+    CHECK(stateLambda.environment == 0);
 }
 
 TEST(DefaultGroup,RECURtest){
@@ -670,9 +668,9 @@ TEST(DefaultGroup,RECURtest){
 
     traverser(arith);
 
-    REQUIRE(stateLambda.environment == 3);
+    CHECK(stateLambda.environment == 3);
     stateLambda.reset();
-    REQUIRE(stateLambda.environment == 0);
+    CHECK(stateLambda.environment == 0);
 }
 
 TEST(DefaultGroup,Testnarytraverser){
@@ -717,23 +715,23 @@ TEST(DefaultGroup,Testnarytraverser){
 
         int operator()(AstNode *node, const std::vector<AstNode *> &parents){
             if (node == i1){
-                REQUIRE(parents[0] == ar1);
-                REQUIRE(parents[1] == ar);
+                CHECK(parents[0] == ar1);
+                CHECK(parents[1] == ar);
             }
 
             if (node == i2){
-                REQUIRE(parents[0] == ar1);
-                REQUIRE(parents[1] == ar);
+                CHECK(parents[0] == ar1);
+                CHECK(parents[1] == ar);
             }
 
             if (node == i3) {
-                REQUIRE(parents[0] == ar2);
-                REQUIRE(parents[1] == ar);
+                CHECK(parents[0] == ar2);
+                CHECK(parents[1] == ar);
             }
 
             if (node == i4) {
-                REQUIRE(parents[0] == ar2);
-                REQUIRE(parents[1] == ar);
+                CHECK(parents[0] == ar2);
+                CHECK(parents[1] == ar);
             }
 
             return 0;
@@ -757,16 +755,16 @@ TEST(DefaultGroup,Higherordertraverser){
     rc = ParserUtil::parse_source_file("vhdl_testfiles/block_simple.vhd",
                                        perm_string(), context);
 
-    REQUIRE(rc == 0);
-    REQUIRE(rc == 0);
-    REQUIRE(context->parse_errors == 0);
-    REQUIRE(context->parse_errors == 0);
+    CHECK(rc == 0);
+    CHECK(rc == 0);
+    CHECK(context->parse_errors == 0);
+    CHECK(context->parse_errors == 0);
 
-    REQUIRE(context->design_entities.size() == 1);
+    CHECK(context->design_entities.size() == 1);
 
     auto iterator = context->design_entities.begin();
     auto entity1 = iterator->second;
-    REQUIRE(entity1 != NULL);
+    CHECK(entity1 != NULL);
 
     struct counter_t {
         int count;
@@ -802,9 +800,9 @@ TEST(DefaultGroup,Parsertestoperatorsymbol){
         "vhdl_testfiles/parser_test_operator_symbol.vhd",
         perm_string(), context);
 
-    REQUIRE(rc1 == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
+    CHECK(rc1 == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context->parse_errors  == 0);
 
 
     GenericTraverser trav(
@@ -812,7 +810,7 @@ TEST(DefaultGroup,Parsertestoperatorsymbol){
         [](AstNode *n) -> int {
             ExpName *temp = dynamic_cast<ExpName*>(n);
             if (temp){
-                REQUIRE(temp->is_operator_symbol_ == true);
+                CHECK(temp->is_operator_symbol_ == true);
             } else {
                 std::cout << "Nullpointer in test [parser]" << endl;
             }
@@ -833,13 +831,13 @@ TEST(DefaultGroup,Signalextractionsimpletest){
         "vhdl_testfiles/signal_extractor_test.vhd",
         perm_string(), context);
 
-    REQUIRE(rc1 == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
+    CHECK(rc1 == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context->parse_errors  == 0);
 
     auto iterator = context->design_entities.begin();
     auto entity = iterator->second;
-    REQUIRE(entity != NULL);
+    CHECK(entity != NULL);
 
     SignalExtractor extractor;
 
@@ -851,20 +849,20 @@ TEST(DefaultGroup,Signalextractionsimpletest){
             [&extractor](const AstNode *n) -> int { return extractor(n);}),
         GenericTraverser::RECUR);
 
-    REQUIRE(traverser.isMutatingTraverser() == false);
+    CHECK(traverser.isMutatingTraverser() == false);
 
     traverser(entity);
 
 //    DotGraphGenerator()(entity->emit_strinfo_tree());
 //    DotGraphGenerator()("graph foo", entity->emit_strinfo_tree());
 
-    REQUIRE(extractor.signals.size() == 2);
+    CHECK(extractor.signals.size() == 2);
 
     auto sIter = extractor.signals.begin();
-    REQUIRE(dynamic_cast<const Signal *>(*sIter)->name_ ==
+    CHECK(dynamic_cast<const Signal *>(*sIter)->name_ ==
             perm_string::literal("f"));
     ++sIter;
-    REQUIRE(dynamic_cast<const Signal *>(*sIter)->name_ ==
+    CHECK(dynamic_cast<const Signal *>(*sIter)->name_ ==
             perm_string::literal("foo"));
 }
 
@@ -879,13 +877,13 @@ TEST(DefaultGroup,ElsifEliminatortest){
         "vhdl_testfiles/elsif_eliminator_nested_test.vhd",
         perm_string(), context);
 
-    REQUIRE(rc1 == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
+    CHECK(rc1 == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context->parse_errors  == 0);
 
     auto iterator = context->design_entities.begin();
     auto entity = iterator->second;
-    REQUIRE(entity != NULL);
+    CHECK(entity != NULL);
 
     ElsifEliminator elsifEliminator;
 
@@ -908,7 +906,7 @@ TEST(DefaultGroup,ElsifEliminatortest){
     counter(entity);
 
     // I manually counted the if statements in the desugared AST...
-    REQUIRE(cnt.environment == 8);
+    CHECK(cnt.environment == 8);
 }
 
 TEST(DefaultGroup,Simplecsaliftertest){
@@ -922,13 +920,13 @@ TEST(DefaultGroup,Simplecsaliftertest){
         "vhdl_testfiles/process_lifting_test.vhd",
         perm_string(), context);
 
-    REQUIRE(rc1 == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
+    CHECK(rc1 == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context->parse_errors  == 0);
 
     auto iterator = context->design_entities.begin();
     auto entity = iterator->second;
-    REQUIRE(entity != NULL);
+    CHECK(entity != NULL);
 
     CsaLifter lifter;
 
@@ -952,7 +950,7 @@ TEST(DefaultGroup,Simplecsaliftertest){
     counter(entity);
 
     // There must be 3 processes containing 3 wait statements
-    REQUIRE(cnt.environment == 6);
+    CHECK(cnt.environment == 6);
 }
 
 TEST(DefaultGroup,Nestedblockscsaliftertest){
@@ -966,13 +964,13 @@ TEST(DefaultGroup,Nestedblockscsaliftertest){
         "vhdl_testfiles/process_lifting_test_blocks.vhd",
         perm_string(), context);
 
-    REQUIRE(rc1 == 0);
-    REQUIRE(context->parse_errors  == 0);
-    REQUIRE(context->parse_errors  == 0);
+    CHECK(rc1 == 0);
+    CHECK(context->parse_errors  == 0);
+    CHECK(context->parse_errors  == 0);
 
     auto iterator = context->design_entities.begin();
     auto entity = iterator->second;
-    REQUIRE(entity != NULL);
+    CHECK(entity != NULL);
 
     CsaLifter lifter;
 
@@ -996,7 +994,7 @@ TEST(DefaultGroup,Nestedblockscsaliftertest){
     counter(entity);
 
     // There must be 3 processes containing 3 wait statements
-    REQUIRE(cnt.environment == 12);
+    CHECK(cnt.environment == 12);
 
     GenericTraverser counter2(
         makeNaryTypePredicate<BlockStatement>(),
@@ -1007,7 +1005,7 @@ TEST(DefaultGroup,Nestedblockscsaliftertest){
     cnt.reset();
     counter2(entity);
 
-    REQUIRE(cnt.environment == 2);
+    CHECK(cnt.environment == 2);
 
     return ;
 }
