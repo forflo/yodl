@@ -56,6 +56,8 @@ UNITTESTLIBS = -lCppUTest -lCppUTestExt
 
 M = StringHeap.o LineInfo.o
 
+UNIT = unit_tests_part1.o unit_tests_main.o
+
 O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     expression.o package.o scope.o sequential.o subprogram.o vsignal.o vtype.o \
     expression_gendot.o architec_gendot.o sequential_gendot.o entity_gendot.o \
@@ -93,15 +95,15 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     debug.o architec_debug.o expression_debug.o sequential_debug.o \
     $M
 
+
+
 all: dep vhdlpp
 
-unit-tests: $0
-	$(CXX) -o unit_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) $O unit_tests.cc $(LIBS) $(YOSYS_MISC) $(UNITTESTLIBS)
+unit-tests: $O $(UNIT) 
+	$(CXX) -o unit_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) \
+		$O $(UNIT) $(LIBS) $(YOSYS_MISC) $(UNITTESTLIBS)
 
-test: $O
-	$(CXX) -o vhdlpp_tests $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $O test.cc $(LIBS) $(YOSYS_MISC)
-
-ast_dumper: $0 ast_dumper.o
+ast_dumper: $O ast_dumper.o
 	$(CXX) -o ast_dumper $(LDFLAGS) ast_dumper.o $O $(LIBS)
 
 check: all
