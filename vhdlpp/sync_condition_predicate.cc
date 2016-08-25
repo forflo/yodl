@@ -5,6 +5,8 @@
 #include <parse_context.h>
 #include <propcalc.h>
 
+#define DEBUG
+
 #include <tuple>
 #include <utility>
 #include <cstdint>
@@ -120,9 +122,18 @@ PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
 //     ((eval(e) = 1) -> (clockEdge(e) = 1))
 bool SyncCondPredicate::operator()(const Expression *exp){
     ClockEdgeRecognizer clockEdges;
+    bool isBoolType = true;
 
-    bool isBoolType = exp->probe_type(currentEntity, currentScope)->type_match(
-        &currentEntity->context_->global_types->primitive_STDLOGIC);
+    if (currentEntity && currentScope){
+        isBoolType = exp->probe_type(currentEntity, currentScope)->type_match(
+            &currentEntity->context_->global_types->primitive_STDLOGIC);
+    } else {
+#ifdef DEBUG
+        isBoolType = true;
+#else
+        isBoolType = false;
+#endif
+    }
 
     GenericTraverser traverser(
         makeTypePredicate<Expression>(),

@@ -58,6 +58,46 @@ TEST_GROUP(FirstTestGroup)
 TEST_GROUP(Propcalc){};
 TEST_GROUP(SyncPredicate){};
 
+TEST(SyncPredicate, SecondTest){
+    // semantically correct clock edge
+    Expression *clockEdge = new ExpLogical(
+        ExpLogical::fun_t::AND,
+        new ExpRelation(
+            ExpRelation::fun_t::EQ,
+            new ExpCharacter('1'),
+            new ExpName(perm_string::literal("fnordclock"))),
+        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
+
+    // not ((1 = 0 and 0 = 1) or ((foo = '0') and (clk = '1' and clk'event)))
+    Expression *condition =
+        new ExpLogical(
+            ExpLogical::fun_t::OR,
+
+            new ExpLogical(
+                ExpLogical::fun_t::AND,
+                new ExpRelation(
+                    ExpRelation::fun_t::GT,
+                    new ExpInteger(1),
+                    new ExpInteger(0)),
+                new ExpRelation(
+                    ExpRelation::fun_t::GT,
+                    new ExpInteger(0),
+                    new ExpInteger(1))),
+
+            new ExpLogical(
+                ExpLogical::fun_t::AND,
+                new ExpRelation(
+                    ExpRelation::fun_t::GT,
+                    new ExpName(perm_string::literal("foo")),
+                    new ExpCharacter('0')),
+                clockEdge));
+
+    SyncCondPredicate syncPred(NULL, NULL);
+    bool result = syncPred(condition);
+
+    CHECK(result == false);
+};
+
 // convert an Expression into a propositional calculus formula
 TEST(SyncPredicate, FirstTest){
     // correct
@@ -82,16 +122,15 @@ TEST(SyncPredicate, FirstTest){
     ClockEdgeRecognizer cer;
     cer(e3);
 
-    SyncCondPredicate s;
+    SyncCondPredicate s(NULL, NULL);
     PropcalcFormula *r = s.fromExpression(
         dynamic_cast<const Expression *>(
             cer.fullClockSpecs[cer.numberClockEdges - 1]), e3);
     CHECK(PropcalcApi::fromPropcalc(r) == "CLK");
 
-    SyncCondPredicate e3_left_s;
+    SyncCondPredicate e3_left_s(NULL, NULL);
     PropcalcFormula *r1 = e3_left_s.fromExpression(e3, e3_left);
     CHECK(PropcalcApi::fromPropcalc(r1) == "(CLK | V0)");
-
 
     // not ((1 = 0 and 0 = 1) or ((foo = '0') and rising_edge(clk)))
     Expression *e3_right=
@@ -117,13 +156,13 @@ TEST(SyncPredicate, FirstTest){
                     new ExpCharacter('0')),
                 e3));
 
-    SyncCondPredicate complex;
+    SyncCondPredicate complex(NULL, NULL);
     PropcalcFormula *r2 = complex.fromExpression(e3, e3_right);
 
     stringstream s2;
     s2 << r2;
     CHECK(s2.str() == "((V1 & V2) | (V3 & CLK))");
-}
+};
 
 TEST(Propcalc, FirstTest){
     PropcalcFormula *n = new PropcalcTerm(
