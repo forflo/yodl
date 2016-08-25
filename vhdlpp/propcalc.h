@@ -34,6 +34,12 @@ struct PropcalcNot : PropcalcFormula {
     PropcalcNot(PropcalcFormula *f) : r_(f) {}
 };
 
+/* This overload produces a textual representation of the
+   propositional formula passet to by reference. Note, that
+   the resulting representation is mostly compatible with
+   SAGE's propcalc.formula("here formula") parser.
+   For more details regarding SAGE, please visit:
+   http://doc.sagemath.org/html/en/reference/logic/sage/logic/propcalc.html */
 std::ostream &operator<<(std::ostream &, PropcalcFormula *);
 
 class PropcalcApi {
