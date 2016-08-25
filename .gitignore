@@ -9,6 +9,7 @@ parse.h
 parse.output
 vhdlpp/vhdl_testfiles/*.cf
 vhdlpp/ast_dumper
+vhdlpp/unit_tests
 
 config.log
 config.h
