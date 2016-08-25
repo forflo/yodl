@@ -22,7 +22,7 @@ struct PropcalcConstant : PropcalcFormula {
 };
 
 struct PropcalcTerm : PropcalcFormula {
-    enum operator_t { AND, OR, NOR, XOR, NAND, IFTHEN };
+    enum operator_t { AND, OR, NOR, XOR, NAND, XNOR, IFTHEN };
     PropcalcFormula *l_, *r_;
     operator_t op_;
     PropcalcTerm(PropcalcFormula *a, operator_t o, PropcalcFormula *b)

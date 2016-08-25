@@ -64,6 +64,9 @@ bool PropcalcApi::evaluate(PropcalcFormula *form,
             case PropcalcTerm::operator_t::NOR:
                 return !(evaluate(l, bindings) || evaluate(r, bindings));
                 break;
+            case PropcalcTerm::operator_t::XNOR:
+                return evaluate(l, bindings) == evaluate(r, bindings);
+                break;
             case PropcalcTerm::operator_t::NAND:
                 return !(evaluate(l, bindings) && evaluate(r, bindings));
                 break;
@@ -134,6 +137,9 @@ std::ostream &operator<<(std::ostream &out, PropcalcFormula *form){
                   break;
               case PropcalcTerm::operator_t::NAND:
                   out << "(" << l  << " nand " << r << ")";
+                  break;
+              case PropcalcTerm::operator_t::XNOR:
+                  out << "(" << l  << " <-> " << r << ")";
                   break;
               case PropcalcTerm::operator_t::XOR:
                   out << "(" << l  << " ^ " << r << ")";
