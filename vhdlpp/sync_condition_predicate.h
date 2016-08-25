@@ -6,7 +6,7 @@
 
 class SyncCondPredicate {
 public:
-    SyncCondPredicate();
+    SyncCondPredicate() = default;
 
     bool operator()(const Expression *e);
 

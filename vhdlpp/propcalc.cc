@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <expression.h>
 #include <vector>
+#include <sstream>
 #include <iostream>
 
 #include <propcalc.h>
@@ -84,6 +85,12 @@ bool PropcalcApi::evaluate(PropcalcFormula *form,
         },
         some(), [](PropcalcFormula &){ return false; },
         none(), [](){ return false; });
+}
+
+string PropcalcApi::fromPropcalc(PropcalcFormula *f){
+    stringstream s;
+    s << f;
+    return s.str();
 }
 
 void PropcalcApi::extractNames(PropcalcFormula *form,

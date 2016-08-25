@@ -14,7 +14,9 @@ struct PropcalcFormula {
 
 struct PropcalcVar : PropcalcFormula {
     std::string name_;
-    PropcalcVar(const char *n) : name_(n) {}
+
+    explicit PropcalcVar(const char *n) : name_(n) {}
+    explicit PropcalcVar(const std::string &n) : name_(n) {}
 };
 
 struct PropcalcConstant : PropcalcFormula {
@@ -50,10 +52,11 @@ public:
     static void extractNames(PropcalcFormula *, std::set<std::string> &);
     static bool prove(PropcalcFormula *form);
     static PropcalcTerm::operator_t fromExpLogical(ExpLogical::fun_t);
+    static string fromPropcalc(PropcalcFormula *);
 private:
     static bool proveH(PropcalcFormula *form,
-                        std::vector<std::string> todo,
-                        std::map<std::string, bool> m);
+                       std::vector<std::string> todo,
+                       std::map<std::string, bool> m);
 };
 
 #endif /* IVL_PROPCALC */

@@ -60,6 +60,7 @@ TEST_GROUP(SyncPredicate){};
 
 // convert an Expression into a propositional calculus formula
 TEST(SyncPredicate, FirstTest){
+    // correct
     Expression *e3 = new ExpLogical(
         ExpLogical::fun_t::AND,
         new ExpRelation(
@@ -69,6 +70,15 @@ TEST(SyncPredicate, FirstTest){
             ),
         new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
 
+
+    Expression *e3_left= new ExpLogical(
+        ExpLogical::fun_t::OR,
+        e3,
+        new ExpRelation(
+            ExpRelation::fun_t::GT,
+            new ExpName(perm_string::literal("fnordclock")),
+            new ExpCharacter('0')));
+
     ClockEdgeRecognizer cer;
     cer(e3);
 
@@ -76,8 +86,43 @@ TEST(SyncPredicate, FirstTest){
     PropcalcFormula *r = s.fromExpression(
         dynamic_cast<const Expression *>(
             cer.fullClockSpecs[cer.numberClockEdges - 1]), e3);
+    CHECK(PropcalcApi::fromPropcalc(r) == "CLK");
 
-    std::cout << r;
+    SyncCondPredicate e3_left_s;
+    PropcalcFormula *r1 = e3_left_s.fromExpression(e3, e3_left);
+    CHECK(PropcalcApi::fromPropcalc(r1) == "(CLK | V0)");
+
+
+    // not ((1 = 0 and 0 = 1) or ((foo = '0') and rising_edge(clk)))
+    Expression *e3_right=
+        new ExpLogical(
+            ExpLogical::fun_t::OR,
+
+            new ExpLogical(
+                ExpLogical::fun_t::AND,
+                new ExpRelation(
+                    ExpRelation::fun_t::GT,
+                    new ExpInteger(1),
+                    new ExpInteger(0)),
+                new ExpRelation(
+                    ExpRelation::fun_t::GT,
+                    new ExpInteger(0),
+                    new ExpInteger(1))),
+
+            new ExpLogical(
+                ExpLogical::fun_t::AND,
+                new ExpRelation(
+                    ExpRelation::fun_t::GT,
+                    new ExpName(perm_string::literal("foo")),
+                    new ExpCharacter('0')),
+                e3));
+
+    SyncCondPredicate complex;
+    PropcalcFormula *r2 = complex.fromExpression(e3, e3_right);
+
+    stringstream s2;
+    s2 << r2;
+    CHECK(s2.str() == "((V1 & V2) | (V3 & CLK))");
 }
 
 TEST(Propcalc, FirstTest){

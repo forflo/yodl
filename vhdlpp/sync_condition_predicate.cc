@@ -68,6 +68,11 @@ PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
     using namespace simple_match;
     using namespace simple_match::placeholders;
 
+    static int counter = 0;
+
+    if (clockEdge == exp)
+        return new PropcalcVar("CLK");
+
     return match(
         exp,
 
@@ -76,19 +81,11 @@ PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
                const Expression *r,
                ExpLogical::fun_t op){
 
-            PropcalcFormula *potL = NULL, *potR = NULL;
-
-            if (l == clockEdge) {
-                potL = new PropcalcVar("CLK");
-            } else if (r == clockEdge) {
-                potR = new PropcalcVar("CLK");
-            }
-
             return static_cast<PropcalcFormula*>(
                 new PropcalcTerm(
-                    (potL ? potL : fromExpression(clockEdge, l)),
+                    fromExpression(clockEdge, l),
                     PropcalcApi::fromExpLogical(op),
-                    (potR ? potR : fromExpression(clockEdge, r))));
+                    fromExpression(clockEdge, r)));
         },
 
         some<ExpUNot>(ds(_x)),
@@ -98,9 +95,11 @@ PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
         },
 
         some(), [](const Expression &){
-            std::cout << "Unknown! Returning false!";
+            stringstream tmp;
+            tmp << "V" << counter++;
+
             return static_cast<PropcalcFormula*>(
-                new PropcalcConstant(false));
+                new PropcalcVar(tmp.str()));
         },
         none(), [](){
             std::cout << "Error NULL!\n";
