@@ -69,48 +69,16 @@ public:
 
     PropcalcFormula *result = NULL;
 
-    int operator()(const AstNode *n, const std::vector<const AstNode *> &parents) {
+    int operator()(const AstNode *n) {
         using namespace simple_match;
         using namespace simple_match::placeholders;
-        if (parents.size() == 1){
-            match(parents[0],
-                  some<ExpLogical>(ds(_x, _x, _x)),
-                  [this, n](const Expression *l, const Expression *r, ExpLogical::fun_t op) {
-                      bool amILeft;
-                      if (l == n){ amILeft = true; }
-                      else { amILeft = false; }
-
-                      if (amILeft) {
-                          result =
-                              new PropcalcTerm(
-                                  new PropcalcVar("CLK"),
-                                  PropcalcApi::fromExpLogical(op),
-                                  new PropcalcVar("B"));
-                      } else {
-                          result=
-                              new PropcalcTerm(
-                                  new PropcalcVar("B"),
-                                  PropcalcApi::fromExpLogical(op),
-                                  new PropcalcVar("CLK"));
-                      }
-                  },
-
-                  /* Default fallback patterns */
-                  some(), [](const AstNode &){
-                      std::cout << "Error! Clock must have an "
-                          "ExpLogical as direct parent";
-                  },
-                  none(), [](){ std::cout << "Nullptr in sync_cond_helper_t\n";}
-                );
-
-        } else if (parents.size() > 1){
-
-        } else {
-            std::cout << "Critical error in xync_cond_helper_t\n";
-        }
 
         return 0;
     }
+
+private:
+
+    PropcalcFormula
 };
 
 
