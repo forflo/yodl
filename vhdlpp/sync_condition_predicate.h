@@ -9,7 +9,8 @@
 class SyncCondPredicate {
 public:
     SyncCondPredicate(Entity *e, ScopeBase *s)
-        : currentEntity(e)
+        : counter(0)
+        , currentEntity(e)
         , currentScope(s) { }
 
     bool operator()(const Expression *e);
@@ -19,6 +20,8 @@ public:
                                     const Expression *);
 
 private:
+    int counter;
+
     Entity *currentEntity;
     ScopeBase *currentScope;
 };

@@ -9,11 +9,12 @@
 
 struct PropcalcFormula {
     virtual ~PropcalcFormula() = default;
-
 };
 
 struct PropcalcVar : PropcalcFormula {
     std::string name_;
+
+    ~PropcalcVar() = default;
 
     explicit PropcalcVar(const char *n) : name_(n) {}
     explicit PropcalcVar(const std::string &n) : name_(n) {}
@@ -21,6 +22,7 @@ struct PropcalcVar : PropcalcFormula {
 
 struct PropcalcConstant : PropcalcFormula {
     bool value_;
+    ~PropcalcConstant() = default;
     PropcalcConstant(const bool v) : value_(v) {}
 };
 
@@ -28,12 +30,14 @@ struct PropcalcTerm : PropcalcFormula {
     enum operator_t { AND, OR, NOR, XOR, NAND, XNOR, IFTHEN };
     PropcalcFormula *l_, *r_;
     operator_t op_;
+    ~PropcalcTerm() { delete l_; delete r_; }
     PropcalcTerm(PropcalcFormula *a, operator_t o, PropcalcFormula *b)
         : l_(a), r_(b), op_(o) {}
 };
 
 struct PropcalcNot : PropcalcFormula {
     PropcalcFormula *r_;
+    ~PropcalcNot() { delete r_; }
     PropcalcNot(PropcalcFormula *f) : r_(f) {}
 };
 

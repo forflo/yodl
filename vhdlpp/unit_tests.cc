@@ -50,10 +50,7 @@ bool verbose_flag = false;
 bool debug_elaboration = false;
 ofstream debug_log_file;
 
-TEST_GROUP(FirstTestGroup)
-{
-
-};
+TEST_GROUP(FirstTestGroup) {};
 
 TEST_GROUP(Propcalc){};
 TEST_GROUP(SyncPredicate){};
@@ -96,6 +93,8 @@ TEST(SyncPredicate, SecondTest){
     bool result = syncPred(condition);
 
     CHECK(result == false);
+
+    delete condition;
 };
 
 // convert an Expression into a propositional calculus formula
@@ -132,8 +131,20 @@ TEST(SyncPredicate, FirstTest){
     PropcalcFormula *r1 = e3_left_s.fromExpression(e3, e3_left);
     CHECK(PropcalcApi::fromPropcalc(r1) == "(CLK | V0)");
 
+    delete r;
+    delete r1;
+
+    Expression *clockE = new ExpLogical(
+        ExpLogical::fun_t::AND,
+        new ExpRelation(
+            ExpRelation::fun_t::EQ,
+            new ExpCharacter('1'),
+            new ExpName(perm_string::literal("fnordclock"))
+            ),
+        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
+
     // not ((1 = 0 and 0 = 1) or ((foo = '0') and rising_edge(clk)))
-    Expression *e3_right=
+    Expression *e3_right =
         new ExpLogical(
             ExpLogical::fun_t::OR,
 
@@ -154,14 +165,19 @@ TEST(SyncPredicate, FirstTest){
                     ExpRelation::fun_t::GT,
                     new ExpName(perm_string::literal("foo")),
                     new ExpCharacter('0')),
-                e3));
+                clockE));
 
     SyncCondPredicate complex(NULL, NULL);
-    PropcalcFormula *r2 = complex.fromExpression(e3, e3_right);
+    PropcalcFormula *r2 = complex.fromExpression(clockE, e3_right);
 
     stringstream s2;
     s2 << r2;
-    CHECK(s2.str() == "((V1 & V2) | (V3 & CLK))");
+    CHECK(s2.str() == "((V0 & V1) | (V2 & CLK))");
+
+    delete r2;
+
+    delete e3_right;
+    delete e3_left;
 };
 
 TEST(Propcalc, FirstTest){
@@ -230,6 +246,7 @@ TEST(Propcalc, FirstTest){
     delete n;
     delete n2;
     delete n3;
+    delete real;
 };
 
 TEST(FirstTestGroup, FirstTest){
@@ -352,10 +369,18 @@ TEST(FirstTestGroup, FirstTest){
 
     CHECK(clockEdges.containsClockEdge == true);
     CHECK(clockEdges.numberClockEdges == 2);
+
+    delete e2;
+    delete e4;
+
+    delete complicated;
+
+    delete clock_edge_f1;
+    delete clock_edge_f2;
 }
 
 int main(int ac, char** av)
 {
-    MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
+//    MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
     return CommandLineTestRunner::RunAllTests(ac, av);
 }

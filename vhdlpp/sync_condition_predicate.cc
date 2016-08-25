@@ -72,8 +72,6 @@ PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
     using namespace simple_match;
     using namespace simple_match::placeholders;
 
-    static int counter = 0;
-
     if (clockEdge == exp)
         return new PropcalcVar("CLK");
 
@@ -98,7 +96,7 @@ PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
                 new PropcalcNot(fromExpression(clockEdge, r)));
         },
 
-        some(), [](const Expression &){
+        some(), [this](const Expression &){
             stringstream tmp;
             tmp << "V" << counter++;
 
@@ -142,6 +140,8 @@ bool SyncCondPredicate::operator()(const Expression *exp){
                 return clockEdges(n); }),
         GenericTraverser::RECUR);
 
+    traverser(exp);
+
     if (clockEdges.fullClockSpecs.size() != 1)
         return false; // NOTE: more than one clock spec currently not supported
 
@@ -166,6 +166,8 @@ bool SyncCondPredicate::operator()(const Expression *exp){
 
     bool successfullyProven = PropcalcApi::prove(formula);
     std::cout << (successfullyProven ? "true" : "false") << "\n";
+
+    delete formula;
 
     return successfullyProven && isBoolType;
 }
