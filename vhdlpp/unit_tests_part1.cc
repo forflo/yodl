@@ -42,6 +42,8 @@
 #include "clock_edge_recognizer.h"
 #include "csa_lifter.h"
 
+#include <CppUTest/TestHarness.h>
+
 // Where to dump design entities
 const char *work_path = "ivl_vhdl_work";
 const char *dump_design_entities_path = 0;
@@ -52,8 +54,9 @@ bool verbose_flag = false;
 bool debug_elaboration = false;
 ofstream debug_log_file;
 
-/*
-TEST_CASE("Type predicate meta functions test", "[type predicates]"){
+TEST_GROUP(DefaultGroup){};
+
+TEST(DefaultGroup, TypePredicateMetaFunctionsTest){
     ExpInteger *int1 = new ExpInteger(100);
     ExpString *str = new ExpString("fnord");
     ExpReal *real = new ExpReal(0.0123);
@@ -70,7 +73,7 @@ TEST_CASE("Type predicate meta functions test", "[type predicates]"){
     delete real;
 }
 
-TEST_CASE("Type predicate combinators test", "[type predicates]"){
+TEST(DefaultGroup,Typepredicatecombinatorstest){
     ExpInteger *int1 = new ExpInteger(100);
     ExpString *str = new ExpString("fnord");
     ExpReal *real = new ExpReal(0.0123);
@@ -106,7 +109,7 @@ TEST_CASE("Type predicate combinators test", "[type predicates]"){
 
 // this test case demponstrates the use of cliffords
 // RTLIL API. The cells get wired up to form a full adder.
-TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
+TEST(DefaultGroup,YosysRTLILconstruction){
     using namespace Yosys::RTLIL;
     using namespace Yosys::ILANG_BACKEND;
 
@@ -193,7 +196,7 @@ TEST_CASE("Yosys RTLIL construction", "[rtlil usage]"){
 }
 
 
-TEST_CASE("Simple block", "[ast]"){
+TEST(DefaultGroup,Simpleblock){
     int rc;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -208,7 +211,7 @@ TEST_CASE("Simple block", "[ast]"){
     REQUIRE(context->parse_sorrys == 0);
 }
 
-TEST_CASE("Simple for loop", "[ast]"){
+TEST(DefaultGroup,Simpleforloop){
     int rc;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -231,7 +234,7 @@ TEST_CASE("Simple for loop", "[ast]"){
     //emit_dotgraph(std::cout, "foo", entity1->emit_strinfo_tree());
 }
 
-TEST_CASE("Multiple parses", "[ast]"){
+TEST(DefaultGroup,Multipleparses){
     int rc1, rc2;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -255,7 +258,7 @@ TEST_CASE("Multiple parses", "[ast]"){
     REQUIRE(context1->parse_sorrys == 0);
 }
 
-TEST_CASE("Simple clone test", "[clone]"){
+TEST(DefaultGroup,Simpleclonetest){
     int rc;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -279,7 +282,7 @@ TEST_CASE("Simple clone test", "[clone]"){
     REQUIRE(cloned_entity != NULL);
 }
 
-TEST_CASE("Simple clone test with dot generation", "[clone]"){
+TEST(DefaultGroup,Simpleclonetestwithdotgeneration){
     int rc;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -316,7 +319,7 @@ TEST_CASE("Simple clone test with dot generation", "[clone]"){
     REQUIRE(a.str() == b.str());
 }
 
-TEST_CASE("Test equality of simple tree", "[simple tree]"){
+TEST(DefaultGroup,Testequalityofsimpletree){
     auto tree1 = new SimpleTree<map<string, string>>(
         map<string, string>({
                 {"foo", "bar"},
@@ -335,7 +338,7 @@ TEST_CASE("Test equality of simple tree", "[simple tree]"){
     REQUIRE((*tree1 == *tree2) == false);
 }
 
-TEST_CASE("Test simple generic traversal", "[generic traverser]"){
+TEST(DefaultGroup,Testsimplegenerictraversal){
     using namespace mch;
 
     int rc;
@@ -378,7 +381,7 @@ TEST_CASE("Test simple generic traversal", "[generic traverser]"){
     REQUIRE(state.environment == 2);
 }
 
-TEST_CASE("GenericTraverser class constructor test", "[generic traverser]"){
+TEST(DefaultGroup,GenericTraverserclassconstructortest){
     using namespace mch;
 
     GenericTraverser traverserConst(
@@ -453,7 +456,7 @@ TEST_CASE("GenericTraverser class constructor test", "[generic traverser]"){
 
 template<typename T> void f(T);
 
-TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
+TEST(DefaultGroup,TestsimplegenerictraversalonclonedAST){
     using namespace mch;
 
     int rc;
@@ -509,7 +512,7 @@ TEST_CASE("Test simple generic traversal on cloned AST", "[generic traverser]"){
     traverser.emitErrorMessages(cout, "\n");
 }
 
-TEST_CASE("Test path finder", "[path finder]"){
+TEST(DefaultGroup,Testpathfinder){
     vector<vector<AstNode *>> res1, res2;
 
     ExpInteger *int1 = new ExpInteger(100);
@@ -621,7 +624,7 @@ TEST_CASE("Test path finder", "[path finder]"){
     REQUIRE(pathFinderU.getPaths()[1][2] == int2);
 }
 
-TEST_CASE("NONRECUR test", "[generic traversre]"){
+TEST(DefaultGroup,NONRECURtest){
     ExpInteger *int1 = new ExpInteger(100);
     ExpInteger *int2 = new ExpInteger(101);
     ExpInteger *int3 = new ExpInteger(102);
@@ -651,7 +654,7 @@ TEST_CASE("NONRECUR test", "[generic traversre]"){
     REQUIRE(stateLambda.environment == 0);
 }
 
-TEST_CASE("RECUR test", "[generic traversre]"){
+TEST(DefaultGroup,RECURtest){
     ExpInteger *int1 = new ExpInteger(100);
     ExpInteger *int2 = new ExpInteger(101);
     ExpInteger *int3 = new ExpInteger(102);
@@ -681,7 +684,7 @@ TEST_CASE("RECUR test", "[generic traversre]"){
     REQUIRE(stateLambda.environment == 0);
 }
 
-TEST_CASE("Test nary traverser", "[generic traverser]"){
+TEST(DefaultGroup,Testnarytraverser){
     ExpInteger *int1 = new ExpInteger(100);
     ExpInteger *int2 = new ExpInteger(101);
     ExpInteger *int3 = new ExpInteger(102);
@@ -754,7 +757,7 @@ TEST_CASE("Test nary traverser", "[generic traverser]"){
     traverserNaryMutating(arith);
 }
 
-TEST_CASE("Higher order traverser", "[generic traverser]"){
+TEST(DefaultGroup,Higherordertraverser){
     int rc;
     StandardTypes *std_types = (new StandardTypes())->init();
     StandardFunctions *std_funcs = (new StandardFunctions())->init();
@@ -797,7 +800,7 @@ TEST_CASE("Higher order traverser", "[generic traverser]"){
         GenericTraverser::NONRECUR);
 }
 
-TEST_CASE("Parser test operator symbol", "[parser]"){
+TEST(DefaultGroup,Parsertestoperatorsymbol){
     int rc1;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -828,7 +831,7 @@ TEST_CASE("Parser test operator symbol", "[parser]"){
 
 }
 
-TEST_CASE("Signal extraction simple test", "[signal extraction]"){
+TEST(DefaultGroup,Signalextractionsimpletest){
     int rc1;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -874,7 +877,7 @@ TEST_CASE("Signal extraction simple test", "[signal extraction]"){
             perm_string::literal("foo"));
 }
 
-TEST_CASE("ElsifEliminator test", "[elsif eliminator]"){
+TEST(DefaultGroup,ElsifEliminatortest){
     int rc1;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -917,7 +920,7 @@ TEST_CASE("ElsifEliminator test", "[elsif eliminator]"){
     REQUIRE(cnt.environment == 8);
 }
 
-TEST_CASE("Simple csa lifter test", "[csa lifter]"){
+TEST(DefaultGroup,Simplecsaliftertest){
     int rc1;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -961,7 +964,7 @@ TEST_CASE("Simple csa lifter test", "[csa lifter]"){
     REQUIRE(cnt.environment == 6);
 }
 
-TEST_CASE("Nested blocks csa lifter test", "[csa lifter]"){
+TEST(DefaultGroup,Nestedblockscsaliftertest){
     int rc1;
 
     StandardTypes *std_types = (new StandardTypes())->init();
@@ -1016,106 +1019,4 @@ TEST_CASE("Nested blocks csa lifter test", "[csa lifter]"){
     REQUIRE(cnt.environment == 2);
 
     return ;
-}
-*/
-
-TEST_CASE("Clock edge detection test", "[clock edge]"){
-    Expression *clock_edge_f1 = new ExpFunc(
-        perm_string::literal("rising_edge"),
-        { new ExpName(perm_string::literal("fooclk")) });
-
-    Expression *clock_edge_f2 = new ExpFunc(
-        perm_string::literal("falling_edge"),
-        { new ExpName(perm_string::literal("foobarclk")) });
-
-    // correct
-    Expression *e1 = new ExpLogical(
-        ExpLogical::fun_t::AND,
-        new ExpRelation(
-            ExpRelation::fun_t::EQ,
-            new ExpName(perm_string::literal("fnordclock")),
-            new ExpCharacter('0')),
-        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
-
-    // incorrect
-    Expression *e2 = new ExpLogical(
-        ExpLogical::fun_t::AND,
-        new ExpRelation(
-            ExpRelation::fun_t::LE,
-            new ExpName(perm_string::literal("fnordclock")),
-            new ExpCharacter('0')
-            ),
-        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
-
-    // correct
-    Expression *e3 = new ExpLogical(
-        ExpLogical::fun_t::AND,
-        new ExpRelation(
-            ExpRelation::fun_t::EQ,
-            new ExpCharacter('1'),
-            new ExpName(perm_string::literal("fnordclock"))
-            ),
-        new ExpObjAttribute(NULL, perm_string::literal("event"), NULL));
-
-    // incorrect
-    Expression *e4 = new ExpLogical(
-        ExpLogical::fun_t::AND,
-        new ExpRelation(
-            ExpRelation::fun_t::EQ,
-            new ExpCharacter('0'),
-            new ExpName(perm_string::literal("fnordclock"))
-            ),
-        new ExpObjAttribute(NULL, perm_string::literal("fneeevent"), NULL));
-
-    Expression *complicated = new ExpArithmetic(
-        ExpArithmetic::fun_t::PLUS,
-        e4, e2);
-
-    ClockEdgeRecognizer clockEdges;
-
-    clockEdges.reset();
-
-    clockEdges(clock_edge_f1);
-    REQUIRE(clockEdges.containsClockEdge == true);
-    REQUIRE(clockEdges.numberClockEdges == 1);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::RISING);
-
-    clockEdges.reset();
-
-    clockEdges(clock_edge_f2);
-    REQUIRE(clockEdges.containsClockEdge == true);
-    REQUIRE(clockEdges.numberClockEdges == 1);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::FALLING);
-
-    clockEdges(e1);
-    REQUIRE(clockEdges.containsClockEdge == true);
-    REQUIRE(clockEdges.numberClockEdges == 1);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::FALLING);
-
-    clockEdges.reset();
-
-    clockEdges(e2);
-    REQUIRE(clockEdges.containsClockEdge == false);
-    REQUIRE(clockEdges.numberClockEdges == 0);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::UNDEF);
-
-    clockEdges.reset();
-
-    clockEdges(e3);
-    REQUIRE(clockEdges.containsClockEdge == true);
-    REQUIRE(clockEdges.numberClockEdges == 1);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::RISING);
-
-    clockEdges.reset();
-
-    clockEdges(e4);
-    REQUIRE(clockEdges.containsClockEdge == false);
-    REQUIRE(clockEdges.numberClockEdges == 0);
-    REQUIRE(clockEdges.direction == NetlistGenerator::edge_spec::UNDEF);
-
-    clockEdges.reset();
-
-    clockEdges(complicated);
-    REQUIRE(clockEdges.containsClockEdge == true);
-    REQUIRE(clockEdges.numberClockEdges == 2);
 }

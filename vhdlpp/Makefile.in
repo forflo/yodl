@@ -56,6 +56,9 @@ UNITTESTLIBS = -lCppUTest -lCppUTestExt
 
 M = StringHeap.o LineInfo.o
 
+UNIT = unit_tests_main.o \
+	   unit_tests_part1.o \
+
 O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     expression.o package.o scope.o sequential.o subprogram.o vsignal.o vtype.o \
     expression_gendot.o architec_gendot.o sequential_gendot.o entity_gendot.o \
@@ -92,6 +95,8 @@ O = architec.o compiler.o entity.o std_funcs.o std_types.o \
     sequential_emit.o subprogram_emit.o vtype_emit.o \
     debug.o architec_debug.o expression_debug.o sequential_debug.o \
     $M
+
+
 
 all: dep vhdlpp
 
