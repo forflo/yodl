@@ -63,23 +63,51 @@ namespace simple_match {
     }
 }
 
-class sync_cond_helper_t {
-public:
-    sync_cond_helper_t() = default;
+PropcalcFormula *SyncCondPredicate::fromExpression(const Expression *clockEdge,
+                                                   const Expression *exp){
+    using namespace simple_match;
+    using namespace simple_match::placeholders;
 
-    PropcalcFormula *result = NULL;
+    return match(
+        exp,
 
-    int operator()(const AstNode *n) {
-        using namespace simple_match;
-        using namespace simple_match::placeholders;
+        some<ExpLogical>(ds(_x, _x, _x)),
+        [this, clockEdge](const Expression *l,
+               const Expression *r,
+               ExpLogical::fun_t op){
 
-        return 0;
-    }
+            PropcalcFormula *potL = NULL, *potR = NULL;
 
-private:
+            if (l == clockEdge) {
+                potL = new PropcalcVar("CLK");
+            } else if (r == clockEdge) {
+                potR = new PropcalcVar("CLK");
+            }
 
-    PropcalcFormula
-};
+            return static_cast<PropcalcFormula*>(
+                new PropcalcTerm(
+                    (potL ? potL : fromExpression(clockEdge, l)),
+                    PropcalcApi::fromExpLogical(op),
+                    (potR ? potR : fromExpression(clockEdge, r))));
+        },
+
+        some<ExpUNot>(ds(_x)),
+        [this, clockEdge](const Expression *r){
+            return static_cast<PropcalcFormula*>(
+                new PropcalcNot(fromExpression(clockEdge, r)));
+        },
+
+        some(), [](const Expression &){
+            std::cout << "Unknown! Returning false!";
+            return static_cast<PropcalcFormula*>(
+                new PropcalcConstant(false));
+        },
+        none(), [](){
+            std::cout << "Error NULL!\n";
+            return static_cast<PropcalcFormula*>(
+                new PropcalcConstant(false));
+        });
+}
 
 
 /* WARNING: Only meant to work on Expressions of type BOOL! */
