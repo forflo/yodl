@@ -2,6 +2,8 @@
 #define IVL_CLOCK_EDGE
 
 #include <netlist_generator.h>
+#include <vector>
+#include <expression.h>
 
 class ClockEdgeRecognizer {
 public:
@@ -17,6 +19,9 @@ public:
     bool containsClockEdge;
     int numberClockEdges;
     NetlistGenerator::edge_spec direction;
+
+    //either of type ExpFunc or ExpLogical
+    std::vector<AstNode const *> fullClockSpecs = {};
 
     // if containsClockEdge == true => at least one will be != NULL
     // if containsClockEdge == false => both will be NULL

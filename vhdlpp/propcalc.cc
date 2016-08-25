@@ -117,29 +117,29 @@ std::ostream &operator<<(std::ostream &out, PropcalcFormula *form){
               out << (value ? "true" : "false");
           },
           some<PropcalcNot>(ds(_x)), [&out](PropcalcFormula *r){
-              out << "~" << r;
+              out << "~ " << r;
           },
           some<PropcalcTerm>(ds(_x, _x, _x)),
           [form,&out](PropcalcFormula *l, PropcalcFormula *r,
                       PropcalcTerm::operator_t op){
               switch(op){
               case PropcalcTerm::operator_t::AND:
-                  out << "(" << l  << " & " << r << "))";
+                  out << "(" << l  << " & " << r << ")";
                   break;
               case PropcalcTerm::operator_t::OR:
-                  out << "(" << l  << " | " << r << "))";
+                  out << "(" << l  << " | " << r << ")";
                   break;
               case PropcalcTerm::operator_t::NOR:
-                  out << "(" << l  << " nor " << r << "))";
+                  out << "(" << l  << " nor " << r << ")";
                   break;
               case PropcalcTerm::operator_t::NAND:
-                  out << "(" << l  << " nand " << r << "))";
+                  out << "(" << l  << " nand " << r << ")";
                   break;
               case PropcalcTerm::operator_t::XOR:
-                  out << "(" << l  << " ^ " << r << "))";
+                  out << "(" << l  << " ^ " << r << ")";
                   break;
               case PropcalcTerm::operator_t::IFTHEN:
-                  out << "(" << l  << " -> " << r << "))";
+                  out << "(" << l  << " -> " << r << ")";
                   break;
               default:
                   std::cout << "ERROR! Impossible condition\n";

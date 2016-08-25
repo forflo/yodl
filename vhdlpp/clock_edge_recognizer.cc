@@ -67,6 +67,8 @@ void ClockEdgeRecognizer::reset(void){
     numberClockEdges = 0;
     direction = NetlistGenerator::edge_spec::UNDEF;
 
+    fullClockSpecs = {};
+
     clockNameExp = NULL;
     clockFuncExp = NULL;
 }
@@ -78,15 +80,16 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
     auto checkHelper = [this](perm_string attrName,
                               char charVal,
                               const ExpName *tmp,
-                              const char *checkAttrName)
-        -> void {
+                              const AstNode *edge,
+                              const char *checkAttrName) -> void {
         if (tmp == NULL)
-            std::cout << "ClockEdgeRecognizer checkHelper. Impossible!"
+            std::cout << "ClockEdgeRecognizer checkHelper. NULL!"
                       << std::endl;
 
         if ((charVal == '0' || charVal == '1') &&
             (!strcmp(attrName, checkAttrName))){
 
+            fullClockSpecs.push_back(edge);
             clockNameExp = tmp;
             containsClockEdge = true;
             numberClockEdges++;
@@ -109,13 +112,14 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
        very beautiful */
     match(n,
           some<ExpFunc>(ds(_x, _x)),
-          [this,checkHelper,n](perm_string funcName, std::vector<Expression*> v){
+          [this,n](perm_string funcName, std::vector<Expression*> v){
             clockFuncExp = dynamic_cast<const ExpFunc*>(n);
 
             if (v.size() == 1 &&
                 (!strcmp(funcName, "falling_edge") ||
                  !strcmp(funcName, "rising_edge" ))) {
                 containsClockEdge = true;
+                fullClockSpecs.push_back(n);
                 numberClockEdges++;
             }
 
@@ -154,7 +158,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand1_)
                               ->operand1_),
-                          "event");
+                          dynamic_cast<const Expression *>(n), "event");
           },
 
           some<ExpLogical>(
@@ -171,7 +175,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand1_)
                               ->operand2_),
-                          "event");
+                          dynamic_cast<const Expression *>(n), "event");
           },
 
           some<ExpLogical>(
@@ -189,7 +193,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand1_)
                               ->operand1_),
-                          "stable");
+                          dynamic_cast<const Expression *>(n), "stable");
           },
 
           some<ExpLogical>(
@@ -207,7 +211,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand1_)
                               ->operand2_),
-                          "stable");
+                          dynamic_cast<const Expression *>(n), "stable");
           },
 
           some<ExpLogical>(
@@ -225,7 +229,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand2_)
                               ->operand2_),
-                          "stable");
+                          dynamic_cast<const Expression *>(n), "stable");
           },
 
           some<ExpLogical>(
@@ -243,7 +247,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand2_)
                               ->operand1_),
-                          "stable");
+                          dynamic_cast<const Expression *>(n), "stable");
           },
 
           some<ExpLogical>(
@@ -260,7 +264,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand2_)
                               ->operand1_),
-                          "stable");
+                          dynamic_cast<const Expression *>(n), "stable");
           },
 
           some<ExpLogical>(
@@ -277,7 +281,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
                                   dynamic_cast<const ExpLogical *>(n)
                                   ->operand2_)
                               ->operand2_),
-                          "stable");
+                          dynamic_cast<const Expression *>(n), "stable");
           },
           some(), [](const AstNode &){std::cout << "Don't know?!!\n";},
           none(), [](){std::cout << "Null pointer was given!\n";});

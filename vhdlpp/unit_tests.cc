@@ -97,7 +97,11 @@ TEST(Propcalc, FirstTest){
 
     stringstream s{};
     s << n3;
-    CHECK(s.str() == "(D | (C | (B -> A))))))");
+    CHECK(s.str() == "(D | (C | (B -> A)))");
+
+    delete n;
+    delete n2;
+    delete n3;
 };
 
 TEST(FirstTestGroup, FirstTest){
@@ -160,6 +164,8 @@ TEST(FirstTestGroup, FirstTest){
     CHECK(clockEdges.containsClockEdge == true);
     CHECK(clockEdges.numberClockEdges == 1);
     CHECK(clockEdges.direction == NetlistGenerator::edge_spec::RISING);
+    CHECK(clockEdges.fullClockSpecs.size() == 1 &&
+          clockEdges.fullClockSpecs[0] == clock_edge_f1);
 
     clockEdges.reset();
 
@@ -167,6 +173,8 @@ TEST(FirstTestGroup, FirstTest){
     CHECK(clockEdges.containsClockEdge == true);
     CHECK(clockEdges.numberClockEdges == 1);
     CHECK(clockEdges.direction == NetlistGenerator::edge_spec::FALLING);
+    CHECK(clockEdges.fullClockSpecs.size() == 1 &&
+          clockEdges.fullClockSpecs[0] == clock_edge_f2);
 
     clockEdges.reset();
 
@@ -174,6 +182,8 @@ TEST(FirstTestGroup, FirstTest){
     CHECK(clockEdges.containsClockEdge == true);
     CHECK(clockEdges.numberClockEdges == 1);
     CHECK(clockEdges.direction == NetlistGenerator::edge_spec::FALLING);
+    CHECK(clockEdges.fullClockSpecs.size() == 1 &&
+          clockEdges.fullClockSpecs[0] == e1);
 
     clockEdges.reset();
 
@@ -181,6 +191,7 @@ TEST(FirstTestGroup, FirstTest){
     CHECK(clockEdges.containsClockEdge == false);
     CHECK(clockEdges.numberClockEdges == 0);
     CHECK(clockEdges.direction == NetlistGenerator::edge_spec::UNDEF);
+    CHECK(clockEdges.fullClockSpecs.size() == 0);
 
     clockEdges.reset();
 
@@ -188,6 +199,8 @@ TEST(FirstTestGroup, FirstTest){
     CHECK(clockEdges.containsClockEdge == true);
     CHECK(clockEdges.numberClockEdges == 1);
     CHECK(clockEdges.direction == NetlistGenerator::edge_spec::RISING);
+    CHECK(clockEdges.fullClockSpecs.size() == 1 &&
+          clockEdges.fullClockSpecs[0] == e3);
 
     clockEdges.reset();
 
@@ -195,6 +208,7 @@ TEST(FirstTestGroup, FirstTest){
     CHECK(clockEdges.containsClockEdge == false);
     CHECK(clockEdges.numberClockEdges == 0);
     CHECK(clockEdges.direction == NetlistGenerator::edge_spec::UNDEF);
+    CHECK(clockEdges.fullClockSpecs.size() == 0);
 
     clockEdges.reset();
 
