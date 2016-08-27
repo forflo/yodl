@@ -12,27 +12,10 @@
 #include <mach7_includes.h>
 #include <generic_traverser.h>
 #include <clock_edge_recognizer.h>
+#include <sequential.h>
+#include <sync_condition_predicate.h>
 
 using namespace Yosys::RTLIL;
-
-bool NetlistGenerator::isSyncCondition(const Expression *e){
-    using namespace mch;
-
-    bool isBoolType = e->probe_type(working, currentScope)->type_match(
-        &working->context_->global_types->primitive_STDLOGIC);
-
-    ClockEdgeRecognizer clockEdge;
-    clockEdge(e);
-
-    if (isBoolType &&
-        clockEdge.containsClockEdge){
-
-        return true;
-    }
-
-    // TODO: Implement
-    return false;
-}
 
 int NetlistGenerator::operator()(Entity *entity){
     Yosys::log_streams.push_back(&std::cout);
@@ -108,7 +91,7 @@ int NetlistGenerator::traverseBlockStatement(BlockStatement *block){
     return traverseConcStmts(block->concurrent_stmts_);
 }
 
-int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
+int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
     const VType *ltype = a->lval_->probe_type(
         working, currentScope);
 
@@ -149,13 +132,13 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment *a){
     return 0;
 }
 
-SigSpec NetlistGenerator::executeExpression(Expression *exp){
+SigSpec NetlistGenerator::executeExpression(Expression const *exp){
     using namespace mch;
 
     Match(exp){
         Case(C<ExpCharacter>()){
             SigSpec tmpSig;
-            switch(dynamic_cast<ExpCharacter *>(exp)->value_){
+            switch(dynamic_cast<ExpCharacter const *>(exp)->value_){
             case '0':
                 tmpSig = SigSpec(State::S0);
                 break;
@@ -175,7 +158,7 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
             break;
         }
         Case(C<ExpUNot>()){
-            ExpUNot *t = dynamic_cast<ExpUNot *>(exp);
+            ExpUNot const *t = dynamic_cast<ExpUNot const *>(exp);
 
             Cell *c = result->addCell(NEW_ID, "$not");
             Wire *out = result->addWire(NEW_ID);
@@ -188,7 +171,7 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
             break;
         }
         Case(C<ExpRelation>()){
-            ExpRelation *t = dynamic_cast<ExpRelation *>(exp);
+            ExpRelation const *t = dynamic_cast<ExpRelation const *>(exp);
 
             Cell *c;
             Wire *out = result->addWire(NEW_ID);
@@ -225,7 +208,7 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
             break;
         }
         Case(C<ExpLogical>()){
-            ExpLogical *t = dynamic_cast<ExpLogical *>(exp);
+            ExpLogical const *t = dynamic_cast<ExpLogical const *>(exp);
 
             Cell *c;
             Wire *out = result->addWire(NEW_ID);
@@ -262,7 +245,7 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
             break;
         }
         Case(C<ExpName>()){
-            ExpName *n = dynamic_cast<ExpName *>(exp);
+            const ExpName *n = dynamic_cast<ExpName const *>(exp);
             // ugly, but neccessary because of the perm_strings are
             string strT = n->name_.str();
             Wire *w = result->wire("\\" + strT);
@@ -284,33 +267,183 @@ SigSpec NetlistGenerator::executeExpression(Expression *exp){
     return SigSpec(State::S0);
 }
 
-int NetlistGenerator::traverseProcessStatement(ProcessStatement *proc){
-    using namespace mch;
-    currentScope = proc;
+class IndependencePredicate {
+public:
+    IndependencePredicate(Expression const *r)
+        : rhs(r), count(0) {}
 
-    int errors = 0;
+    // checks whether the lhs occurs in rhs
+    bool isLhsIndependent(ExpName const *lhs){
+        GenericTraverser nameSearcher(
+            makeTypePredicate<ExpName>(),
+            static_cast<function<int (AstNode const *)>>(
+                [this, lhs](AstNode const *n) -> int {
+                    // TODO: Make this more general with value compare on
+                    //       AstNode objects. This comparison
+                    //       is not yet implemented, though...
+                    if (lhs->name_ == dynamic_cast<ExpName const *>(n)->name_){
+                        count++;
+                    }
+                    return 0;
+                }),
+            GenericTraverser::NONRECUR);
 
-    for (auto &i : proc->statements_){
-        Match(i){
-            Case(C<SignalSeqAssignment>()){
-                SignalSeqAssignment *tmp =
-                    dynamic_cast<SignalSeqAssignment*>(i);
+        nameSearcher(rhs);
 
-                errors += executeSignalAssignment(tmp);
-
-                break;
-            }
-            Case(C<CaseSeqStmt>()){
-
-                break;
-            }
-            Otherwise(){
-                std::cout << "This statement type is not supported"
-                          << endl;
-                break;
-            }
-        } EndMatch;
+        return (count > 0 ? false : true);
     }
 
+    void reset(Expression const *r){
+        rhs = r;
+        count = 0;
+    }
+
+private:
+    Expression const *rhs;
+    int count;
+};
+
+int NetlistGenerator::executeCaseStmtSync(stmt){
+
+}
+
+int NetlistGenerator::executeCaseStmtNonsync(stmt){
+
+}
+
+//TODO: privatise
+std::pair<Cell *, Cell *> NetlistGenerator::generateMuxerH(
+    int selectorWidth, Cell *orig, std::vector<SigBit> const &selector)
+{
+    if (selectorWidth == 1){
+        orig->setPort("\\S", selector[selectorWidth - 1]);
+        return {NULL, NULL};
+    } else if (selectorWidth > 1) {
+        Cell *a = result->addCell(NEW_ID, "$mux"),
+             *b = result->addCell(NEW_ID, "$mux");
+
+        a->setPort("\\Y", orig->getPort("\\A"));
+        b->setPort("\\Y", orig->getPort("\\B"));
+
+        a->setPort("\\S", selector[selectorWidth - 1]);
+        b->setPort("\\S", selector[selectorWidth - 1]);
+
+        generateMuxerH(selectorWidth - 1, a, selector);
+        generateMuxerH(selectorWidth - 1, b, selector);
+    } else {
+        std::cout << "Misuse of generateMuxer!\n";
+        return {NULL, NULL};
+    }
+}
+
+int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
+    Expression const *condition = c->cond_;
+    vector<SigSpec> selVec;
+    int selectorBits = 0;
+    if (condition->probe_type(
+            working,currentScope)->type_match(
+                &working->context_->global_types->
+                primitive_STDLOGIC)){
+        selectorBits = 1;
+    } else if (condition->probe_type(
+                   working,currentScope)->type_match(
+                       &working->context_->global_types->
+                       primitive_STDLOGIC_VECTOR)){
+        selectorBits = 1;
+    } else {
+        std::cout << "[Semantic error]\n"
+                  << "condition in Case Statement has inappropriate type!\n";
+    }
+
+    Cell *muxOrigin = result->addCell(NEW_ID, "$mux");
+    SigSpec out = muxOrigin->getPort("\\Y");
+
+    SigSpec evaledCond = executeExpression(condition);
+
+    generateMuxerH(selectorBits, muxOrigin, evaledCond.bits());
+}
+
+int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
+    Expression *condition = stmt->cond_->clone();
+    bool inSyncContext = false;
+
+    SyncCondPredicate isSync(working, currentScope);
+    // 1) Modify condition so that all clock edge specs get deleted
+
+    if(isSync(condition)){
+        ClockEdgeRecognizer reco;
+        reco(condition);
+        inSyncContext = true;
+    }
+
+    for (auto &i : stmt->alt_){
+        if (i->exp_ && i->exp_->size() > 1){
+            std::cout << "[Semantic error!]\n"
+                      << "Each alternative can only contain one expression!";
+            return 1;
+        }
+    }
+
+    if (stmt->alt_.size() == 2){
+        Cell *c = result->addCell(NEW_ID, "$mux");
+        c->setPort("\\S", executeExpression(condition));
+
+        caseStack.push(std::pair<bool, Cell*>(inSyncContext, c));
+
+        for (auto &i : stmt->alt_){
+            executeSequentialStmt(i->);
+        }
+
+        c->fixup_parameters();
+    } else {
+        if (inSyncContext){
+            std::cout << "[Semantic error!]\n";
+            std::cout << "more than 2 case branches with sync "
+                "condition is not allowed!\n";
+            return 1;
+        }
+
+        generateMuxer(stmt);
+    }
+
+    inSyncContext = false;
+
+    return 0;
+}
+
+int NetlistGenerator::executeSequentialStmt(SequentialStmt const *s){
+    using namespace mch;
+    int errors = 0;
+
+    Match(s){
+        Case(C<SignalSeqAssignment>()){
+            SignalSeqAssignment const *tmp =
+                dynamic_cast<SignalSeqAssignment const *>(s);
+
+            errors += executeSignalAssignment(tmp);
+
+            break;
+        }
+        Case(C<CaseSeqStmt>()){
+            CaseSeqStmt const *tmp =
+                dynamic_cast<CaseSeqStmt const *>(s);
+            errors += executeCaseStmt(tmp);
+            break;
+        }
+        Otherwise(){
+            std::cout << "This statement type is not supported"
+                      << endl;
+            break;
+        }
+    } EndMatch;
+
     return errors;
+}
+
+int NetlistGenerator::traverseProcessStatement(ProcessStatement *proc){
+    currentScope = proc;
+
+    for (auto &i : proc->statements_){
+        executeSequentialStmt(i);
+    }
 }

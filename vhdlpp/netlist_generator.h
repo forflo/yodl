@@ -24,21 +24,26 @@ public:
     Yosys::RTLIL::Module *result;
 
 private:
-    bool isSyncCondition(const Expression *e);
-
     int traverseConcStmts(std::list<Architecture::Statement*> *);
-    int traverseBlockStatement(BlockStatement *);
+    int traverseBlockStatement(BlockStatement const *);
     int traverseProcessStatement(ProcessStatement *);
 
-    int traverseCase(CaseSeqStmt *);
-    int traverseAssignment(SignalSeqAssignment *);
-
-    int executeSignalAssignment(SignalSeqAssignment *);
-    Yosys::RTLIL::SigSpec executeExpression(Expression *exp);
+    int traverseAssignment(SignalSeqAssignment const *);
 
 
-    std::map<const char *,
-             std::stack<Yosys::RTLIL::SigSpec *>> previousAssigns;
+    int generateMuxer(int, Yosys::RTLIL::Cell *,
+                      std::vector<Yosys::RTLIL::SigBit> const &);
+    int generateMuxer(CaseSeqStmt const *);
+
+    int executeCaseStmt(CaseSeqStmt const *);
+    int executeSequentialStmt(SequentialStmt const *);
+    int executeSignalAssignment(SignalSeqAssignment const *);
+    Yosys::RTLIL::SigSpec executeExpression(Expression const *);
+
+    std::map<perm_string const, Expression const *> prevSigAssigns;
+    std::map<perm_string const, Expression const *> prevVarAssigns;
+
+    std::stack<std::pair<bool, Yosys::RTLIL::Cell *>> caseStack;
 
     Entity *working;
     ScopeBase *currentScope;
