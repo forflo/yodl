@@ -347,18 +347,18 @@ int NetlistGenerator::generateMuxerH(
         orig->setPort("\\A", result->addWire(NEW_ID));
         orig->setPort("\\B", result->addWire(NEW_ID));
 
-        if (curSelectorIdx != selector.size() - 1){
+        if ((unsigned long) curSelectorIdx != selector.size() - 1){
             Cell *a = result->addCell(NEW_ID, "$mux"),
                  *b = result->addCell(NEW_ID, "$mux");
 
             a->setPort("\\Y", orig->getPort("\\A"));
             b->setPort("\\Y", orig->getPort("\\B"));
 
-            generateMuxerH(curSelectorIdx + 1, a, selector, path + '0', paths);
-            generateMuxerH(curSelectorIdx + 1, b, selector, path + '1', paths);
+            generateMuxerH(curSelectorIdx + 1, a, selector, '0' + path, paths);
+            generateMuxerH(curSelectorIdx + 1, b, selector, '1' + path, paths);
         } else {
-            paths[path + '0'] = orig->getPort("\\A");
-            paths[path + '1'] = orig->getPort("\\B");
+            paths['0' + path] = orig->getPort("\\A");
+            paths['1' + path] = orig->getPort("\\B");
         }
     }
 
@@ -387,6 +387,10 @@ int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
 
     map<string, SigSpec> inputs;
     generateMuxerH(0, muxOrigin, evaledCond.bits(), string(""), inputs);
+
+    result->connect(inputs["101"], SigSpec(State::S1));
+    result->connect(inputs["010"], SigSpec(State::S1));
+    result->connect(inputs["110"], SigSpec(State::S1));
 
     std::cout << "[generateMuxer Debug]\n";
     for (auto &i : inputs){
@@ -420,8 +424,6 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
     if (stmt->alt_.size() == 2){
         Cell *c = result->addCell(NEW_ID, "$mux");
         c->setPort("\\S", executeExpression(condition));
-
-        caseStack.push(std::pair<bool, Cell*>(inSyncContext, c));
 
 //        for (auto &i : stmt->alt_){
 //            executeSequentialStmt(i->);

@@ -24,6 +24,18 @@ public:
     Yosys::RTLIL::Module *result;
 
 private:
+    struct muxer_netlist_t {
+        std::map<std::string, Yosys::RTLIL::SigSpec> inputPaths;
+        Yosys::RTLIL::SigSpec muxerOutput;
+        unsigned int muxerWidth;
+    };
+
+    struct case_stack_element_t {
+        std::map<perm_string, muxer_netlist_t> netlist;
+        std::string curWhenAlternative;
+    };
+
+private:
     int traverseConcStmts(std::list<Architecture::Statement*> *);
     int traverseBlockStatement(BlockStatement *);
     int traverseProcessStatement(ProcessStatement *);
@@ -45,7 +57,7 @@ private:
     std::map<perm_string const, Expression const *> prevSigAssigns;
     std::map<perm_string const, Expression const *> prevVarAssigns;
 
-    std::stack<std::pair<bool, Yosys::RTLIL::Cell *>> caseStack;
+    std::vector<case_stack_element_t> caseStack;
 
     // save current synchronized state and appropriate clock wire
 
