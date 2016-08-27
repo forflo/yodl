@@ -25,14 +25,25 @@ public:
 
 private:
     struct muxer_netlist_t {
+        muxer_netlist_t(
+            const std::map<std::string, Yosys::RTLIL::SigSpec> &i,
+            Yosys::RTLIL::SigSpec o, unsigned int w)
+            : inputPaths(i)
+            , muxerOutput(o)
+            , muxerWidth(w) { }
         std::map<std::string, Yosys::RTLIL::SigSpec> inputPaths;
         Yosys::RTLIL::SigSpec muxerOutput;
         unsigned int muxerWidth;
     };
 
     struct case_stack_element_t {
+        case_stack_element_t(const std::map<perm_string, muxer_netlist_t> &n,
+                             const Yosys::RTLIL::SigSpec &s)
+            : netlist(n)
+            , curWhenAlternative(s) {}
+
         std::map<perm_string, muxer_netlist_t> netlist;
-        std::string curWhenAlternative;
+        Yosys::RTLIL::SigSpec curWhenAlternative;
     };
 
 private:
@@ -47,7 +58,7 @@ private:
                        std::vector<Yosys::RTLIL::SigBit> const &,
                        string,
                        std::map<std::string, Yosys::RTLIL::SigSpec> &);
-    int generateMuxer(CaseSeqStmt const *);
+    muxer_netlist_t generateMuxer(CaseSeqStmt const *);
 
     int executeCaseStmt(CaseSeqStmt const *);
     int executeSequentialStmt(SequentialStmt const *);

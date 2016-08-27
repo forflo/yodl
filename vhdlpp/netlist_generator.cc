@@ -365,7 +365,8 @@ int NetlistGenerator::generateMuxerH(
     return 0;
 }
 
-int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
+NetlistGenerator::muxer_netlist_t
+NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     Expression const *condition = c->cond_;
     vector<SigSpec> selVec;
     if (! (condition->probe_type(working,currentScope)->type_match(
@@ -381,23 +382,20 @@ int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     }
 
     Cell *muxOrigin = result->addCell(NEW_ID, "$mux");
-//    SigSpec out = muxOrigin->getPort("\\Y");
+
+    Wire *output = result->addWire(NEW_ID);
+    muxOrigin->setPort("\\Y", output);
 
     SigSpec evaledCond = executeExpression(condition);
 
     map<string, SigSpec> inputs;
     generateMuxerH(0, muxOrigin, evaledCond.bits(), string(""), inputs);
 
-    result->connect(inputs["101"], SigSpec(State::S1));
-    result->connect(inputs["010"], SigSpec(State::S1));
-    result->connect(inputs["110"], SigSpec(State::S1));
+//    result->connect(inputs["101"], SigSpec(State::S1));
+//    result->connect(inputs["010"], SigSpec(State::S1));
+//    result->connect(inputs["110"], SigSpec(State::S1));
 
-    std::cout << "[generateMuxer Debug]\n";
-    for (auto &i : inputs){
-        std::cout << i.first << " " << i.second.as_string() << std::endl;
-    }
-
-    return 0;
+    return muxer_netlist_t(inputs, output, inputs.begin()->first.length());
 }
 
 int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
@@ -434,11 +432,30 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
         if (inSyncContext){
             std::cout << "[Semantic error!]\n";
             std::cout << "more than 2 case branches with sync "
-                "condition is not allowed!\n";
+                      << "condition is not allowed!\n";
             return 1;
         }
 
-        generateMuxer(stmt);
+        muxer_netlist_t tmp = generateMuxer(stmt);
+
+        for (auto &i : stmt->alt_){
+            SigSpec choice = executeExpression(*i->exp_->begin());
+
+            // first push new netlist environment at the end
+            caseStack.push_back(
+                case_stack_element_t(
+                    map<perm_string, muxer_netlist_t>{
+                        {perm_string::literal("A"), tmp}},
+                    choice));
+
+            // execute every sequential stmt from current choice
+            for (auto &i : i->stmts_){
+                executeSequentialStmt(i);
+            }
+
+            // then erase now obsolete environment
+            caseStack.erase(caseStack.end());
+        }
     }
 
     inSyncContext = false;
