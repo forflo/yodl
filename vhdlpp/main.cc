@@ -220,11 +220,6 @@ int main(int argc, char *argv[]) {
     Design *d = new Design();
     d->add(netgen.result);
 
-    for (auto &i : netgen.result->wires_)
-        std::cout << "wire name: "
-                  << i.first.c_str()
-                  << " wire address: "
-                  << i.second << std::endl;
 
     std::cout << std::endl;
 //    for (auto &i : netgen.result->connections_)

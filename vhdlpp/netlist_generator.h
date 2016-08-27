@@ -47,6 +47,8 @@ private:
 
     std::stack<std::pair<bool, Yosys::RTLIL::Cell *>> caseStack;
 
+    // save current synchronized state and appropriate clock wire
+
     Entity *working;
     ScopeBase *currentScope;
 };

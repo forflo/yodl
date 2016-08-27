@@ -48,6 +48,10 @@ const VType *Expression::probe_type(Entity *, ScopeBase *) const {
     return 0;
 }
 
+const VType *ExpString::probe_type(Entity *, ScopeBase *s) const {
+    return &s->context_->global_types->primitive_STDLOGIC_VECTOR;
+}
+
 
 const VType *Expression::fit_type(Entity *ent, ScopeBase *scope, const VTypeArray *) const {
     const VType *res = probe_type(ent, scope);

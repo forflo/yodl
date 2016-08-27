@@ -43,7 +43,7 @@ SimpleTree<map<string, string>> *ExpReal::emit_strinfo_tree() const {
 SimpleTree<map<string, string>> *ExpString::emit_strinfo_tree() const {
     return new SimpleTree<map<string, string>>(
         map<string, string>{
-            {"node-type", "ExpReal"},
+            {"node-type", "ExpString"},
             {"node-pointer", static_cast<stringstream&>(
                     (stringstream{} << this)).str()},
             {"value", value_}});

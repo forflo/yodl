@@ -210,8 +210,25 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
         }
         Case(C<ExpString>()){
             ExpString const *t = dynamic_cast<ExpString const *>(exp);
+            vector<SigBit> bitlist;
+            for (int i = t->value_.length() - 1; i >= 0; i--){
+                switch(t->value_[i]){
+                case '0':
+                    bitlist.push_back(SigSpec(State::S0));
+                    break;
+                case '1':
+                    bitlist.push_back(SigSpec(State::S1));
+                    break;
+                case 'z':
+                    bitlist.push_back(SigSpec(State::Sz));
+                    break;
+                case '-':
+                    bitlist.push_back(SigSpec(State::Sa));
+                    break;
+                }
+            }
 
-            return SigSpec(t->value_);
+            return SigSpec(bitlist);
         }
         Case(C<ExpLogical>()){
             ExpLogical const *t = dynamic_cast<ExpLogical const *>(exp);
@@ -327,6 +344,8 @@ int NetlistGenerator::generateMuxerH(
         (unsigned long) curSelectorIdx < selector.size()) {
 
         orig->setPort("\\S", selector[curSelectorIdx]);
+        orig->setPort("\\A", result->addWire(NEW_ID));
+        orig->setPort("\\B", result->addWire(NEW_ID));
 
         if (curSelectorIdx != selector.size() - 1){
             Cell *a = result->addCell(NEW_ID, "$mux"),
@@ -349,29 +368,25 @@ int NetlistGenerator::generateMuxerH(
 int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     Expression const *condition = c->cond_;
     vector<SigSpec> selVec;
-    int selectorBits = 0;
-    if (condition->probe_type(
-            working,currentScope)->type_match(
-                &working->context_->global_types->
-                primitive_STDLOGIC)){
-        selectorBits = 1;
-    } else if (condition->probe_type(
-                   working,currentScope)->type_match(
-                       &working->context_->global_types->
-                       primitive_STDLOGIC_VECTOR)){
-        selectorBits = 1;
-    } else {
+    if (! (condition->probe_type(working,currentScope)->type_match(
+               &working->context_->global_types->
+               primitive_STDLOGIC) ||
+
+           condition->probe_type(working,currentScope)->type_match(
+               &working->context_->global_types->
+               primitive_STDLOGIC_VECTOR))){
+
         std::cout << "[Semantic error]\n"
-                  << "condition in Case Statement has inappropriate type!\n";
+                  << "Condition in Case Statement has inappropriate type!\n";
     }
 
     Cell *muxOrigin = result->addCell(NEW_ID, "$mux");
-    SigSpec out = muxOrigin->getPort("\\Y");
+//    SigSpec out = muxOrigin->getPort("\\Y");
 
     SigSpec evaledCond = executeExpression(condition);
 
     map<string, SigSpec> inputs;
-    generateMuxerH(selectorBits, muxOrigin, evaledCond.bits(), string(""), inputs);
+    generateMuxerH(0, muxOrigin, evaledCond.bits(), string(""), inputs);
 
     std::cout << "[generateMuxer Debug]\n";
     for (auto &i : inputs){
