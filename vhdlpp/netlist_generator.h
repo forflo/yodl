@@ -25,7 +25,7 @@ public:
 
 private:
     int traverseConcStmts(std::list<Architecture::Statement*> *);
-    int traverseBlockStatement(BlockStatement const *);
+    int traverseBlockStatement(BlockStatement *);
     int traverseProcessStatement(ProcessStatement *);
 
     int traverseAssignment(SignalSeqAssignment const *);

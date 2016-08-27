@@ -309,13 +309,13 @@ private:
     int count;
 };
 
-int NetlistGenerator::executeCaseStmtSync(stmt){
-
-}
-
-int NetlistGenerator::executeCaseStmtNonsync(stmt){
-
-}
+//int NetlistGenerator::executeCaseStmtSync(stmt){
+//
+//}
+//
+//int NetlistGenerator::executeCaseStmtNonsync(stmt){
+//
+//}
 
 int NetlistGenerator::generateMuxerH(
     int curSelectorIdx, Cell *orig,
@@ -341,9 +341,9 @@ int NetlistGenerator::generateMuxerH(
             paths[path + '0'] = orig->getPort("\\A");
             paths[path + '1'] = orig->getPort("\\B");
         }
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
 int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
@@ -377,6 +377,8 @@ int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     for (auto &i : inputs){
         std::cout << i.first << " " << i.second.as_string() << std::endl;
     }
+
+    return 0;
 }
 
 int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
@@ -406,9 +408,9 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
 
         caseStack.push(std::pair<bool, Cell*>(inSyncContext, c));
 
-        for (auto &i : stmt->alt_){
-            executeSequentialStmt(i->);
-        }
+//        for (auto &i : stmt->alt_){
+//            executeSequentialStmt(i->);
+//        }
 
         c->fixup_parameters();
     } else {
@@ -462,4 +464,6 @@ int NetlistGenerator::traverseProcessStatement(ProcessStatement *proc){
     for (auto &i : proc->statements_){
         executeSequentialStmt(i);
     }
+
+    return 0;
 }
