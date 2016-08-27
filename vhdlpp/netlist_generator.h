@@ -31,8 +31,10 @@ private:
     int traverseAssignment(SignalSeqAssignment const *);
 
 
-    int generateMuxer(int, Yosys::RTLIL::Cell *,
-                      std::vector<Yosys::RTLIL::SigBit> const &);
+    int generateMuxerH(int, Yosys::RTLIL::Cell *,
+                       std::vector<Yosys::RTLIL::SigBit> const &,
+                       string,
+                       std::map<std::string, Yosys::RTLIL::SigSpec> &);
     int generateMuxer(CaseSeqStmt const *);
 
     int executeCaseStmt(CaseSeqStmt const *);

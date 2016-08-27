@@ -16,6 +16,7 @@
 #include <sync_condition_predicate.h>
 
 using namespace Yosys::RTLIL;
+using namespace std;
 
 int NetlistGenerator::operator()(Entity *entity){
     Yosys::log_streams.push_back(&std::cout);
@@ -311,28 +312,32 @@ int NetlistGenerator::executeCaseStmtNonsync(stmt){
 
 }
 
-//TODO: privatise
-std::pair<Cell *, Cell *> NetlistGenerator::generateMuxerH(
-    int selectorWidth, Cell *orig, std::vector<SigBit> const &selector)
+int NetlistGenerator::generateMuxerH(
+    int curSelectorIdx, Cell *orig,
+    std::vector<SigBit> const &selector,
+    string path,
+    map<string, SigSpec> &paths)
 {
-    if (selectorWidth == 1){
-        orig->setPort("\\S", selector[selectorWidth - 1]);
-        return {NULL, NULL};
-    } else if (selectorWidth > 1) {
-        Cell *a = result->addCell(NEW_ID, "$mux"),
-             *b = result->addCell(NEW_ID, "$mux");
+    if (curSelectorIdx >= 0 &&
+        (unsigned long) curSelectorIdx < selector.size()) {
 
-        a->setPort("\\Y", orig->getPort("\\A"));
-        b->setPort("\\Y", orig->getPort("\\B"));
+        orig->setPort("\\S", selector[curSelectorIdx]);
 
-        a->setPort("\\S", selector[selectorWidth - 1]);
-        b->setPort("\\S", selector[selectorWidth - 1]);
+        if (curSelectorIdx != selector.size() - 1){
+            Cell *a = result->addCell(NEW_ID, "$mux"),
+                 *b = result->addCell(NEW_ID, "$mux");
 
-        generateMuxerH(selectorWidth - 1, a, selector);
-        generateMuxerH(selectorWidth - 1, b, selector);
+            a->setPort("\\Y", orig->getPort("\\A"));
+            b->setPort("\\Y", orig->getPort("\\B"));
+
+            generateMuxerH(curSelectorIdx + 1, a, selector, path + '0', paths);
+            generateMuxerH(curSelectorIdx + 1, b, selector, path + '1', paths);
+        } else {
+            paths[path + '0'] = orig->getPort("\\A");
+            paths[path + '1'] = orig->getPort("\\B");
+        }
     } else {
-        std::cout << "Misuse of generateMuxer!\n";
-        return {NULL, NULL};
+        return 0;
     }
 }
 
@@ -360,7 +365,13 @@ int NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
 
     SigSpec evaledCond = executeExpression(condition);
 
-    generateMuxerH(selectorBits, muxOrigin, evaledCond.bits());
+    map<string, SigSpec> inputs;
+    generateMuxerH(selectorBits, muxOrigin, evaledCond.bits(), string(""), inputs);
+
+    std::cout << "[generateMuxer Debug]\n";
+    for (auto &i : inputs){
+        std::cout << i.first << " " << i.second.as_string() << std::endl;
+    }
 }
 
 int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
