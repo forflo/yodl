@@ -104,6 +104,7 @@ private:
     void traverseConst(const SequentialStmt *);
     void traverseConst(const VType *);
     void traverseConst(const SigVarBase *);
+    void traverseConst(const CaseSeqStmt::CaseStmtAlternative *);
 
     // visitor visits all nodes and
     // mutating_visitor visits all mutable nodes

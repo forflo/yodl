@@ -38,10 +38,13 @@ private:
 
     struct case_stack_element_t {
         case_stack_element_t(const std::map<perm_string, muxer_netlist_t> &n,
-                             const Yosys::RTLIL::SigSpec &s)
-            : netlist(n)
+                             const Yosys::RTLIL::SigSpec &s,
+                             const std::set<perm_string> &o)
+            : occuringSignals(o)
+            , netlist(n)
             , curWhenAlternative(s) {}
 
+        std::set<perm_string> occuringSignals;
         std::map<perm_string, muxer_netlist_t> netlist;
         Yosys::RTLIL::SigSpec curWhenAlternative;
     };
@@ -54,11 +57,14 @@ private:
     int traverseAssignment(SignalSeqAssignment const *);
 
 
+
     int generateMuxerH(int, Yosys::RTLIL::Cell *,
                        std::vector<Yosys::RTLIL::SigBit> const &,
                        string,
                        std::map<std::string, Yosys::RTLIL::SigSpec> &);
     muxer_netlist_t generateMuxer(CaseSeqStmt const *);
+
+    std::set<perm_string> extractLhs(CaseSeqStmt const *stmt);
 
     int executeCaseStmt(CaseSeqStmt const *);
     int executeSequentialStmt(SequentialStmt const *);

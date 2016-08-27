@@ -74,10 +74,31 @@ using namespace std;
 
 // named_expr_t -- inherit AstNode
 
+void GenericTraverser::traverseConst(const CaseSeqStmt::CaseStmtAlternative * n){
+    currentPathConst.insert(currentPathConst.begin(), n);
+
+    if(noFurtherRecur(n)){ return; }
+
+    for (auto &i : *n->exp_){
+        traverseConst(i);
+    }
+
+    for (auto &i : n->stmts_){
+        traverseConst(i);
+    }
+
+    currentPathConst.erase(currentPathConst.begin());
+}
+
 void GenericTraverser::traverseConst(const AstNode *n){
     traversalMessages.push_back("Entering AstNode switch");
 
     Match(n){
+        Case(C<CaseSeqStmt::CaseStmtAlternative>()){
+            traverseConst(static_cast<const
+                          CaseSeqStmt::CaseStmtAlternative *>(n));
+            break;
+        }
         Case(C<Entity>()){
             traverseConst(static_cast<const Entity*>(n));
             break;
@@ -864,7 +885,7 @@ void GenericTraverser::traverseConst(const SequentialStmt *n){
 
     // For CaseStmtAlternative
     var<Expression *> caseCond;
-    var<list<CaseSeqStmt::CaseStmtAlternative>> caseAlternatives;
+    var<list<CaseSeqStmt::CaseStmtAlternative *>> caseAlternatives;
     // For ProcedureCall
     var<perm_string> procName;
     var<list<named_expr_t*> *> procParams;
@@ -987,10 +1008,19 @@ void GenericTraverser::traverseConst(const SequentialStmt *n){
         }
 
         //FIXME: Ruines build. Don't know why
-//        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
-//            traversalMessages.push_back("CaseSeqStmt detected");
-//            //TODO:
-//        }
+        Case(C<CaseSeqStmt>(caseCond, caseAlternatives)){
+            traversalMessages.push_back("CaseSeqStmt detected");
+
+            if (noFurtherRecur(n)){ return; }
+
+            traverseConst(caseCond);
+
+            for (auto &i : caseAlternatives){
+                traverseConst(i);
+            }
+
+            break;
+        }
 
         Case(C<ProcedureCall>(procName, procParams, procDef)){
             traversalMessages.push_back("ProcedureCall detected");
@@ -999,6 +1029,7 @@ void GenericTraverser::traverseConst(const SequentialStmt *n){
             if(noFurtherRecur(n)){ return; }
 
             // descent
+            // TODO: Check for nullpointer
             for (auto &i : *static_cast<list<named_expr_t*>*>(procParams))
                 traverseConst(i);
             break;

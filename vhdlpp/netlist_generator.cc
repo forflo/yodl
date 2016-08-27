@@ -398,6 +398,23 @@ NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     return muxer_netlist_t(inputs, output, inputs.begin()->first.length());
 }
 
+set<perm_string> NetlistGenerator::extractLhs(CaseSeqStmt const *stmt){
+    set<perm_string> leftHandSides;
+
+    GenericTraverser traverser(
+        makeTypePredicate<SignalSeqAssignment>(),
+        static_cast<function<int (AstNode const *)>>(
+            [&leftHandSides](AstNode const *n) -> int {
+                leftHandSides.insert(
+                    dynamic_cast<ExpName const *>(
+                        dynamic_cast<SignalSeqAssignment const *>(
+                            n)-> lval_)->name_);
+            }),
+        GenericTraverser::NONRECUR);
+
+    return leftHandSides;
+}
+
 int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
     Expression *condition = stmt->cond_->clone();
     bool inSyncContext = false;
@@ -419,43 +436,33 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
         }
     }
 
-    if (stmt->alt_.size() == 2){
-        Cell *c = result->addCell(NEW_ID, "$mux");
-        c->setPort("\\S", executeExpression(condition));
+    if (inSyncContext){
+        std::cout << "[Semantic error!]\n";
+        std::cout << "more than 2 case branches with sync "
+                  << "condition is not allowed!\n";
+        return 1;
+    }
 
-//        for (auto &i : stmt->alt_){
-//            executeSequentialStmt(i->);
-//        }
+    muxer_netlist_t tmp = generateMuxer(stmt);
+    set<perm_string> lhss = extractLhs(stmt);
 
-        c->fixup_parameters();
-    } else {
-        if (inSyncContext){
-            std::cout << "[Semantic error!]\n";
-            std::cout << "more than 2 case branches with sync "
-                      << "condition is not allowed!\n";
-            return 1;
+    for (auto &i : stmt->alt_){
+        SigSpec choice = executeExpression(*i->exp_->begin());
+
+        // first push new netlist environment at the end
+        caseStack.push_back(
+            case_stack_element_t(
+                map<perm_string, muxer_netlist_t>{
+                    {perm_string::literal("A"), tmp}},
+                choice, lhss));
+
+        // execute every sequential stmt from current choice
+        for (auto &i : i->stmts_){
+            executeSequentialStmt(i);
         }
 
-        muxer_netlist_t tmp = generateMuxer(stmt);
-
-        for (auto &i : stmt->alt_){
-            SigSpec choice = executeExpression(*i->exp_->begin());
-
-            // first push new netlist environment at the end
-            caseStack.push_back(
-                case_stack_element_t(
-                    map<perm_string, muxer_netlist_t>{
-                        {perm_string::literal("A"), tmp}},
-                    choice));
-
-            // execute every sequential stmt from current choice
-            for (auto &i : i->stmts_){
-                executeSequentialStmt(i);
-            }
-
-            // then erase now obsolete environment
-            caseStack.erase(caseStack.end());
-        }
+        // then erase now obsolete environment
+        caseStack.erase(caseStack.end());
     }
 
     inSyncContext = false;
