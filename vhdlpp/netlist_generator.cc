@@ -208,6 +208,11 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
             return SigSpec(out);
             break;
         }
+        Case(C<ExpString>()){
+            ExpString const *t = dynamic_cast<ExpString const *>(exp);
+
+            return SigSpec(t->value_);
+        }
         Case(C<ExpLogical>()){
             ExpLogical const *t = dynamic_cast<ExpLogical const *>(exp);
 
