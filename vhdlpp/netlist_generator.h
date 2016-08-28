@@ -8,7 +8,6 @@
 #include <map>
 #include <stack>
 
-#include <StringHeap.h>
 #include <entity.h>
 #include <architec.h>
 #include <sequential.h>
@@ -25,27 +24,29 @@ public:
 
 private:
     struct muxer_netlist_t {
+        muxer_netlist_t() = default;
         muxer_netlist_t(
             const std::map<std::string, Yosys::RTLIL::SigSpec> &i,
             Yosys::RTLIL::SigSpec o, unsigned int w)
             : inputPaths(i)
             , muxerOutput(o)
             , muxerWidth(w) { }
-        std::map<std::string, Yosys::RTLIL::SigSpec> inputPaths;
+        std::map<std::SigSpec, Yosys::RTLIL::SigSpec> inputPaths;
         Yosys::RTLIL::SigSpec muxerOutput;
         unsigned int muxerWidth;
     };
 
     struct case_stack_element_t {
-        case_stack_element_t(const std::map<perm_string, muxer_netlist_t> &n,
+        case_stack_element_t() = default;
+        case_stack_element_t(const std::map<string, muxer_netlist_t> &n,
                              const Yosys::RTLIL::SigSpec &s,
-                             const std::set<perm_string> &o)
+                             const std::set<string> &o)
             : occuringSignals(o)
             , netlist(n)
             , curWhenAlternative(s) {}
 
-        std::set<perm_string> occuringSignals;
-        std::map<perm_string, muxer_netlist_t> netlist;
+        std::set<string> occuringSignals;
+        std::map<string, muxer_netlist_t> netlist;
         Yosys::RTLIL::SigSpec curWhenAlternative;
     };
 
@@ -64,15 +65,18 @@ private:
                        std::map<std::string, Yosys::RTLIL::SigSpec> &);
     muxer_netlist_t generateMuxer(CaseSeqStmt const *);
 
-    std::set<perm_string> extractLhs(CaseSeqStmt const *stmt);
+    std::set<string> extractLhs(AstNode const *stmt);
 
     int executeCaseStmt(CaseSeqStmt const *);
     int executeSequentialStmt(SequentialStmt const *);
+
+    int executeSignalAssignmentCase(SignalSeqAssignment const *a);
+    int executeSignalAssignmentNonCase(SignalSeqAssignment const *a);
     int executeSignalAssignment(SignalSeqAssignment const *);
     Yosys::RTLIL::SigSpec executeExpression(Expression const *);
 
-    std::map<perm_string const, Expression const *> prevSigAssigns;
-    std::map<perm_string const, Expression const *> prevVarAssigns;
+    std::map<string const, Expression const *> prevSigAssigns;
+    std::map<string const, Expression const *> prevVarAssigns;
 
     std::vector<case_stack_element_t> caseStack;
 

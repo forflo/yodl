@@ -92,6 +92,40 @@ int NetlistGenerator::traverseBlockStatement(BlockStatement *block){
     return traverseConcStmts(block->concurrent_stmts_);
 }
 
+int NetlistGenerator::executeSignalAssignmentNonCase(SignalSeqAssignment const *a){
+    const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
+    string s = signalId;
+    Expression *tmp = *a->waveform_.begin();
+
+    SigSpec res = executeExpression(tmp);
+
+    result->connect(result->wire("\\" + s), res);
+
+    return 0;
+}
+
+int NetlistGenerator::executeSignalAssignmentCase(SignalSeqAssignment const *a){
+    const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
+    string s = signalId;
+    Expression *tmp = *a->waveform_.begin();
+    SigSpec res = executeExpression(tmp);
+
+
+    case_stack_element_t &first = caseStack[caseStack.size() - 1];
+    first.netlist[signalId].inputPaths[first.curWhenAlternative] = res;
+
+    for (int i = caseStack.size() - 2; i > 0; i--){
+        case_stack_element_t &working1 = caseStack[i];
+        case_stack_element_t &working2 = caseStack[i - 1];
+
+        result->connect(
+            working2.netlist[signalId].inputPaths[working2.curWhenAlternative],
+            working1.netlist[signalId].muxerOutput);
+    }
+
+    return 0;
+}
+
 int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
     const VType *ltype = a->lval_->probe_type(
         working, currentScope);
@@ -99,11 +133,12 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
     if (!ltype->type_match(
             &working->context_->
             global_types->primitive_STDLOGIC)){
-        std::cout << "traverseProcessStatement" << endl;
+        std::cout << "traverseProcessStatement"
+                  << endl;
         std::cout << "Type error in netlist generator"
                   << endl;
         std::cout << "Types other than std_logic "
-            "are not supported" << endl;
+                  << "are not supported" << endl;
         return 1;
     }
 
@@ -121,16 +156,11 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
         return 1;
     }
 
-    const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
-    string s = signalId;
-    Expression *tmp = *a->waveform_.begin();
-    using namespace mch;
-
-    SigSpec res = executeExpression(tmp);
-
-    result->connect(result->wire("\\" + s), res);
-
-    return 0;
+    if (caseStack.size() != 0){
+        return executeSignalAssignmentCase(a);
+    } else {
+        return executeSignalAssignmentNonCase(a);
+    }
 }
 
 SigSpec NetlistGenerator::executeExpression(Expression const *exp){
@@ -398,8 +428,8 @@ NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     return muxer_netlist_t(inputs, output, inputs.begin()->first.length());
 }
 
-set<perm_string> NetlistGenerator::extractLhs(CaseSeqStmt const *stmt){
-    set<perm_string> leftHandSides;
+set<string> NetlistGenerator::extractLhs(AstNode const *stmt){
+    set<string> leftHandSides;
 
     GenericTraverser traverser(
         makeTypePredicate<SignalSeqAssignment>(),
@@ -408,11 +438,17 @@ set<perm_string> NetlistGenerator::extractLhs(CaseSeqStmt const *stmt){
                 leftHandSides.insert(
                     dynamic_cast<ExpName const *>(
                         dynamic_cast<SignalSeqAssignment const *>(
-                            n)-> lval_)->name_);
+                            n)-> lval_)->name_.str());
+                return 0;
             }),
         GenericTraverser::NONRECUR);
+    traverser(stmt);
 
     return leftHandSides;
+}
+
+int NetlistGenerator::finishUpUnassignedSignals(){
+
 }
 
 int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
@@ -443,18 +479,19 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
         return 1;
     }
 
-    muxer_netlist_t tmp = generateMuxer(stmt);
-    set<perm_string> lhss = extractLhs(stmt);
+    set<string> lhsOfCase = extractLhs(stmt);
+
+    map<string, muxer_netlist_t> sigMuxerMapping;
+    for (auto &i : lhsOfCase)
+        sigMuxerMapping[i] = generateMuxer(stmt);
 
     for (auto &i : stmt->alt_){
         SigSpec choice = executeExpression(*i->exp_->begin());
+        set<string> lhsOfAlt = extractLhs(i);
 
         // first push new netlist environment at the end
         caseStack.push_back(
-            case_stack_element_t(
-                map<perm_string, muxer_netlist_t>{
-                    {perm_string::literal("A"), tmp}},
-                choice, lhss));
+            case_stack_element_t(sigMuxerMapping, choice, lhsOfAlt));
 
         // execute every sequential stmt from current choice
         for (auto &i : i->stmts_){
