@@ -71,6 +71,8 @@ private:
 
     std::set<string> extractLhs(AstNode const *stmt);
 
+    int executeIfStmt(IfSequential const *);
+
     int executeCaseStmt(CaseSeqStmt const *);
     int executeSequentialStmt(SequentialStmt const *);
 
