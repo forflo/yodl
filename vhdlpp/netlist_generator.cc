@@ -84,6 +84,16 @@ int NetlistGenerator::operator()(Entity *entity){
                 std::cout << "Non-static range";
                 exit(1);
             }
+
+            if (range.direction_){
+                vectorWidth = evalMsb - evalLsb;
+            }
+            else {
+                vectorWidth = evalLsb - evalMsb;
+            }
+
+            std::cout << "vectorWidth for entity port: "
+                      << vectorWidth << std::endl;
         }
 
         result->addWire(string("\\") + i->name.str(), vectorWidth);
