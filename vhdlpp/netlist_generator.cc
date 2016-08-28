@@ -48,7 +48,45 @@ int NetlistGenerator::operator()(Entity *entity){
     auto arch = dynamic_cast<Architecture*>(iter->second);
 
     for (auto &i : entity->ports_){
-        result->addWire(string("\\") + i->name.str());
+        const VType *type = i->type;
+
+        int vectorWidth = 0;
+
+        if (!type->type_match(
+                &working->context_->
+                global_types->primitive_STDLOGIC_VECTOR)){
+            vectorWidth = 0;
+        } else if (!type->type_match(
+                       &working->context_->
+                       global_types->primitive_STDLOGIC_VECTOR)){
+            VTypeArray const *tmp = dynamic_cast<VTypeArray const *>(type);
+            if (tmp->ranges_.size() != 1) {
+                std::cout << "Currently only 1-dim signal vectors allowed"
+                          << std::endl;
+                exit(1);
+            }
+
+            VTypeArray::range_t range = tmp->ranges_[0];
+            if (range.msb_ == NULL || range.lsb_ == NULL){
+                std::cout << "Invalid range"
+                          << std::endl;
+                exit(1);
+            }
+
+            int64_t evalMsb, evalLsb;
+            bool evaluable = true ;
+            evaluable = evaluable &&
+                range.msb_->evaluate(working, currentScope, evalMsb);
+            evaluable = evaluable &&
+                range.lsb_->evaluate(working, currentScope, evalLsb);
+
+            if (!evaluable){
+                std::cout << "Non-static range";
+                exit(1);
+            }
+        }
+
+        result->addWire(string("\\") + i->name.str(), vectorWidth);
     }
 
     return traverseConcStmts(&arch->statements_);
@@ -288,17 +326,70 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
             return SigSpec(out);
             break;
         }
+        Case(C<ExpShift>()){
+            ExpShift const *n = dynamic_cast<ExpShift const *>(exp);
+            ExpShift::shift_t operation = n->shift_;
+
+            Cell *c;
+            Wire *out = result->addWire(NEW_ID);
+
+            //TODO: implement
+            switch(operation){
+            case ExpShift::shift_t::SRL:
+                c = result->addCell(NEW_ID, "");
+                break;
+            case ExpShift::shift_t::SLL: break;
+            case ExpShift::shift_t::SRA: break;
+            case ExpShift::shift_t::SLA: break;
+            case ExpShift::shift_t::ROL: break;
+            case ExpShift::shift_t::ROR: break;
+            }
+
+            c->setPort("\\A", executeExpression(n->operand1_));
+            c->setPort("\\B", executeExpression(n->operand2_));
+
+            c->setPort("\\Y", out);
+
+            c->fixup_parameters();
+
+            return SigSpec(out);
+            break;
+        }
         Case(C<ExpName>()){
             const ExpName *n = dynamic_cast<ExpName const *>(exp);
-            // ugly, but neccessary because of the perm_strings are
+
             string strT = n->name_.str();
             Wire *w = result->wire("\\" + strT);
 
             if (w){
                 return SigSpec(w);
             } else {
-                return SigSpec(result->addWire("\\" + strT));
+                std::cout << "Usage of non existent signal!"
+                          << "\n";
+                exit(1);
+                return SigSpec();
+//                return SigSpec(result->addWire("\\" + strT), vectorWidth);
             }
+
+            break;
+        }
+        Case(C<ExpConcat>()){
+            ExpConcat const *n = dynamic_cast<ExpConcat const *>(exp);
+
+            SigSpec left  = executeExpression(n->operand1_),
+                    right = executeExpression(n->operand2_);
+
+            Cell *c = result->addCell(NEW_ID, "$concat");
+            c->setPort("\\B", left);
+            c->setPort("\\A", right);
+
+            Wire *out = result->wire(NEW_ID);
+            c->setPort("\\Y", out);
+
+            c->fixup_parameters();
+            return SigSpec(out);
+
+            break;
         }
         Otherwise(){
             std::cout << "This kind of expression fails exec Expr!"
@@ -520,6 +611,12 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
     return 0;
 }
 
+int NetlistGenerator::executeIfStmt(IfSequential const *s){
+
+    return 0;
+}
+
+
 int NetlistGenerator::executeSequentialStmt(SequentialStmt const *s){
     using namespace mch;
     int errors = 0;
@@ -537,6 +634,12 @@ int NetlistGenerator::executeSequentialStmt(SequentialStmt const *s){
             CaseSeqStmt const *tmp =
                 dynamic_cast<CaseSeqStmt const *>(s);
             errors += executeCaseStmt(tmp);
+            break;
+        }
+        Case(C<IfSequential>()){
+            IfSequential const *tmp =
+                dynamic_cast<IfSequential const *>(s);
+            errors += executeIfStmt(tmp);
             break;
         }
         Otherwise(){
