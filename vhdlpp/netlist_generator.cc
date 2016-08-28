@@ -111,17 +111,26 @@ int NetlistGenerator::executeSignalAssignmentCase(SignalSeqAssignment const *a){
     SigSpec res = executeExpression(tmp);
 
 
-    case_stack_element_t &first = caseStack[caseStack.size() - 1];
-    first.netlist[signalId].inputPaths[first.curWhenAlternative] = res;
+    case_stack_element_t &youngest = caseStack[caseStack.size() - 1];
 
-    for (int i = caseStack.size() - 2; i > 0; i--){
-        case_stack_element_t &working1 = caseStack[i];
-        case_stack_element_t &working2 = caseStack[i - 1];
+    result->connect(
+        youngest
+        .netlist[signalId]
+        .inputPaths[youngest.curWhenAlternative],
+        res);
+
+    for (int i = caseStack.size() - 1; i > 0; i--){
+        case_stack_element_t &moreNested = caseStack[i];
+        case_stack_element_t &lessNested = caseStack[i - 1];
 
         result->connect(
-            working2.netlist[signalId].inputPaths[working2.curWhenAlternative],
-            working1.netlist[signalId].muxerOutput);
+            lessNested.netlist[signalId].inputPaths[lessNested.curWhenAlternative],
+            moreNested.netlist[signalId].muxerOutput);
     }
+
+    result->connect(
+        result->wire("\\" + s),
+        caseStack[0].netlist[signalId].muxerOutput);
 
     return 0;
 }
@@ -240,25 +249,7 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
         }
         Case(C<ExpString>()){
             ExpString const *t = dynamic_cast<ExpString const *>(exp);
-            vector<SigBit> bitlist;
-            for (int i = t->value_.length() - 1; i >= 0; i--){
-                switch(t->value_[i]){
-                case '0':
-                    bitlist.push_back(SigSpec(State::S0));
-                    break;
-                case '1':
-                    bitlist.push_back(SigSpec(State::S1));
-                    break;
-                case 'z':
-                    bitlist.push_back(SigSpec(State::Sz));
-                    break;
-                case '-':
-                    bitlist.push_back(SigSpec(State::Sa));
-                    break;
-                }
-            }
-
-            return SigSpec(bitlist);
+            return sigSpecFromString(t->value_);
         }
         Case(C<ExpLogical>()){
             ExpLogical const *t = dynamic_cast<ExpLogical const *>(exp);
@@ -364,11 +355,33 @@ private:
 //
 //}
 
+SigSpec NetlistGenerator::sigSpecFromString(const string &s){
+    vector<SigBit> bitlist;
+    for (int i = s.length() - 1; i >= 0; i--){
+        switch(s[i]){
+        case '0':
+            bitlist.push_back(SigSpec(State::S0));
+            break;
+        case '1':
+            bitlist.push_back(SigSpec(State::S1));
+            break;
+        case 'z':
+            bitlist.push_back(SigSpec(State::Sz));
+            break;
+        case '-':
+            bitlist.push_back(SigSpec(State::Sa));
+            break;
+        }
+    }
+
+    return SigSpec(bitlist);
+}
+
 int NetlistGenerator::generateMuxerH(
     int curSelectorIdx, Cell *orig,
     std::vector<SigBit> const &selector,
     string path,
-    map<string, SigSpec> &paths)
+    map<SigSpec, SigSpec> &paths)
 {
     if (curSelectorIdx >= 0 &&
         (unsigned long) curSelectorIdx < selector.size()) {
@@ -387,8 +400,8 @@ int NetlistGenerator::generateMuxerH(
             generateMuxerH(curSelectorIdx + 1, a, selector, '0' + path, paths);
             generateMuxerH(curSelectorIdx + 1, b, selector, '1' + path, paths);
         } else {
-            paths['0' + path] = orig->getPort("\\A");
-            paths['1' + path] = orig->getPort("\\B");
+            paths[sigSpecFromString('0' + path)] = orig->getPort("\\A");
+            paths[sigSpecFromString('1' + path)] = orig->getPort("\\B");
         }
     }
 
@@ -418,14 +431,14 @@ NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
 
     SigSpec evaledCond = executeExpression(condition);
 
-    map<string, SigSpec> inputs;
+    map<SigSpec, SigSpec> inputs;
     generateMuxerH(0, muxOrigin, evaledCond.bits(), string(""), inputs);
 
-//    result->connect(inputs["101"], SigSpec(State::S1));
-//    result->connect(inputs["010"], SigSpec(State::S1));
-//    result->connect(inputs["110"], SigSpec(State::S1));
+//    result->connect(inputs[sigSpecFromString("101")], SigSpec(State::S1));
+//    result->connect(inputs[sigSpecFromString("010")], SigSpec(State::S1));
+//    result->connect(inputs[sigSpecFromString("110")], SigSpec(State::S1));
 
-    return muxer_netlist_t(inputs, output, inputs.begin()->first.length());
+    return muxer_netlist_t(inputs, output, inputs.begin()->first.size());
 }
 
 set<string> NetlistGenerator::extractLhs(AstNode const *stmt){
@@ -447,9 +460,9 @@ set<string> NetlistGenerator::extractLhs(AstNode const *stmt){
     return leftHandSides;
 }
 
-int NetlistGenerator::finishUpUnassignedSignals(){
-
-}
+//int NetlistGenerator::finishUpUnassignedSignals(){
+//
+//}
 
 int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
     Expression *condition = stmt->cond_->clone();

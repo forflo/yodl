@@ -26,12 +26,14 @@ private:
     struct muxer_netlist_t {
         muxer_netlist_t() = default;
         muxer_netlist_t(
-            const std::map<std::string, Yosys::RTLIL::SigSpec> &i,
+            const std::map<Yosys::RTLIL::SigSpec, Yosys::RTLIL::SigSpec> &i,
             Yosys::RTLIL::SigSpec o, unsigned int w)
             : inputPaths(i)
             , muxerOutput(o)
             , muxerWidth(w) { }
-        std::map<std::SigSpec, Yosys::RTLIL::SigSpec> inputPaths;
+        // maps pahts to wires. Key sigspec is used to represent a choice
+        // of a case sequential statement
+        std::map<Yosys::RTLIL::SigSpec, Yosys::RTLIL::SigSpec> inputPaths;
         Yosys::RTLIL::SigSpec muxerOutput;
         unsigned int muxerWidth;
     };
@@ -51,6 +53,8 @@ private:
     };
 
 private:
+    Yosys::RTLIL::SigSpec sigSpecFromString(const std::string &);
+
     int traverseConcStmts(std::list<Architecture::Statement*> *);
     int traverseBlockStatement(BlockStatement *);
     int traverseProcessStatement(ProcessStatement *);
@@ -62,7 +66,7 @@ private:
     int generateMuxerH(int, Yosys::RTLIL::Cell *,
                        std::vector<Yosys::RTLIL::SigBit> const &,
                        string,
-                       std::map<std::string, Yosys::RTLIL::SigSpec> &);
+                       std::map<Yosys::RTLIL::SigSpec, Yosys::RTLIL::SigSpec> &);
     muxer_netlist_t generateMuxer(CaseSeqStmt const *);
 
     std::set<string> extractLhs(AstNode const *stmt);
