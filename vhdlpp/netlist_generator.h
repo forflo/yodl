@@ -66,7 +66,8 @@ private:
     int generateMuxerH(int, Yosys::RTLIL::Cell *,
                        std::vector<Yosys::RTLIL::SigBit> const &,
                        string,
-                       std::map<Yosys::RTLIL::SigSpec, Yosys::RTLIL::SigSpec> &);
+                       std::map<Yosys::RTLIL::SigSpec,
+                                Yosys::RTLIL::SigSpec> &);
     muxer_netlist_t generateMuxer(CaseSeqStmt const *);
 
     std::set<string> extractLhs(AstNode const *stmt);
@@ -81,12 +82,18 @@ private:
     int executeSignalAssignment(SignalSeqAssignment const *);
     Yosys::RTLIL::SigSpec executeExpression(Expression const *);
 
+    bool trySetSyncContext(void){
+        if (inSyncContext) { return false; }
+        else               { return inSyncContext = true; }
+    }
+
+private:
     std::map<string const, Expression const *> prevSigAssigns;
     std::map<string const, Expression const *> prevVarAssigns;
 
     std::vector<case_stack_element_t> caseStack;
 
-    // save current synchronized state and appropriate clock wire
+    bool inSyncContext = false;
 
     Entity *working;
     ScopeBase *currentScope;

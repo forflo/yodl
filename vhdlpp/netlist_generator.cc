@@ -567,15 +567,13 @@ set<string> NetlistGenerator::extractLhs(AstNode const *stmt){
 
 int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
     Expression *condition = stmt->cond_->clone();
-    bool inSyncContext = false;
 
     SyncCondPredicate isSync(working, currentScope);
-    // 1) Modify condition so that all clock edge specs get deleted
 
     if(isSync(condition)){
-        ClockEdgeRecognizer reco;
-        reco(condition);
-        inSyncContext = true;
+        std::cout << "[Semantic error!]\n";
+        std::cout << "Synchronized conditions not allowed in "
+                  << "case statement condition";
     }
 
     for (auto &i : stmt->alt_){
@@ -584,13 +582,6 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
                       << "Each alternative can only contain one expression!";
             return 1;
         }
-    }
-
-    if (inSyncContext){
-        std::cout << "[Semantic error!]\n";
-        std::cout << "more than 2 case branches with sync "
-                  << "condition is not allowed!\n";
-        return 1;
     }
 
     set<string> lhsOfCase = extractLhs(stmt);
@@ -616,12 +607,34 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
         caseStack.erase(caseStack.end());
     }
 
-    inSyncContext = false;
-
     return 0;
 }
 
 int NetlistGenerator::executeIfStmt(IfSequential const *s){
+    Expression *condition = s->cond_->clone();
+    bool bTmp;
+
+    if (s->elsif_.size() > 0) {
+        std::cout << "Elsifs not supported!\n"
+                  << "run elsif to if-else converter instead!\n"
+                  << std::endl;
+        exit(1);
+    }
+
+    SyncCondPredicate isSync(working, currentScope);
+    // 1) Modify condition so that all clock edge specs get deleted
+
+    bTmp = isSync(condition);
+
+    if (trySetSyncContext() == false){
+        std::cout << "Unable to set sync context, because it's been already set"
+                  << std::endl;
+    }
+
+    Expression *condClone = condition->clone();
+
+    ClockEdgeRecognizer findEdgeSpecs;
+    findEdgeSpecs(condClone);
 
     return 0;
 }
