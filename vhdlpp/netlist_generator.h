@@ -34,11 +34,11 @@ private:
         dff_complex_netlist_t(const Yosys::RTLIL::SigSpec d,
                       const Yosys::RTLIL::SigSpec q,
                       const Yosys::RTLIL::SigSpec clk)
-            : input(d)
+            : rhsInput(d)
             , output(q)
             , clock(clk) {}
 
-        Yosys::RTLIL::SigSpec input, output, clock;
+        Yosys::RTLIL::SigSpec rhsInput, output, clock;
     };
 
     // for conditions like `if (<clock_edge>)'

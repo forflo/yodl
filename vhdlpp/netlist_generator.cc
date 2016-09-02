@@ -640,6 +640,8 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
 
     stack_element_t newTop;
     if (syncCondition) {
+        // clock edge synchronized => dff on top of the stack
+
         if (findEdgeSpecs.fullClockSpecs[0] == condition) {
             // condition consits only of the clock edge specification
             std::cout << "condition consists only of clock edge spec"
@@ -661,8 +663,24 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
             std::cout << "condition contains other subexpressions "
                       << "besides a edge spec" << std::endl;
 
+            Cell *mux = result->addCell(NEW_ID, "$mux");
+            Wire *muxZero = result->addWire(NEW_ID);
+            Wire *muxOne = result->addWire(NEW_ID);
+            Wire *muxSelector = result->addWire(NEW_ID);
+            Wire *muxOut = result->addWire(NEW_ID);
 
+            Cell *dff = result->addCell(NEW_ID, "$dff");
+            Wire *dffOut = result->addWire(NEW_ID);
+            Wire *dffClock = result->addWire(NEW_ID);
 
+            dff->setPort("\\CLK", SigSpec(dffClock));
+            dff->setPort("\\D", SigSpec(muxOut));
+            dff->setPort("\\Q", SigSpec(dffOut));
+
+            mux->setPort("\\S", SigSpec(muxSelector));
+            mux->setPort("\\A", SigSpec(muxZero));
+            mux->setPort("\\B", SigSpec(muxOne));
+            mux->setPort("\\Y", SigSpec(muxOut));
         }
 
 
@@ -671,7 +689,7 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
                   << "are no sync_condition but contain a clock edge"
                   << std::endl;
     } else if ((!syncCondition) && findEdgeSpecs.numberClockEdges == 0) {
-        // put dlatch on top
+        // level sensitive => put dlatch on top
 
         Cell *dff = result->addCell(NEW_ID, "$dlatch");
         Wire *out = result->addWire(NEW_ID);
