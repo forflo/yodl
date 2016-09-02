@@ -99,6 +99,7 @@ private:
     muxer_netlist_t generateMuxer(CaseSeqStmt const *);
 
     std::set<string> extractLhs(AstNode const *stmt);
+    std::set<string> extractLhs(std::list<SequentialStmt *> const &l);
 
     int executeIfStmt(IfSequential const *);
 

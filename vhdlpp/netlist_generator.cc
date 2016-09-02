@@ -544,6 +544,19 @@ NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     return muxer_netlist_t(inputs, output, inputs.begin()->first.size());
 }
 
+set<string> NetlistGenerator::extractLhs(list<SequentialStmt *> const &l){
+    set<string> leftHandSides;
+    set<string> tmp;
+
+    for (auto &i : l){
+        tmp = extractLhs(i);
+        for (auto &j : tmp)
+            leftHandSides.insert(j);
+    }
+
+    return leftHandSides;
+}
+
 set<string> NetlistGenerator::extractLhs(AstNode const *stmt){
     set<string> leftHandSides;
 
@@ -641,16 +654,17 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
     stack_element_t newTop;
 
     //TODO: Handle cases where if has else blocks...
-    if (s->else_.size() > 0) {
-        std::cout << "Currently only if statements without else supported!"
-                  << std::endl;
-        //TODO!!!
-    }
 
     if (syncCondition) {
         // clock edge synchronized => dff on top of the stack
         if (findEdgeSpecs.clockNameExp == NULL){
             std::cout << "clock name expression was null. ABORT"
+                      << std::endl;
+            exit(1);
+        }
+
+        if (s->else_.size() > 0) {
+            std::cout << "Else statements in if with sync condition not allowed!"
                       << std::endl;
             exit(1);
         }
@@ -706,18 +720,32 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
         std::cout << "Can't currently synthesize conditions that"
                   << "are no sync_condition but contain a clock edge"
                   << std::endl;
+
     } else if ((!syncCondition) && findEdgeSpecs.numberClockEdges == 0) {
         // level sensitive => put dlatch on top
+        if (s->else_.size() > 0) {
+            set<string> lhsInIf, lhsInElse;
+            lhsInIf = extractLhs(s->if_);
+            lhsInElse = extractLhs(s->else_);
 
-        Cell *dff = result->addCell(NEW_ID, "$dlatch");
-        Wire *out = result->addWire(NEW_ID);
-        Wire *in = result->addWire(NEW_ID);
+            if (lhsInIf == lhsInElse){
+                // every signal get's driven at least once in both paths
+                // TODO:
 
-        dff->setPort("\\EN", executeExpression(condition));
-        dff->setPort("\\D", SigSpec(in));
-        dff->setPort("\\Q", SigSpec(out));
+                std::cout << "Every signal driven in both paths!" << std::endl;
+            }
+        } else {
 
-        newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
+            Cell *dff = result->addCell(NEW_ID, "$dlatch");
+            Wire *out = result->addWire(NEW_ID);
+            Wire *in = result->addWire(NEW_ID);
+
+            dff->setPort("\\EN", executeExpression(condition));
+            dff->setPort("\\D", SigSpec(in));
+            dff->setPort("\\Q", SigSpec(out));
+
+            newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
+        }
     } else {
         std::cout << "Unknown combination of sync condition and clock edge\n";
     }
