@@ -650,14 +650,18 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
             Cell *dff = result->addCell(NEW_ID, "$dff");
             Wire *out = result->addWire(NEW_ID);
             Wire *in = result->addWire(NEW_ID);
-            Wire *clock = result->addWire(NEW_ID);
 
-            dff->setPort("\\CLK", SigSpec(clock));
+            if (findEdgeSpecs.clockNameExp == NULL){
+                std::cout << "clock name expression was null. ABORT"
+                          << std::endl;
+                exit(1);
+            }
+
+            dff->setPort("\\CLK", executeExpression(findEdgeSpecs.clockNameExp));
             dff->setPort("\\D", SigSpec(in));
             dff->setPort("\\Q", SigSpec(out));
 
-            newTop = flipflop_netlist_t(SigSpec(in),
-                                        SigSpec(out), SigSpec(clock));
+            newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
 
         } else {
             std::cout << "condition contains other subexpressions "
@@ -681,6 +685,10 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
             mux->setPort("\\A", SigSpec(muxZero));
             mux->setPort("\\B", SigSpec(muxOne));
             mux->setPort("\\Y", SigSpec(muxOut));
+
+            result->connect(SigSpec(muxZero), SigSpec(dffOut));
+
+            newTop = dff_complex_netlist_t(SigSpec(muxSelector), SigSpec());
         }
 
 

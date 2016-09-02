@@ -32,13 +32,11 @@ private:
     struct dff_complex_netlist_t : stack_element_t {
         dff_complex_netlist_t() = default;
         dff_complex_netlist_t(const Yosys::RTLIL::SigSpec d,
-                      const Yosys::RTLIL::SigSpec q,
-                      const Yosys::RTLIL::SigSpec clk)
-            : rhsInput(d)
-            , output(q)
-            , clock(clk) {}
+                              const Yosys::RTLIL::SigSpec q)
+            : input(d)
+            , output(q) {}
 
-        Yosys::RTLIL::SigSpec rhsInput, output, clock;
+        Yosys::RTLIL::SigSpec input, output;
     };
 
     // for conditions like `if (<clock_edge>)'
@@ -46,13 +44,11 @@ private:
     struct flipflop_netlist_t : stack_element_t {
         flipflop_netlist_t() = default;
         flipflop_netlist_t(const Yosys::RTLIL::SigSpec d,
-                           const Yosys::RTLIL::SigSpec q,
-                           const Yosys::RTLIL::SigSpec clk)
+                           const Yosys::RTLIL::SigSpec q)
             : input(d)
-            , output(q)
-            , clock(clk) {}
+            , output(q) {}
 
-        Yosys::RTLIL::SigSpec input, output, clock;
+        Yosys::RTLIL::SigSpec input, output;
     };
 
     struct muxer_netlist_t : stack_element_t {

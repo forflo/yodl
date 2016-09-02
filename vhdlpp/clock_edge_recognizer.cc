@@ -113,20 +113,21 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
     match(n,
           some<ExpFunc>(ds(_x, _x)),
           [this,n](perm_string funcName, std::vector<Expression*> v){
-            clockFuncExp = dynamic_cast<const ExpFunc*>(n);
+              if (v.size() > 1)
+                  clockNameExp = dynamic_cast<const ExpName*>(v[0]);
 
-            if (v.size() == 1 &&
-                (!strcmp(funcName, "falling_edge") ||
-                 !strcmp(funcName, "rising_edge" ))) {
-                containsClockEdge = true;
-                fullClockSpecs.push_back(n);
-                numberClockEdges++;
-            }
+              if (v.size() == 1 &&
+                  (!strcmp(funcName, "falling_edge") ||
+                   !strcmp(funcName, "rising_edge" ))) {
+                  containsClockEdge = true;
+                  fullClockSpecs.push_back(n);
+                  numberClockEdges++;
+              }
 
-            if (!strcmp(funcName, "falling_edge"))
-                direction = NetlistGenerator::edge_spec::FALLING;
-            if (!strcmp(funcName, "rising_edge"))
-                direction = NetlistGenerator::edge_spec::RISING;
+              if (!strcmp(funcName, "falling_edge"))
+                  direction = NetlistGenerator::edge_spec::FALLING;
+              if (!strcmp(funcName, "rising_edge"))
+                  direction = NetlistGenerator::edge_spec::RISING;
 
           },
 
