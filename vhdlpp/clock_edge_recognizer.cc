@@ -115,6 +115,8 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
           [this,n](perm_string funcName, std::vector<Expression*> v){
               if (v.size() > 1)
                   clockNameExp = dynamic_cast<const ExpName*>(v[0]);
+              else
+                  clockNameExp = NULL;
 
               if (v.size() == 1 &&
                   (!strcmp(funcName, "falling_edge") ||

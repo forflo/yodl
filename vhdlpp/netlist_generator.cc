@@ -639,8 +639,21 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
     }
 
     stack_element_t newTop;
+
+    //TODO: Handle cases where if has else blocks...
+    if (s->else_.size() > 0) {
+        std::cout << "Currently only if statements without else supported!"
+                  << std::endl;
+        //TODO!!!
+    }
+
     if (syncCondition) {
         // clock edge synchronized => dff on top of the stack
+        if (findEdgeSpecs.clockNameExp == NULL){
+            std::cout << "clock name expression was null. ABORT"
+                      << std::endl;
+            exit(1);
+        }
 
         if (findEdgeSpecs.fullClockSpecs[0] == condition) {
             // condition consits only of the clock edge specification
@@ -651,11 +664,6 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
             Wire *out = result->addWire(NEW_ID);
             Wire *in = result->addWire(NEW_ID);
 
-            if (findEdgeSpecs.clockNameExp == NULL){
-                std::cout << "clock name expression was null. ABORT"
-                          << std::endl;
-                exit(1);
-            }
 
             dff->setPort("\\CLK", executeExpression(findEdgeSpecs.clockNameExp));
             dff->setPort("\\D", SigSpec(in));
@@ -675,9 +683,8 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
 
             Cell *dff = result->addCell(NEW_ID, "$dff");
             Wire *dffOut = result->addWire(NEW_ID);
-            Wire *dffClock = result->addWire(NEW_ID);
 
-            dff->setPort("\\CLK", SigSpec(dffClock));
+            dff->setPort("\\CLK", executeExpression(findEdgeSpecs.clockNameExp));
             dff->setPort("\\D", SigSpec(muxOut));
             dff->setPort("\\Q", SigSpec(dffOut));
 
@@ -687,6 +694,9 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
             mux->setPort("\\Y", SigSpec(muxOut));
 
             result->connect(SigSpec(muxZero), SigSpec(dffOut));
+
+            //TODO: muxOne must acutally be conected with the
+            //      condition from the if, where clock edge is replaced by true
 
             newTop = dff_complex_netlist_t(SigSpec(muxSelector), SigSpec());
         }
@@ -702,20 +712,21 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
         Cell *dff = result->addCell(NEW_ID, "$dlatch");
         Wire *out = result->addWire(NEW_ID);
         Wire *in = result->addWire(NEW_ID);
-        Wire *enable = result->addWire(NEW_ID);
 
-        dff->setPort("\\EN", SigSpec(enable));
+        dff->setPort("\\EN", executeExpression(condition));
         dff->setPort("\\D", SigSpec(in));
         dff->setPort("\\Q", SigSpec(out));
 
-        newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out), SigSpec(enable));
+        newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
     } else {
         std::cout << "Unknown combination of sync condition and clock edge\n";
     }
 
     contextStack.push_back(newTop);
 
-    // traverse all statements in side the if
+    // traverse all statements inside the if block
+    for (auto &i : s->if_)
+        executeSequentialStmt(i);
 
     contextStack.erase(contextStack.end());
 
