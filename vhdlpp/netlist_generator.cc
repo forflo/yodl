@@ -140,6 +140,7 @@ int NetlistGenerator::traverseBlockStatement(BlockStatement *block){
     return traverseConcStmts(block->concurrent_stmts_);
 }
 
+// TODO: refactor. Another name! NoContext
 int NetlistGenerator::executeSignalAssignmentNonCase(SignalSeqAssignment const *a){
     const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
     string s = signalId;
@@ -152,6 +153,7 @@ int NetlistGenerator::executeSignalAssignmentNonCase(SignalSeqAssignment const *
     return 0;
 }
 
+// TODO: refactor. Another name! ..Context
 int NetlistGenerator::executeSignalAssignmentCase(SignalSeqAssignment const *a){
     const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
     string s = signalId;
@@ -159,7 +161,7 @@ int NetlistGenerator::executeSignalAssignmentCase(SignalSeqAssignment const *a){
     SigSpec res = executeExpression(tmp);
 
 
-    case_stack_element_t &youngest = caseStack[caseStack.size() - 1];
+    stack_element_t &youngest = contextStack[contextStack.size() - 1];
 
     result->connect(
         youngest
@@ -213,7 +215,7 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
         return 1;
     }
 
-    if (caseStack.size() != 0){
+    if (contextStack.size() != 0){
         return executeSignalAssignmentCase(a);
     } else {
         return executeSignalAssignmentNonCase(a);
@@ -595,8 +597,8 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
         set<string> lhsOfAlt = extractLhs(i);
 
         // first push new netlist environment at the end
-        caseStack.push_back(
-            case_stack_element_t(sigMuxerMapping, choice, lhsOfAlt));
+        contextStack.push_back(
+            case_netlist_t(sigMuxerMapping, choice, lhsOfAlt));
 
         // execute every sequential stmt from current choice
         for (auto &i : i->stmts_){
@@ -604,7 +606,7 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
         }
 
         // then erase now obsolete environment
-        caseStack.erase(caseStack.end());
+        contextStack.erase(contextStack.end());
     }
 
     return 0;
@@ -612,7 +614,7 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
 
 int NetlistGenerator::executeIfStmt(IfSequential const *s){
     Expression *condition = s->cond_->clone();
-    bool bTmp;
+    bool syncCondition;
 
     if (s->elsif_.size() > 0) {
         std::cout << "Elsifs not supported!\n"
@@ -624,17 +626,72 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
     SyncCondPredicate isSync(working, currentScope);
     // 1) Modify condition so that all clock edge specs get deleted
 
-    bTmp = isSync(condition);
-
-    if (trySetSyncContext() == false){
-        std::cout << "Unable to set sync context, because it's been already set"
-                  << std::endl;
-    }
+    syncCondition = isSync(condition);
 
     Expression *condClone = condition->clone();
 
     ClockEdgeRecognizer findEdgeSpecs;
     findEdgeSpecs(condClone);
+
+    if (findEdgeSpecs.numberClockEdges > 1){
+        std::cout << "Currently only one clock edge supported!" << std::endl;
+        exit(1);
+    }
+
+    stack_element_t newTop;
+    if (syncCondition) {
+        if (findEdgeSpecs.fullClockSpecs[0] == condition) {
+            // condition consits only of the clock edge specification
+            std::cout << "condition consists only of clock edge spec"
+                      << std::endl;
+
+            Cell *dff = result->addCell(NEW_ID, "$dff");
+            Wire *out = result->addWire(NEW_ID);
+            Wire *in = result->addWire(NEW_ID);
+            Wire *clock = result->addWire(NEW_ID);
+
+            dff->setPort("\\CLK", SigSpec(clock));
+            dff->setPort("\\D", SigSpec(in));
+            dff->setPort("\\Q", SigSpec(out));
+
+            newTop = flipflop_netlist_t(SigSpec(in),
+                                        SigSpec(out), SigSpec(clock));
+
+        } else {
+            std::cout << "condition contains other subexpressions "
+                      << "besides a edge spec" << std::endl;
+
+
+
+        }
+
+
+    } else if ((!syncCondition) && findEdgeSpecs.numberClockEdges > 1) {
+        std::cout << "Can't currently synthesize conditions that"
+                  << "are no sync_condition but contain a clock edge"
+                  << std::endl;
+    } else if ((!syncCondition) && findEdgeSpecs.numberClockEdges == 0) {
+        // put dlatch on top
+
+        Cell *dff = result->addCell(NEW_ID, "$dlatch");
+        Wire *out = result->addWire(NEW_ID);
+        Wire *in = result->addWire(NEW_ID);
+        Wire *enable = result->addWire(NEW_ID);
+
+        dff->setPort("\\EN", SigSpec(enable));
+        dff->setPort("\\D", SigSpec(in));
+        dff->setPort("\\Q", SigSpec(out));
+
+        newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out), SigSpec(enable));
+    } else {
+        std::cout << "Unknown combination of sync condition and clock edge\n";
+    }
+
+    contextStack.push_back(newTop);
+
+    // traverse all statements in side the if
+
+    contextStack.erase(contextStack.end());
 
     return 0;
 }
