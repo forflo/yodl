@@ -13,6 +13,7 @@
 #include <generic_traverser.h>
 #include <clock_edge_recognizer.h>
 #include <sequential.h>
+#include <ifelse_case_converter.h>
 #include <sync_condition_predicate.h>
 
 using namespace Yosys::RTLIL;
@@ -371,6 +372,11 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
             const ExpName *n = dynamic_cast<ExpName const *>(exp);
 
             string strT = n->name_.str();
+
+            // Ad-hoc implementation of true and false enums
+            if (strT == "true"){ return SigSpec(State::S1); break; }
+            if (strT == "false"){ return SigSpec(State::S0); break; }
+
             Wire *w = result->wire("\\" + strT);
 
             if (w){
@@ -722,7 +728,6 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
                   << std::endl;
 
     } else if ((!syncCondition) && findEdgeSpecs.numberClockEdges == 0) {
-        // level sensitive => put dlatch on top
         if (s->else_.size() > 0) {
             set<string> lhsInIf, lhsInElse;
             lhsInIf = extractLhs(s->if_);
@@ -730,11 +735,19 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
 
             if (lhsInIf == lhsInElse){
                 // every signal get's driven at least once in both paths
+                // => no dlatch but normal muxer circuit
                 // TODO:
+                BranchesToCases caseConverter;
+                CaseSeqStmt *caseTemp = caseConverter.makeCaseSeq(s->cond_, s->if_, s->else_);
+
+                executeCaseStmt(caseTemp);
+
+                delete caseTemp;
 
                 std::cout << "Every signal driven in both paths!" << std::endl;
             }
         } else {
+            // level sensitive => put dlatch on top
 
             Cell *dff = result->addCell(NEW_ID, "$dlatch");
             Wire *out = result->addWire(NEW_ID);

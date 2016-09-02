@@ -15,8 +15,6 @@ public:
 
     int operator()(AstNode *);
 
-private:
-
     CaseSeqStmt *transformIfElse(const IfSequential *);
     CaseSeqStmt *makeCaseSeq(const Expression *,
                              const std::list<SequentialStmt *> &,

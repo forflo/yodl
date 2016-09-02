@@ -13,8 +13,8 @@ using namespace mch;
 CaseSeqStmt *BranchesToCases::makeCaseSeq(const Expression *cond,
                                           const list<SequentialStmt *> &if_,
                                           const list<SequentialStmt *> &else_){
-    ExpName *tr = new ExpName(perm_string::literal("TRUE"));
-    ExpName *fa = new ExpName(perm_string::literal("FALSE"));
+    ExpName *tr = new ExpName(perm_string::literal("true"));
+    ExpName *fa = new ExpName(perm_string::literal("false"));
 
     list<Expression *> *tmpTrue, *tmpFalse;
     tmpTrue = new list<Expression*>{tr};
