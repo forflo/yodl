@@ -15,6 +15,41 @@
 #include <sequential.h>
 #include <ifelse_case_converter.h>
 #include <sync_condition_predicate.h>
+#include <simple_match/include/simple_match/simple_match.hpp>
+
+namespace simple_match {
+    namespace customization {
+        template<> struct tuple_adapter<NetlistGenerator::dff_complex_netlist_t> {
+            enum { tuple_len = 2 };
+            template<size_t I, typename T> static decltype(auto)
+                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+
+        template<> struct tuple_adapter<NetlistGenerator::flipflop_netlist_t> {
+            enum { tuple_len = 2 };
+            template<size_t I, typename T> static decltype(auto)
+                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+
+        template<> struct tuple_adapter<NetlistGenerator::muxer_netlist_t> {
+            enum { tuple_len = 2 };
+            template<size_t I, typename T> static decltype(auto)
+                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+
+        template<> struct tuple_adapter<NetlistGenerator::case_t> {
+            enum { tuple_len = 2 };
+            template<size_t I, typename T> static decltype(auto)
+                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+
+        template<> struct tuple_adapter<NetlistGenerator::if_dff_t> {
+            enum { tuple_len = 2 };
+            template<size_t I, typename T> static decltype(auto)
+                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+
+        template<> struct tuple_adapter<NetlistGenerator::if_latch_t> {
+            enum { tuple_len = 2 };
+            template<size_t I, typename T> static decltype(auto)
+                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+    }
+}
 
 using namespace Yosys::RTLIL;
 using namespace std;

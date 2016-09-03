@@ -15,7 +15,6 @@
 
 class NetlistGenerator {
 public:
-    enum class edge_spec { FALLING, RISING, UNDEF };
 
     // TODO: result should be an argument for NetlistGenerator
     NetlistGenerator() : result(0) {};
@@ -24,7 +23,7 @@ public:
 
     Yosys::RTLIL::Module *result;
 
-private:
+public:
     // I'm emulating algebraic data types here by using inheritance
     // for building variants. C++17 will provide std::varaint that will
     // render the following classes obsolete.
