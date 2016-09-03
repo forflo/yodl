@@ -202,7 +202,7 @@ int NetlistGenerator::executeSignalAssignmentNonContext(
 }
 
 int NetlistGenerator::executeSignalAssignmentContextInit(
-    stack_element_t *youngest, string const signalId, SigSpec const &res){
+    stack_element_t *youngest, string const signalId, SigSpec const res){
 
     using namespace simple_match;
     using namespace simple_match::placeholders;
@@ -251,8 +251,8 @@ int NetlistGenerator::executeSignalAssignmentContextInit(
                 },
 
                 some(), [](NetlistGenerator::netlist_element_t const &){
-                    std::cout << "[executeSignalAssignmentCase] Got "
-                              << "stuck in default!"
+                    std::cout << "[executeSignalAssignmentCase] "
+                              << "Got stuck in default!"
                               << std::endl;
                     exit(1);
                 },
@@ -828,6 +828,7 @@ set<string> NetlistGenerator::extractLhs(AstNode const *stmt){
     return leftHandSides;
 }
 
+//BIG-TODO:
 //int NetlistGenerator::finishUpUnassignedSignals(){
 //
 //}

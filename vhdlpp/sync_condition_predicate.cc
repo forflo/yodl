@@ -8,6 +8,7 @@
 #define DEBUG
 
 #include <tuple>
+#include <sstream>
 #include <utility>
 #include <cstdint>
 #include <stdexcept>

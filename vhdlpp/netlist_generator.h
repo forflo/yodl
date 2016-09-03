@@ -140,7 +140,7 @@ private:
 
     // helper
     int executeSignalAssignmentContextInit(
-        stack_element_t *, std::string const, Yosys::RTLIL::SigSpec const &);
+        stack_element_t *, std::string const, Yosys::RTLIL::SigSpec const);
 
     int executeSignalAssignmentContextConnect(
         stack_element_t *, stack_element_t *, std::string const);
