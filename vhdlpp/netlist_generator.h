@@ -138,8 +138,18 @@ private:
     int executeCaseStmt(CaseSeqStmt const *);
     int executeSequentialStmt(SequentialStmt const *);
 
-    int executeSignalAssignmentCase(SignalSeqAssignment const *a);
-    int executeSignalAssignmentNonCase(SignalSeqAssignment const *a);
+    // helper
+    int executeSignalAssignmentContextInit(
+        stack_element_t *, std::string const, Yosys::RTLIL::SigSpec const &);
+
+    int executeSignalAssignmentContextConnect(
+        stack_element_t *, stack_element_t *, std::string const);
+
+    int executeSignalAssignmentContextFinalize(
+        stack_element_t *, std::string const &);
+
+    int executeSignalAssignmentContext(SignalSeqAssignment const *a);
+    int executeSignalAssignmentNonContext(SignalSeqAssignment const *a);
     int executeSignalAssignment(SignalSeqAssignment const *);
     Yosys::RTLIL::SigSpec executeExpression(Expression const *);
 
