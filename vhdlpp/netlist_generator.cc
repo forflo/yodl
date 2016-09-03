@@ -607,7 +607,7 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
 
     set<string> lhsOfCase = extractLhs(stmt);
 
-    map<string, muxer_netlist_t> sigMuxerMapping;
+    map<string, netlist_element_t> sigMuxerMapping;
     for (auto &i : lhsOfCase)
         sigMuxerMapping[i] = generateMuxer(stmt);
 
@@ -617,7 +617,7 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
 
         // first push new netlist environment at the end
         contextStack.push_back(
-            case_netlist_t(sigMuxerMapping, choice, lhsOfAlt));
+            case_t(sigMuxerMapping, choice, lhsOfAlt));
 
         // execute every sequential stmt from current choice
         for (auto &i : i->stmts_){
@@ -631,50 +631,18 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
     return 0;
 }
 
-int NetlistGenerator::executeIfStmt(IfSequential const *s){
-    Expression *condition = s->cond_->clone();
-    bool syncCondition;
-
-    if (s->elsif_.size() > 0) {
-        std::cout << "Elsifs not supported!\n"
-                  << "run elsif to if-else converter instead!\n"
-                  << std::endl;
-        exit(1);
-    }
-
-    SyncCondPredicate isSync(working, currentScope);
-    // 1) Modify condition so that all clock edge specs get deleted
-
-    syncCondition = isSync(condition);
-
-    Expression *condClone = condition->clone();
-
-    ClockEdgeRecognizer findEdgeSpecs;
-    findEdgeSpecs(condClone);
-
-    if (findEdgeSpecs.numberClockEdges > 1){
-        std::cout << "Currently only one clock edge supported!" << std::endl;
-        exit(1);
-    }
-
+int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
+                                      Expression const *condition,
+                                      IfSequential const *s){
     stack_element_t newTop;
 
-    //TODO: Handle cases where if has else blocks...
+    std::set<string> drivenSignals;
+    std::map<string, netlist_element_t> sigsToNetsMap;
+    drivenSignals = extractLhs(s->if_);
 
-    if (syncCondition) {
-        // clock edge synchronized => dff on top of the stack
-        if (findEdgeSpecs.clockNameExp == NULL){
-            std::cout << "clock name expression was null. ABORT"
-                      << std::endl;
-            exit(1);
-        }
+    for (auto &i : drivenSignals){
 
-        if (s->else_.size() > 0) {
-            std::cout << "Else statements in if with sync condition not allowed!"
-                      << std::endl;
-            exit(1);
-        }
-
+        netlist_element_t flipflop;
         if (findEdgeSpecs.fullClockSpecs[0] == condition) {
             // condition consits only of the clock edge specification
             std::cout << "condition consists only of clock edge spec"
@@ -689,7 +657,7 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
             dff->setPort("\\D", SigSpec(in));
             dff->setPort("\\Q", SigSpec(out));
 
-            newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
+            flipflop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
 
         } else {
             std::cout << "condition contains other subexpressions "
@@ -718,10 +686,98 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
             //TODO: muxOne must acutally be conected with the
             //      condition from the if, where clock edge is replaced by true
 
-            newTop = dff_complex_netlist_t(SigSpec(muxSelector), SigSpec());
+            flipflop = dff_complex_netlist_t(SigSpec(muxSelector), SigSpec());
         }
 
+        sigsToNetsMap[i] = flipflop;
+    }
 
+    newTop = if_dff_t(sigsToNetsMap, drivenSignals);
+    executeIfStmtHRecurse(s, newTop);
+}
+
+int NetlistGenerator::executeIfStmtH2(Expression const *condition,
+                                      IfSequential const *s){
+    stack_element_t newTop;
+
+    std::set<string> drivenSignals;
+    std::map<string, netlist_element_t> sigsToNetsMap;
+    drivenSignals = extractLhs(s->if_);
+
+    for (auto &i : drivenSignals){
+        netlist_element_t latch;
+        Cell *dff = result->addCell(NEW_ID, "$dlatch");
+        Wire *out = result->addWire(NEW_ID);
+        Wire *in = result->addWire(NEW_ID);
+
+        dff->setPort("\\EN", executeExpression(condition));
+        dff->setPort("\\D", SigSpec(in));
+        dff->setPort("\\Q", SigSpec(out));
+
+        latch = flipflop_netlist_t(SigSpec(in), SigSpec(out));
+        sigsToNetsMap[i] = latch;
+    }
+
+    newTop = if_latch_t(sigsToNetsMap, drivenSignals);
+
+    executeIfStmtHRecurse(s, newTop);
+}
+
+int NetlistGenerator::executeIfStmtHRecurse(IfSequential const *s,
+                                            stack_element_t const &newTop){
+
+    contextStack.push_back(newTop);
+
+    // traverse all statements inside the if block
+    for (auto &i : s->if_)
+        executeSequentialStmt(i);
+
+    contextStack.erase(contextStack.end());
+}
+
+int NetlistGenerator::executeIfStmt(IfSequential const *s){
+    Expression *condition = s->cond_->clone();
+    bool syncCondition;
+
+    if (s->elsif_.size() > 0) {
+        std::cout << "Elsifs not supported!\n"
+                  << "run elsif to if-else converter instead!\n"
+                  << std::endl;
+        exit(1);
+    }
+
+    SyncCondPredicate isSync(working, currentScope);
+    // 1) Modify condition so that all clock edge specs get deleted
+
+    syncCondition = isSync(condition);
+
+    Expression *condClone = condition->clone();
+
+    ClockEdgeRecognizer findEdgeSpecs;
+    findEdgeSpecs(condClone);
+
+    if (findEdgeSpecs.numberClockEdges > 1){
+        std::cout << "Currently only one clock edge supported!" << std::endl;
+        exit(1);
+    }
+
+    //TODO: Handle cases where if has else blocks...
+    //      done for thirt path!
+    if (syncCondition) {
+        // clock edge synchronized => dff on top of the stack
+        if (findEdgeSpecs.clockNameExp == NULL){
+            std::cout << "clock name expression was null. ABORT"
+                      << std::endl;
+            exit(1);
+        }
+
+        if (s->else_.size() > 0) {
+            std::cout << "Else statements in if with sync condition not allowed!"
+                      << std::endl;
+            exit(1);
+        }
+
+        executeIfStmtH1(findEdgeSpecs, condition, s);
     } else if ((!syncCondition) && findEdgeSpecs.numberClockEdges > 1) {
         std::cout << "Can't currently synthesize conditions that"
                   << "are no sync_condition but contain a clock edge"
@@ -749,27 +805,11 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
         } else {
             // level sensitive => put dlatch on top
 
-            Cell *dff = result->addCell(NEW_ID, "$dlatch");
-            Wire *out = result->addWire(NEW_ID);
-            Wire *in = result->addWire(NEW_ID);
-
-            dff->setPort("\\EN", executeExpression(condition));
-            dff->setPort("\\D", SigSpec(in));
-            dff->setPort("\\Q", SigSpec(out));
-
-            newTop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
+            executeIfStmtH2(condition, s);
         }
     } else {
         std::cout << "Unknown combination of sync condition and clock edge\n";
     }
-
-    contextStack.push_back(newTop);
-
-    // traverse all statements inside the if block
-    for (auto &i : s->if_)
-        executeSequentialStmt(i);
-
-    contextStack.erase(contextStack.end());
 
     return 0;
 }

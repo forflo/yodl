@@ -9,6 +9,7 @@
 #include <stack>
 
 #include <entity.h>
+#include <clock_edge_recognizer.h>
 #include <architec.h>
 #include <sequential.h>
 
@@ -72,6 +73,7 @@ private:
     /* stack elements hold mappings from signals to netlist elements */
     struct stack_element_t {
         virtual ~stack_element_t() = default;
+        stack_element_t() = default;
         stack_element_t(const std::map<string, netlist_element_t> &n,
                         const std::set<string> &o)
             : netlist(n)
@@ -124,6 +126,12 @@ private:
     std::set<string> extractLhs(AstNode const *stmt);
     std::set<string> extractLhs(std::list<SequentialStmt *> const &l);
 
+    int executeIfStmtH1(ClockEdgeRecognizer const &,
+                        Expression const *,
+                        IfSequential const *);
+    int executeIfStmtH2(Expression const *, IfSequential const *);
+    int executeIfStmtHRecurse(IfSequential const *,
+                              stack_element_t const &);
     int executeIfStmt(IfSequential const *);
 
     int executeCaseStmt(CaseSeqStmt const *);

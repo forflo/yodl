@@ -1,16 +1,17 @@
 #ifndef IVL_CLOCK_EDGE
 #define IVL_CLOCK_EDGE
 
-#include <netlist_generator.h>
 #include <vector>
 #include <expression.h>
 
 class ClockEdgeRecognizer {
 public:
+    enum class edge_spec { FALLING, RISING, UNDEF };
+
     ClockEdgeRecognizer()
         : containsClockEdge(false)
         , numberClockEdges(0)
-        , direction(NetlistGenerator::edge_spec::UNDEF)
+        , direction(edge_spec::UNDEF)
         { }
 
     int operator()(const AstNode *);
@@ -18,7 +19,7 @@ public:
 
     bool containsClockEdge;
     int numberClockEdges;
-    NetlistGenerator::edge_spec direction;
+    edge_spec direction;
 
     //either of type ExpFunc or ExpLogical
     std::vector<AstNode const *> fullClockSpecs = {};
