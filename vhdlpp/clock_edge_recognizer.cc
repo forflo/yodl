@@ -2,6 +2,7 @@
 #include <tuple>
 #include <utility>
 #include <cstdint>
+#include <string.h>
 #include <stdexcept>
 #include <vector>
 #include <iostream>
@@ -65,12 +66,11 @@ namespace simple_match {
 void ClockEdgeRecognizer::reset(void){
     containsClockEdge = false;
     numberClockEdges = 0;
-    direction = NetlistGenerator::edge_spec::UNDEF;
+    direction = ClockEdgeRecognizer::edge_spec::UNDEF;
 
     fullClockSpecs = {};
 
     clockNameExp = NULL;
-    clockFuncExp = NULL;
 }
 
 int ClockEdgeRecognizer::operator()(const AstNode *n){
@@ -94,9 +94,9 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
             containsClockEdge = true;
             numberClockEdges++;
             if (charVal == '0')
-                direction = NetlistGenerator::edge_spec::FALLING;
+                direction = ClockEdgeRecognizer::edge_spec::FALLING;
             else
-                direction = NetlistGenerator::edge_spec::RISING;
+                direction = ClockEdgeRecognizer::edge_spec::RISING;
         }
     };
 
@@ -127,9 +127,9 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
               }
 
               if (!strcmp(funcName, "falling_edge"))
-                  direction = NetlistGenerator::edge_spec::FALLING;
+                  direction = ClockEdgeRecognizer::edge_spec::FALLING;
               if (!strcmp(funcName, "rising_edge"))
-                  direction = NetlistGenerator::edge_spec::RISING;
+                  direction = ClockEdgeRecognizer::edge_spec::RISING;
 
           },
 

@@ -32,16 +32,19 @@ public:
     /* netlist elements hold inputs and outputs of circuit parts */
     struct netlist_element_t {
         virtual ~netlist_element_t() = default;
+        netlist_element_t() = default;
+        netlist_element_t(Yosys::RTLIL::SigSpec o) : output(o) {}
+        Yosys::RTLIL::SigSpec output;
     };
 
     // for conditions like `if (<c_1> o <clock_edge> o <c_2>)'
     struct dff_complex_netlist_t : netlist_element_t {
         dff_complex_netlist_t(const Yosys::RTLIL::SigSpec d,
                               const Yosys::RTLIL::SigSpec q)
-            : input(d)
-            , output(q) {}
+            : netlist_element_t(q)
+            , input(d) {}
 
-        Yosys::RTLIL::SigSpec input, output;
+        Yosys::RTLIL::SigSpec input;
     };
 
     // for conditions like `if (<clock_edge>)'
@@ -49,23 +52,22 @@ public:
     struct flipflop_netlist_t : netlist_element_t {
         flipflop_netlist_t(const Yosys::RTLIL::SigSpec d,
                            const Yosys::RTLIL::SigSpec q)
-            : input(d)
-            , output(q) {}
+            : netlist_element_t(q)
+            , input(d) {}
 
-        Yosys::RTLIL::SigSpec input, output;
+        Yosys::RTLIL::SigSpec input;
     };
 
     struct muxer_netlist_t : netlist_element_t {
         muxer_netlist_t(
             const std::map<Yosys::RTLIL::SigSpec, Yosys::RTLIL::SigSpec> &i,
             Yosys::RTLIL::SigSpec o, unsigned int w)
-            : inputPaths(i)
-            , muxerOutput(o)
+            : netlist_element_t(o)
+            , inputPaths(i)
             , muxerWidth(w) { }
         // maps pahts to wires. Key sigspec is used to represent a choice
         // of a case sequential statement
         std::map<Yosys::RTLIL::SigSpec, Yosys::RTLIL::SigSpec> inputPaths;
-        Yosys::RTLIL::SigSpec muxerOutput;
         unsigned int muxerWidth;
     };
 

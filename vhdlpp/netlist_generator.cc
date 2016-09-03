@@ -30,24 +30,34 @@ namespace simple_match {
                 get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
 
         template<> struct tuple_adapter<NetlistGenerator::muxer_netlist_t> {
-            enum { tuple_len = 2 };
+            enum { tuple_len = 3 };
             template<size_t I, typename T> static decltype(auto)
-                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+                get(T&& t) { return std::get<I>(
+                    std::tie(t.inputPaths, t.output, t.muxerWidth)); }};
 
         template<> struct tuple_adapter<NetlistGenerator::case_t> {
-            enum { tuple_len = 2 };
+            enum { tuple_len = 3 };
             template<size_t I, typename T> static decltype(auto)
-                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+                get(T&& t) { return std::get<I>(
+                    std::tie(t.netlist, t.occuringSignals, t.curWhenAlternative)); }};
 
         template<> struct tuple_adapter<NetlistGenerator::if_dff_t> {
             enum { tuple_len = 2 };
             template<size_t I, typename T> static decltype(auto)
-                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+                get(T&& t) { return std::get<I>(
+                    std::tie(t.netlist, t.occuringSignals)); }};
+
+        template<> struct tuple_adapter<NetlistGenerator::stack_element_t> {
+            enum { tuple_len = 2 };
+            template<size_t I, typename T> static decltype(auto)
+                get(T&& t) { return std::get<I>(
+                    std::tie(t.netlist, t.occuringSignals)); }};
 
         template<> struct tuple_adapter<NetlistGenerator::if_latch_t> {
             enum { tuple_len = 2 };
             template<size_t I, typename T> static decltype(auto)
-                get(T&& t) { return std::get<I>(std::tie(t.input, t.output)); }};
+                get(T&& t) { return std::get<I>(
+                    std::tie(t.netlist, t.occuringSignals)); }};
     }
 }
 
@@ -189,6 +199,94 @@ int NetlistGenerator::executeSignalAssignmentNonCase(SignalSeqAssignment const *
     return 0;
 }
 
+int NetlistGenerator::executeSignalAssignmentCaseH1(stack_element_t *youngest,
+                                                    string const signalId,
+                                                    SigSpec const &res){
+    using namespace simple_match;
+    using namespace simple_match::placeholders;
+
+    match(
+        youngest,
+
+        some<NetlistGenerator::case_t>(ds(_x, _x, _x)),
+        [this,&signalId,&res](auto &netlistsMap, auto &, auto &currentChoice){
+            netlist_element_t *tmp = &netlistsMap[signalId];
+
+            muxer_netlist_t *muxer = dynamic_cast<muxer_netlist_t *>(tmp);
+            if (muxer)
+                result->connect(muxer->inputPaths[currentChoice], res);
+            else
+                std::cout << "[executeSignalAssignmentCase] Impossible Nullpointer!"
+                          << std::endl;
+        },
+
+        some<NetlistGenerator::stack_element_t>(ds(_x, _x)),
+        [this,&signalId,&res](auto &netlistMap, auto &b){
+            netlist_element_t *tmp = &netlistMap[signalId];
+
+            match(
+                tmp,
+
+                some<NetlistGenerator::flipflop_netlist_t>(ds(_x, _x)),
+                [this,&res](auto &input, auto &){
+                    result->connect(input, res);
+                },
+
+                some<NetlistGenerator::dff_complex_netlist_t>(ds(_x, _x)),
+                [this,&res](auto &input, auto &){
+                    result->connect(input, res);
+                },
+
+                some<NetlistGenerator::muxer_netlist_t>(ds(_x, _x, _x)),
+                [](auto &, auto &, auto &){
+                    std::cout << "[executeSignalAssignmentCase] Impossible condition!"
+                              << std::endl;
+                    exit(1);
+                },
+
+                some(), [](NetlistGenerator::netlist_element_t const &){
+                    std::cout << "[executeSignalAssignmentCase] Got stuck in default!"
+                              << std::endl;
+                    exit(1);
+                },
+
+                none(), [](){
+                    std::cout << "[executeSignalAssignmentCase] Nullpointer in nested!"
+                              << std::endl;
+                    exit(1);
+                });
+        },
+
+        some(), [](stack_element_t const &){
+            std::cout << "[executeSignalAssignmentCase] Don't know!"
+                      << std::endl;
+            exit(1);
+        },
+
+        none(), [](){
+            std::cout << "[executeSignalAssignmentCase] Nullpointer was given!"
+                      << std::endl;
+            exit(1);
+        });
+
+    return 0;
+}
+
+int NetlistGenerator::executeSignalAssignmentCaseConnect(stack_element_t *moreNested,
+                                                         stack_element_t *lessNested){
+
+//        result->connect(
+//            lessNested.netlist[signalId].inputPaths[lessNested.curWhenAlternative],
+//            moreNested.netlist[signalId].muxerOutput);
+    return 0;
+}
+
+int NetlistGenerator::executeSignalAssignmentCaseFinalize(stack_element_t *oldest){
+//    result->connect(
+//        result->wire("\\" + s),
+//        caseStack[0].netlist[signalId].muxerOutput);
+}
+
 // TODO: refactor. Another name! ..Context
 int NetlistGenerator::executeSignalAssignmentCase(SignalSeqAssignment const *a){
     const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
@@ -196,28 +294,18 @@ int NetlistGenerator::executeSignalAssignmentCase(SignalSeqAssignment const *a){
     Expression *tmp = *a->waveform_.begin();
     SigSpec res = executeExpression(tmp);
 
+    stack_element_t *youngest = &contextStack[contextStack.size() - 1];
 
-    stack_element_t &youngest = contextStack[contextStack.size() - 1];
+    executeSignalAssignmentCaseH1(youngest, signalId, res);
 
-    result->connect(
-        youngest
-        .netlist[signalId]
-        .inputPaths[youngest.curWhenAlternative],
-        res);
+    for (int i = contextStack.size() - 1; i > 0; i--){
+        stack_element_t *moreNested = &contextStack[i];
+        stack_element_t *lessNested = &contextStack[i - 1];
 
-    for (int i = caseStack.size() - 1; i > 0; i--){
-        case_stack_element_t &moreNested = caseStack[i];
-        case_stack_element_t &lessNested = caseStack[i - 1];
-
-        result->connect(
-            lessNested.netlist[signalId].inputPaths[lessNested.curWhenAlternative],
-            moreNested.netlist[signalId].muxerOutput);
+        executeSignalAssignmentCaseConnect(moreNested, lessNested);
     }
 
-    result->connect(
-        result->wire("\\" + s),
-        caseStack[0].netlist[signalId].muxerOutput);
-
+    executeSignalAssignmentCaseFinalize(&contextStack[0]);
     return 0;
 }
 
