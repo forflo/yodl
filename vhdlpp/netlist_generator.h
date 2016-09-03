@@ -24,13 +24,18 @@ public:
     Yosys::RTLIL::Module *result;
 
 private:
-    struct stack_element_t {
-        virtual ~stack_element_t() = default;
+    // I'm emulating algebraic data types here by using inheritance
+    // for building variants. C++17 will provide std::varaint that will
+    // render the following classes obsolete.
+    // FUTURE-TODO: Adapt to new C++ standard
+
+    /* netlist elements hold inputs and outputs of circuit parts */
+    struct netlist_element_t {
+        virtual ~netlist_element_t() = default;
     };
 
     // for conditions like `if (<c_1> o <clock_edge> o <c_2>)'
-    struct dff_complex_netlist_t : stack_element_t {
-        dff_complex_netlist_t() = default;
+    struct dff_complex_netlist_t : netlist_element_t {
         dff_complex_netlist_t(const Yosys::RTLIL::SigSpec d,
                               const Yosys::RTLIL::SigSpec q)
             : input(d)
@@ -41,8 +46,7 @@ private:
 
     // for conditions like `if (<clock_edge>)'
     // or `if (<non-sync condition>)'
-    struct flipflop_netlist_t : stack_element_t {
-        flipflop_netlist_t() = default;
+    struct flipflop_netlist_t : netlist_element_t {
         flipflop_netlist_t(const Yosys::RTLIL::SigSpec d,
                            const Yosys::RTLIL::SigSpec q)
             : input(d)
@@ -51,8 +55,7 @@ private:
         Yosys::RTLIL::SigSpec input, output;
     };
 
-    struct muxer_netlist_t : stack_element_t {
-        muxer_netlist_t() = default;
+    struct muxer_netlist_t : netlist_element_t {
         muxer_netlist_t(
             const std::map<Yosys::RTLIL::SigSpec, Yosys::RTLIL::SigSpec> &i,
             Yosys::RTLIL::SigSpec o, unsigned int w)
@@ -66,18 +69,38 @@ private:
         unsigned int muxerWidth;
     };
 
-    struct case_netlist_t : stack_element_t {
-        case_netlist_t() = default;
-        case_netlist_t(const std::map<string, muxer_netlist_t> &n,
+    /* stack elements hold mappings from signals to netlist elements */
+    struct stack_element_t {
+        virtual ~stack_element_t() = default;
+        stack_element_t(const std::map<string, netlist_element_t> &n,
+                        const std::set<string> &o)
+            : netlist(n)
+            , occuringSignals(o) { }
+
+        std::map<string, netlist_element_t> netlist;
+        std::set<string> occuringSignals;
+    };
+
+    struct case_t : stack_element_t {
+        case_t(const std::map<string, netlist_element_t> &n,
                        const Yosys::RTLIL::SigSpec &s,
                        const std::set<string> &o)
-            : occuringSignals(o)
-            , netlist(n)
+            : stack_element_t(n, o)
             , curWhenAlternative(s) {}
 
-        std::set<string> occuringSignals;
-        std::map<string, muxer_netlist_t> netlist;
         Yosys::RTLIL::SigSpec curWhenAlternative;
+    };
+
+    struct if_dff_t : stack_element_t {
+        if_dff_t(const std::map<string, netlist_element_t> &n,
+                 const std::set<string> &o)
+            : stack_element_t(n, o) {}
+    };
+
+    struct if_latch_t : stack_element_t {
+        if_latch_t(const std::map<string, netlist_element_t> &n,
+                   const std::set<string> &o)
+            : stack_element_t(n, o) {}
     };
 
 private:
