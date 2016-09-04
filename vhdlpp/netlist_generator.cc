@@ -3,7 +3,6 @@
 #include <predicate_generators.h>
 
 #include <functional>
-#include <stateful_lambda.h>
 
 #include <kernel/yosys.h>
 #include <kernel/rtlil.h>
@@ -211,8 +210,8 @@ int NetlistGenerator::executeSignalAssignmentContextInit(
         youngest,
 
         some<NetlistGenerator::case_t>(ds(_x, _x, _x)),
-        [this,&signalId,&res](auto &netlistsMap, auto &, auto &currentChoice){
-            netlist_element_t *tmp = &netlistsMap[signalId];
+        [this,&signalId,&res](auto netlistsMap, auto, auto currentChoice){
+            netlist_element_t *tmp = netlistsMap[signalId];
 
             muxer_netlist_t *muxer = dynamic_cast<muxer_netlist_t *>(tmp);
             if (muxer) {
@@ -226,24 +225,24 @@ int NetlistGenerator::executeSignalAssignmentContextInit(
         },
 
         some<NetlistGenerator::stack_element_t>(ds(_x, _x)),
-        [this,&signalId,&res](auto &netlistMap, auto &){
-            netlist_element_t *tmp = &netlistMap[signalId];
+        [this,&signalId,&res](auto netlistMap, auto){
+            netlist_element_t *tmp = netlistMap[signalId];
 
             match(
                 tmp,
 
                 some<NetlistGenerator::flipflop_netlist_t>(ds(_x, _x)),
-                [this,&res](auto &input, auto &){
+                [this,&res](auto input, auto){
                     result->connect(input, res);
                 },
 
                 some<NetlistGenerator::dff_complex_netlist_t>(ds(_x, _x)),
-                [this,&res](auto &input, auto &){
+                [this,&res](auto input, auto){
                     result->connect(input, res);
                 },
 
                 some<NetlistGenerator::muxer_netlist_t>(ds(_x, _x, _x)),
-                [](auto &, auto &, auto &){
+                [](auto, auto, auto){
                     std::cout << "[executeSignalAssignmentCase] "
                               << "Impossible condition!"
                               << std::endl;
@@ -291,9 +290,9 @@ int NetlistGenerator::executeSignalAssignmentContextConnect(
         lessNested,
 
         some<NetlistGenerator::case_t>(ds(_x, _x, _x)),
-        [this,&signalId,moreNested](auto &netlistsMap, auto &,
-                                    auto &currentChoice){
-            netlist_element_t *tmp = &netlistsMap[signalId];
+        [this,&signalId,moreNested](auto netlistsMap, auto,
+                                    auto currentChoice){
+            netlist_element_t *tmp = netlistsMap[signalId];
             match(
                 tmp,
 
@@ -301,24 +300,24 @@ int NetlistGenerator::executeSignalAssignmentContextConnect(
                 // output of the more nested netlist's output appropriate for
                 // signal id
                 some<NetlistGenerator::flipflop_netlist_t>(ds(_x, _x)),
-                [this,moreNested,&signalId](auto &input, auto &){
+                [this,moreNested,&signalId](auto input, auto){
                     result->connect(
-                        input, moreNested->netlist[signalId].output);
+                        input, moreNested->netlist[signalId]->output);
                 },
 
                 some<NetlistGenerator::dff_complex_netlist_t>(ds(_x, _x)),
-                [this,moreNested,&signalId](auto &input, auto &){
+                [this,moreNested,&signalId](auto input, auto){
                     result->connect(
-                        input, moreNested->netlist[signalId].output);
+                        input, moreNested->netlist[signalId]->output);
                 },
 
                 some<NetlistGenerator::muxer_netlist_t>(ds(_x, _x, _x)),
                 [this,currentChoice,moreNested,&signalId](
-                    auto &inputPaths, auto &, auto &){
+                    auto inputPaths, auto, auto){
 
                     result->connect(
                         inputPaths[currentChoice],
-                        moreNested->netlist[signalId].output);
+                        moreNested->netlist[signalId]->output);
                 },
 
                 // default error handling
@@ -338,9 +337,9 @@ int NetlistGenerator::executeSignalAssignmentContextConnect(
         },
 
         some<NetlistGenerator::stack_element_t>(ds(_x, _x)),
-        [this,&signalId,moreNested](auto &netlistsMap,
-                                    auto &){
-            netlist_element_t *tmp = &netlistsMap[signalId];
+        [this,&signalId,moreNested](auto netlistsMap,
+                                    auto){
+            netlist_element_t *tmp = netlistsMap[signalId];
             match(
                 tmp,
 
@@ -348,19 +347,19 @@ int NetlistGenerator::executeSignalAssignmentContextConnect(
                 // output of the more nested netlist's output appropriate for
                 // signal id
                 some<NetlistGenerator::flipflop_netlist_t>(ds(_x, _x)),
-                [this,moreNested,&signalId](auto &input, auto &){
+                [this,moreNested,&signalId](auto input, auto){
                     result->connect(
-                        input, moreNested->netlist[signalId].output);
+                        input, moreNested->netlist[signalId]->output);
                 },
 
                 some<NetlistGenerator::dff_complex_netlist_t>(ds(_x, _x)),
-                [this,moreNested,&signalId](auto &input, auto &){
+                [this,moreNested,&signalId](auto input, auto){
                     result->connect(
-                        input, moreNested->netlist[signalId].output);
+                        input, moreNested->netlist[signalId]->output);
                 },
 
                 some<NetlistGenerator::muxer_netlist_t>(ds(_x, _x, _x)),
-                [this,moreNested,&signalId](auto &, auto &, auto &){
+                [this,moreNested,&signalId](auto, auto, auto){
                     std::cout << "[executeSignalAssignmentCaseConnect] "
                               << "impossible condition detected!"
                               << std::endl;
@@ -405,7 +404,7 @@ int NetlistGenerator::executeSignalAssignmentContextFinalize(
 
     result->connect(
         result->wire("\\" + signalId),
-        oldest->netlist[signalId].output);
+        oldest->netlist[signalId]->output);
 
     return 0;
 }
@@ -417,18 +416,18 @@ int NetlistGenerator::executeSignalAssignmentContext(SignalSeqAssignment const *
     Expression *tmp = *a->waveform_.begin();
     SigSpec res = executeExpression(tmp);
 
-    stack_element_t *youngest = &contextStack[contextStack.size() - 1];
+    stack_element_t *youngest = contextStack[contextStack.size() - 1];
 
     executeSignalAssignmentContextInit(youngest, signalId, res);
 
     for (int i = contextStack.size() - 1; i > 0; i--){
-        stack_element_t *moreNested = &contextStack[i];
-        stack_element_t *lessNested = &contextStack[i - 1];
+        stack_element_t *moreNested = contextStack[i];
+        stack_element_t *lessNested = contextStack[i - 1];
 
         executeSignalAssignmentContextConnect(moreNested, lessNested, signalId);
     }
 
-    executeSignalAssignmentContextFinalize(&contextStack[0], s);
+    executeSignalAssignmentContextFinalize(contextStack[0], s);
     return 0;
 }
 
@@ -763,7 +762,7 @@ int NetlistGenerator::generateMuxerH(
     return 0;
 }
 
-NetlistGenerator::muxer_netlist_t
+NetlistGenerator::muxer_netlist_t *
 NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
     Expression const *condition = c->cond_;
     vector<SigSpec> selVec;
@@ -793,7 +792,7 @@ NetlistGenerator::generateMuxer(CaseSeqStmt const *c){
 //    result->connect(inputs[sigSpecFromString("010")], SigSpec(State::S1));
 //    result->connect(inputs[sigSpecFromString("110")], SigSpec(State::S1));
 
-    return muxer_netlist_t(inputs, output, inputs.begin()->first.size());
+    return new muxer_netlist_t(inputs, output, inputs.begin()->first.size());
 }
 
 set<string> NetlistGenerator::extractLhs(list<SequentialStmt *> const &l){
@@ -854,7 +853,7 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
 
     set<string> lhsOfCase = extractLhs(stmt);
 
-    map<string, netlist_element_t> sigMuxerMapping;
+    map<string, netlist_element_t *> sigMuxerMapping;
     for (auto &i : lhsOfCase)
         sigMuxerMapping[i] = generateMuxer(stmt);
 
@@ -864,7 +863,7 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
 
         // first push new netlist environment at the end
         contextStack.push_back(
-            case_t(sigMuxerMapping, choice, lhsOfAlt));
+            new case_t(sigMuxerMapping, choice, lhsOfAlt));
 
         // execute every sequential stmt from current choice
         for (auto &i : i->stmts_){
@@ -872,7 +871,7 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
         }
 
         // then erase now obsolete environment
-        contextStack.erase(contextStack.end());
+        contextStack.pop_back();
     }
 
     return 0;
@@ -881,15 +880,15 @@ int NetlistGenerator::executeCaseStmt(CaseSeqStmt const *stmt){
 int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
                                       Expression const *condition,
                                       IfSequential const *s){
-    stack_element_t newTop;
+    stack_element_t *newTop;
 
     std::set<string> drivenSignals;
-    std::map<string, netlist_element_t> sigsToNetsMap;
+    std::map<string, netlist_element_t *> sigsToNetsMap;
     drivenSignals = extractLhs(s->if_);
 
     for (auto &i : drivenSignals){
 
-        netlist_element_t flipflop;
+        netlist_element_t *flipflop;
         if (findEdgeSpecs.fullClockSpecs[0] == condition) {
             // condition consits only of the clock edge specification
             std::cout << "condition consists only of clock edge spec"
@@ -904,7 +903,7 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
             dff->setPort("\\D", SigSpec(in));
             dff->setPort("\\Q", SigSpec(out));
 
-            flipflop = flipflop_netlist_t(SigSpec(in), SigSpec(out));
+            flipflop = new flipflop_netlist_t(SigSpec(in), SigSpec(out));
 
         } else {
             std::cout << "condition contains other subexpressions "
@@ -933,13 +932,13 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
             //TODO: muxOne must acutally be conected with the
             //      condition from the if, where clock edge is replaced by true
 
-            flipflop = dff_complex_netlist_t(SigSpec(muxSelector), SigSpec());
+            flipflop = new dff_complex_netlist_t(SigSpec(muxSelector), SigSpec());
         }
 
         sigsToNetsMap[i] = flipflop;
     }
 
-    newTop = if_dff_t(sigsToNetsMap, drivenSignals);
+    newTop = new if_dff_t(sigsToNetsMap, drivenSignals);
     executeIfStmtHRecurse(s, newTop);
 
     return 0;
@@ -947,14 +946,14 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
 
 int NetlistGenerator::executeIfStmtH2(Expression const *condition,
                                       IfSequential const *s){
-    stack_element_t newTop;
+    stack_element_t *newTop;
 
     std::set<string> drivenSignals;
-    std::map<string, netlist_element_t> sigsToNetsMap;
+    std::map<string, netlist_element_t *> sigsToNetsMap;
     drivenSignals = extractLhs(s->if_);
 
     for (auto &i : drivenSignals){
-        netlist_element_t latch;
+        netlist_element_t *latch;
         Cell *dff = result->addCell(NEW_ID, "$dlatch");
         Wire *out = result->addWire(NEW_ID);
         Wire *in = result->addWire(NEW_ID);
@@ -963,11 +962,11 @@ int NetlistGenerator::executeIfStmtH2(Expression const *condition,
         dff->setPort("\\D", SigSpec(in));
         dff->setPort("\\Q", SigSpec(out));
 
-        latch = flipflop_netlist_t(SigSpec(in), SigSpec(out));
+        latch = new flipflop_netlist_t(SigSpec(in), SigSpec(out));
         sigsToNetsMap[i] = latch;
     }
 
-    newTop = if_latch_t(sigsToNetsMap, drivenSignals);
+    newTop = new if_latch_t(sigsToNetsMap, drivenSignals);
 
     executeIfStmtHRecurse(s, newTop);
 
@@ -975,7 +974,7 @@ int NetlistGenerator::executeIfStmtH2(Expression const *condition,
 }
 
 int NetlistGenerator::executeIfStmtHRecurse(IfSequential const *s,
-                                            stack_element_t const &newTop){
+                                            stack_element_t *newTop){
 
     contextStack.push_back(newTop);
 

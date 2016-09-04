@@ -28,6 +28,7 @@ public:
     // for building variants. C++17 will provide std::varaint that will
     // render the following classes obsolete.
     // FUTURE-TODO: Adapt to new C++ standard
+    // TODO: provide for proper destructors (call them properly in netlistGenerator)
 
     /* netlist elements hold inputs and outputs of circuit parts */
     struct netlist_element_t {
@@ -75,19 +76,19 @@ public:
     struct stack_element_t {
         virtual ~stack_element_t() = default;
         stack_element_t() = default;
-        stack_element_t(const std::map<string, netlist_element_t> &n,
+        stack_element_t(const std::map<string, netlist_element_t *> &n,
                         const std::set<string> &o)
             : netlist(n)
             , occuringSignals(o) { }
 
-        std::map<string, netlist_element_t> netlist;
+        std::map<string, netlist_element_t *> netlist;
         std::set<string> occuringSignals;
     };
 
     struct case_t : stack_element_t {
-        case_t(const std::map<string, netlist_element_t> &n,
-                       const Yosys::RTLIL::SigSpec &s,
-                       const std::set<string> &o)
+        case_t(const std::map<string, netlist_element_t *> &n,
+               const Yosys::RTLIL::SigSpec &s,
+               const std::set<string> &o)
             : stack_element_t(n, o)
             , curWhenAlternative(s) {}
 
@@ -95,13 +96,13 @@ public:
     };
 
     struct if_dff_t : stack_element_t {
-        if_dff_t(const std::map<string, netlist_element_t> &n,
+        if_dff_t(const std::map<string, netlist_element_t *> &n,
                  const std::set<string> &o)
             : stack_element_t(n, o) {}
     };
 
     struct if_latch_t : stack_element_t {
-        if_latch_t(const std::map<string, netlist_element_t> &n,
+        if_latch_t(const std::map<string, netlist_element_t *> &n,
                    const std::set<string> &o)
             : stack_element_t(n, o) {}
     };
@@ -122,7 +123,7 @@ private:
                        string,
                        std::map<Yosys::RTLIL::SigSpec,
                                 Yosys::RTLIL::SigSpec> &);
-    muxer_netlist_t generateMuxer(CaseSeqStmt const *);
+    muxer_netlist_t *generateMuxer(CaseSeqStmt const *);
 
     std::set<string> extractLhs(AstNode const *stmt);
     std::set<string> extractLhs(std::list<SequentialStmt *> const &l);
@@ -132,7 +133,7 @@ private:
                         IfSequential const *);
     int executeIfStmtH2(Expression const *, IfSequential const *);
     int executeIfStmtHRecurse(IfSequential const *,
-                              stack_element_t const &);
+                              stack_element_t *);
     int executeIfStmt(IfSequential const *);
 
     int executeCaseStmt(CaseSeqStmt const *);
@@ -140,7 +141,8 @@ private:
 
     // helper
     int executeSignalAssignmentContextInit(
-        stack_element_t *, std::string const, Yosys::RTLIL::SigSpec const);
+        stack_element_t *, std::string const,
+        Yosys::RTLIL::SigSpec const);
 
     int executeSignalAssignmentContextConnect(
         stack_element_t *, stack_element_t *, std::string const);
@@ -157,7 +159,7 @@ private:
     std::map<string const, Expression const *> prevSigAssigns;
     std::map<string const, Expression const *> prevVarAssigns;
 
-    std::vector<stack_element_t> contextStack;
+    std::vector<stack_element_t *> contextStack;
 
     Entity *working;
     ScopeBase *currentScope;
