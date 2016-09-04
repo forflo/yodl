@@ -73,12 +73,15 @@ int NetlistGenerator::operator()(Entity *entity){
         result = new Module();
 
     for (auto &i : entity->ports_){
-        if (!i->type->type_match(
-                &entity->context_->global_types->primitive_STDLOGIC)){
-            std::cout << "Type error in netlist generator"
-                      << endl;
-            std::cout << "Types other than std_logic are not supported"
-                      << endl;
+        if (!
+            ((i->type->type_match(
+                  &entity->context_->global_types->primitive_STDLOGIC)) ||
+            (i->type->type_match(
+                &entity->context_->global_types->primitive_STDLOGIC_VECTOR)))){
+            std::cout << "Type error in netlist generator" << std::endl;
+            std::cout << "Types other than std_logic or "
+                      << "std_logic_vector are not supported"
+                      << std::endl;
             return 1;
         }
 
@@ -97,11 +100,12 @@ int NetlistGenerator::operator()(Entity *entity){
 
         int vectorWidth = 0;
 
-        if (!type->type_match(
+        if (type->type_match(
                 &working->context_->
-                global_types->primitive_STDLOGIC_VECTOR)){
-            vectorWidth = 0;
-        } else if (!type->type_match(
+                global_types->primitive_STDLOGIC)){
+
+            vectorWidth = 1;
+        } else if (type->type_match(
                        &working->context_->
                        global_types->primitive_STDLOGIC_VECTOR)){
             VTypeArray const *tmp = dynamic_cast<VTypeArray const *>(type);
@@ -131,10 +135,10 @@ int NetlistGenerator::operator()(Entity *entity){
             }
 
             if (range.direction_){
-                vectorWidth = evalMsb - evalLsb;
+                vectorWidth = (evalMsb - evalLsb) + 1;
             }
             else {
-                vectorWidth = evalLsb - evalMsb;
+                vectorWidth = (evalLsb - evalMsb) + 1;
             }
 
             std::cout << "vectorWidth for entity port: "
@@ -402,9 +406,13 @@ int NetlistGenerator::executeSignalAssignmentContextConnect(
 int NetlistGenerator::executeSignalAssignmentContextFinalize(
     stack_element_t *oldest, string const &signalId){
 
-    result->connect(
-        result->wire("\\" + signalId),
-        oldest->netlist[signalId]->output);
+    Wire *driven = result->wire("\\" + signalId);
+    if (driven->port_input == false){
+        result->connect(SigSpec(driven),
+                        oldest->netlist[signalId]->output);
+
+        driven->port_input = true;
+    }
 
     return 0;
 }
@@ -435,9 +443,13 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
     const VType *ltype = a->lval_->probe_type(
         working, currentScope);
 
-    if (!ltype->type_match(
-            &working->context_->
-            global_types->primitive_STDLOGIC)){
+    if (!(
+            ltype->type_match(
+                &working->context_->
+                global_types->primitive_STDLOGIC) ||
+            ltype->type_match(
+                &working->context_->
+                global_types->primitive_STDLOGIC_VECTOR))){
         std::cout << "traverseProcessStatement"
                   << endl;
         std::cout << "Type error in netlist generator"
@@ -453,13 +465,13 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
         return 1;
     }
 
-    if (!(*a->waveform_.begin())->probe_type(
-            working,currentScope)->type_match(
-                &working->context_->global_types->
-                primitive_STDLOGIC)){
-        std::cout << "rval must be STDLOGIC" << endl;
-        return 1;
-    }
+//    if (!(*a->waveform_.begin())->probe_type(
+//            working,currentScope)->type_match(
+//                &working->context_->global_types->
+//                primitive_STDLOGIC)){
+//        std::cout << "rval must be STDLOGIC" << endl;
+//        return 1;
+//    }
 
     if (contextStack.size() != 0){
         return executeSignalAssignmentContext(a);
@@ -886,6 +898,9 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
     std::map<string, netlist_element_t *> sigsToNetsMap;
     drivenSignals = extractLhs(s->if_);
 
+    if (findEdgeSpecs.fullClockSpecs.size() == 0)
+        return 1;
+
     for (auto &i : drivenSignals){
 
         netlist_element_t *flipflop;
@@ -982,7 +997,7 @@ int NetlistGenerator::executeIfStmtHRecurse(IfSequential const *s,
     for (auto &i : s->if_)
         executeSequentialStmt(i);
 
-    contextStack.erase(contextStack.end());
+    contextStack.pop_back();
 
     return 0;
 }
@@ -1006,7 +1021,7 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
     Expression *condClone = condition->clone();
 
     ClockEdgeRecognizer findEdgeSpecs;
-    findEdgeSpecs(condClone);
+    findEdgeSpecs(condition);
 
     if (findEdgeSpecs.numberClockEdges > 1){
         std::cout << "Currently only one clock edge supported!" << std::endl;

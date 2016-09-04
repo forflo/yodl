@@ -113,7 +113,7 @@ int ClockEdgeRecognizer::operator()(const AstNode *n){
     match(n,
           some<ExpFunc>(ds(_x, _x)),
           [this,n](perm_string funcName, std::vector<Expression*> v){
-              if (v.size() > 1)
+              if (v.size() >= 1)
                   clockNameExp = dynamic_cast<const ExpName*>(v[0]);
               else
                   clockNameExp = NULL;

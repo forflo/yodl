@@ -10,10 +10,12 @@ entity adder is
         carryOut : out std_logic;
         fnord    : out std_logic;
         baz      : out std_logic_vector(7 downto 0);
+        clock    : in  std_logic;
         sum      : out std_logic);
 end adder;
 
 architecture behv of adder is
+   function rising_edge(c : in std_logic) return std_logic;
 begin
 
    process(A) is
@@ -21,7 +23,10 @@ begin
     baz <= "00101100";
 
       case "100" is
-         when "000" => A <= '0';
+         when "000" => 
+            if rising_edge(clock) then 
+               A <= '0';
+            end if;
          when "001" => A <= '1';
          when "010" => A <= '1';
          when "011" => B <= '1';
