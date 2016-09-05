@@ -148,7 +148,10 @@ int NetlistGenerator::operator()(Entity *entity){
         result->addWire(string("\\") + i->name.str(), vectorWidth);
     }
 
-    return traverseConcStmts(&arch->statements_);
+    traverseConcStmts(&arch->statements_);
+
+    result->fixup_ports();
+    return 0;
 }
 
 int NetlistGenerator::traverseConcStmts(
@@ -417,7 +420,7 @@ int NetlistGenerator::executeSignalAssignmentContextFinalize(
     return 0;
 }
 
-// TODO: refactor. Another name! ..Context
+// TODO: refactor. Another name! ...Context
 int NetlistGenerator::executeSignalAssignmentContext(SignalSeqAssignment const *a){
     const char *signalId = dynamic_cast<ExpName*>(a->lval_)->name_.str();
     string s = signalId;
@@ -638,19 +641,45 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp, ClockEdgeReco
             string strT = n->name_.str();
 
             // Ad-hoc implementation of true and false enums
-            if (strT == "true"){ return SigSpec(State::S1); break; }
-            if (strT == "false"){ return SigSpec(State::S0); break; }
+            if (strT == "true"){
+                return SigSpec(State::S1);
+                break;
+            }
+            if (strT == "false"){
+                return SigSpec(State::S0);
+                break;
+            }
 
             Wire *w = result->wire("\\" + strT);
-
-            if (w){
-                return SigSpec(w);
-            } else {
+            if (!w){
                 std::cout << "Usage of non existent signal!"
-                          << "\n";
-                exit(1);
+                          << std::endl;
                 return SigSpec();
-//                return SigSpec(result->addWire("\\" + strT), vectorWidth);
+            }
+
+            // handle indexed names
+            if (n->indices_ && n->indices_->size() == 1){
+                Expression const *index = n->indices_->front();
+                int64_t staticIdxVal = 0;
+                bool staticIdx = index->evaluate(working, currentScope,
+                                                 staticIdxVal);
+
+                if (staticIdx){
+                    return SigSpec(w).bits()[staticIdxVal];
+                }
+                else {
+                    std::cout << "don't know how to handle that!"
+                              << std::endl;
+                    exit(1);
+                }
+            }
+            else if ((n->indices_ && n->indices_->size() == 0) ||
+                        n->indices_ == NULL){
+                return SigSpec(w);
+            }
+            else {
+                std::cout << "Number of indices for subscription was not correct"
+                          << std::endl;
             }
 
             break;

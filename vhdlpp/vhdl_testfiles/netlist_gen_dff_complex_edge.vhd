@@ -17,8 +17,7 @@ architecture behv of adder is
 begin
    process(A) is
    begin
-      --if rising_edge(clock) and enable = '1' and not (enable2 = '0') then
-      if rising_edge(clock) and enable = '1' then
+      if rising_edge(clock) and enable = '1' and not (enable2 = '0') then
          A <= '0';
          B <= C;
       end if;
