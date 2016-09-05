@@ -87,7 +87,7 @@ void GenericTraverser::traverseConst(const CaseSeqStmt::CaseStmtAlternative * n)
         traverseConst(i);
     }
 
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 void GenericTraverser::traverseConst(const AstNode *n){
@@ -179,7 +179,7 @@ void GenericTraverser::traverseConst(const ComponentBase *n){
             break;
         }
     } EndMatch;
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 void GenericTraverser::traverseConst(const Architecture *n){
@@ -214,7 +214,7 @@ void GenericTraverser::traverseConst(const Architecture *n){
             break;
         }
     } EndMatch;
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 void GenericTraverser::traverseConst(const Architecture::Statement *n){
@@ -421,7 +421,7 @@ void GenericTraverser::traverseConst(const Architecture::Statement *n){
             break;
         }
     } EndMatch;
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 void GenericTraverser::traverseConst(const Expression *n){
@@ -864,7 +864,7 @@ void GenericTraverser::traverseConst(const Expression *n){
             break;
         }
     } EndMatch;
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 void GenericTraverser::traverseConst(const SequentialStmt *n){
@@ -1104,7 +1104,7 @@ void GenericTraverser::traverseConst(const SequentialStmt *n){
             break;
         }
     } EndMatch;
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 void GenericTraverser::traverseConst(const VType *n){
@@ -1253,7 +1253,7 @@ void GenericTraverser::traverseConst(const VType *n){
             break;
         }
     } EndMatch;
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 void GenericTraverser::traverseConst(const SigVarBase *n){
@@ -1283,7 +1283,7 @@ void GenericTraverser::traverseConst(const SigVarBase *n){
         }
     } EndMatch;
 
-    currentPathConst.erase(currentPathConst.begin());
+    currentPathConst.pop_back();
 }
 
 bool GenericTraverser::noFurtherRecur(const AstNode *n){
@@ -1295,7 +1295,7 @@ bool GenericTraverser::noFurtherRecur(const AstNode *n){
             // deleted here, because the recursive traverser
             // function will return immediately if this funciton
             // returns true!
-            currentPathConst.erase(currentPathConst.begin());
+            currentPathConst.pop_back();
             return true;
         }
     }

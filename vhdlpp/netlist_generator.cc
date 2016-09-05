@@ -480,6 +480,15 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
     }
 }
 
+SigSpec NetlistGenerator::executeExpression(Expression const *exp,
+                                            ClockEdgeRecognizer const &r){
+    for (auto &i : r.fullClockSpecs)
+        if (i == exp)
+            return SigSpec(State::S1); // clock edge always evals to true
+
+    return executeExpression(exp);
+}
+
 SigSpec NetlistGenerator::executeExpression(Expression const *exp){
     using namespace mch;
 
@@ -927,7 +936,6 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
             Cell *mux = result->addCell(NEW_ID, "$mux");
             Wire *muxZero = result->addWire(NEW_ID);
             Wire *muxOne = result->addWire(NEW_ID);
-            Wire *muxSelector = result->addWire(NEW_ID);
             Wire *muxOut = result->addWire(NEW_ID);
 
             Cell *dff = result->addCell(NEW_ID, "$dff");
@@ -937,7 +945,7 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
             dff->setPort("\\D", SigSpec(muxOut));
             dff->setPort("\\Q", SigSpec(dffOut));
 
-            mux->setPort("\\S", SigSpec(muxSelector));
+            mux->setPort("\\S", executeExpression(condition, findEdgeSpecs));
             mux->setPort("\\A", SigSpec(muxZero));
             mux->setPort("\\B", SigSpec(muxOne));
             mux->setPort("\\Y", SigSpec(muxOut));
@@ -947,7 +955,7 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
             //TODO: muxOne must acutally be conected with the
             //      condition from the if, where clock edge is replaced by true
 
-            flipflop = new dff_complex_netlist_t(SigSpec(muxSelector), SigSpec());
+            flipflop = new dff_complex_netlist_t(SigSpec(muxOne), SigSpec());
         }
 
         sigsToNetsMap[i] = flipflop;
@@ -1014,10 +1022,10 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
     }
 
     SyncCondPredicate isSync(working, currentScope);
-    // 1) Modify condition so that all clock edge specs get deleted
 
     syncCondition = isSync(condition);
 
+    // 1) Modify condition so that all clock edge specs get deleted
     Expression *condClone = condition->clone();
 
     ClockEdgeRecognizer findEdgeSpecs;

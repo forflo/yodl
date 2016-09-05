@@ -139,7 +139,7 @@ private:
     int executeCaseStmt(CaseSeqStmt const *);
     int executeSequentialStmt(SequentialStmt const *);
 
-    // helper
+    // Helper
     int executeSignalAssignmentContextInit(
         stack_element_t *, std::string const,
         Yosys::RTLIL::SigSpec const);
@@ -153,6 +153,9 @@ private:
     int executeSignalAssignmentContext(SignalSeqAssignment const *a);
     int executeSignalAssignmentNonContext(SignalSeqAssignment const *a);
     int executeSignalAssignment(SignalSeqAssignment const *);
+
+    Yosys::RTLIL::SigSpec executeExpression(Expression const *,
+                                            ClockEdgeRecognizer const &);
     Yosys::RTLIL::SigSpec executeExpression(Expression const *);
 
 private:

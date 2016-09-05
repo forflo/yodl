@@ -159,7 +159,7 @@ void GenericTraverser::traverseMutating(ComponentBase *n){
             break;
         }
     } EndMatch;
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 }
 
 void GenericTraverser::traverseMutating(Architecture *n){
@@ -197,7 +197,7 @@ void GenericTraverser::traverseMutating(Architecture *n){
             break;
         }
     } EndMatch;
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 }
 
 void GenericTraverser::traverseMutating(Architecture::Statement *n){
@@ -409,7 +409,7 @@ void GenericTraverser::traverseMutating(Architecture::Statement *n){
         }
     } EndMatch;
 
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 }
 
 void GenericTraverser::traverseMutating(Expression *n){
@@ -855,7 +855,7 @@ void GenericTraverser::traverseMutating(Expression *n){
             break;
         }
     } EndMatch;
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 }
 
 void GenericTraverser::traverseMutating(SequentialStmt *n){
@@ -1085,7 +1085,7 @@ void GenericTraverser::traverseMutating(SequentialStmt *n){
             break;
         }
     } EndMatch;
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 }
 
 void GenericTraverser::traverseMutating(VType *n){
@@ -1243,7 +1243,7 @@ void GenericTraverser::traverseMutating(VType *n){
             break;
         }
     } EndMatch;
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 }
 
 void GenericTraverser::traverseMutating(SigVarBase *n){
@@ -1273,7 +1273,7 @@ void GenericTraverser::traverseMutating(SigVarBase *n){
             break;
         }
     } EndMatch;
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 }
 
 int GenericTraverser::operator()(AstNode *ast){
@@ -1310,7 +1310,7 @@ void GenericTraverser::constVisitor(const AstNode *n){
 
 void GenericTraverser::mutatingVisitor(AstNode *n){
     AstNode *tmpChild = currentPath[0];
-    currentPath.erase(currentPath.begin());
+    currentPath.pop_back();
 
     if (isNary) {
         std::cout << "[mutating Visitor]" << std::endl;
@@ -1339,7 +1339,7 @@ bool GenericTraverser::noFurtherMRecur(AstNode *n){
         mutatingVisitor(n);
 
         if (recurSpec == GenericTraverser::NONRECUR){
-            currentPath.erase(currentPath.begin());
+            currentPath.pop_back();
             return true;
         }
     }
