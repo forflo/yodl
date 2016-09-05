@@ -1112,6 +1112,10 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
                 delete caseTemp;
 
                 std::cout << "Every signal driven in both paths!" << std::endl;
+            } else {
+                std::cout << "[If statment synthesis] Cannot handle this "
+                          << "type of semantics yet" << std::endl;
+                exit(1);
             }
         } else {
             // level sensitive => put dlatch on top
