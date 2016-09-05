@@ -480,17 +480,15 @@ int NetlistGenerator::executeSignalAssignment(SignalSeqAssignment const *a){
     }
 }
 
-SigSpec NetlistGenerator::executeExpression(Expression const *exp,
-                                            ClockEdgeRecognizer const &r){
-    for (auto &i : r.fullClockSpecs)
-        if (i == exp)
-            return SigSpec(State::S1); // clock edge always evals to true
-
-    return executeExpression(exp);
-}
-
-SigSpec NetlistGenerator::executeExpression(Expression const *exp){
+SigSpec NetlistGenerator::executeExpression(Expression const *exp, ClockEdgeRecognizer const *edgeLookup){
     using namespace mch;
+
+    // clock edge specifications always eval to true
+    if (edgeLookup){
+        for (auto &i : edgeLookup->fullClockSpecs)
+            if (i == exp)
+                return SigSpec(State::S1); // clock edge always evals to true
+    }
 
     Match(exp){
         Case(C<ExpCharacter>()){
@@ -520,7 +518,7 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
             Cell *c = result->addCell(NEW_ID, "$not");
             Wire *out = result->addWire(NEW_ID);
 
-            c->setPort("\\A", executeExpression(t->operand1_));
+            c->setPort("\\A", executeExpression(t->operand1_, edgeLookup));
             c->setPort("\\Y", out);
 
             c->fixup_parameters();
@@ -554,8 +552,8 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
                 break;
             }
 
-            c->setPort("\\A", executeExpression(t->operand1_));
-            c->setPort("\\B", executeExpression(t->operand2_));
+            c->setPort("\\A", executeExpression(t->operand1_, edgeLookup));
+            c->setPort("\\B", executeExpression(t->operand2_, edgeLookup));
 
             c->setPort("\\Y", out);
 
@@ -595,8 +593,8 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
                 break;
             }
 
-            c->setPort("\\A", executeExpression(t->operand1_));
-            c->setPort("\\B", executeExpression(t->operand2_));
+            c->setPort("\\A", executeExpression(t->operand1_, edgeLookup));
+            c->setPort("\\B", executeExpression(t->operand2_, edgeLookup));
 
             c->setPort("\\Y", out);
 
@@ -624,8 +622,8 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
             case ExpShift::shift_t::ROR: break;
             }
 
-            c->setPort("\\A", executeExpression(n->operand1_));
-            c->setPort("\\B", executeExpression(n->operand2_));
+            c->setPort("\\A", executeExpression(n->operand1_, edgeLookup));
+            c->setPort("\\B", executeExpression(n->operand2_, edgeLookup));
 
             c->setPort("\\Y", out);
 
@@ -660,8 +658,8 @@ SigSpec NetlistGenerator::executeExpression(Expression const *exp){
         Case(C<ExpConcat>()){
             ExpConcat const *n = dynamic_cast<ExpConcat const *>(exp);
 
-            SigSpec left  = executeExpression(n->operand1_),
-                    right = executeExpression(n->operand2_);
+            SigSpec left  = executeExpression(n->operand1_, edgeLookup),
+                    right = executeExpression(n->operand2_, edgeLookup);
 
             Cell *c = result->addCell(NEW_ID, "$concat");
             c->setPort("\\B", left);
@@ -752,6 +750,7 @@ SigSpec NetlistGenerator::sigSpecFromString(const string &s){
     return SigSpec(bitlist);
 }
 
+// TODO: Use SigSpec's concat constructor
 int NetlistGenerator::generateMuxerH(
     int curSelectorIdx, Cell *orig,
     std::vector<SigBit> const &selector,
@@ -945,7 +944,7 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
             dff->setPort("\\D", SigSpec(muxOut));
             dff->setPort("\\Q", SigSpec(dffOut));
 
-            mux->setPort("\\S", executeExpression(condition, findEdgeSpecs));
+            mux->setPort("\\S", executeExpression(condition, &findEdgeSpecs));
             mux->setPort("\\A", SigSpec(muxZero));
             mux->setPort("\\B", SigSpec(muxOne));
             mux->setPort("\\Y", SigSpec(muxOut));
@@ -955,7 +954,7 @@ int NetlistGenerator::executeIfStmtH1(ClockEdgeRecognizer const &findEdgeSpecs,
             //TODO: muxOne must acutally be conected with the
             //      condition from the if, where clock edge is replaced by true
 
-            flipflop = new dff_complex_netlist_t(SigSpec(muxOne), SigSpec());
+            flipflop = new dff_complex_netlist_t(SigSpec(muxOne), SigSpec(dffOut));
         }
 
         sigsToNetsMap[i] = flipflop;

@@ -23,8 +23,8 @@ begin
     baz <= "00101100";
 
       case "100" is
-         when "000" => 
-            if rising_edge(clock) then 
+         when "000" =>
+            if rising_edge(clock) then
                A <= '0';
             end if;
          when "001" => A <= '1';

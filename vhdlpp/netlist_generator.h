@@ -155,8 +155,7 @@ private:
     int executeSignalAssignment(SignalSeqAssignment const *);
 
     Yosys::RTLIL::SigSpec executeExpression(Expression const *,
-                                            ClockEdgeRecognizer const &);
-    Yosys::RTLIL::SigSpec executeExpression(Expression const *);
+                                            ClockEdgeRecognizer const * = 0);
 
 private:
     std::map<string const, Expression const *> prevSigAssigns;
