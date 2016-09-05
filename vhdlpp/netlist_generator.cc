@@ -1021,7 +1021,14 @@ int NetlistGenerator::executeIfStmt(IfSequential const *s){
     Expression *condClone = condition->clone();
 
     ClockEdgeRecognizer findEdgeSpecs;
-    findEdgeSpecs(condition);
+    GenericTraverser expTraverser(
+        makeTypePredicate<Expression>(),
+        static_cast<function<int (const AstNode *)>>(
+            [&findEdgeSpecs](const AstNode *n) -> int {
+                return findEdgeSpecs(n); }),
+        GenericTraverser::RECUR);
+
+    expTraverser(condition);
 
     if (findEdgeSpecs.numberClockEdges > 1){
         std::cout << "Currently only one clock edge supported!" << std::endl;

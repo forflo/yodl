@@ -125,7 +125,7 @@ bool SyncCondPredicate::operator()(const Expression *exp){
 
     if (currentEntity && currentScope){
         isBoolType = exp->probe_type(currentEntity, currentScope)->type_match(
-            &currentEntity->context_->global_types->primitive_STDLOGIC);
+            &currentEntity->context_->global_types->type_BOOLEAN);
     } else {
 #ifdef DEBUG
         isBoolType = true;
