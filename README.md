@@ -27,7 +27,7 @@ begin
    end process;
 end behv;
 ```
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/motSync.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/motSync.png)
 
 2. Nested synchonization
 ```vhdl
@@ -46,7 +46,7 @@ begin
    end process;
 end behv;
 ```
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/motSyncNest.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/motSyncNest.png)
 
 3. Simple latched signal assignment
 ```vhdl
@@ -63,7 +63,7 @@ begin
    end process;
 end behv;
 ```
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/motLatch.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/motLatch.png)
 
 
 4. Nested latched signal assignment
@@ -81,7 +81,7 @@ end behv;
    end process;
 end behv;
 ```
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/motLatchNest.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/motLatchNest.png)
 
 
 5. Simple case synthesis
@@ -105,7 +105,7 @@ begin
    end process;
 end behv;
 ```
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/caseStmt.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/caseStmt.png)
 
 6. Nested case synthesis
 ```vhdl
@@ -128,7 +128,7 @@ begin
    end process;
 end behv;
 ```
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/caseStmtNest.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/caseStmtNest.png)
 
 
 7. Synchronized case statement
@@ -157,7 +157,7 @@ begin
    end process;
 end behv;
 ```
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/syncCaseStmt.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/syncCaseStmt.png)
 
 8. If statement with complete signal assignments
 ```vhdl
@@ -176,7 +176,7 @@ begin
    end process;
 ```
 
-![netlist](vhdl_testfiles_graphs/synthesisShowcase/ifCase.png)
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/ifCase.png)
 
 
 ### 19. Aug 2016
