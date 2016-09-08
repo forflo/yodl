@@ -3,6 +3,182 @@
 This is a work in progress VHDL frontend
 for the Yosys toolchain.
 
+### 8. Sept 2016
+
+The last few weeks, I finished up the first experimental netlist synthesis
+algorithm for the use in my thesis. The latter, sadly, is due in about 14 days,
+hence I won't be able to develop Yodl for at least 2 weeks.
+
+Here are some teasers what's currently possible. Note, that some example serve
+as illustration of how the synthesis algorithm produces netlists and aren't
+necessarily sound or even semantically correct (since there are no semantic
+checks yet :))
+
+1. Simple signal assignment synchronization
+```vhdl
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return std_logic;
+begin
+   process(A) is
+   begin
+      if rising_edge(clock) then
+         A <= '0';
+      end if;
+   end process;
+end behv;
+```
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/motSync.png)
+
+2. Nested synchonization
+```vhdl
+-- [...]
+-- A and clock are both of type std_logic
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return std_logic;
+begin
+   process(A) is
+   begin
+      if rising_edge(clock) then
+         if rising_edge(clock) then
+            A <= '0';
+         end if;
+      end if;
+   end process;
+end behv;
+```
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/motSyncNest.png)
+
+3. Simple latched signal assignment
+```vhdl
+-- same libraries as above
+-- A, B and C are of type std_logic
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return boolean;
+begin
+   process(A) is
+   begin
+      if A = B then
+         C <= '1';
+      end if;
+   end process;
+end behv;
+```
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/motLatch.png)
+
+
+4. Nested latched signal assignment
+
+```vhdl
+-- [...]
+-- same preamble as above
+   process(A) is
+   begin
+      if A = B then
+         if not A then
+             C <= '1';
+         end if;
+      end if;
+   end process;
+end behv;
+```
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/motLatchNest.png)
+
+
+5. Simple case synthesis
+```vhdl
+-- same libraries as before
+-- A is a std_logic and baz a std_logic_vector(2 downto 0)
+architecture behv of caseT is
+begin
+   process(A) is
+   begin
+      case baz is
+         when "000" => A <= '0';
+         when "001" => A <= '1';
+         when "010" => A <= '1';
+         when "011" => A <= '1';
+         when "100" => A <= '0';
+         when "101" => A <= '1';
+         when "110" => A <= '1';
+         when "111" => A <= '1';
+      end case;
+   end process;
+end behv;
+```
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/caseStmt.png)
+
+6. Nested case synthesis
+```vhdl
+-- same libraries as before
+-- A, B, C and sum are ports of type std_logic
+architecture behv of adder is
+begin
+   process(A) is
+   begin
+      case A is
+         when '0' => case B is
+                        when '0' => sum <= '0';
+                        when '1' => sum <= '1';
+                     end case;
+         when '1' => case C is
+                        when '0' => sum <= '0';
+                        when '1' => sum <= '1';
+                     end case;
+      end case;
+   end process;
+end behv;
+```
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/caseStmtNest.png)
+
+
+7. Synchronized case statement
+```vhdl
+-- [...]
+-- A, clock are ports of type std_logic and
+-- sel is a std_logic_vector(2 downto 0)
+
+architecture behv of syncCase is
+   function rising_edge(c : in std_logic) return std_logic;
+begin
+   process(A) is
+   begin
+      if rising_edge(clock) then
+         case sel is
+            when "000" => A <= '0';
+            when "001" => A <= '1';
+            when "010" => A <= '1';
+            when "011" => A <= '1';
+            when "100" => A <= '0';
+            when "101" => A <= '1';
+            when "110" => A <= '1';
+            when "111" => A <= '1';
+         end case;
+      end if;
+   end process;
+end behv;
+```
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/syncCaseStmt.png)
+
+8. If statement with complete signal assignments
+```vhdl
+-- [...]
+-- A, B and C are ports of type std_logic
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return boolean;
+begin
+   process(A) is
+   begin
+      if A = B then
+         C <= '0';
+      else
+         C <= '1';
+      end if;
+   end process;
+```
+
+![netlist](vhdl_testfiles_graphs/synthesisShowcase/ifCase.png)
+
+
 ### 19. Aug 2016
 
 Due to the current parser's limitations, a new parser needs to be written.

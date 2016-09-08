@@ -1,0 +1,27 @@
+digraph "" {
+label="";
+rankdir="LR";
+remincross=true;
+n7 [ shape=octagon, label="c", color="black", fontcolor="black" ];
+n8 [ shape=diamond, label="b", color="black", fontcolor="black" ];
+n9 [ shape=diamond, label="a", color="black", fontcolor="black" ];
+c12 [ shape=record, label="{{<p10> A}|$9\n$not|{<p11> Y}}" ];
+c16 [ shape=record, label="{{<p13> D|<p14> EN}|$6\n$dlatch|{<p15> Q}}" ];
+c18 [ shape=record, label="{{<p10> A|<p17> B}|$5\n$eq|{<p11> Y}}" ];
+c19 [ shape=record, label="{{<p13> D|<p14> EN}|$1\n$dlatch|{<p15> Q}}" ];
+v0 [ label="1'1" ];
+x1 [shape=box, style=rounded, label="BUF"];
+x2 [shape=box, style=rounded, label="BUF"];
+x3 [shape=box, style=rounded, label="BUF"];
+c12:p11:e -> c16:p14:w [color="black", label=""];
+x1:e:e -> c16:p13:w [color="black", label=""];
+c16:p15:e -> x2:w:w [color="black", label=""];
+c18:p11:e -> c19:p14:w [color="black", label=""];
+x2:e:e -> c19:p13:w [color="black", label=""];
+c19:p15:e -> x3:w:w [color="black", label=""];
+x3:e:e -> n7:w [color="black", label=""];
+n8:e -> c18:p17:w [color="black", label=""];
+n9:e -> c12:p10:w [color="black", label=""];
+n9:e -> c18:p10:w [color="black", label=""];
+v0:e -> x1:w:w [color="black", label=""];
+}
