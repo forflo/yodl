@@ -11,7 +11,9 @@ hence I won't be able to develop Yodl for at least 2 weeks.
 
 Here are some example about what is currently possible. Note, that some example serve
 as illustration of how the synthesis algorithm produces netlists and aren't
-necessarily sound.
+necessarily sound. Also note, that sometimes the algorithm connects two endpoints more 
+than once. That's no bug, because Yosys provides an RTLIL optimization pass that
+removes those redundant edges from the netlist.
 
 1. Simple signal assignment synchronization
 ```vhdl
