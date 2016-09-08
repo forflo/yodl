@@ -4,16 +4,16 @@ This is a work in progress VHDL frontend
 for the Yosys toolchain.
 
 ### 8. Sept 2016
+![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/clusterfuck.png)
 
 The last few weeks, I finished up the first experimental netlist synthesis
 algorithm for the use in my thesis. The latter, sadly, is due in about 14 days,
 hence I won't be able to develop Yodl for at least 2 weeks.
 
-Here are some example about what is currently possible. Note, that some example serve
+Here are some teasers what's currently possible. Note, that some example serve
 as illustration of how the synthesis algorithm produces netlists and aren't
-necessarily sound. Also note, that sometimes the algorithm connects two endpoints more 
-than once. That's no bug, because Yosys provides an RTLIL optimization pass that
-removes those redundant edges from the netlist.
+necessarily sound or even semantically correct (since there are no semantic
+checks yet :))
 
 1. Simple signal assignment synchronization
 ```vhdl
