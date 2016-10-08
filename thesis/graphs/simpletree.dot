@@ -1,0 +1,66 @@
+digraph st {
+    edge [arrowhead=vee];
+
+    root [label = "<r> root | forest: | { <t1> child1 | <t2> child2}", shape = record];
+    child1 [label = "<r> root | forest: | { <t1> child1 | <t2> child2}", shape = record];
+    child2 [label = "<r> root | forest: | { <t1> child1 | <t2> child2}", shape = record];
+    mapRoot [label = "{key1 = val1 | key2 = val2 | ... | key_n = val_n}", shape = record];
+    {
+        rank = same;
+        mapChild1 [label = "{key1 = val1 | key2 = val2 | ... | key_n = val_n}", shape = record];
+        mapChild2 [label = "{key1 = val1 | key2 = val2 | ... | key_n = val_n}", shape = record];
+    }
+
+    tmp [label="", shape=plaintext];
+    mapChild1 -> tmp [style="invis"];
+    {
+        rank = same;
+        tmp;
+        child11 [label = "<r> root | forest: | { <t1> child1 | <t2> child2}", shape = record];
+        child12 [label = "<r> root | forest: | { <t1> child1 | <t2> child2}", shape = record];
+        child21 [label = "<r> root | forest: | { <t1> child1 | <t2> child2}", shape = record];
+        child22 [label = "<r> root | forest: | { <t1> child1 | <t2> child2}", shape = record];
+    }
+
+
+    child11:r -> dots1;
+    child12:r -> dots2;
+    child21:r -> dots3;
+    child22:r -> dots4;
+
+    root:r -> mapRoot;
+    child1:r -> mapChild1;
+    child2:r -> mapChild2;
+    root:t1 -> child1; root:t2 -> child2;
+
+
+    child11:t2 -> dotsn2;
+    child11:t1 -> dotsn1;
+    child12:t2 -> dotsn4;
+    child12:t1 -> dotsn3;
+    child21:t2 -> dotsn6;
+    child21:t1 -> dotsn5;
+    child22:t2 -> dotsn8;
+    child22:t1 -> dotsn7;
+
+    child1:t1 -> child11;
+    child1:t2 -> child12;
+    child2:t1 -> child21;
+    child2:t2 -> child22;
+
+    node [shape=circle];
+    dots1 [label = "..."];
+    dots2 [label = "..."];
+    dots3 [label = "..."];
+    dots4 [label = "..."];
+
+    dotsn1 [label = "..."];
+    dotsn2 [label = "..."];
+    dotsn3 [label = "..."];
+    dotsn4 [label = "..."];
+    dotsn5 [label = "..."];
+    dotsn6 [label = "..."];
+    dotsn7 [label = "..."];
+    dotsn8 [label = "..."];
+
+}

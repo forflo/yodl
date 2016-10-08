@@ -1,0 +1,55 @@
+digraph G {
+    {
+        node [shape=plaintext];
+        edge [style="invis"];
+        n0 [label=""];
+        n1 [label=""]; n2 [label=""];
+        n3 [label=""]; n4 [label=""];
+        n5 [label=""]; n6 [label=""];
+        n0 -> n1 -> n2 -> n3 -> n4 -> n5 -> n6;
+    }
+
+    subgraph cluster_ast {
+        graph [label="AST of $44 \\cdot 43 + 42$"];
+        node [shape=circle, fixedsize=true, width=0.27];
+
+        {
+            rank = same; n1;
+            a [label="$+$"];
+        }
+
+        {
+            rank = same; n2;
+            b [label="$42$"];
+            c [label="$\\cdot$"];
+        }
+
+        {
+            rank = same; n3;
+            left [label="$44$"];
+            right [label="$43$"];
+        }
+    }
+   subgraph cluster_trav {
+        graph [label="Runtime state"];
+
+        {
+            rank = same;
+            n0;
+            traverser_1 [shape=record, label="{GenericTraverser|{state: 1|<f1>
+            current node} | {parents: | <p2> $\\cdot$ | <p1> $+$  }}"];
+
+        }
+    }
+
+    a -> b;
+    a -> c;
+
+    c -> left;
+    c -> right;
+
+    edge [arrowhead="vee", style="dotted"];
+    traverser_1:f1 -> right;
+    edge [arrowhead="empty", style="dashed", color="lime"];
+    traverser_1:p1 -> a; traverser_1:p2 -> b;
+}

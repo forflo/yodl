@@ -1,0 +1,67 @@
+// $ make classDiagRtlil.tex.nonraw
+
+digraph Rtlil {
+    node [shape=record];
+    edge [arrowhead=empty];
+//    graph [ratio=2];
+
+    n_design [label=
+              "{" + "RTLIL::Design|+ map\<string, Module *\> modules" +
+              "\l+ addModule(Module *mod)" +
+              "\l+ Module *addModule(string name)\l" +
+              "}"];
+
+    n_module [label=
+              "{" + "RTLIL::Module|+ Design *design" +
+              "\l+ map\<string, Wire *\> wires" +
+              "\l+ map\<string, Cell *\> cells" +
+              "\l+ vector\<SigSig\> connections" +
+              "\l+ string name" +
+              "\l+ map\<string, Memory *\> memories" +
+              "\l+ map\<string, Process *\> procs\l}"];
+
+    n_wire [label="{RTLIL::SigSpec|" +
+            "+ int width" +
+            "\l+ uint64_t hash" +
+            "\l+ vector\<SigChunk\> chunks" +
+            "\l+ vector\<SigBit\> bits\l}"];
+
+    n_cell [label="{RTLIL::Cell|" +
+            "+ Module *module" +
+            "\l+ string name" +
+            "\l+ string type" +
+            "\l+ map\<string, SigSpec\> connections" +
+            "\l+ map\<string, Const\> parameters\l}"];
+
+    n_wirer [label="{RTLIL::Wire|" +
+            "+ string name" +
+            "\l+ int width\l}"];
+
+    n_state [label="{enum RTLIL::State | " +
+             "S0 - zero\lS1 - one\lSx - undefined\lSz - high-impedance\l" +
+             "Sa - don't care\lSm - marker\l}"];
+
+    n_process [label="{RTLIL::Process| ...}"];
+
+    n_memory [label="{RTLIL::Memory| ...}"];
+
+    n_wirer -> n_module [arrowhead=vee];
+
+    n_wire -> n_wirer [arrowhead=vee];
+    n_wirer -> n_wire [arrowhead=vee];
+
+    n_wire -> n_state [arrowhead=vee];
+
+    n_state -> n_wire [arrowhead=vee];
+
+    n_wire -> n_cell [arrowhead=vee];
+
+    // edges
+    n_module -> n_design [
+        labelangle=60,
+        arrowhead=diamond, taillabel="n", headlabel="1"];
+
+    { n_wire; n_cell; n_process; n_memory } -> n_module [
+        labelangle=45,
+        arrowhead=diamond];
+}

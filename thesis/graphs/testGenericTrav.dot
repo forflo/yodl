@@ -1,0 +1,70 @@
+    digraph G {
+
+        {
+          node [shape=plaintext];
+          edge [style=invis];
+
+          n1 [label=""]; n2 [label=""];
+          n3 [label=""]; n4 [label=""];
+          n5 [label=""]; n6 [label=""];
+          n1 -> n2 -> n3 -> n4 -> n5 -> n6;
+        }
+
+      subgraph cluster_trav {
+
+        graph [label="Different runtime states of the generic traverser"];
+        {
+          rank = same;
+          n1;
+          traverser_1 [shape=record, label="{GenericTraverser|{parents:
+            []|state: 1}|<f1> to be processed}"];
+
+          traverser_2 [shape=record, label="{GenericTraverser|{parents:
+            []|state: 2}|<f1> to be processed}"];
+
+          traverser_3 [shape=record, label="{GenericTraverser|{parents:
+            []|state: 3}|<f1> to be processed}"];
+        }
+
+        {
+          rank = same;
+          n2;
+          traverser_4 [shape=record, label="{GenericTraverser|{parents:
+            []|state: 4}|<f1> to be processed}"];
+          traverser_5 [shape=record, label="{GenericTraverser|{parents:
+            []|state: 5}|<f1> to be processed}"];
+        }
+      }
+
+      subgraph cluster_ast {
+        graph [label="AST of $44 \\cdot 43 + 42$"];
+        node [shape=circle, fixedsize=true, width=0.27];
+
+        {rank = same; n3;
+        a [label="$+$"];
+        }
+
+        {rank = same; n4;
+        b [label="$42$"];
+        c [label="$\\cdot$"];
+        }
+
+        {rank = same; n5;
+        left [label="$44$"];
+        right [label="$43$"];
+        }
+      }
+
+      a -> b;
+      a -> c;
+
+      c -> left;
+      c -> right;
+
+      edge [arrowhead="vee", style="dotted"]
+        traverser_1:f1 -> a     [constraint=false];
+        traverser_2:f1 -> b     [constraint=false];
+        traverser_3:f1 -> c     [constraint=false];
+        traverser_4:f1 -> left  [constraint=false];
+        traverser_5:f1 -> right [constraint=false];
+    }

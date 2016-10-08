@@ -1,0 +1,121 @@
+\resizebox{0.6\textwidth}{!}{\begin{tikzpicture}[line join=bevel,anchor=base]%
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{1.0,1.0,1.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
+  \pgfsetfillcolor{fillcol}
+  \filldraw (0.0bp,0.0bp) -- (0.0bp,552.0bp) -- (279.55bp,552.0bp) -- (279.55bp,0.0bp) -- cycle;
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (19.0bp,208.0bp) -- (19.0bp,427.0bp) -- (184.0bp,427.0bp) -- (184.0bp,208.0bp) -- cycle;
+  \draw (101.5bp,411.8bp) node {AST of $44 \cdot 43 + 42$};
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (19.0bp,208.0bp) -- (19.0bp,427.0bp) -- (184.0bp,427.0bp) -- (184.0bp,208.0bp) -- cycle;
+  \draw (101.5bp,411.8bp) node {AST of $44 \cdot 43 + 42$};
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (19.0bp,208.0bp) -- (19.0bp,427.0bp) -- (184.0bp,427.0bp) -- (184.0bp,208.0bp) -- cycle;
+  \draw (101.5bp,411.8bp) node {AST of $44 \cdot 43 + 42$};
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (19.0bp,208.0bp) -- (19.0bp,427.0bp) -- (184.0bp,427.0bp) -- (184.0bp,208.0bp) -- cycle;
+  \draw (101.5bp,411.8bp) node {AST of $44 \cdot 43 + 42$};
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (8.0bp,435.0bp) -- (8.0bp,544.0bp) -- (250.0bp,544.0bp) -- (250.0bp,435.0bp) -- cycle;
+  \draw (129.0bp,528.8bp) node {Runtime state};
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (8.0bp,435.0bp) -- (8.0bp,544.0bp) -- (250.0bp,544.0bp) -- (250.0bp,435.0bp) -- cycle;
+  \draw (129.0bp,528.8bp) node {Runtime state};
+\end{scope}
+  \pgfsetcolor{black}
+  % Edge: traverser_1 -> a
+  \pgfsetcolor{lime}
+  \draw [-open triangle 45,dashed] (223.0bp,442.0bp) .. controls (223.0bp,410.18bp) and (178.15bp,446.49bp)  .. (153.0bp,427.0bp) .. controls (143.49bp,419.63bp) and (137.47bp,407.48bp)  .. (130.87bp,387.56bp);
+  % Edge: traverser_1 -> b
+  \draw [-open triangle 45,dashed] (176.0bp,442.0bp) .. controls (176.0bp,400.42bp) and (171.22bp,351.84bp)  .. (167.07bp,315.51bp);
+  % Edge: traverser_1 -> right
+  \pgfsetcolor{black}
+  \draw [-stealth',dotted] (243.0bp,478.0bp) .. controls (339.02bp,478.0bp) and (216.96bp,303.44bp)  .. (171.37bp,242.01bp);
+  % Edge: c -> right
+  \draw [->] (133.1bp,297.24bp) .. controls (138.85bp,286.37bp) and (149.45bp,266.31bp)  .. (161.77bp,243.01bp);
+  % Edge: c -> left
+  \draw [->] (129.0bp,296.42bp) .. controls (129.0bp,285.92bp) and (129.0bp,267.85bp)  .. (129.0bp,243.65bp);
+  % Edge: a -> b
+  \draw [->] (133.1bp,369.24bp) .. controls (138.85bp,358.37bp) and (149.45bp,338.31bp)  .. (161.77bp,315.01bp);
+  % Edge: a -> c
+  \draw [->] (129.0bp,368.42bp) .. controls (129.0bp,357.92bp) and (129.0bp,339.85bp)  .. (129.0bp,315.65bp);
+  % Node: a
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (129.0bp,378.0bp) ellipse (9.5bp and 9.5bp);
+  \draw (129.0bp,374.3bp) node {$+$};
+\end{scope}
+  % Node: c
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (129.0bp,306.0bp) ellipse (9.5bp and 9.5bp);
+  \draw (129.0bp,302.3bp) node {$\cdot$};
+\end{scope}
+  % Node: b
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (166.0bp,306.0bp) ellipse (9.5bp and 9.5bp);
+  \draw (166.0bp,302.3bp) node {$42$};
+\end{scope}
+  % Node: traverser_1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (88.0bp,443.5bp) -- (88.0bp,512.5bp) -- (242.0bp,512.5bp) -- (242.0bp,443.5bp) -- cycle;
+  \draw (88.0bp,489.5bp) -- (242.0bp,489.5bp);
+  \draw (150.0bp,466.5bp) -- (150.0bp,489.5bp);
+  \draw (88.0bp,466.5bp) -- (242.0bp,466.5bp);
+  \draw (147.0bp,443.5bp) -- (147.0bp,466.5bp);
+  \draw (204.0bp,443.5bp) -- (204.0bp,466.5bp);
+  \draw (165.0bp,497.3bp) node {GenericTraverser};
+  \draw (119.0bp,474.3bp) node {state: 1};
+  \draw (196.0bp,474.3bp) node {current node};
+  \draw (117.5bp,451.3bp) node {parents:};
+  \draw (175.5bp,451.3bp) node {$\cdot$};
+  \draw (223.0bp,451.3bp) node {$+$};
+\end{scope}
+  % Node: right
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (166.0bp,234.0bp) ellipse (9.5bp and 9.5bp);
+  \draw (166.0bp,230.3bp) node {$43$};
+\end{scope}
+  % Node: left
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (129.0bp,234.0bp) ellipse (9.5bp and 9.5bp);
+  \draw (129.0bp,230.3bp) node {$44$};
+\end{scope}
+\end{tikzpicture}}%

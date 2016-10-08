@@ -1,0 +1,160 @@
+\resizebox{\textwidth}{!}{\begin{tikzpicture}[line join=bevel,anchor=base]%
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (8.0bp,8.0bp) -- (8.0bp,424.0bp) -- (222.0bp,424.0bp) -- (222.0bp,8.0bp) -- cycle;
+  \draw (115.0bp,408.8bp) node {Original AST};
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \pgfsetdash{{3pt}{3pt}}{0pt}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw [dashed] (230.0bp,114.0bp) -- (230.0bp,269.0bp) -- (380.0bp,269.0bp) -- (380.0bp,114.0bp) -- cycle;
+  \draw (305.0bp,253.8bp) node {Shallow copy of 0x0002};
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (388.0bp,8.0bp) -- (388.0bp,269.0bp) -- (586.0bp,269.0bp) -- (586.0bp,8.0bp) -- cycle;
+  \draw (487.0bp,253.8bp) node {Deep copy of 0x0002};
+\end{scope}
+  \pgfsetcolor{black}
+  % Edge: c_c1 -> right
+  \draw [->] (236.0bp,134.0bp) .. controls (226.06bp,134.0bp) and (231.53bp,122.26bp)  .. (226.0bp,114.0bp) .. controls (221.32bp,107.01bp) and (215.93bp,99.952bp)  .. (203.9bp,85.513bp);
+  % Edge: a -> c_c1
+  \draw [->,dotted] (215.0bp,289.0bp) .. controls (239.45bp,289.0bp) and (255.96bp,269.43bp)  .. (271.03bp,237.53bp);
+  % Edge: a -> c_c2
+  \draw [->,dotted] (215.0bp,289.0bp) .. controls (252.82bp,289.0bp) and (351.66bp,288.61bp)  .. (384.0bp,269.0bp) .. controls (393.78bp,263.07bp) and (402.34bp,254.86bp)  .. (415.85bp,237.71bp);
+  % Edge: c_c2 -> right_c1
+  \draw [->] (494.0bp,134.0bp) .. controls (513.66bp,134.0bp) and (524.35bp,115.28bp)  .. (532.7bp,85.826bp);
+  % Edge: c -> left
+  \draw [->] (116.0bp,157.0bp) .. controls (106.32bp,157.0bp) and (112.42bp,123.06bp)  .. (109.0bp,114.0bp) .. controls (106.55bp,107.53bp) and (103.38bp,101.0bp)  .. (94.651bp,85.8bp);
+  % Edge: c_c2 -> left_c1
+  \draw [->] (394.0bp,157.0bp) .. controls (378.44bp,157.0bp) and (390.63bp,136.94bp)  .. (395.0bp,122.0bp) .. controls (397.75bp,112.61bp) and (402.06bp,103.2bp)  .. (412.1bp,85.612bp);
+  % Edge: c -> right
+  \draw [->] (166.0bp,121.0bp) .. controls (166.0bp,112.79bp) and (166.43bp,104.06bp)  .. (167.9bp,85.641bp);
+  % Edge: a -> b
+  \draw [->] (115.0bp,312.0bp) .. controls (76.232bp,312.0bp) and (63.556bp,263.16bp)  .. (58.652bp,214.74bp);
+  % Edge: c_c1 -> left
+  \draw [->] (236.0bp,157.0bp) .. controls (216.38bp,157.0bp) and (239.65bp,128.1bp)  .. (226.0bp,114.0bp) .. controls (194.44bp,81.405bp) and (168.35bp,102.89bp)  .. (112.26bp,81.636bp);
+  % Edge: a -> c
+  \draw [->] (165.0bp,277.0bp) .. controls (165.0bp,267.54bp) and (165.05bp,257.55bp)  .. (165.21bp,237.6bp);
+  % Node: a
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (116.0bp,277.5bp) -- (116.0bp,392.5bp) -- (214.0bp,392.5bp) -- (214.0bp,277.5bp) -- cycle;
+  \draw (116.0bp,369.5bp) -- (214.0bp,369.5bp);
+  \draw (116.0bp,346.5bp) -- (214.0bp,346.5bp);
+  \draw (116.0bp,323.5bp) -- (214.0bp,323.5bp);
+  \draw (116.0bp,300.5bp) -- (214.0bp,300.5bp);
+  \draw (165.0bp,377.3bp) node {ExpArithmetic};
+  \draw (165.0bp,354.3bp) node {Operator: \(+\)};
+  \draw (165.0bp,331.3bp) node {this: 0x0000};
+  \draw (165.0bp,308.3bp) node {left: 0x0001};
+  \draw (165.0bp,285.3bp) node {right: 0x0002};
+\end{scope}
+  % Node: c
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (117.5bp,122.5bp) -- (117.5bp,237.5bp) -- (214.5bp,237.5bp) -- (214.5bp,122.5bp) -- cycle;
+  \draw (117.5bp,214.5bp) -- (214.5bp,214.5bp);
+  \draw (117.5bp,191.5bp) -- (214.5bp,191.5bp);
+  \draw (117.5bp,168.5bp) -- (214.5bp,168.5bp);
+  \draw (117.5bp,145.5bp) -- (214.5bp,145.5bp);
+  \draw (166.0bp,222.3bp) node {ExpRelation};
+  \draw (166.0bp,199.3bp) node {Operator: \(>\)};
+  \draw (166.0bp,176.3bp) node {this: 0x0002};
+  \draw (166.0bp,153.3bp) node {left: 0x0003};
+  \draw (166.0bp,130.3bp) node {right: 0x0004};
+\end{scope}
+  % Node: b
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (16.0bp,145.5bp) -- (16.0bp,214.5bp) -- (100.0bp,214.5bp) -- (100.0bp,145.5bp) -- cycle;
+  \draw (16.0bp,191.5bp) -- (100.0bp,191.5bp);
+  \draw (16.0bp,168.5bp) -- (100.0bp,168.5bp);
+  \draw (58.0bp,199.3bp) node {ExpInteger};
+  \draw (58.0bp,176.3bp) node {this: 0x0001};
+  \draw (58.0bp,153.3bp) node {value: 42};
+\end{scope}
+  % Node: left_c1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (396.0bp,16.5bp) -- (396.0bp,85.5bp) -- (478.0bp,85.5bp) -- (478.0bp,16.5bp) -- cycle;
+  \draw (396.0bp,62.5bp) -- (478.0bp,62.5bp);
+  \draw (396.0bp,39.5bp) -- (478.0bp,39.5bp);
+  \draw (437.0bp,70.3bp) node {ExpInteger};
+  \draw (437.0bp,47.3bp) node {this: 0x0f04};
+  \draw (437.0bp,24.3bp) node {value: 44};
+\end{scope}
+  % Node: right
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (130.0bp,16.5bp) -- (130.0bp,85.5bp) -- (214.0bp,85.5bp) -- (214.0bp,16.5bp) -- cycle;
+  \draw (130.0bp,62.5bp) -- (214.0bp,62.5bp);
+  \draw (130.0bp,39.5bp) -- (214.0bp,39.5bp);
+  \draw (172.0bp,70.3bp) node {ExpInteger};
+  \draw (172.0bp,47.3bp) node {this: 0x0003};
+  \draw (172.0bp,24.3bp) node {value: 43};
+\end{scope}
+  % Node: c_c2
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (395.5bp,122.5bp) -- (395.5bp,237.5bp) -- (492.5bp,237.5bp) -- (492.5bp,122.5bp) -- cycle;
+  \draw (395.5bp,214.5bp) -- (492.5bp,214.5bp);
+  \draw (395.5bp,191.5bp) -- (492.5bp,191.5bp);
+  \draw (395.5bp,168.5bp) -- (492.5bp,168.5bp);
+  \draw (395.5bp,145.5bp) -- (492.5bp,145.5bp);
+  \draw (444.0bp,222.3bp) node {ExpRelation};
+  \draw (444.0bp,199.3bp) node {Operator: \(>\)};
+  \draw (444.0bp,176.3bp) node {this: 0x0ffa};
+  \draw (444.0bp,153.3bp) node {left: 0x0003};
+  \draw (444.0bp,130.3bp) node {right: 0x0004};
+\end{scope}
+  % Node: c_c1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (237.5bp,122.5bp) -- (237.5bp,237.5bp) -- (334.5bp,237.5bp) -- (334.5bp,122.5bp) -- cycle;
+  \draw (237.5bp,214.5bp) -- (334.5bp,214.5bp);
+  \draw (237.5bp,191.5bp) -- (334.5bp,191.5bp);
+  \draw (237.5bp,168.5bp) -- (334.5bp,168.5bp);
+  \draw (237.5bp,145.5bp) -- (334.5bp,145.5bp);
+  \draw (286.0bp,222.3bp) node {ExpRelation};
+  \draw (286.0bp,199.3bp) node {Operator: \(>\)};
+  \draw (286.0bp,176.3bp) node {this: 0x00fa};
+  \draw (286.0bp,153.3bp) node {left: 0x0003};
+  \draw (286.0bp,130.3bp) node {right: 0x0004};
+\end{scope}
+  % Node: right_c1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (496.0bp,16.5bp) -- (496.0bp,85.5bp) -- (578.0bp,85.5bp) -- (578.0bp,16.5bp) -- cycle;
+  \draw (496.0bp,62.5bp) -- (578.0bp,62.5bp);
+  \draw (496.0bp,39.5bp) -- (578.0bp,39.5bp);
+  \draw (537.0bp,70.3bp) node {ExpInteger};
+  \draw (537.0bp,47.3bp) node {this: 0x0f03};
+  \draw (537.0bp,24.3bp) node {value: 43};
+\end{scope}
+  % Node: left
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (28.0bp,16.5bp) -- (28.0bp,85.5bp) -- (112.0bp,85.5bp) -- (112.0bp,16.5bp) -- cycle;
+  \draw (28.0bp,62.5bp) -- (112.0bp,62.5bp);
+  \draw (28.0bp,39.5bp) -- (112.0bp,39.5bp);
+  \draw (70.0bp,70.3bp) node {ExpInteger};
+  \draw (70.0bp,47.3bp) node {this: 0x0004};
+  \draw (70.0bp,24.3bp) node {value: 44};
+\end{scope}
+\end{tikzpicture}}%

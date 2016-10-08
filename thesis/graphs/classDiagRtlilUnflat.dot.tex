@@ -1,0 +1,122 @@
+\resizebox{\textwidth}{!}{\begin{tikzpicture}[line join=bevel,anchor=base]%
+\pgfsetcolor{black}
+  % Edge: n_wire -> n_module
+  \draw [-diamond] (284.55bp,479.74bp) .. controls (186.89bp,469.18bp) and (57.337bp,447.95bp)  .. (25.116bp,408.0bp) .. controls (-8.9264bp,365.8bp) and (-7.7165bp,329.15bp)  .. (25.116bp,286.0bp) .. controls (52.396bp,250.15bp) and (153.25bp,223.5bp)  .. (255.43bp,203.97bp);
+  % Edge: n_process -> n_module
+  \draw [-diamond] (696.15bp,323.81bp) .. controls (682.64bp,311.56bp) and (664.79bp,296.71bp)  .. (647.12bp,286.0bp) .. controls (618.12bp,268.42bp) and (585.6bp,252.48bp)  .. (542.72bp,233.87bp);
+  % Edge: n_wirer -> n_wire
+  \draw [-stealth'] (404.74bp,377.64bp) .. controls (405.76bp,394.04bp) and (406.09bp,414.94bp)  .. (405.44bp,444.39bp);
+  % Edge: n_wirer -> n_module
+  \draw [-stealth'] (399.12bp,316.39bp) .. controls (399.12bp,300.41bp) and (399.12bp,279.87bp)  .. (399.12bp,249.53bp);
+  % Edge: n_module -> n_design
+  \draw [-diamond] (399.12bp,113.3bp) .. controls (399.12bp,105.02bp) and (399.12bp,96.672bp)  .. (399.12bp,76.627bp);
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (407.78bp,104.6bp) node {n};
+  \draw (390.46bp,77.93bp) node {1};
+  % Edge: n_wire -> n_wirer
+  \draw [-stealth'] (392.79bp,444.39bp) .. controls (392.17bp,426.35bp) and (392.23bp,405.68bp)  .. (393.5bp,377.64bp);
+  % Edge: n_memory -> n_module
+  \draw [-diamond] (843.92bp,323.77bp) .. controls (830.07bp,311.05bp) and (811.29bp,295.73bp)  .. (792.12bp,286.0bp) .. controls (718.2bp,248.51bp) and (629.37bp,223.63bp)  .. (543.05bp,205.2bp);
+  % Edge: n_state -> n_wire
+  \draw [-stealth'] (497.07bp,407.54bp) .. controls (485.97bp,417.57bp) and (474.34bp,427.9bp)  .. (455.44bp,444.39bp);
+  % Edge: n_wire -> n_cell
+  \draw [-stealth'] (329.19bp,444.39bp) .. controls (309.94bp,432.1bp) and (288.78bp,418.6bp)  .. (259.94bp,400.2bp);
+  % Edge: n_cell -> n_module
+  \draw [-diamond] (248.65bp,293.82bp) .. controls (264.49bp,282.1bp) and (281.59bp,269.44bp)  .. (308.24bp,249.73bp);
+  % Edge: n_wire -> n_state
+  \draw [-stealth'] (442.78bp,444.39bp) .. controls (453.21bp,434.79bp) and (464.66bp,424.45bp)  .. (483.72bp,407.54bp);
+  % Node: n_wire
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (284.62bp,444.5bp) -- (284.62bp,535.5bp) -- (513.62bp,535.5bp) -- (513.62bp,444.5bp) -- cycle;
+  \draw (284.62bp,512.5bp) -- (513.62bp,512.5bp);
+  \draw (399.12bp,520.3bp) node {RTLIL::SigSpec};
+  \draw (292.62bp,497.3bp) node[right] {+ int width};
+  \draw (292.62bp,482.3bp) node[right] {+ uint64\_t hash};
+  \draw (292.62bp,467.3bp) node[right] {+ vector<SigChunk> chunks};
+  \draw (292.62bp,452.3bp) node[right] {+ vector<SigBit> bits};
+\end{scope}
+  % Node: n_module
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (255.62bp,113.5bp) -- (255.62bp,249.5bp) -- (542.62bp,249.5bp) -- (542.62bp,113.5bp) -- cycle;
+  \draw (255.62bp,226.5bp) -- (542.62bp,226.5bp);
+  \draw (399.12bp,234.3bp) node {RTLIL::Module};
+  \draw (263.62bp,211.3bp) node[right] {+ Design *design};
+  \draw (263.62bp,196.3bp) node[right] {+ map<string, Wire *> wires};
+  \draw (263.62bp,181.3bp) node[right] {+ map<string, Cell *> cells};
+  \draw (263.62bp,166.3bp) node[right] {+ vector<SigSig> connections};
+  \draw (263.62bp,151.3bp) node[right] {+ string name};
+  \draw (263.62bp,136.3bp) node[right] {+ map<string, Memory *> memories};
+  \draw (263.62bp,121.3bp) node[right] {+ map<string, Process *> procs};
+\end{scope}
+  % Node: n_wirer
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (339.62bp,316.5bp) -- (339.62bp,377.5bp) -- (458.62bp,377.5bp) -- (458.62bp,316.5bp) -- cycle;
+  \draw (339.62bp,354.5bp) -- (458.62bp,354.5bp);
+  \draw (399.12bp,362.3bp) node {RTLIL::Wire};
+  \draw (347.62bp,339.3bp) node[right] {+ string name};
+  \draw (347.62bp,324.3bp) node[right] {+ int width};
+\end{scope}
+  % Node: n_state
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (476.62bp,286.5bp) -- (476.62bp,407.5bp) -- (637.62bp,407.5bp) -- (637.62bp,286.5bp) -- cycle;
+  \draw (476.62bp,384.5bp) -- (637.62bp,384.5bp);
+  \draw (557.12bp,392.3bp) node {enum RTLIL::State};
+  \draw (484.62bp,369.3bp) node[right] {S0 - zero};
+  \draw (484.62bp,354.3bp) node[right] {S1 - one};
+  \draw (484.62bp,339.3bp) node[right] {Sx - undefined};
+  \draw (484.62bp,324.3bp) node[right] {Sz - high-impedance};
+  \draw (484.62bp,309.3bp) node[right] {Sa - don't care};
+  \draw (484.62bp,294.3bp) node[right] {Sm - marker};
+\end{scope}
+  % Node: n_process
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (655.62bp,324.0bp) -- (655.62bp,370.0bp) -- (782.62bp,370.0bp) -- (782.62bp,324.0bp) -- cycle;
+  \draw (655.62bp,347.0bp) -- (782.62bp,347.0bp);
+  \draw (719.12bp,354.8bp) node {RTLIL::Process};
+  \draw (719.12bp,331.8bp) node {...};
+\end{scope}
+  % Node: n_memory
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (800.62bp,324.0bp) -- (800.62bp,370.0bp) -- (931.62bp,370.0bp) -- (931.62bp,324.0bp) -- cycle;
+  \draw (800.62bp,347.0bp) -- (931.62bp,347.0bp);
+  \draw (866.12bp,354.8bp) node {RTLIL::Memory};
+  \draw (866.12bp,331.8bp) node {...};
+\end{scope}
+  % Node: n_design
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (261.12bp,0.5bp) -- (261.12bp,76.5bp) -- (537.12bp,76.5bp) -- (537.12bp,0.5bp) -- cycle;
+  \draw (261.12bp,53.5bp) -- (537.12bp,53.5bp);
+  \draw (399.12bp,61.3bp) node {RTLIL::Design};
+  \draw (269.12bp,38.3bp) node[right] {+ map<string, Module *> modules};
+  \draw (269.12bp,23.3bp) node[right] {+ addModule(Module *mod)};
+  \draw (269.12bp,8.3bp) node[right] {+ Module *addModule(string name)};
+\end{scope}
+  % Node: n_cell
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (34.62bp,294.0bp) -- (34.62bp,400.0bp) -- (321.62bp,400.0bp) -- (321.62bp,294.0bp) -- cycle;
+  \draw (34.62bp,377.0bp) -- (321.62bp,377.0bp);
+  \draw (178.12bp,384.8bp) node {RTLIL::Cell};
+  \draw (42.62bp,361.8bp) node[right] {+ Module *module};
+  \draw (42.62bp,346.8bp) node[right] {+ string name};
+  \draw (42.62bp,331.8bp) node[right] {+ string type};
+  \draw (42.62bp,316.8bp) node[right] {+ map<string, SigSpec> connections};
+  \draw (42.62bp,301.8bp) node[right] {+ map<string, Const> parameters};
+\end{scope}
+\end{tikzpicture}}%

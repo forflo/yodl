@@ -1,0 +1,39 @@
+
+\begin{tikzpicture}[>=latex,line join=bevel,]
+%%
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{1.0,1.0,1.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
+  \pgfsetfillcolor{fillcol}
+  \filldraw (0.0bp,0.0bp) -- (0.0bp,231.0bp) -- (357.5bp,231.0bp) -- (357.5bp,0.0bp) -- cycle;
+\end{scope}
+  \node (nVerF) at (39.0bp,223.0bp) [draw,rectangle] {Verilog frontend};
+  \node (passes) at (271.0bp,62.0bp) [draw,ellipse] {Transformations};
+  \node (nVerB) at (38.0bp,8.0bp) [draw,rectangle] {Verilog backend};
+  \node (nDotB) at (315.0bp,8.0bp) [draw,rectangle] {Graphviz backend};
+  \node (ast) at (86.0bp,169.5bp) [draw=orange,ellipse] {AST};
+  \node (nOtherF) at (263.0bp,116.0bp) [draw,rectangle] {Other frontends};
+  \node (rtlil) at (172.0bp,62.0bp) [draw=orange,ellipse] {RTLIL};
+  \node (nOtherB) at (217.0bp,8.0bp) [draw,rectangle] {Other backends};
+  \node (nVhdF) at (172.0bp,169.5bp) [draw=red,rectangle] {Yodl};
+  \node (nVhdF2) at (134.0bp,223.0bp) [draw,rectangle,dotted] {VHDL frontend};
+  \node (nIlangB) at (128.0bp,8.0bp) [draw,rectangle] {Ilang backend};
+  \node (nIlangF) at (172.0bp,116.0bp) [draw,rectangle] {Ilang frontend};
+  \node (nAstF) at (86.0bp,116.0bp) [draw,rectangle] {AST frontend};
+  \draw [->] (rtlil) ..controls (203.17bp,55.63bp) and (211.91bp,54.92bp)  .. (passes);
+  \draw [->] (passes) ..controls (222.08bp,69.351bp) and (213.25bp,69.154bp)  .. (rtlil);
+  \draw [->] (rtlil.south) ..controls (172.0bp,30.59bp) and (203.45bp,37.716bp)  .. (nOtherB.north);
+  \draw [->] (nAstF.south) ..controls (86.0bp,70.611bp) and (156.02bp,105.12bp)  .. (rtlil.north);
+  \draw [->] (nVerF.south) ..controls (39.0bp,192.8bp) and (72.46bp,201.17bp)  .. (ast.north);
+  \draw [->] (nIlangF.south) ..controls (172.0bp,96.0bp) and (172.0bp,90.75bp)  .. (rtlil.north);
+  \draw [->] (rtlil.south) ..controls (172.0bp,30.878bp) and (141.25bp,37.569bp)  .. (nIlangB.north);
+  \draw [->] (ast.south) ..controls (86.0bp,148.0bp) and (86.0bp,142.75bp)  .. (nAstF.north);
+  \draw [->] (nVhdF2.south) ..controls (134.0bp,192.5bp) and (99.828bp,201.32bp)  .. (ast.north);
+  \draw [->] (nVhdF.south) ..controls (172.0bp,148.87bp) and (172.0bp,143.42bp)  .. (nIlangF.north);
+  \draw [->] (rtlil.south) ..controls (172.0bp,-5.8132bp) and (54.227bp,67.333bp)  .. (nVerB.north);
+  \draw [->] (rtlil.south) ..controls (172.0bp,41.59bp) and (228.3bp,27.315bp)  .. (nDotB);
+  \draw [->] (nOtherF.south) ..controls (263.0bp,94.013bp) and (228.02bp,80.071bp)  .. (rtlil);
+%
+\end{tikzpicture}

@@ -1,0 +1,48 @@
+digraph G {
+//    node [shape=record];
+    edge [arrowhead=empty];
+
+    {
+        node [shape=plaintext];
+//        edge [style=invis];
+
+        n1 [label=""]; n2 [label=""];
+        n3 [label=""]; n4 [label=""];
+        n5 [label=""]; n6 [label=""];
+        n7 [label=""]; n8 [label=""];
+        n9 [label=""]; n10 [label=""];
+        n1 -> n2 -> n3 -> n4 -> n5 ->
+        n6 -> n7 -> n8 -> n9 -> n10;
+    }
+
+    {
+        graph [label = "fnord" rank = same];
+        n7;
+        foo; bar;
+        foo -> bar;
+        bar -> foo;
+    }
+
+    {
+        rank = same;
+        n3;
+        subgraph fnord1 {
+            foo1; bar1; gar1;
+            foo1 -> bar1;
+            bar1 -> foo1;
+            foo1 -> gar1;
+        };
+    }
+
+    {
+        rank = same;
+        n4;
+        subgraph fnord2 {
+            foo2; bar2;
+            foo2 -> bar2;
+            bar2 -> foo2;
+        };
+    }
+
+    foo -> bar2;
+}

@@ -1,0 +1,38 @@
+\BOOKMARK [0][-]{chapter.1}{State-of-the-art of Hardwaredesign}{}% 1
+\BOOKMARK [1][-]{section.1.1}{VHDL}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{Yosys}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.3}{Yodl}{chapter.1}% 4
+\BOOKMARK [0][-]{chapter.2}{Yodl \205 Subproblems}{}% 5
+\BOOKMARK [1][-]{section.2.1}{Lexis and Syntax}{chapter.2}% 6
+\BOOKMARK [1][-]{section.2.2}{Compile-time checks}{chapter.2}% 7
+\BOOKMARK [0][-]{chapter.3}{Yodl \205 Implementation details}{}% 8
+\BOOKMARK [1][-]{section.3.1}{Infrastructure}{chapter.3}% 9
+\BOOKMARK [2][-]{subsection.3.1.1}{Data model}{section.3.1}% 10
+\BOOKMARK [2][-]{subsection.3.1.2}{Dot code generator}{section.3.1}% 11
+\BOOKMARK [2][-]{subsection.3.1.3}{Cloning}{section.3.1}% 12
+\BOOKMARK [2][-]{subsection.3.1.4}{Generic traverser}{section.3.1}% 13
+\BOOKMARK [2][-]{subsection.3.1.5}{Type predicates and stateful lambdas}{section.3.1}% 14
+\BOOKMARK [2][-]{subsection.3.1.6}{Localizing parser data structures}{section.3.1}% 15
+\BOOKMARK [2][-]{subsection.3.1.7}{Testing}{section.3.1}% 16
+\BOOKMARK [1][-]{section.3.2}{AST transformations}{chapter.3}% 17
+\BOOKMARK [2][-]{subsection.3.2.1}{Loop expansion}{section.3.2}% 18
+\BOOKMARK [2][-]{subsection.3.2.2}{Generate expansion}{section.3.2}% 19
+\BOOKMARK [2][-]{subsection.3.2.3}{Elsif elimination}{section.3.2}% 20
+\BOOKMARK [2][-]{subsection.3.2.4}{If statement elimination}{section.3.2}% 21
+\BOOKMARK [2][-]{subsection.3.2.5}{Process lifting}{section.3.2}% 22
+\BOOKMARK [1][-]{section.3.3}{RTLIL generation}{chapter.3}% 23
+\BOOKMARK [2][-]{subsection.3.3.1}{Yosys's RTLIL data structures}{section.3.3}% 24
+\BOOKMARK [2][-]{subsection.3.3.2}{Introduction of SVHDL}{section.3.3}% 25
+\BOOKMARK [2][-]{subsection.3.3.3}{Synthesis semantics}{section.3.3}% 26
+\BOOKMARK [2][-]{subsection.3.3.4}{Transformation algorithm \205 Synthesis examples}{section.3.3}% 27
+\BOOKMARK [2][-]{subsection.3.3.5}{Transformation algorithm \205 Implementation details}{section.3.3}% 28
+\BOOKMARK [1][-]{section.3.4}{Current Limitations}{chapter.3}% 29
+\BOOKMARK [0][-]{chapter.4}{Yodl \205 Future work}{}% 30
+\BOOKMARK [1][-]{section.4.1}{Complete parser}{chapter.4}% 31
+\BOOKMARK [2][-]{subsection.4.1.1}{BNFC and LBNF}{section.4.1}% 32
+\BOOKMARK [1][-]{section.4.2}{Further grammar issues}{chapter.4}% 33
+\BOOKMARK [1][-]{section.4.3}{Complete VHDL support}{chapter.4}% 34
+\BOOKMARK [1][-]{section.4.4}{Far in the future}{chapter.4}% 35
+\BOOKMARK [2][-]{subsection.4.4.1}{Formal specification of VHDL's synthesis semantics}{section.4.4}% 36
+\BOOKMARK [2][-]{subsection.4.4.2}{Regression based test suite}{section.4.4}% 37
+\BOOKMARK [0][-]{chapter*.62}{Bibliography}{}% 38

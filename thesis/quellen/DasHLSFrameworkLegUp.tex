@@ -1,0 +1,1869 @@
+\documentclass[oneside,a4paper]{article}
+
+\usepackage[ngerman]{babel}
+\usepackage[margin=4cm]{geometry}
+\usepackage[table]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage[%
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black]{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{palatino}
+\usepackage{avant}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{pslatex}
+\usepackage{gensymb}
+\usepackage{parskip}
+\usepackage{setspace}
+\usepackage{afterpage}
+\usepackage{courier}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[scaled]{beramono}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+
+%define some colors for use in listings configuration
+\definecolor{lightblue}{rgb}{0.2925,0.6381,0.65}
+\definecolor{darkblue}{rgb}{0.0105,0.2764,0.35}
+\definecolor{gray}{gray}{0.55}
+
+%config of the listings package
+\lstset{numbers=none,
+  numberstyle=\small{\ttfamily{}},
+  basicstyle=\fontfamily{cmtt}\selectfont,
+  stepnumber=1,
+  numbersep=4pt}
+\lstset{tabsize=4}
+\lstset{breaklines=true,
+  breakatwhitespace=true}
+\lstset{frame=none}
+
+%default styles
+\lstdefinestyle{c}{language=C,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+\lstdefinestyle{ada}{language=[2005]ada,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+\lstdefinestyle{haskell}{language=haskell,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+\lstdefinestyle{bash}{language=bash,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+% add style definition for vhdl
+\lstdefinestyle{vhdl}{language=vhdl,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+% add style for assembly
+\lstdefinestyle{asm}{language=[motorola68k]assembler,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+% add style for verilog
+\lstdefinestyle{verilog}{language=verilog,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+% style for c++11
+\lstdefinestyle{c++}{language=[11]c++,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+\def\B#1{\lstinline[style=bash]{#1}}
+\def\A#1{\lstinline[style=asm]{#1}}
+\def\V#1{\lstinline[style=verilog]{#1}}
+\def\VH#1{\lstinline[style=vhdl]{#1}}
+\def\C#1{\lstinline[style=c]{#1}}
+
+% config for blank page
+\newcommand\blankpage{%
+  \null
+  \thispagestyle{empty}
+  \newpage}
+
+\begin{document}
+\title{Das HLS-Framework LegUp -- Aufbau, Funktionsweise und Anwendung}
+\author{\color{darkblue}Florian Mayer}
+\pagenumbering{gobble}
+\maketitle
+\afterpage{\blankpage}
+\pagebreak
+\tableofcontents
+\pagebreak
+
+\begin{abstract}
+In dieser Arbeit soll mithilfe des HLS-Frameworks LegUp
+C-Programmcode zu Hardware synthetisiert werden.
+Um die Funktionsweise von LegUp besser demonstrieren zu können,
+wird zunächst LegUp selbst detailliert vorgestellt und der Begriff
+HLS geklärt. Das letzte Kapitel beschreibt sodann die Lösung
+eines praktischen Problems mithilfe von LegUp-C-Synthese.
+
+LegUp unterstützt mehrere Toolchain-Arbeitsmodi, auf die im zweiten
+Kapitel näher eingegangen wird.
+
+Besonderes Ziel dieser Arbeit ist es, die
+Transformationsschritte zu dokumentieren, die auf ein C-Programm
+angewandt werden müssen, damit
+es zu einem korrekten RTL-Modell wird. Hierbei
+sind allerdings nur die Verarbeitungsstufen relevant, die unmittelbar zu
+LegUp gehören. Insbesondere irrelevant sind alle Abstraktionsstufen
+unterhalb oder gleich der RTL-Ebene.
+
+Die wichtigesten beteiligten HLS-Konzepte werden im
+Legup-Kapitel ebenfalls angesprochen, doch nicht genauer erläutert.
+Diese Arbeit möchte
+als Folge dessen eine gute Referenz und Litaratursammlung
+sein, die für weitere Recherchen im Kontext HLS herangezogen werden kann.
+
+\end{abstract}
+\pagebreak
+\pagenumbering{arabic}
+
+\section{Einführung in die HLS}
+High Level Synthese bezeichnet die Transformation von Code in einer
+imperativen, sequenziellen Sprache zu Hardware. LegUp ist ein Tool,
+welches HLS von ANSI-C zu Verilog ermöglicht.
+Um den Begriff HLS genauer erörtern zu können, fehlen zunächst die
+Voraussetzungen, nämlich genaueres Verständnis der Abstraktionshierarchie,
+die sich im Laufe der Entwicklung von EDA-Werkzeugen
+in der Elektro- und Informationstechnik etabliert hat.
+
+\subsection{In welche Abstraktionshierarchie gliedert sich HLS?}
+Clifford Wolf, der Autor des Synthesis-Toolkits \emph{Yosys} schlägt in
+seinem Manual (vgl. \cite{WOLF2015}) zur Software (informell)
+die Beispielhierarchie in Abbildung~\ref{fig:Basics_abstractions} vor.
+Die jeweiligen Pfeile zwischen den Schichten stellen Transformationen dar.
+Im Kontext dieser Arbeit (und der EDA) nennt man diese Transformationen
+Synthese, bzw. Synthetisierung.
+In den folgenden Unterkapiteln werden einige Schichten und
+Transformationen genauer beleuchtet.
+
+\begin{figure}[b!]
+    \hfil
+    \begin{tikzpicture}
+        \tikzstyle{lvl} = [draw, fill=blue!10, rectangle, minimum height=2em, minimum width=15em]
+        \node[lvl] (sys) {System Level};
+        \node[lvl] (hl) [below of=sys] {High Level};
+        \node[lvl] (beh) [below of=hl] {Behavioral Level};
+        \node[lvl] (rtl) [below of=beh] {Register-Transfer Level (RTL)};
+        \node[lvl] (lg) [below of=rtl] {Logical Gate Level};
+        \node[lvl] (pg) [below of=lg] {Physical Gate Level};
+        \node[lvl] (sw) [below of=pg] {Switch Level};
+
+        \draw[dotted] (sys.east)  -- ++(1,0) coordinate (sysx);
+        \draw[dotted] (hl.east)  -- ++(1,0) coordinate (hlx);
+        \draw[dotted] (beh.east) -- ++(1,0) coordinate (behx);
+        \draw[dotted] (rtl.east) -- ++(1,0) coordinate (rtlx);
+        \draw[dotted] (lg.east)  -- ++(1,0) coordinate (lgx);
+        \draw[dotted] (pg.east)  -- ++(1,0) coordinate (pgx);
+        \draw[dotted] (sw.east)  -- ++(1,0) coordinate (swx);
+
+        \draw[|->] (sysx) -- node[right] {System Design} (hlx);
+        \draw[->|] (hlx) -- node[right] {High Level Synthesis (HLS)} (behx);
+        \draw[->|] (behx) -- node[right] {Behavioral Synthesis} (rtlx);
+        \draw[->|] (rtlx) -- node[right] {RTL Synthesis} (lgx);
+        \draw[->|] (lgx) -- node[right] {Logic Synthesis} (pgx);
+        \draw[->|] (pgx) -- node[right] {Cell Library} (swx);
+    \end{tikzpicture}
+    \caption{Abstraktionshierarchie}
+    \label{fig:Basics_abstractions}
+\end{figure}
+
+\subsubsection{Systemlevel}
+Die Systemebene stellt derzeit die höchste
+Abstraktionsstufe dar. Hier geht es darum, Syteme von sehr großer Komplexität
+(z.B. das Kommunikationsnetz und die Beschaffenheit der verbundenen Subsysteme
+in Autos) überhaupt einmal entwerfen zu können. In \cite{BAILEY2007}
+wird diese Stufe wie folgt definiert: ``abstractions in order to increase
+comprehension about a system, and to enhance the probability of a successful
+implementation of functionality in a cost-effective manner''.
+Beim Systemlevel-Design ist daher die Grundidee zunächst das System grobgranular
+zu beschreiben. Dieses Ziel wird entweder mit graphischen Modellierungsmitteln
+oder mithilfe von formalen Sprachen erreicht. Beispiele für Technologien
+aus dieser Schicht sind:
+
+\begin{itemize}
+  \item \emph{SystemC}
+  \item \emph{Matlab}, z.B. mit dem Toolkit Simulink
+  \item \emph{SysML}
+\end{itemize}
+
+SystemC ist kein reines Systemlevel Designwerkzeug, da es auch zur Systemsynthese
+und Simulation verwendet werden kann (vgl. \cite{SYSTEMC}).
+Matlab ist eine Allzweckprogrammiersprache, die jedoch mithilfe der Simulink
+Programmpakete in ein Simulations- und Systemlevel-Desingwerkzeug
+verwandelt werden kann.
+
+Informell:
+Auf dem Systemlevel modelliert man die Interaktion von Komponenten, die
+für sich selbst jeweils unabhängige digitale/analoge Systeme darstellen, deren
+Komplexität mit der Komponentenkomplexität auf Motherboards oder
+Microkontrollerschaltungen zu vergleichen ist.
+
+\subsubsection{Behavioural Level und High Level}
+Die enschlägige Literatur bezeichnet HLS häufig auch als \emph{algorithmic level}.
+Auf dieser Ebene wird nämlich mithilfe von herkömmlichen imperativen, sequenziellen
+Programmiersprachen modelliert. Sequenzielle Algorithmen lassen sich
+aber auch auf Behavioral level (BL) beschreiben, wozu also HLS?
+
+In traditionellen BL-Sprachen
+wie z.B. Verilog oder VHDL, müssen Designer nach wie vor alle Feinheiten des RTL-
+Designs kennen und verstehen. Algorithmische Modellierungen sind in VHDL ausschließlich
+innerhalb eines speziellen ``concurrent-statements'' möglich: Dem ``process-statement''.
+
+Das folgende Listing zeigt einen n-Bit Counter:
+\begin{lstlisting}[style=vhdl,caption={N-Bit Counter},label=counter]
+library ieee;
+use ieee.std_logic_unsigned.all;
+use ieee.std_logic_1164.all;
+
+entity counter is
+   generic(n : natural := 4);
+   port(clk    : in  std_logic;
+        cnt    : in  std_logic;
+        clear  : in  std_logic;
+        outCnt : out std_logic_vector(n-1 downto 0));
+end counter;
+
+architecture behaviour of counter is
+   signal temp : std_logic_vector(n-1 downto 0);
+begin
+   outCnt <= temp;
+
+   process(clk, count, clear)
+   begin
+      if clear = '1' then
+         temp <= '0'
+      elsif (clk = '1' and clk'event) then
+         if cnt = '1' then
+            temp <= temp + 1;
+         end if;
+      end if;
+   end process;
+end behaviour;
+\end{lstlisting}
+
+Der Code innerhalb des \VH{process}-Statements wird je nach
+Beschaffenheit der \emph{sensitivity list} entweder zu einem
+Schaltwerk oder einem Schaltnetz synthetisiert. Ein Schaltwerk
+besitzt einen internen Status (also einen Speicher, der
+mithilfe von Registern realisiert wird), wohingegen das Schaltnetz
+keinen internen Speicher hat.
+
+In VHDL müssen die (möglicherweise) algorithmisch/behavioural beschriebenen
+Komponenten immer noch manuell miteinander verbunden werden. Dabei stellt,
+neben der korrekten Verdrahtung der Komponenten, die korrekte Taktung ein
+ebenso großes Problem dar. Die sog.\ statische Timing-Analyse liefert
+Auskunft über die maximale Taktrate eines digitalen Systems, muss zudem
+manuell erstellt und ausgewertet werden.
+
+Das folgende VHDL Codebeispiel beschreibt eine weitere Feinheit des
+BL-Designs: Nutzung von Block-RAM.
+
+\begin{lstlisting}[style=vhdl,caption={RAM-Block in VHDL},label=ramblock]
+architecture Behavioral of seven_segment is
+    type segment_data_t is array(3 downto 0) of std_logic_vector(7 downto 0);
+    signal segment_data: segment_data_t;
+    signal counter: unsigned(1 downto 0);
+begin
+    -- [...] previous code
+    picoblaze_interface: process(clock, reset)
+    begin
+        if reset = '1' then
+            segment_data <= (others => (others => '0'));
+        elsif rising_edge(clock) then
+            if write_enable = '1' then
+                segment_data(conv_integer(
+                    unsigned(address))) <= bit_pattern;
+            end if;
+        end if;
+    end process picoblaze_interface;
+end Behavioural;
+\end{lstlisting}
+
+Manche FPGA-Architekturen bieten sog.\ RAM-Blöcke an.
+Der obige VHDL-Code modelliert genau so einen
+RAM-Block inclusive Adress-en- bzw. Decoder. Für das ungeschulte Auge
+ist auf den ersten Blick nicht ersichtlich, dass hier Block-RAM
+synthetisiert wird. Auch war die Semantik dieses Codestücks
+nicht immer standardisiert (vgl. Kapitel 6.5 in \cite{IEEESYNTH}).
+Aktuelle Synthesetools synthetisieren natürlich keinen RAM-Zugriff,
+wenn kein RAM auf dem Ziel-FPGA vorhanden ist. In diesem Fall werden
+herkömmliche Register zusammengeschaltet. Die Feinheit besteht nun
+darin, dass das Timing von Register- und Block-RAM-Zugriffen höchst
+ungerschiedlich ist.
+
+\subsubsection{Register Transfer Level}
+Auf dem RTL ist das Design durch kombinatorische Datenpfade und Register
+beschrieben. Die Abbildung~\ref{fig:rtl_schema} zeigt ein extrem einfaches RTL-Design.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.3]{../images/rtl_schema.png}
+  \caption{RTL-Design}
+\label{fig:rtl_schema}
+\end{figure}
+
+Nimmt man als kombinatorischen Pfad z.B. die Addition zweier Bits (A und B),
+lässt sich in VHDL folgendes Beispiel geben:
+
+\begin{lstlisting}[style=vhdl,caption={Reines RTL-Design in VHDL},label=simple]
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+--
+-- Hier Entity-Deklaration mit ports
+-- fuer A, B, entity_result  und clock
+--
+
+architecture behav_add of adder is
+    signal result: std_ulogic;
+begin
+    -- Die overload Resolution waehlt die
+    -- fuer std_logic ueberladene
+    -- Version der Funktion aus der
+    -- library std_logic_arith aus
+    result <= A + B; -- rein kombinatorisch
+
+    register: process(clock) is
+    begin
+        entity_result <= result;
+    end register;
+end behav_add;
+\end{lstlisting}
+
+HDL-Sprachen wie VHDL oder Verilog, stellen Designs nicht nur auf
+Verhaltensebene, sondern auch dem RTL dar. Es ist dem Designer überlassen
+für die verschiedenen Komponenten die jeweilige Abstraktionsstufe zu
+wählen. In praktischen Designs werden aber oft beide Schichten
+gemischt verwendet. Außerdem gilt:
+Ein synchroner Zähler lässt sich z.B. ohne das
+\VH{process}-Statement in VHDL nicht implementieren, wohingegen dies für
+Addierer, Subtrahierer, etc.\ sehr wohl möglich ist.
+
+Damit ein VHDL-Design als reines RTL-Modell gelten kann, muss auf \VH{process}-Statements
+so weit wie möglich verzichtet werden. Konkreter: \VH{process}-Statements dürften
+nur zur Erzeugung einzelner Register, bzw. Registervektoren verwendet werden.
+
+Diese Fallunterscheidung wirkt pedantisch und provoziert die Frage nach dem Sinn.
+Manche Optimierungen können
+nur auf RTL-Ebene effektiv durchgeführt werden.
+Die sog.\ ``FSM-Detection'' (vgl. Seite 14 \cite{WOLF2015})
+sowie Optimierungsalgorithmen die Speicherblöcke
+oder größere wiederverwendbare
+Ressourcen erkennen, sind Beispiele (z.B. Multipliziererblöcke, Addierer, \ldots).
+
+RTL-Designs werden mithilfe sog.\ Netzlisten repräsentiert. Die obige
+Abbildung~\ref{fig:rtl_schema} zeigt ein sehr einfaches Exemplar
+dieser Darstellungsform.
+Netzlisten können entweder
+grob- oder feinkörnig sein. Listen auf RTL-Ebene können Funktionseinheiten
+wie Addierer, Multiplizierer und Multiplexer enthalten, also insbesondere
+Komponenten mit mehr als einem Eingang. Netzlisten sind im mathematischen Sinn
+zyklische Graphen. Zyklen kommen z.B. an jedem direkt rückgekoppelten Schaltnetz/Schaltwerk
+vor. Funktionsblöcke in Netzlisten nennt man auch Zellen.
+
+RTL-Netzlisten können durch einfache Ersetzungsmechanismen in feinkörnigere
+Netzlisten synthetisiert werden. Netzlisten dieser Art befinden sich auf
+dem Logical Gate Level und enthalten nur noch die primitivsten Zellentypen
+(AND, OR, NOT, NAND, XOR, 1-Bit D-Type Flip-flops, \ldots{}). Diese Komponenten
+zeichnen sich unter anderem dadurch aus, dass deren Eingänge
+jeweils nur ein Bit breit sind (vgl. Seite 15 \cite{WOLF2015}).
+
+\subsubsection{Weitere Ebenen}
+Die restlichen und detailreichsten Ebenen sind:
+
+\begin{itemize}
+  \item \emph{Logical Gate Level}
+  \item \emph{Physical Gate Level}
+  \item \emph{Switch Level}
+\end{itemize}
+
+Sie sind für weitere Erörterungen nicht mehr relevant und
+werden daher nicht weiter beschrieben.
+
+\subsection{Warum wurde als Quellsprache ANSI-C gewählt?}
+
+C hat als HLS-Quellsprache gegenüber modernen
+objektorientierten oder funktionalen Programmiersprachen
+zwei wesentliche Vorteile. Erstens ``kann die Welt C'', zweitens ist die Sprache
+äußerst minimal gehalten und dennoch algorithmisch sehr prägnant und hardwarenah.
+
+Legup unterstütz nicht alle Sprachfunktionen von ANSI-C. Insbesondere sind
+in Legup-C Rekursionen, Funktionspointer,
+Aufrufe zu \C{malloc} und ähnlichen Systemroutinen illegal.
+Funktionen, Arrays, Structs, globale/lokale Variablen,
+ausgewählte Pthread-Routinen, Gleitpunktoperationen und
+Zeiger bzw.\ Zeigerarithmetik sind aber valide Bestandteile der
+Untermenge (vgl. FAQ in \cite{LEGUP}).
+
+\subsubsection{Die Welt spricht C}
+Fast keine andere
+Programmiersprache hat einen derart großen Bekanntheitsgrad wie C. Diesen Umstand
+hat C unter anderem seiner langen Existenz zu verdanken; Kernighan und Ritchie
+spezifizierten in ihrem Buch ``The C Programming Language'' bereits 1978 den
+ersten C-Dialekt (K\&R1). Auch die Tatsache, dass Microcontrollerhersteller
+für jede neue Version ihrer Controller eine Variante des GCC herausbringen
+müssen um am Markt bestehen zu können, trägt dazu bei.  %TODO: Quelle
+Ebenso spielen
+Betriebssysteme eine signifikante Rolle, da zumindest die drei meistbenutzten Betriebssysteme %TODO: Quelle
+Linux (BSD, \ldots), Mac OS X und Windows in C geschrieben sind, bzw.\ deren
+Systeminterfaces mithilfe von puren C-API's exportiert werden.
+Das zwingt natürlich Universitäten mit einer
+Informatik- oder bspw. Elektrotechnikfakultät dazu, diverse C-Kurse anzubieten,
+insbesondere dann, wenn Fächer mit hohem Praxisbezug angeboten werden.
+
+Im Jahr 1989 verabschiedete das ANSI den ersten Offiziellen C-Standard, der
+unter anderem die synonymen Begriffe ANSI-C, C89 und ISO C90 trägt.
+Die zweite Auflage des Buchs ``The C Programming Language'' reflektiert die
+Änderungen dieses Standards und ist in dieser Version heute immer noch im
+Handel erhältlich. Aufgrund des schieren Alters dieses Standards, gibt es heute
+keinen Praxisrelevanten C-Compiler mehr, der nicht mindestens ANSI-C problemlos
+übersetzen kann --- Probleme gibt es in der Praxis natürlich trotzdem, vor allem
+beim Übersetzten von systemabhängigem Code.
+
+\subsubsection{Minimalismus}
+Dieses Attribut lässt sich
+leider nur unscharf definieren, da C zum Zeitpunkt der Erscheinung sicherlich
+nicht als so schlank galt, wie heute im Vergleich zu Sprachen wie C++,
+Java oder gar Haskell, deren
+Featureset beachtlich angewachsen ist. \emph{Minimalismus} bedeutet in
+diesem Kontext:
+
+\begin{itemize}
+  \item Spärliche Abstraktionsmechanismen (Keine vernünftigen ADT's möglich,
+    kein Modulsystem)
+  \item Keine lokalen Funktionen (geschweige denn Closures)
+  \item ``easygoing'' Typsystem; weakly typed language
+    (keine Array-Bounds-Checks, keine Laufzeit-Checks,
+    implizite Typecoercions, Void-Pointer, \ldots)
+  \item Keine Continuations, keine Exceptionmechanismen
+  \item Funktionen geben lediglich einen Wert eines Typs zurück
+  \item Lediglich 32 Schlüsselwörter (in ANSI-C). Zum Vergleich: C++ hat 90
+    (vgl. \cite{CPPREF})
+  \item Keine Operator- sowie Funktionsüberladung (vgl. \cite{KRC})
+  \item Keine Vererbung und ebenso keine Datentyppolymorphie (vgl. \cite{KRC})
+\end{itemize}
+
+All dies führt dazu, dass die Semantik der Sprache äußerst klar und einfach
+zu lernen ist. Ganz offensichtlich ist jedoch auch,
+dass semantische Einfachheit keinen
+guten programmierten Code impliziert. Dennoch lässt sich daraus sehr wohl
+folgern, dass C-AST's wesentlich einfacher verarbeitbar sind, als
+z.B. abstrakte Syntaxbäume der Sprachen Java oder C++.
+
+\paragraph{Warum ist Minimalismus wichtig?}
+Imperative, logische, funktionale oder objektorientierte
+Programmiersprachen haben eins gemeinsam: Ihre Zielsprachen
+sind ausschließlich Assemblerdialekte verschiedener
+Register- oder Stackmaschinen mit
+sequenzieller Ausführung, Arbeitsspeicher und optionaler
+
+Bei der HLS gilt dies nicht. Die Hauptzielsprachen, VHDL oder Verilog,
+werden nich Register- oder Stackbasiert weiterverarbeitet.
+VHDL und Verilog synthetisieren nämlich, wie in der Einführung erwähnt,
+zu Graphenstrukturen (Netzlisten), anstatt zu linearem Code wie Assembler.
+Weiterhin sind fast alle Hardware-Designs freistehend und
+kommen nicht in den Genuss vorgefertigter IO-Hilfsroutinen.
+
+Die Algorithmen für die Synthese von C zu VHDL/Verilog
+(oder auch direkt in Netzlisten) sind hochkomplex, weslhalb man
+die Implementierung nicht unnötig durch die Interpretation
+manchmal ohnehin ungewünschter Features objektorientierter Sprachen
+verkomplizieren will. Das Ziel ist den AST der jeweiligen Quellsprache
+so einfach wie möglich zu halten.
+
+\section{Legup}
+\subsection{Allgemeines}
+Legup ist ein HLS-Forschungsprojekt der Universität Toronto, welches
+unter einer sehr restriktiven Open-Source-Lizenz erhältlich ist.
+Legup darf der Lizenz zufolge nicht kommerziell benutzt oder
+weiterentwickelt werden.
+
+Da es sich um ein Forschungsprojekt handelt, gibt es zum Zeitpunkt dieser
+Arbeit, noch keinen eigentständigen Installer. Die auf der Webseite
+empfohlene Art der Benutzung erfolgt durch eine virtuelle Appliance (eine
+vorgefertige Virtualbox-VM).
+
+\subsection{Eingabesprache}
+Legup akzeptiert ANSI-C als Eingabesprache. Im Gegensatz zu z.B.\
+SystemC, werden keine speziellen Annotationen, Pragmas oder Schlüsselwörter
+für die Annotation diverser Kontrollstrukturen gebraucht; simples ANSI-C
+genügt (vgl. FAQ in \cite{LEGUP}).
+
+\begin{itemize}
+  \item Funktionspointer,
+  \item dynamisches Speichermanagement (\C{malloc}, \C{calloc}, \ldots),
+  \item Rekursionen
+  \item und die meisten Systembibliotheken
+\end{itemize}
+sind im Quelltext nicht erlaubt!
+
+Ein Beispiel für validen LegUp Input ist dieses in der LegUp-VM
+vorhandene Beispiel:
+\begin{lstlisting}[style=c,caption={Synthetisierbare Arrayverarbeitung},label=array]
+#include <stdio.h>
+int array[2][2][3] = {
+  {
+    {1, 2, 3},
+    {4, 5, 6}
+  } , {
+    {7, 8, 9},
+    {10, 11, 12}}};
+
+int fct(int *array, int size) {
+    int result = 0;
+    int i;
+    for (i = 0; i < size; i++) {
+        result += array[i];
+    }
+    return result;
+}
+
+int main() {
+    int result = 0;
+    int a, b, c;
+    for (a = 0; a < 2; a++) {
+        for (b = 0; b < 2; b++) {
+            for (c = 0; c < 3; c++) {
+                result += array[a][b][c];
+            }
+        }
+    }
+
+    result += fct((int *)array, 12);
+
+    printf("Result: %d\n", result);
+    if (result == 156) {
+        printf("RESULT: PASS\n");
+    } else {
+        printf("RESULT: FAIL\n");
+    }
+    return result;
+}
+\end{lstlisting}
+
+Aufrufe zu \C{printf()} sind explizit erlaubt und werden
+in der resultierenden Verilogdatei zu \V{display}-Statements konvertiert.
+Verilogsynthesetools ignorieren diese Anweisungen, wohingegen sie von
+Simulatoren ausgeführt werden. Somit können Algorithmen zunächst
+mithilfe von \C{printf}-Aufrufen debugged und dann in einem Verilogsimulator
+getestet werden (vgl. Verilogcode in 3.4.2).
+
+Ein Beispiel für die in SystemC notwenigen Annotationen liefert
+das folgenden Listing.
+
+\begin{lstlisting}[style=c++,caption={SystemC Beispiel},label=systemc]
+#include "systemc.h"
+
+SC_MODULE(adder)          // module (class) declaration
+{
+    sc_in<int> a, b;      // ports
+    sc_out<int> sum;
+
+    void do_add()         // process
+    {
+                          //or just sum = a + b
+        sum.write(a.read() + b.read());
+    }
+
+    SC_CTOR(adder)         // constructor
+    {
+        SC_METHOD(do_add);  // register do_add to kernel
+        sensitive << a << b;// sensitivity list
+    }
+};
+\end{lstlisting}
+
+\C{SC_MODULE}, \C{SC_METHOD} und \C{SC_CTOR} sind z.B. Makros
+aus der \C{systemc.h} Headerdatei (vgl. \cite{WIKI01}).
+
+\subsection{Syntheseabläufe}
+LegUp unterstützt hauptsächlich zwei Syntheseflows: \emph{Pure hardware}
+und \emph{Hybrid}. In beiden Fällen werden die benötigten
+Werkzeuge mittels TCL-Skripten und Makefiles orchestriert.
+
+\subsubsection{Der Hardware Flow}
+Hierbei werden die in C verfassten Algorithmen und Designbeschreibungen
+in ein semantisch äquivalentes Verilog-Designfile überführt. Der
+\emph{pure hardware flow} kann mithilfe eines TCL-Skripts ausführlich
+gesteuert werden (vgl. Kapitel 10 \cite{LEGUP}). Z.b.\ können
+in den Configurationsskripten experimentelle Synthesefeatures
+an- und ausgeschalten oder Scheduling-, Allokations-, und Bindingparameter
+festgelegt werden.
+
+\subsubsection{Der Hardware Flow Im Detail}
+Um den Hardware-Designflow besser zu beschreiben, beziehen sich alle weiteren
+Ausführungen in diesem Abschnitt auf das C-Listing in 3.2.
+Wichtig: Die hier beschriebene Kommandoabfolge ist der Synthesestandard von LegUp;
+der gesamte Toolchainflow kann vollständig angepasst werden. Solange die
+grobe Reihenfolge
+
+ANSI-C \( \to \) LLVM IR \( \to \) Optimierter IR \( \to \) Verilog
+
+erhalten bleibt.
+
+Legup unterstütz sog.\ Loop-Pipelinging. Damit die
+Pipeliningalgorithmen greifen können,
+müssen Schleifen mit einem Label versehen
+werden.
+
+\paragraph{In Schritt 1} des Hardwareflows
+erzeugt das Perl-Skript \emph{mark\_labels.pl}
+aus dem Code
+\begin{lstlisting}[style=c]
+loop: for (i = 0; i < foo; i++){
+  // weitere Statements [...]
+}
+\end{lstlisting}
+
+den folgenden Ergebniscode:
+
+\begin{lstlisting}[style=c]
+loop: for (i = 0; i < foo; i++){
+  __legup_label("loop");
+  // weitere statements [...]
+}
+\end{lstlisting}
+
+Der \C{__legup_label()}-Aufruf muss sich immer unmittelbar
+als erste Anweisung nach dem
+Beginn des Statementsblock der jeweiligen Schleife im Ergebniscode befinden.
+Da der C-Code von einem modifizierten C-Compiler in Zwischencode (LLVM-IR)
+übertragen wird, welcher leider die C-Labels nicht mehr beinhaltet,
+ist ein derartiger Hack notwendig.
+
+\paragraph{Der zweite Schritt} überführt die soeben annotierte Datei in
+LLVM-Zwischencode. Dies geschieht durch folgendes Kommando:
+\begin{lstlisting}[style=bash]
+clang-3.5 array_labeled.c \
+    -emit-llvm -c -fno-builtin -I ../lib/include/ \
+    -m32 -I /usr/include/i386-linux-gnu -O0 -mllvm \
+    -inline-threshold=-100 -fno-inline -fno-vectorize \
+    -fno-slp-vectorize -o array.prelto.1.bc
+\end{lstlisting}
+
+Die Parameter weisen Clang dazu an (\B{-O0}) im niedrigesten Optimierungslevel
+32 Bit (\B{-m32}) LLVM-IR-Code (\B{-mllvm}, \B{-emit-llvm}) zu generieren ohne dabei
+(\B{-fno-vectorize}, \B{-fno-slp-vectorize})
+Vektorisierungen, oder (\B{-fno -inline}) Inlining vorzunehmen. Der Bytecode
+steht danach in der Datei \B{array.prelto.1.bc}
+
+\paragraph{Im dritten Schritt} wird der eben produzierte Bytecode mittels
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/llvm-dis array.prelto.1.bc
+\end{lstlisting}
+
+in lesbaren ASCII llvm code umgesetzt. Das Format ist nach wie vor LLVM-IR.
+
+\paragraph{In Aktion Nr. 4} tritt zum ersten Mal der
+IR-Code Optimizer \B{opt} in Erscheinung. \B{opt} ist ein Tool aus der LLVM
+Compilertoolchain mit dessen Hilfe diverse low-level Optimierungen durchgeführt
+werden können. Die Entwickler von LegUp haben diesem Optimierer
+weitere Optimierungsläufe hinzugefügt, die mit eigenen Compilerflags
+an- oder ausgeschaltet werden.
+
+Der Aufruf
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/opt -mem2reg \
+    -loops -loop-simplify \
+    < array.prelto.cv.bc > array.prelto.2.bc
+\end{lstlisting}
+produziert einen Zwischencode, bei dem alle RAM-Referenzen in
+Registerreferenzen (\B{-mem2reg}) umgewandelt wurden. LegUp
+entscheidet
+selbst darüber, welche Speicherreferenzen als Block-RAM und welche
+als Register realisiert werden. Weiterhin bedeuten
+\B{-loops} und \B{-loop-simplify} generische Schleifenoptimierungen.
+
+\paragraph{In Schritt 5} werden zunächst standard link-time Optimierungen durchgeführt
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/opt \
+    -load=../../llvm/Release+Asserts/lib/LLVMLegUp.so \
+    -legup-config=../legup.tcl  \
+    -disable-inlining -disable-opt \
+    -std-link-opts < array.prelto.linked.bc -o array.prelto.linked.1.bc
+\end{lstlisting}
+alle anderen Optimierungen sind dabei ausgeschalten (vgl.\ \B{-disable-inlining}, \b{-disable-opt}).
+Dieser
+Schritt unterscheidet sich nicht von
+den link-time Optimierungsläufen normaler Compilerläufen
+
+Danach führt der Optimizer außschließlich pre-link-time Optimierungen durch.
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/opt \
+    -load=../../llvm/Release+Asserts/lib/LLVMLegUp.so \
+    -legup-config=../legup.tcl  -disable-inlining \
+    -disable-opt -legup-prelto \
+    < array.prelto.linked.1.bc > array.prelto.6.bc
+\end{lstlisting}
+
+Beendet wird Schritt 5, indem noch einmal die standard link-time Optimierungen
+durchgeführt werden.
+
+\paragraph{Schritt 6:} Hier werden zwei Assembly-Bibliotheken hinzugelinkt.
+In liblegup sind Ersatzimplementierungen der Funktionen \C{memmove},
+\C{memset} und \C{memcpy} enthalten und libm.bc stellt
+eine vollständige (von math.h unabhängige) Mathebibliothek zur Vefügung.
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/llvm-link array.prelto.bc \
+    ../lib/llvm/liblegup.bc \
+    ../lib/llvm/libm.bc -o array.postlto.6.bc
+\end{lstlisting}
+
+\paragraph{Im darauf folgenden 7. Kommando} werden mithilfe des Optimizers
+alle (aus libm.bc oder liblegup.bc) ungenutzten Funktionen entfernt.
+\B{-globaldce} entspricht dabei globaler \emph{dead code elemination}.
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/opt \
+    -internalize-public-api-list=main -internalize \
+    -globaldce array.postlto.6.bc -o array.postlto.8.bc
+\end{lstlisting}
+
+\paragraph{Schritt 8.} Aufgrund der vorherigen Veränderungen,
+werden wieder link-time Optimierungen durchgeführt.
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/opt \
+    -load=../../llvm/Release+Asserts/lib/LLVMLegUp.so \
+    -legup-config=../legup.tcl  -disable-inlining \
+    -disable-opt -instcombine \
+    -std-link-opts < array.postlto.8.bc -o array.postlto.bc
+\end{lstlisting}
+
+Die vorletzten zwei Aktionen führen sog.\ iteratives-modulo
+Scheduling aus (die Begriffe werden nicht geklärt)
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/opt \
+    -load=../../llvm/Release+Asserts/lib/LLVMLegUp.so \
+    -legup-config=../legup.tcl  -disable-inlining \
+    -disable-opt -basicaa -loop-simplify -indvars2 \
+    -loop-pipeline array.postlto.bc -o array.1.bc
+\end{lstlisting}
+
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/opt \
+    -load=../../llvm/Release+Asserts/lib/LLVMLegUp.so \
+    -legup-config=../legup.tcl  -disable-inlining \
+    -disable-opt -instcombine array.1.bc -o array.bc
+\end{lstlisting}
+
+\paragraph{Im letzten Schritt} wird sodann der voll optimierte LLVM-Bytecode
+mithilfe von
+\begin{lstlisting}[style=bash]
+../../llvm/Release+Asserts/bin/llc \
+    -legup-config=../legup.tcl  \
+    -march=v array.bc -o array.v
+\end{lstlisting}
+in ein synthetisierbares Verilog Design übersetzt. \B{llc} ist
+der Bytecodecompiler des LLVM-Projekts. Die LegUp Entwickler haben
+dort ein zusätzliches Backend eingefügt, sodass anstatt von
+Assembly, Verilogcode erzeugt werden kann.
+Die Option hierfür ist \B{-march=v}.
+
+\subsubsection{Custom Verilog Flow}
+Mit LegUp lassen sich Hardware-only Syntheseabläufe auch
+mit Handgeschriebenen Verilogmodulen erweitern. Beispielsweise
+könnte eine Funktion die derzeit noch zu kompliziert für
+Legup ist, manuell in Verilog implementiert
+werden. Der Programmierer muss sich dabei natürlich an gewisse
+Konventionen halten (vgl. 3.4.1).
+
+Im C-Programm muss der Programmierer zudem die Funktion annotieren,
+die er selbst nach Verilog transkribieren möchte.
+Im C-Code selbst sähe dies so aus:
+
+\begin{lstlisting}[style=c]
+void __attribute__((noinline)) __attribute__((used))
+    foobar(int baz, ...) {...}
+\end{lstlisting}
+
+\subsubsection{Der Hybrid Flow}
+Es können auch nur Teile von C-Programmen für die Synthese ausgewählt
+werden, während die restlichen Funktionen auf einer herkömmlichen CPU, oder einem
+Softcore ausgeführt werden. Ein Programm das z.B. aus einer Funktion
+für die Berechnung der Mandebrot-Menge --- ein höchst parallelisierbares
+Problem --- und einer Funktion zur Kontrolle dieser Berechnung besteht,
+kann mithilfe des Hybridflows folgendermaßen auf einem FPGA ausgeführt werden:
+
+Zunächst erfolgt die Auswahl welche Funktion direkt in eine Hardwareschaltung
+und welche zu Binärcode transformiert werden soll. Nun synthetisiert Legup
+die ausgewählte Funktion und den Tiger MIPS Prozessor (ein MIPS-Softcore der
+Universität von Cambridge). Weiterhin compiliert LegUp den restlichen C-Code
+zu einem MIPS-Binärprogramm. Bei diesem Übersetzungsvorgang ersetzt LegUp
+noch die Funktionsaufrufe durch Wrappercalls, die die Daten an das synthetisierte
+Hardwaremodul weitergeben (vgl. Kapitel 2.4 in \cite{LEGUP}).
+
+Wie dem LegUp-Whitepaper (vgl. Figure 1 in \cite{LEGUPPAPER})
+zu entnehmen ist, planen die Entwickler
+die Auswahl der rechenintensiven Funktionen zu automatisieren, sodass der
+gesamte Hybridflow ohne manuelle Auswahl der zu synthetisierenden Funktionen
+ablaufen kann. Hierbei würde ein modifizierter Tiger MIPS Softcoreprozessor auf dem
+Rechner des Entwicklers laufen und zunächst eine bestimmte Zeit lang Profilingdaten
+sammeln.
+
+\subsection{Was passiert mit den C-Primitiven?}
+In diesem Abschnitt wird exemplarisch dargestellt wie
+LegUp die diversen C-Primitiven behandelt und in Verilog-Code
+umsetzt.
+
+\subsubsection{Funktionen}
+
+Die Funktion
+\begin{lstlisting}[style=c]
+void dispatch_instruction(uint16_t instruction);
+\end{lstlisting}
+
+wird von Legup in folgende Verilog Moduldeklaration umgewandelt
+
+\begin{lstlisting}[style=verilog,caption={Syntheseergebnis für Funktion dispatch\_instruction},label=synthFuncs]
+module dispatch_instruction (
+    clk,
+    clk2x,
+    clk1x_follower,
+    reset,
+    start,
+    finish,
+    memory_controller_waitrequest,
+    memory_controller_enable_a,
+    memory_controller_address_a,
+    memory_controller_write_enable_a,
+    memory_controller_in_a,
+    memory_controller_size_a,
+    memory_controller_out_a,
+    memory_controller_enable_b,
+    memory_controller_address_b,
+    memory_controller_write_enable_b,
+    memory_controller_in_b,
+    memory_controller_size_b,
+    memory_controller_out_b,
+    arg_instruction
+);
+
+parameter  LEGUP_0 = 1'd0;
+parameter  LEGUP_F_dispatch_instruction_BB__0_1 = 1'd1;
+parameter [8:0] tag_offset = 9'd0;
+parameter [`MEMORY_CONTROLLER_ADDR_SIZE-1:0]
+    tag_addr_offset = {tag_offset, 23'd0};
+
+input  clk;
+input  clk2x;
+input  clk1x_follower;
+input  reset;
+input  start;
+output reg  finish;
+
+input  memory_controller_waitrequest;
+
+output reg  memory_controller_enable_a;
+output reg  memory_controller_write_enable_a;
+output reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0]
+    memory_controller_address_a;
+output reg [`MEMORY_CONTROLLER_DATA_SIZE-1:0]
+    memory_controller_in_a;
+
+output reg [1:0] memory_controller_size_a;
+input [`MEMORY_CONTROLLER_DATA_SIZE-1:0]
+    memory_controller_out_a;
+
+output reg  memory_controller_enable_b;
+output reg  memory_controller_write_enable_b;
+output reg [`MEMORY_CONTROLLER_ADDR_SIZE-1:0]
+    memory_controller_address_b;
+output reg [`MEMORY_CONTROLLER_DATA_SIZE-1:0]
+    memory_controller_in_b;
+
+output reg [1:0] memory_controller_size_b;
+input [`MEMORY_CONTROLLER_DATA_SIZE-1:0]
+    memory_controller_out_b;
+
+input [15:0] arg_instruction;
+reg  cur_state;
+reg  next_state;
+\end{lstlisting}
+
+Im Folgenden werden einige dieser Deklarationen näher beleuchtet:
+\begin{itemize}
+  \item \V{clk}, \V{clk2x} sind der Systemtakt und der doppelte Systemtakt
+    \item \V{clk1x_follower} ist ein um 180\(^\circ\) phasenverschobener Systemtakt
+    \item \V{start} ist das Signal der Legup-Runtime-FSM. Wenn dieses Signal
+      am Modul positiv anliegt, muss es mit der Ausführung beginnen.
+      Hiermit wird die Funktionsaufrufsemantik nachgebaut. Analog verhält es
+      sich mit \V{finish}. \V{finish} baut die Funktionsrückkehr nach.
+    \item \V{memory_controller_enable_a} kündigt Lesen oder Schreiben im aktuellen Zyklus an
+    \item \V{memory_controller_write_enable} Wenn 1 \(\to\) schreibender Zugriff, ansonsten lesender.
+    \item \V{arg_instruction} Der Parameter der entsprechenden C-Funktion. Dargestellt als
+      16-Bit Array (wegen \C{uint16_t} in der C-Deklaration)
+    \item \V{memory_controller_address_a} ist die Adresse der Speicherstelle
+    \item \V{reg cur_state} und \V{reg next_state} sind interne register
+\end{itemize}
+
+\subsubsection{If-Else Statements}
+
+Gegeben sei das triviale C-Snippet:
+\begin{lstlisting}[style=c]
+#include <stdint.h>
+#include <stdio.h>
+
+int main(int argc){
+    if (argc == 3){
+        printf("foo\n");
+    } else {
+        printf("bar\n");
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+Clang übersetzt dieses Codestück in folgende LLVM-IR:
+\begin{lstlisting}[style=asm]
+@.str = private unnamed_addr constant [5 x i8] c"foo\0A\00", align 1
+@.str1 = private unnamed_addr constant [5 x i8] c"bar\0A\00", align 1
+
+; Function Attrs: noinline nounwind
+define i32 @main(i32 %argc) #0 {
+  %1 = icmp eq i32 %argc, 3
+  br i1 %1, label %2, label %4
+
+; <label>:2
+  %3 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([5 x i8]* @.str, i32 0, i32 0)) #2
+  br label %6
+
+; <label>:4
+  %5 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([5 x i8]* @.str1, i32 0, i32 0)) #2
+  br label %6
+
+; <label>:6
+  ret i32 0
+}
+\end{lstlisting}
+
+Dieser Assemblycode ist sehr einfach zu verstehen. Für den
+generierten Verilog trifft das allerdings nicht mehr zu. Die
+produzierte Moduldefinition wäre zu groß um sie hier abzudrucken.
+Die Moduldeklaration ist analog zum Beispiel im Abschnitt Funktionen
+und muss daher auch nicht erläutert werden.
+
+LegUp übersetzt das \C{if}-\C{else}-Statement in eine FSM mit folgenden
+(relevanten) Zuständen:
+
+\begin{itemize}
+    \item \V{LEGUP_F_main_BB__2_2}
+    \item \V{LEGUP_F_main_BB__4_3}
+    \item \V{LEGUP_0}
+\end{itemize}
+
+\begin{lstlisting}[style=verilog]
+/* Platzhalter fuer die Moduldeklaration mit Signal- und Registerspezifikationen */
+
+/* Unsynthesizable Statements */
+always @(posedge clk)
+    if (!memory_controller_waitrequest) begin
+    /* main: %2*/
+    /*  %3 = call i32 (i8*, ...)*
+        @printf(i8* getelementptr inbounds
+        ([5 x i8]* @.str, i32 0, i32 0)) #2 */
+    if ((cur_state == LEGUP_F_main_BB__2_2)) begin
+        $write("foo\n");
+    end
+    /* main: %4*/
+    /*  %5 = call i32 (i8*, ...)*
+        @printf(i8* getelementptr inbounds
+        ([5 x i8]* @.str1, i32 0, i32 0)) #2 */
+    if ((cur_state == LEGUP_F_main_BB__4_3)) begin
+        $write("bar\n");
+    end
+end
+\end{lstlisting}
+
+Das Schlüsselwort \V{always} leitet in Verilog
+Sensitivitätslisten und BL-Code (Behaviour Level) ein.
+Es ist analog zu dem VHDL-Schlüsselwort \VH{process}.
+In diesem Fall wird eine Taktflankengesteuerte synchrone
+Schaltung synthetisiert. Das \V{write} Statement selbst ist freilich nicht synthetisierbar.
+Der obige Prozess überprüft also jeden Takt ob der momentanen Zustand \V{cur_state}
+einen für die Ausgabe von \C{foo} oder für \C{bar} notwenigen Wert
+angenommen hat und tätigt die Ausgabe sofern dies zutrifft.
+
+Der folgende Codeausschnitt ist für den korrekten Folgezustand der Modul-FSM zuständig:
+\begin{lstlisting}[style=verilog]
+always @(posedge clk) begin
+    if (reset == 1'b1)
+        cur_state <= LEGUP_0;
+    else if (memory_controller_waitrequest == 1'd1)
+        cur_state <= cur_state;
+    else
+        cur_state <= next_state;
+end
+\end{lstlisting}
+
+Dieses Listing mach auch klar wozu das Signal \V{.._waitrequest}
+dient: Ist es gesetzt, so hält die FSM ihren aktuellen Zustand.
+
+Der nächste Prozess ist nicht sequenziell, sondern repräsentiert
+lediglich die Verdrahtung eines 32-Bit-Komparators (\C{argc == 3}) mit dessen
+Operanden. Diese sind hier zu sehen:
+\begin{lstlisting}[style=verilog]
+/* koennte auch always @(arg_argc) sein */
+/* @(*) nimmt alle gelesenen Signale in die
+   sensitivity list auf! */
+always @(*) begin
+    /* main: %0*/
+    /*   %1 = icmp eq i32 %argc, 3*/
+    main_0_1 = (arg_argc == 32'd3);
+end
+\end{lstlisting} % TODO: Quelle
+
+
+\V{main_0_1} ist ein Modulregister, das somit sofort beschrieben
+wird, wenn \V{arg_argc} am Moduleingang anliegt!
+
+An dieser Stelle fehlen nun noch einige Details, die hier jedoch
+aus Mangel von Relevanz vernachlässigt werden.
+Die hier beschriebenen Ergebnisse können natürlich sehr einfach
+in der Legup-VM nachvollzogen werden.
+
+\subsubsection{Schleifen}
+Zu unterscheiden sind hier zwei Typen von Schleifen:
+\C{For}- und \C{While}.
+
+\paragraph{Forschleifen:}
+Im Rahmen dieser Arbeit wird folgende vereinfachende
+Syntax für Forschleifen angenommen.
+
+\begin{lstlisting}[style=c]
+for (var = number; var < number; increment-expression)
+    { ... }
+\end{lstlisting}
+
+
+Gegeben sei folgendes C-Snippet:
+\begin{lstlisting}[style=c]
+#include <stdio.h>
+int array[32] = { 0 };
+
+int main(){
+
+    for (i = 0; i < 32; i++){
+        array[i] = i;
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+
+Der LLVM-IR-Code repräsentiert das obige Programm wie folgt:
+\begin{lstlisting}[style=asm]
+@array = internal global [32 x i32] zeroinitializer, align 4
+
+; Function Attrs: noinline nounwind
+define i32 @main() #0 {
+  br label %1
+
+; <label>:1
+  %2 = phi i32 [ 0, %0 ], [ %5, %4 ]
+  %exitcond = icmp eq i32 %2, 32
+  br i1 %exitcond, label %6, label %3
+
+; <label>:3
+  %scevgep = getelementptr [32 x i32]*
+             @array, i32 0, i32 %2
+  store i32 %2, i32* %scevgep, align 4
+  br label %4
+
+; <label>:4
+  %5 = add nsw i32 %2, 1
+  br label %1
+
+; <label>:6
+  ret i32 0
+}
+\end{lstlisting}
+
+Die Schleifenlogik wird in LLVM einzig durch die Instruktion \A{phi} abstrahiert.
+Diese hat folgende Syntax:
+
+\begin{lstlisting}[style=asm]
+%indvar = phi i32 [ 0, %LoopHeader ],
+                  [ %nextindvar, %Loop ]
+\end{lstlisting}
+
+Im obigen Beispiel gibt es keinen \A{LoopHeader}, daher ist der dortige
+Wert auch \A{\%0}. \A{\%indvar} entspricht im obigen Beispiel. \A{\%2}.
+
+
+Die Semantik dieses Codes lässt sich grob so zusammenfassen:
+\begin{itemize}
+    \item Rufe Instruktion \A{phi} auf mit den Parametern:
+    \begin{itemize}
+        \item Schleifenbeginn: 0
+        \item Schleifenheader: n.a.
+        \item Folgeindex: Variable 5
+        \item Scheifensprunglabel: 1
+    \end{itemize}
+    \item Überprüfe ob die Schleifenbedingung \C{i < 32} noch wahr ist
+    \begin{itemize}
+        \item Falls ja:
+        \begin{itemize}
+            \item Springe zu Label 3
+            \item Speichere den entsprechenden Schleifenindexwert in @array
+            \item Springe zu Label 4
+            \item Berechne den neuen indexwert
+            \item Springe zu Label 1
+        \end{itemize}
+        \item Falls nein:
+        \begin{itemize}
+            \item Springe zu Label 6
+            \item Gebe den Wert 0 als Rückgabewert für @main
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+Den ``Falls ja'' bzw. ``Falls nein'' Teil der oben gezeigten Semantik,
+lässt sich abermals als FSM darstellen. LegUp tut zunächst genau das.
+Die von LegUp generierte State-Machine sieht wie folgt aus:
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{../figures/for_fsm.png}
+  \caption{FSM für Forschleife}
+\label{fig:for_fsm.png}
+\end{figure}
+
+Solange \A{\%exitcond} nicht wahr ist, befindet sich die Statemachine
+in einer Schleife mit der Zustandsfolge
+\V{1_1} \( \to \) \V{3_2} \( \to \) \V{4_3} \( \to \) \V{1_1}.
+Diese Zustände werden dann von parallel arbeitenden \V{always}-Blöcken
+erkann.
+
+
+Bspw. kümmert sich der Block
+\begin{lstlisting}[style=verilog]
+always @(*) begin
+    /* main: %1*/
+    /*   %2 = phi i32 [ 0, %0 ], [ %5, %4 ]*/
+    if ((((cur_state == LEGUP_0)
+           & (memory_controller_waitrequest == 1'd0))
+           & (start == 1'd1))) begin
+        main_1_2 = 32'd0;
+    end
+    /* main: %1*/
+    /*   %2 = phi i32 [ 0, %0 ], [ %5, %4 ]*/
+    else begin
+        main_1_2 = main_4_5;
+    end
+end
+\end{lstlisting}
+
+um die korrekte Initialisierung der Schleifenvariable die im
+generierten Code den Namen \V{main_1_2} trägt.
+
+
+Der nächst Block
+\begin{lstlisting}[style=verilog]
+always @(*) begin
+    /* main: %1*/
+    /*   %exitcond = icmp eq i32 %2, 32*/
+    main_1_exitcond = (main_1_2_reg == 32'd32);
+end
+\end{lstlisting}
+überprüft jeden Takt, ob die Schleifenbedingung bereits erfüllt ist
+und setzt ein internes Register, das vom FSM-\V{always}-Block zur
+Folgezustandsbestimmung verwendet wird.
+
+
+Außerdem berechnet der Prozess
+\begin{lstlisting}[style=verilog]
+always @(*) begin
+    /* main: %4*/
+    /*   %5 = add nsw i32 %2, 1*/
+    main_4_5 = (main_1_2_reg + 32'd1);
+end
+\end{lstlisting}
+den Schleifenindex der nächsten Iteration. LegUp synthetisiert
+natürlich ebenfalls \V{always}-Blöcke für die Speicherzugriffe.
+Darauf wird aber nicht weiter eingegangen.
+
+\paragraph{Whileschleifen:}
+While Schleifen unterscheiden sich konzeptionell nicht von der
+Synthese von For-Schleifen, da im LLVM-IR die Unterschiede
+der beiden Formen bereits semantisch aufgelöst wurden.
+
+\subsubsection{Switch-Case Klauseln}
+Switch-Case Klauseln dürfen in C lediglich zur Compilezeit
+berechenbare Ausdrücke an den Case-Klauseln tragen. Der
+Ausdruck innerhalb des Switch-Körpers unterliegt
+natürlich nicht dieser Einschränkung.
+
+\begin{lstlisting}[style=verilog]
+#include <stdio.h>
+
+int main () {
+    volatile int x = 2;
+
+    switch(x) {
+    case 0:
+        printf("case 0\ n " ) ;
+        return 1;
+        break ;
+    case 1:
+        printf ("case 1\ n " ) ;
+        return 1;
+        break ;
+    default :
+        return 2;
+    }
+}
+\end{lstlisting}
+
+Im obigen Beispiel ist die volatile Deklaration von x notwendig,
+da der Compiler ansonsten --- je nach Optimierungsein-
+stellung --- den gesamten Switch-Case-Block “wegoptimieren” würde.
+
+Clang generiert für obiges Snippet folgenden LLVM-Zwischencode:
+
+\begin{lstlisting}[style=asm]
+@.str = private unnamed_addr constant [8 x i8] c"case 0\0A\00", align 1
+@.str1 = private unnamed_addr constant [8 x i8] c"case 1\0A\00", align 1
+
+; Function Attrs: noinline nounwind
+define i32 @main() #0 {
+  %x = alloca i32, align 4
+  store volatile i32 2, i32* %x, align 4
+  %1 = load volatile i32* %x, align 4
+  switch i32 %1, label %6 [
+    i32 0, label %2
+    i32 1, label %4
+  ]
+
+  %3 = call i32 (i8*, ...)*
+       @printf(i8* getelementptr inbounds
+       ([8 x i8]* @.str, i32 0, i32 0)) #2
+  br label %7
+
+; <label>:4
+  %5 = call i32 (i8*, ...)*
+       @printf(i8* getelementptr inbounds
+       ([8 x i8]* @.str1, i32 0, i32 0)) #2
+  br label %7
+
+; <label>:6
+  br label %7
+
+; <label>:7
+  %.0 = phi i32 [ 2, %6 ], [ 1, %4 ], [ 1, %2 ]
+  ret i32 %.0
+}
+\end{lstlisting}
+
+LegUp übersetzt nun diesen Assemblercode analog zum
+If-Else-Block in eine FSM. Ein Graph stellt die generierte FSM
+viel übersichtlicher dar als der korrespondierende Verilog Code:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{../figures/switch_fsm.png}
+  \caption{FSM für Switch-Case}
+\label{fig:switch_fsm}
+\end{figure}
+
+Das Modulsignal \V{start} triggert dabei das Funktionsmodul
+und deren Ausführung. Dadurch wird ebenfalls die FSM in
+den ersten Inputstatus versetzt. Die Erläuterung aller
+Zustände dieses Automaten ist außerhalb des Rahmens dieser Arbeit.
+Wesentlich für das grobe Verständnis sind jedoch die
+Zustände \V{6_7}, \V{4_6} und \V{2_5}. Der erste wird angenommen
+falls \V{x==0}, der zweite falls \V{x==1} und der dritte im \C{default} Fall.
+
+Die tatsächlichen Anweisungen der Caseklauseln werden mit einem
+parallel laufenden Schaltwerk getriggert.
+
+Der \V{always}-Block
+
+\begin{lstlisting}[style=verilog]
+always @(posedge clk)
+    if (!memory_controller_waitrequest) begin
+    /* main: %2*/
+    /*  %3 = call i32 (i8*, ...)*
+        @printf(i8* getelementptr inbounds
+        ([8 x i8]* @.str, i32 0, i32 0)) #2*/
+    if ((cur_state == LEGUP_F_main_BB__2_5)) begin
+        $write("case 0\n");
+    end
+    /* main: %4*/
+    /*  %5 = call i32 (i8*, ...)*
+        @printf(i8* getelementptr inbounds
+        ([8 x i8]* @.str1, i32 0, i32 0)) #2*/
+    if ((cur_state == LEGUP_F_main_BB__4_6)) begin
+        $write("case 1\n");
+    end
+end
+\end{lstlisting}
+
+kontrolliert die Abarbeitung von nicht-synthetisierbaren
+Statements und der zweite Block
+
+\begin{lstlisting}[style=verilog]
+always @(*) begin
+    /* main: %7*/
+    /*   %.0 = phi i32 [ 2, %6 ], [ 1, %4 ], [ 1, %2 ]*/
+    if (((cur_state == LEGUP_F_main_BB__2_5)
+          & (memory_controller_waitrequest == 1'd0))) begin
+        main_7_0 = 32'd1;
+    end
+    /* main: %7*/
+    /*   %.0 = phi i32 [ 2, %6 ], [ 1, %4 ], [ 1, %2 ]*/
+    else if (((cur_state == LEGUP_F_main_BB__4_6)
+               & (memory_controller_waitrequest == 1'd0))) begin
+        main_7_0 = 32'd1;
+    end
+    /* main: %7*/
+    /*   %.0 = phi i32 [ 2, %6 ], [ 1, %4 ], [ 1, %2 ]*/
+    else begin
+        main_7_0 = 32'd2;
+    end
+end
+\end{lstlisting}
+
+steuert die Zuweisung des richtigen Returnwerts. In letzterem
+Codeblock ist \V{main_7_0} ein privates Modulregister, dessen
+Wert im Status \V{7_8} dem output-Register \V{return_val} zugewisen wird.
+
+\subsubsection{Primitive Datentypen}
+Primitive Datentypen wie \C{int}, \C{char} oder \C{double}
+werden von Legup in typenlose Bitvektoren mit entsprechender breite übersetzt.
+Der in 3.4.1 angeführte Verilog-Code bestätigt dies, da die dort enthaltene
+\V{input}-Deklaration
+
+\begin{lstlisting}[style=verilog]
+input [15:0] arg_instruction;
+\end{lstlisting}
+
+ganz klar den ersten Parameter der vorher deklarierten Funktion
+\begin{lstlisting}[style=c]
+void dispatch_instruction(uint16_t instruction);
+\end{lstlisting}
+darstellt. Da diese Funktion keinen Rückgabeparameter besitzt, gibt es keine
+korrespondierende \V{output}-Deklaration im Verilogdesign.
+
+Allgemein gilt für die Bitbreiten der synthetisierten Datentypen:
+Es werden die im LLVM-Zwischencode verzeichneten Längenangaben genutzt.
+Das Kommando soll hier noch einmal aufgeführt werden:
+\begin{lstlisting}[style=bash]
+clang-3.5 array_labeled.c \
+    -emit-llvm -c -fno-builtin -I ../lib/include/ \
+    -m32 -I /usr/include/i386-linux-gnu -O0 -mllvm \
+    -inline-threshold=-100 -fno-inline -fno-vectorize \
+    -fno-slp-vectorize -o array.prelto.1.bc
+\end{lstlisting}
+Das Flag \B{-m32} ist hier maßgeblich für die Bitbreiten der Primitiven
+verantwortlich. So bekommt z.B. der Typ \C{int} in LLVM-IR 32 Bit spendiert.
+Weiterhin lassen sich Typen wie \C{uint16_t} oder \C{int8_t} aus
+\C{stdint.h} zum exakten Steuern der Signedness und Bitbreite nutzen.
+
+\subsubsection{Speicherzugriffe und Speichermodell}
+Variablen können in C entweder global oder lokal im Quelltext angegeben werden.
+Lokale Variablen werden dabei immer auf den Stack-Frame der aufgerufenen Funktion
+gelegt und deren Inhalt geht nach Rückkehr dieser Funktion wieder verloren, bzw.\
+ist undefiniert. Weiterhin gibt es dynamsich allozierten Speicher. Dynamische
+Speicheranforderungen sind zwar im Prinzip auch in Hardware umsetzbar, aber nicht
+ohne erheblichen zusätzlichen Platzbedarf. Man könnte pragmatischerweise
+einen in ANSI-C geschriebenen Memory-Manager für eingebettete Systeme
+zweckentfremden und alle \C{mallo}-Aufrufe (\C{stdlib.h}) durch Aufrufe an die
+Ersatzfunktion ändern. Diese Bibliothek muss allerdings ohne Funktionspointer
+auskommen, da solche noch nicht von Legup unterstützt werden.
+
+Legup benutzt intern die sog \emph{Points-To}-Analyse, um herauszufinden
+welcher Speicherbereich von welchen Funktionen verwendet werden. Sofern diese
+Untersuchung zeigt, dass das entsprechende Array lediglich von \emph{einer}
+Funktion genutzt wird, so wird der Speicher dafür, ausschließlich in dem Verilogmodul der
+betreffenden Funktion instanziiert. Falls die Analyse fehlschlägt oder
+zeigt, dass der Datenspeicher von mehr als einer Funktion genutzt wird,
+legt Legup ihn global innerhalb eines eigenen Memory-Controllers an
+(vgl. Kapitel 3.2, 3.3 und 3.4 \cite{LEGUP}).
+
+\subsubsection{Statisch initialisierte Arrays}
+
+Der Inhalt von statisch initialisierten Arrays wird dem Verilog
+Synthesetool mit \emph{.MIF}-Dateien bereitgestellt.
+
+Bei der HLS-Synthese des Array-Beispiels
+von 3.2, wird ein globales 3D-Array definiert:
+\begin{lstlisting}[style=c]
+int array[2][2][3] =
+{
+  {
+    {1, 2, 3},
+    {4, 5, 6}
+  } , {
+    {7, 8, 9},
+    {10, 11, 12}
+  }
+};
+\end{lstlisting}
+
+Die dazugehörige \emph{.MIF}-Datei sieht wie folgt aus:
+\begin{verbatim}
+Depth = 12;
+Width = 32;
+Address_radix = dec;
+Data_radix = hex;
+Content
+Begin
+0: 00000001;    -- array[0] = 1
+1: 00000002;    -- array[1] = 2
+2: 00000003;    -- array[2] = 3
+3: 00000004;    -- array[3] = 4
+4: 00000005;    -- array[4] = 5
+5: 00000006;    -- array[5] = 6
+6: 00000007;    -- array[6] = 7
+7: 00000008;    -- array[7] = 8
+8: 00000009;    -- array[8] = 9
+9: 0000000A;    -- array[9] = 10
+10: 0000000B;   -- array[10] = 11
+11: 0000000C;   -- array[11] = 12
+End;
+\end{verbatim}
+Ihr Dateiname entspricht dem Bezeichner der für das
+Array verwendet würde, in diesem Fall also \emph{array.mif}.
+
+\subsection{Beteiligte Algorithmen und Konzepte}
+Der gesamte HLS-Transformationsprozess lässt sich
+grob in drei Teile gliedern: Aufbauen eines Datenflussgraphen,
+Ressourcenallokation und Scheduling (vgl. Kapitel 4.2 in \cite{BLUE}).
+Diese Begriffe werden
+in den folgenden Abschnitten kurz geklärt.
+
+\subsubsection{Bau von Datenflussgraphen}
+Ein Datenflussgraph gibt die Abhängigkeit der jeweiligen Berechnungen
+untereinander innerhalb eines sequenziellen Programms wieder
+(vgl. Kapitel 4.2.1 in \cite {BLUE}).
+Als Beispiel soll der folgende Code dienen:
+
+\begin{lstlisting}[style=c]
+int summe(int a, int b, int c, int d){
+    int temp1, temp2;
+    temp1 = a + b;
+    temp2 = temp1 + c;
+    return temp2 + d;
+}
+\end{lstlisting}
+
+Ein möglicher Datenflussgraph wäre z.B.:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.15]{../figures/dfg_01.png}
+  \caption{Unoptimierter Datenflussgraph}
+\label{fig:dfg01}
+\end{figure}
+
+Ein großer Teil der HLS-Forschung bezieht sich auf die
+Transformation bzw.\ Vereinfachung von Datenflußgraphen.
+Ein wichtiger Algorithmus hier: Tree Height Reduction.
+Dieses Verfahren wird eingesetzt, um die Anzahl der parallel
+ausgeführten Operationen zu maximieren und somit die Höhe
+des Baumes zu reduzieren.
+
+Beim oben dargestellten DFG könnte eine Höhenreduktion
+bspw.\ folgendermaßen aussehen:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.15]{../figures/dfg_02.png}
+  \caption{Optimierter Datenflussgraph}
+\label{fig:dfg02}
+\end{figure}
+
+\subsubsection{Allokation}
+Der Begriff Allokation erweckt für den ersten Moment den Anschein
+als habe er etwas mit Speichermanagement zu tun. Dies trifft im
+Kontext der HLS nicht zu. Allokation beschreibt vielmehr die
+Zuordnung von Operationen (aus der Quellsprache) zu Hardwarefunktionseinheiten
+(Zielsprache). Hardwarefunktionseinheiten sind z.B. Addierer,
+Multiplizierer, Dividierer, Multiplexer oder auch FSM's
+(vgl. Kapitel 4.2.2 in \cite{BLUE}).
+
+Operationen der Quellsprache können, neben einfachen Arithmetischen
+Ausdrücken, auch Statements (oder allgemeiner: Kontrollstrukturen) sein.
+
+Während des Allokationsprozesses werden sowohl Timing- als auch
+Platzinformationen\footnote{Bezieht sich auf Hardwaremetriken wie z.B. LUT's, verfügbare Register, \ldots}
+verwertet.
+
+Allokationsalgorithmen müssen beim oben angeführten Akkumulatorbeispiel
+bspw.\ folgende Fragen beantworten: Soll nur ein Addierer synthetisiert und die
+Zugriffe darauf gemultiplext oder soll für jede Additionsoperation
+ein dedizierter Hardwareaddierer spendiert werden? Besitzt die Zielplattform
+(Ziel-FPGA) einen Pool an arithmetischen Operationseinheiten als ASIC-Block?
+Wenn ja, welche Timingcharakteristika besitzen diese?
+
+Gute Verfahren müssen sich selbstverstänlich ebenfalls mithilfe diverser
+Parameter vom Nutzer anpassen lassen.
+
+\subsubsection{Scheduling}
+Schedulingalgorithmen weisen den Operationen im DFG Taktzyklen zu.
+Hier wird zeitlich exakt bestimmt wann welche Aktion (taktsynchon)
+zu erfolgen hat. Ein wesentilicher Teil der Arbeit besteht auch darin,
+Register für Zwischenergebnisse an die richtien Stellen in der Pipeline
+einzubauen. Die meisten Algorithmen befinden sich
+somit auf der RTL-Ebene (vgl. Kapitel 4.2.3 \cite{BLUE}).
+
+\section{Anwendungsbeispiel: Pocoblaze}
+
+In der Vorlesung \emph{Rechnerarchitektur 2} stellte Prof.\ Tempelmeier
+den Xilinx Softcore \emph{Picoblaze} vor. Dieser Prozessor besitzt
+eine konstante Instruktionslänge von 16 Bit und eine Datenbreite
+von 8 Bit. Der Funktionsumfang ist äußerst begrenzt, so gibt es nur
+drei Addressierungsarten --- Immediate, Register und Registerindirekt --- und
+lediglich 18 Instruktionen (vgl. Appendix C \cite{PICO2004}):
+
+\begin{itemize}
+  \item \A{ADD}, außerdem ADDCY, die zusätzlich das Carry zuaddiert
+  \item \A{AND}
+  \item \A{CALL}, außerdem CALL [C | NC | Z | NZ]%
+\footnote{C \(\mapsto\) if Carry = 1, NC \(\mapsto\)%
+ if Carry = 0, Z \(\mapsto\) if Zero = 1, NZ \(\mapsto\) if Zero = 0}
+  \item \A{COMPARE}
+  \item \A{DINT}, Disable Interrupt
+  \item \A{EINT}, Enable Interrupt
+  \item \A{FETCH}
+  \item \A{STORE}, Fetch und Store werden für das RAM-Scratchpad verwendet
+  \item \A{INPUT}
+  \item \A{OUTPUT}, Für I/O auf 8 externe pins
+  \item \A{JUMP}, außerdem JUMB [C | NC | Z | NZ]
+  \item \A{LOAD}
+  \item \A{OR}
+  \item \A{RETURN}, außerdem RETURN [C | NC | Z | NZ]
+  \item \A{SHIFT \& ROTATE}, RL, RR, SL [0|1|A|X], SR [0|1|A|X]
+  \item \A{SUB}
+  \item \A{TEST}, Funktion definiert durch:
+    \(Zero \gets \{sX \wedge sY\}, Carry \gets odd\ parity\ of\ \{sX \wedge sY\} \)
+  \item \A{XOR}
+\end{itemize}
+
+
+Operationen wie \A{ADD} oder \A{TEST} können in zwei Varianten
+verwendet werden:
+\begin{lstlisting}[style=asm]
+ADD sX, ff
+\end{lstlisting}
+und
+\begin{lstlisting}[style=asm]
+ADD sX, sY
+\end{lstlisting}
+
+Weiterhin verfügt der Picoblaze über einen Instruktionsspeicher von
+maximal 256 Befehlen, einer max.\ Stackgröße von 8 und 64 Speicherplätze
+im RAM. Trotz dieser Limitierungen ist er ein vollständiger
+Prozessorkern, der insbesondere in eingebetteten Systemen seine
+Stärke zeigt. Auf einem modernen Spartan-6 FPGA von Xilinx nimmt
+der Softcore lediglich 3--5\%
+der verschiedenen Ressroucen (LUT's, Register, Block-RAM, \ldots) ein.
+In der Praxis wird er hauptsächlich bei Kontrollanwendungen benötigt,
+bei deren Entwicklung häufig das Verhalten der im Kontroller steckenden
+State-Machine flexibel angepasst werden muss.
+Eine in Assembler geschriebene FSM lässt sich wesentlich
+einfacher ändern oder warten als eine
+äquivalente RTL-Repräsentation des Automaten.
+Außerdem lässt sich die Logik, die das Verhalten der FSM regelt,
+völlig getrennt vom Rest der Schaltung entwickeln. Dadurch muss
+das System auch nicht mehr komplett synthetisiert werden, falls nur
+die Statemachine-Logik verändert wurde.
+
+Im Rahmen dieser Arbeit wurde ein in C geschriebener (binärkompatibler)
+Emulator entwickelt, der sich automatisch, mithilfe von LegUp, in
+ein enstprechendes Hardware-Desingfile (Verilog) übertragen lässt.
+Diese Reinraumimplementierung heißt \emph{Pocoblaze}.
+
+\subsection{Implementationsdetails}
+Die Implementierung des Emulators \emph{Pocoblaze} befindet sich in den
+Dateien pocoblaze.c sowie pocoblaze.h, wobei sich in der Headerdatei
+lediglich Funktionsprototypen befinden.
+
+\subsubsection{Repräsentation von Instruktionsrom, Registersatz, Ramfile und Stack}
+Das globale \C{uint16_t}-Array \C{instruction_rom} beinhaltet
+die auszuführenden Befehle. Das selbe Verfahren wird ebenfalls
+für den Registersatz, den RAM und den Stack verwendet. Wichtig
+ist hierbei, dass die Arrays dafür den Datentypen \C{uint8_t}
+tragen.
+
+\begin{lstlisting}[style=c]
+// Setup of the processors register comonents
+uint16_t instruction_rom[INS_ROM] = {
+    0xD005, 0x00BE, 0x01EF, 0x0202, 0x9000,
+    0xD801, 0xF800, 0xF901, 0xE040, 0x2201,
+    // noch mehr Instruktionen [...]
+}
+\end{lstlisting}
+
+\subsubsection{Umsetzung der Instruktionen}
+Jede Instruktion besitzt im Pocoblaze ihre eigene Funktion.
+Dies ist eine Designentscheidung, da jede Funktion zu einer
+Verilog-Moduldefinition synthetisiert. Genau das ist erwünscht!
+
+Die Umsetzung des \A{store sx, sy} sieht bspw.\ so aus:
+\begin{lstlisting}[style=c]
+void store_sX_at_sY(){
+#ifdef DEBUG
+    printf("store\n");
+#endif
+
+    ram_file[register_file[y_register_pointer]]
+        = register_file[x_register_pointer];
+}
+\end{lstlisting}
+
+\subsubsection{Fetch, Decode und Execute}
+In der main-Funktion ist die Logik für's Befehlssfetching untergebracht.
+Die Implementation ist kaum einfacher möglich:
+\begin{lstlisting}[style=c]
+while (program_counter < INS_ROM &&
+       instruction_rom[program_counter] != 0x0000) {
+    instruction = instruction_rom[program_counter];
+
+    dispatch_instruction(instruction);
+}
+\end{lstlisting}
+
+Die Funktion \C{dispatch_instruction()} setzt sowohl die Dekodierung
+als auch die Ausführung um.
+Legup unterstützt die Synthese von Funktionspointern leider nicht,
+weshalb die Funktion Befehle mithilfe einer großen Switch-Case-Klausel
+dekodiert. Konkret sieht dies wie folgt aus:
+
+\begin{lstlisting}[style=c,caption={Instruction decoder},label=decoder]
+void dispatch_instruction(const uint16_t instruction) {
+    // Dekodierung der Registeradressen und der
+    // unmittelbaren Konstante
+    x_register_pointer = (instruction & SX_MASK) >> 8;
+    y_register_pointer = (instruction & SY_MASK) >> 5;
+    constant_argument = instruction & 0x00FF;
+
+    // Hier Definition mehrerer nur lokal
+    // verwendeter Bitmasken ausgelassen
+    switch (instruction & INS_MASK) {
+        // [ ... ] weitere Fallunterscheidungen
+        case 0x0000: load_k_to_x(); break;
+        case 0x4000: load_y_to_x(); break;
+        case 0x8000: and_k_to_x(); break;
+        // [ ... ] weitere Fallunterscheidungen
+    }
+\end{lstlisting}
+
+\subsection{Known Limitations}
+Pocoblaze unterstützt zum jetzigen Zeitpunkt noch kein Interrupthandling.
+Ebenso werden die Befehle \A{input} sowie \A{output} ignoriert.
+
+\subsection{Fähigkeiten von Pocoblaze}
+Schon jetzt können komplexere Assemblerprogramme ausgeführt werden.
+Im Picoblaze Manual (vgl. Seite 31 \cite{PICO2004}) ist
+ein Algorithmus für die korrekte Multiplikation von zwei 8-Bit Registern
+aufgeführt. Dieser ist jedoch Fehlerhaft!
+Betrachtet man nämlich die beiden Prozeduren:
+\begin{lstlisting}[style=asm]
+mult_loop:
+        TEST multiplier, bit_mask ; check if bit is set
+        JUMP Z, no_add ; if bit is not set, skip addition
+        ADD result_msb, multiplicand ; addition only occurs in MSB
+
+no_add: SRA result_msb ; shift MSB right, CARRY into bit 7,
+\end{lstlisting}
+so fällt auf, dass im Falle eines Jumps nach \A{no_add}, das
+von \A{TEST} (vgl. Seite 116 in \cite{PICO2004})
+gesetzte Carryflag nicht gelöscht wird. Da dies recht
+häufig vorkommt und \A{SRA} (vgl. Seite 111 in \cite{PICO2004})
+das Carrybit unmittelbar nach der
+Shiftopreation an die msb Position schreibt, produziert der
+Algorithmus Unfug. Abhilfe schafft folgende Modifikation:
+
+\begin{lstlisting}[style=asm]
+no_add: AND s0, s0           ; clear CARRY
+        SRA result_msb       ; shift MSB right, CARRY into bit 7,
+\end{lstlisting}
+
+Mit der oben genannten Änderung multipliziert \emph{Pocoblaze} korrekt!
+Ebenso implementiert er die verschiedenen \A{FETCH} und
+\A{STORE} Befehle korrekt. Das Programm
+\begin{lstlisting}[style=asm,caption={Store und Fetch Test},label=storefetch]
+        ;; test for fetch and store
+        ;;,,,,,,,,,,,,,,,,,,,,,,,,,
+NAMEREG s2, pointer
+
+        jump main
+
+preload:
+        load s0, be
+        load s1, ef
+        load pointer, 02
+        return
+
+main:   call preload
+        store s0, 00
+        store s1, 01
+        store s0, pointer
+        add pointer, 01
+        store s0, pointer
+        add pointer, 01
+        store s0, pointer
+
+        fetch s7, pointer
+        sub pointer, 3
+        fetch s6, pointer
+        fetch s5, 00
+\end{lstlisting}
+wird z.B. einwandfrei ausgeführt.
+
+Es muss angemerkt werden, dass sowohl die Emulation, als auch
+die Synthese und darauf folgende Simulation von Pocoblaze
+(incl.\ der jeweiligen Programme im Instructionsspeicher)
+bisher korrekte Ergebnisse geliefert hat!
+
+\subsection{Assembler}
+Der Assembler stammt aus der Vorlesung \emph{Rechnerarchitektur 2}.
+Hinzugefügt wurden 5 neue Instruktionen, die der Assembler vorher
+noch nicht beherrscht hat. Außerdem wurde das Ausgabeverhalten modifiziert.
+Der Assembler schrieb in der früheren Version immer 4 Dateien
+in das gegenwärtige Arbeitsverzeichnis: Jeweils eine Hex-, VHDL-, Log- und Bindatei.
+
+Die neue Version erwartet hingegen einen zweiten Parameter auf der
+Kommandozeile, der die Erzeugung verschiedener Formate steuert.
+Des Weiteren schreibt der Assemblierer nicht mehr Standardmäßig in
+von ihm angelegte Dateien, sondern ausschließlich auf die Standardausgabe.
+Mittels Redirektion (auf der Shell), kann die Ausgabe trivial in eine
+Datei geleitet werden.
+
+Hier die Parameter:
+\begin{itemize}
+  \item \B{c} produziert den Initialisierungscode
+    für das \C{uint16_t}-Instruktionsarray
+  \item \B{b} erzeugt eine Liste von 256, 16-Bit breiten, Instruktionen
+  \item \B{h} ist analog zu \B{b} mit dem Unterschied, dass der
+    Assembler die Instruktionen zur Basis 16 ausgibt
+\end{itemize}
+
+% GLOSSARY
+\pagebreak
+\section{Glossar}
+\begin{itemize}
+    \item \emph{DFG}:    Datenflussgraph
+    \item \emph{HSL}:    High Level Synthesis
+    \item \emph{RTL}:    Register-Transfer-Ebene
+    \item \emph{EDA}:    Electronic Design Automation
+    \item \emph{BL}:    Behavioral Level
+    \item \emph{HDL}:    Hardware Design Language
+    \item \emph{Zelle}:    Funktionseinheit an einem Knoten in der Netzliste
+    \item \emph{Netzliste}:    Zyklischer Graph, der
+      die Verschaltung und Struktur einer Digitalen Schaltung wiedergibt
+    \item \emph{ADT}:    Abstrakter Datentyp,
+      die Definition einer Datenstruktur mit entsprechend
+      darauf definierten Operationen
+    \item \emph{AST}:    Abstrakter Syntaxbaum
+    \item \emph{Softcore}: Ein in einer HDL geschriebener Prozessor
+    \item \emph{IP}: Intellectual Property Core,
+      ein lizensiertes Hardware-Designfile
+    \item \emph{LLVM IR}: LLVM Intermediate Representation.
+      Eine (bit) typisierte Zwischensprache, die sich auf
+      etwa der selben Abstraktionsebene befindet wie
+      z.B. x86 Assembly.
+\end{itemize}
+
+% FIGURES
+\pagebreak
+\pagenumbering{gobble}
+\listoffigures
+
+% LISTINGS
+\pagebreak
+\lstlistoflistings
+
+% SOURCES
+\pagebreak
+\begin{thebibliography}{9}
+\bibitem{WOLF2015}
+    Clifford Wold,
+    \emph{Yosys Manual},
+    2015
+
+\bibitem{LEGUP}
+    \emph{LegUp Documentation},
+    University of Toronto,
+    Release 4.0,
+    October 17, 2015
+
+\bibitem{PICO2004}
+    Xilinx,
+    \emph{PicoBlaze 8-bit Embedded Microcontroller User Guide},
+    Xilinx,
+    v1.1,
+    June 10, 2004
+
+\bibitem{IEEESYNTH}
+    IEEE,
+    \emph{IEEE Standard for VHDL Register Transfer Level (RTL) Synthesis},
+    IEEE Std 1076.6-2004, October 11, 2004
+
+\bibitem{BAILEY2007}
+    Brian Bailey,
+    Grant Martin and Andrew Piziali,
+    \emph{ESL Design and Verification: A Prescription for Electronic System Level Methodology}
+
+\bibitem{SYSTEMC}
+    SystemC,
+    \emph{http://www.systemc.org/community/systemc/about-systemc}
+\bibitem{CPPREF}
+    C++-Keywords,
+    \emph{http://en.cppreference.com/w/cpp/keyword}
+
+\bibitem{KRC}
+    Brian W. Kernighan und Dennis M. Ritchie,
+    \emph{The C Programming Language},
+    Prentice Hall,
+    2nd edition,
+    1988.
+
+\bibitem{WIKI01}
+    SystemC,
+    \emph{https://en.wikipedia.org/wiki/SystemC}
+
+\bibitem{BLUE}
+    \emph{High-Level Synthesis -- Blue Book},
+    Mike Fingeroff, Januar 2010
+    Mentor Graphics Corporation,
+
+\bibitem{LEGUPPAPER}
+    Andrew Canis,
+    Jongsok Choi,
+    Mark Aldham,
+    Victor Zhang,
+    Ahmed Kammoona,
+    Jason Anderson,
+    Stephen Brown und
+    and Tomasz Czajkowski,
+    \emph{LegUp: High-Level Synthesis for FPGA-Based Processor/Accelerator Systems},
+    University of Toronto
+\end{thebibliography}
+\end{document}

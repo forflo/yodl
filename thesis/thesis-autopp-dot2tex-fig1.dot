@@ -1,0 +1,35 @@
+    digraph G {
+      node [shape="box"];
+      a -> xor1;
+      b -> xor1;
+      xor1 -> xor2;
+      carryIn -> xor2;
+      xor2 -> sum;
+
+      a -> and1;
+      b -> and1;
+
+      a -> and2;
+      carryIn -> and2;
+
+      b -> and3;
+      carryIn -> and3;
+
+      and1 -> or1;
+      and2 -> or1;
+
+      or1 -> or2;
+      and3 -> or2;
+
+      or2 -> carryOut;
+
+      and1 [shape="circle", label="and"];
+      and2 [shape="circle", label="and"];
+      and3 [shape="circle", label="and"];
+
+      or1 [shape="circle", label="or"];
+      or2 [shape="circle", label="or"];
+
+      xor1 [shape="circle", label="xor"];
+      xor1 [shape="circle", label="xor"];
+    }

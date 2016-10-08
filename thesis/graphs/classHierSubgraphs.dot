@@ -1,0 +1,164 @@
+digraph classHierarchy {
+    node [shape=record];
+    edge [arrowhead=empty];
+
+    {
+        node [shape=plaintext];
+        edge [style=invis];
+
+//        n1 [label=""]; n2 [label=""];
+//        n3 [label=""]; n4 [label=""];
+//        n5 [label=""]; n6 [label=""];
+//        n7 [label=""]; n8 [label=""];
+//        n9 [label=""]; n10 [label=""];
+        n1 -> n2 -> n3 -> n4 ->
+        n5 -> n6 -> n7 -> n8 -> n9;
+    }
+
+    AstNode [label="AstNode|nil"];
+
+    SequentialStmt [label="SequentialStmt"];
+
+    IfSequential [label="IfSequential"];
+    ReturnStmt [label="ReturnStmt"];
+    SignalSeqAssignment [label="SignalSeqAssignment"];
+    CaseSeqStmt [label="CaseSeqStmt"];
+    ProcedureCall [label="ProcedureCall"];
+    VariableSeqAssignment [label="VariableSeqAssignment"];
+    ReportStmt [label="ReportStmt"];
+    AssertStmt [label="AssertStmt"];
+    WaitStmt [label="WaitStmt"];
+    LoopStatement [label="LoopStatement"];
+    WhileLoopStatement [label="WhileLoopStatement"];
+    ForLoopStatement [label="ForLoopStatement"];
+
+    Expression [label="Expression"];
+
+    ExpUnary [label="ExpUnary"];
+    ExpEdge [label="ExpEdge"];
+    ExpUAbs [label="ExpUAbs"];
+    ExpUNot [label="ExpUNot"];
+    ExpBinary [label="ExpBinary"];
+    ExpArithmetic [label="ExpArithmetic"];
+    ExpLogical [label="ExpLogical"];
+    ExpRelation [label="ExpRelation"];
+    ExpShift [label="ExpShift"];
+
+    ExpAggregate [label="ExpAggregate"];
+    ExpAttribute [label="ExpAttribute"];
+    ExpBitstring [label="ExpBitstring"];
+    ExpCharacter [label="ExpCharacter"];
+    ExpConcat [label="ExpConcat"];
+    ExpFunc [label="ExpFunc"];
+    ExpInteger [label="ExpInteger"];
+    ExpReal [label="ExpReal"];
+    ExpName [label="ExpName"];
+    ExpString [label="ExpString"];
+    ExpRange [label="ExpRange"];
+    ExpObjAttribute [label="ExpObjAttribute"];
+    ExpTypeAttribute [label="ExpTypeAttribute"];
+
+
+    InterfacePort [label="InterfacePort"];
+    ComponentBase [label="ComponentBase"];
+    Entity [label="Entity"];
+
+    VType [label="VType"];
+    VTypeERROR [label="VTypeERROR"];
+    VTypePrimitive [label="VTypePrimitive"];
+    VTypeArray [label="VTypeArray"];
+    VTypeRange [label="VTypeRange"];
+    VTypeRangeConst [label="VTypeRangeConst"];
+    VTypeRangeExpr [label="VTypeRangeExpr"];
+    VTypeEnum [label="VTypeEnum"];
+    VTypeRecord [label="VTypeRecord"];
+    VTypeDef [label="VTypeDef"];
+    VSubTypeDef [label="VSubTypeDef"];
+
+
+
+    ScopeBase [label="ScopeBase"];
+    SubprogramBody [label="SubprogramBody"];
+    Scope [label="Scope"];
+    Architecture [label="Architecture"];
+    ProcessStatement [label="ProcessStatement"];
+    Package [label="Package"];
+    ActiveScope [label="ActiveScope"];
+    BlockStatement [label="BlockStatement"];
+    SigVarBase [label="SigVarBase"];
+    Signal [label="Signal"];
+    Variable [label="Variable"];
+
+    "Architecture::Statement" [label="ConcurrentStatement"];
+    GenerateStatement [label="GenerateStatement"];
+    ForGenerate [label="ForGenerate"];
+    IfGenerate [label="IfGenerate"];
+    SignalAssignment [label="SignalAssignment"];
+    CondSignalAssignment [label="CondSignalAssignment"];
+    ComponentInstantiation [label="ComponentInstantiation"];
+    StatementList [label="StatementList"];
+    FinalStatement [label="FinalStatement"];
+    ProcessStatement [label="ProcessStatement"];
+    BlockStatement [label="BlockStatement"];
+
+
+    {rank=same; ExpEdge; ExpUAbs; ExpUNot}
+    -> ExpUnary;
+
+    {rank=same; ExpArithmetic;
+        ExpLogical; ExpRelation; ExpShift} -> ExpBinary;
+
+    {rank=same; ExpObjAttribute; ExpTypeAttribute}
+    -> ExpAttribute;
+
+    {rank=same; n2; ExpBitstring; ExpAggregate;
+        ExpRange; ExpUnary; ExpBinary; ExpAttribute;
+        ExpCharacter; ExpConcat; ExpFunc; ExpInteger;
+        ExpReal; ExpName; ExpString} -> Expression;
+
+    {rank=same; n7; LoopStatement; IfSequential; ReturnStmt;
+        WhileLoopStatement; SignalSeqAssignment;
+        ForLoopStatement; CaseSeqStmt; ProcedureCall;
+        VariableSeqAssignment; ReportStmt; WaitStmt}
+    -> SequentialStmt;
+
+    AssertStmt -> ReportStmt;
+
+    Entity -> ComponentBase;
+
+    rankdir = BT;
+    {rank=same; n5; AstNode};
+
+    {rank=same; n3; Expression};
+
+    {rank=same; SequentialStmt; InterfacePort;
+        ComponentBase; VType; ScopeBase;
+        SigVarBase; "Architecture::Statement"} -> AstNode;
+
+    {rank=same; VTypeERROR; VTypePrimitive; VTypeArray; VTypeRange;
+        VTypeEnum; VTypeRecord; VTypeDef } -> VType;
+
+    {rank=same; VSubTypeDef} -> VTypeDef;
+
+    {rank=same; VTypeRangeConst; VTypeRangeExpr} -> VTypeRange;
+
+    Expression -> AstNode;
+
+
+    {rank=same; SubprogramBody; Scope; ActiveScope; BlockStatement}
+    -> ScopeBase;
+
+    {rank=same; Architecture; ProcessStatement; Package} -> Scope;
+
+    {rank=same; Signal; Variable} -> SigVarBase;
+
+    {rank=same; GenerateStatement; SignalAssignment; CondSignalAssignment;
+        ComponentInstantiation; StatementList; BlockStatement}
+    -> "Architecture::Statement";
+
+    {rank=same; ForGenerate; IfGenerate} -> GenerateStatement;
+
+    {rank=same; InitialStatment; FinalStatement; ProcessStatement}
+    -> StatementList;
+
+}

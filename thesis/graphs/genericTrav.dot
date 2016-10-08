@@ -1,0 +1,80 @@
+digraph G {
+    {
+        node [shape=plaintext];
+        edge [style=invis];
+
+        n1 [label=""]; n2 [label=""];
+        n3 [label=""]; n4 [label=""];
+        n5 [label=""]; n6 [label=""];
+        n1 -> n2 -> n3 -> n4 -> n5 -> n6;
+    }
+
+    subgraph cluster_trav {
+
+        graph [label="Runtime states"];
+        {
+            rank = same;
+            n1;
+            traverser_1 [shape=record, label="{GenericTraverser|{state: 1|<f1>
+            current node} | {parents: | }}"];
+            traverser_2 [shape=record, label="{GenericTraverser|{state: 2|<f1>
+            current node} | {parents: | <p1> $+$ }}"];
+            traverser_3 [shape=record, label="{GenericTraverser|{state: 3|<f1>
+            current node} | {parents: | <p1> $+$ }}"];
+        }
+
+        {
+            rank = same;
+            n2;
+            traverser_4 [shape=record, label="{GenericTraverser|{state: 4|<f1>
+            current node} | {parents: | <p1> $\\cdot$ | <p2> $+$  }}"];
+            traverser_5 [shape=record, label="{GenericTraverser|{state: 5|<f1>
+            current node} | {parents: | <p1> $\\cdot$ | <p2> $+$  }}"];
+        }
+    }
+
+    subgraph cluster_ast {
+        graph [label="AST of $44 \\cdot 43 + 42$"];
+        node [shape=circle, fixedsize=true, width=0.27];
+
+        {
+            rank = same; n3;
+            a [label="$+$"];
+        }
+
+        {
+            rank = same; n4;
+            b [label="$42$"];
+            c [label="$\\cdot$"];
+        }
+
+        {
+            rank = same; n5;
+            left [label="$44$"];
+            right [label="$43$"];
+        }
+    }
+
+    a -> b;
+    a -> c;
+
+    c -> left;
+    c -> right;
+
+    edge [arrowhead="empty", style="dashed"];
+traverser_1:f1 -> a;
+traverser_2:f1 -> b;
+traverser_3:f1 -> c;
+traverser_4:f1 -> left;
+traverser_5:f1 -> right;
+
+    edge [arrowhead="vee", style="dotted", color="black"];
+
+traverser_2:p1:s -> a;
+traverser_3:p1:s -> a;
+
+traverser_4:p1:s -> c;
+traverser_4:p2:s -> a;
+traverser_5:p1:s -> a;
+traverser_5:p2:s -> c;
+}

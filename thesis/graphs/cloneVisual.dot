@@ -1,0 +1,45 @@
+digraph cloneVisual {
+    node [shape=record];
+
+    subgraph cluster_original {
+        graph [label="Original AST"];
+
+        a [label="{ExpArithmetic|Operator: \\(+\\)|this: 0x0000|<f1> left: 0x0001|<f2> right: 0x0002}"]; 
+
+        b [label="{<f1>ExpInteger|<f3>this: 0x0001|value: 42}"]; 
+        c [label="{ExpRelation|Operator: \\(\>\\)|this: 0x0002|<f1> left: 0x0003|<f2> right: 0x0004}"]; 
+
+        left [label="{<f1>ExpInteger|<f3>this: 0x0004|value: 44}"]; 
+        right [label="{<f1>ExpInteger|<f3>this: 0x0003|value: 43}"]; 
+
+        a:f1 -> b;
+        a:f2 -> c;
+
+        c:f1 -> left;
+        c:f2 -> right;
+    }
+
+    subgraph cluster_shallow {
+        graph [label="Shallow copy of 0x0002", style=dashed]; 
+        
+
+        c_c1 [label="{ExpRelation|Operator: \\(\>\\)|this: 0x00fa|<f1> left: 0x0003|<f2> right: 0x0004}"]; 
+        c_c1:f1 -> left;
+        c_c1:f2 -> right;
+    }
+
+    subgraph cluster_deep {
+        graph [label="Deep copy of 0x0002"]; 
+        c_c2 [label="{ExpRelation|Operator: \\(\>\\)|this: 0x0ffa|<f1> left: 0x0003|<f2> right: 0x0004}"]; 
+
+        left_c1 [label="{<f1>ExpInteger|<f3>this: 0x0f04|value: 44}"]; 
+        right_c1 [label="{<f1>ExpInteger|<f3>this: 0x0f03|value: 43}"]; 
+
+
+        c_c2:f1 -> left_c1;
+        c_c2:f2 -> right_c1;
+    }
+
+    a:f2 -> c_c2 [constraint=true, style=dotted];
+    a:f2 -> c_c1 [constraint=true, style=dotted];
+}

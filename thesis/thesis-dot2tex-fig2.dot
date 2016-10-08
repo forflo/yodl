@@ -1,0 +1,41 @@
+
+        digraph A {
+          graph [splines=true, overlap=prism];
+          nVerF [shape=box, label="Verilog frontend"];
+          nVhdF2 [shape=box, label="VHDL frontend", style=dotted];
+          nVhdF [shape=box, label="Yodl", color=red];
+          nIlangF [shape=box, label="Ilang frontend"];
+          nOtherF [shape=box, label="Other frontends"];
+
+          nVerB [shape=box, label="Verilog backend"];
+          nIlangB [shape=box, label="Ilang backend"];
+          nOtherB [shape=box, label="Other backends"];
+          nDotB [shape=box, label="Graphviz backend"];
+
+          passes [shape=ellipse, label="Transformations"];
+
+          nAstF [shape=box, label="AST frontend"];
+          ast [label="AST", color=orange];
+          rtlil [label="RTLIL", color=orange];
+
+
+          nVerF:s -> ast:n;
+          nVhdF2:s -> ast:n;
+          nVhdF:s -> nIlangF:n;
+          nIlangF:s -> rtlil:n;
+          nOtherF:s -> rtlil;
+          ast:s -> nAstF:n;
+
+          {
+            rank=same
+            rtlil -> passes;
+            passes -> rtlil;
+          }
+
+          nAstF:s -> rtlil:n;
+          rtlil:s -> nIlangB:n;
+          rtlil:s -> nVerB:n;
+          rtlil:s -> nOtherB:n;
+          rtlil:s -> nDotB;
+        }
+    

@@ -1,0 +1,172 @@
+\documentclass[twoside=true, %  doppelseitiger Druck
+DIV=15,% DIV Faktor für Satzspiegelberechnung, sie Doku zu KOMA Script
+BCOR=15mm, % Bindekorrektur
+chapterprefix=false,
+headinclude=true,
+footinclude=false,
+pagesize,%         write pagesize to DVI or PDF
+fontsize=11pt,%             use this font size
+paper=a4,%          use ISO A4
+bibliography=totoc,%         write bibliography-chapter to table of contents
+index=totoc,%         write index-chapter to table of contents
+cleardoublepage=plain,% \cleardoublepage generates pages with pagestyle empty
+headings=big,%       A4/B5
+listof=flat,%        improved list of tables
+numbers=noenddot
+]{scrbook}
+
+\usepackage{fixltx2e}
+\usepackage[utf8]{inputenc}
+\usepackage{makeidx}
+\usepackage{amsfonts}
+\usepackage[slantedGreek,sc]{mathpazo}  % Schriftart Palatino
+
+
+\usepackage{syntax}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\usepackage{varwidth}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{dot2texi}
+\usepackage[]{algorithm}
+\usepackage[]{algpseudocode}
+
+\definecolor{lightblue}{rgb}{0.2925,0.6381,0.65}
+\definecolor{darkblue}{rgb}{0.0105,0.2764,0.35}
+\definecolor{grey}{gray}{0.75}
+\definecolor{indigo(dye)}{rgb}{0.0, 0.25, 0.42}
+
+\lstset{numbers=none,
+  numberstyle=\small{\ttfamily{}},
+  basicstyle=\small\fontfamily{cmtt},
+  stepnumber=1,
+  numbersep=4pt}
+\lstset{tabsize=4}
+\lstset{breaklines=true,
+  breakatwhitespace=true}
+\lstset{frame=none}
+\lstdefinestyle{c}{language=C,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+\lstdefinestyle{c++}{language=[11]c++,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+\lstdefinestyle{haskell}{language=haskell,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+\lstdefinestyle{vhdl}{language=vhdl,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+\lstdefinestyle{verilog}{language=verilog,
+  identifierstyle=\color{darkblue},
+  keywordstyle=\color{lightblue}\bfseries{},
+  commentstyle=\color{gray}}
+
+\def\B#1{\lstinline[style=bash]{#1}}
+\def\A#1{\lstinline[style=asm]{#1}}
+\def\V#1{\lstinline[style=verilog]{#1}}
+\def\VH#1{\lstinline[style=vhdl]{#1}}
+\def\C#1{\lstinline[style=c]{#1}}
+\def\CPP#1{\lstinline[style=c++]{#1}}
+
+\usepackage[scaled=.95]{helvet}
+\usepackage{courier}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{amsmath}            % standard math notation (vectors/sets/...)
+\usepackage{bm}        			% standard math notation (fonts)
+\usepackage{fixmath}        	% standard math notation (fonts)
+\usepackage{graphicx}
+% \usepackage[facing=yes]{floatrow}    	% mehrere Gleitobjekte
+% nebeneinander/caption neben Bild/Tabelle
+\usepackage[labelfont=bf,sf,font=small,labelsep=space,format=plain]{caption}
+\usepackage{subcaption}
+\usepackage{scrpage2}
+\usepackage{pstool}        % einbinden falls psfrag verwendet werden soll
+\usepackage{epstopdf}
+\usepackage[english]{babel}
+\usepackage{ellipsis}  			% Korrigiert den Weißraum um Auslassungspunkte
+\usepackage{microtype}  		% optischer Randausgleich etc.
+
+\usepackage{xcolor}         	% z.B. für schattierte Boxen
+\usepackage{framed}				% shaded Umgebung
+\definecolor{shadecolor}{gray}{.85}%
+
+% Links im PDF
+\usepackage[colorlinks=false,
+pdfborder={0 0 0},
+breaklinks=true]
+{hyperref}
+
+
+% \typearea[current]{calc}
+
+% Einstellungen für Bild-/Tabellenbeschriftung neben dem Bild
+% \floatsetup[figure]{capbesideposition={inside,top}}
+% \floatsetup[table]{capbesideposition={inside,top},style=plaintop}
+% \renewfloatcommand{fcapside}{figure}[\capbeside][\FBwidth]
+% \newfloatcommand{tcapside}{table}[\capbeside][\FBwidth]
+
+
+\selectlanguage{english}
+
+
+\deffootnote{1em}{1em}{%
+  \makebox[1em][l]{\thefootnotemark}}
+
+\makeindex
+
+\newcommand{\real}{\mathord{\mathrm{I\!R}}}
+
+\begin{document}
+\selectlanguage{english}
+\def\figdir{figures}
+\def\tabledir{tables}
+
+\frontmatter
+
+\pagestyle{scrplain}
+\pagestyle{empty}
+
+\include{title}
+\include{zusammenfassung}
+\include{abstract}
+\cleardoubleemptypage
+
+\pagestyle{scrplain}
+\pagenumbering{roman}
+\include{toc}
+
+\pagestyle{scrheadings}
+
+
+\addtokomafont{caption}{\small}
+
+\mainmatter
+
+\include{mychapters}
+
+%\appendix
+%\include{append}
+
+\cleardoublepage
+
+\bibliographystyle{natger}
+\bibliography{thesis}
+
+\cleardoublepage
+
+
+\footnotesize
+\printindex
+
+
+\end{document}

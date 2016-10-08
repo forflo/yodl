@@ -1,0 +1,3568 @@
+% TODO:
+% Priozahl: Je höher desto unwichtiger!
+% ----
+% 2.2 Dann Grammarly
+% TODO: add DFF to glossary
+% TODO: Add STL to glossary
+%%
+
+\chapter{State-of-the-art of Hardwaredesign}
+\label{ch:StateOfTheArt}
+
+Today, almost every part of the work in digital hardware design is done
+using sophisticated tools and integrated development
+environments. This chapter will briefly elaborate on how digital
+hardware is developed nowadays.
+
+\section{VHDL}
+\label{sec:VHDL}
+
+
+The VHSIC Hardware Description Language (VHDL) is a language
+originally intended for hardware simulation. Its history will not be
+elaborated here because there already is comprehensive literature
+about this topic \cite{VHDLHIST}.
+
+VHDL quickly evolved from being just a hardware simulation tool
+to a language that can also be compiled. Since VHDL describes
+hardware, the target ``language'' is no language in the sense of x64 or
+Motorola assembly, but rather a netlist (cyclic graph) of
+cells connected through wires. Cells can be adders,
+multipliers or subtraction units and are represented as vertices in
+the netlist. Wires represent the interconnections between the
+functional units in the netlist. The term signal vector or signal
+chunk describes signals with \(n\)-bit width. A netlist can be coarsely
+or finely grained, where a finely grained netlist is obliged to only
+contain 1-bit input logic gates and 1-bit wide connections. This
+limitation is not imposed on coarsely grained netlists. Those are even
+allowed to contain abstractions for \(n\)-bit Multiplexers, etc.\
+(cf. \cite{YOSYSRM} chapter 4.2).
+
+To give an intuition of what hardware design with VHDL looks
+like, listing \ref{fulladd} presents a hardware model of a 1-bit wide
+full adder.
+
+The identifiers \VH{a}, \VH{b}, \VH{carryIn}, \VH{carryOut} and
+\VH{sum} are signals
+of the top level entity of this model. All those \emph{top-level}
+signals can have a type, in this case \VH{std_logic}, and a direction,
+either \VH{in}, \VH{out} or \VH{inout}. The type \VH{std_logic}
+declares all signals to be of 1-bit width.
+\VH{Entity} declarations describe the interface of a hardware
+module, whereas \VH{architecture} blocks define the netlist of the
+previously declared entity.
+
+In \VH{architecture} \VH{behv}, two statements are present. These are
+called \emph{signal assignment statements}. The arrow is used to
+connect two signals together and operators like \VH{xor} or \VH{and}
+define hardware functionality. Adders would thus be described by the
+operator \VH{+}.
+
+\begin{lstlisting}[style=vhdl,caption={Simple full adder in
+      vhdl},label=fulladd, float=tb]
+entity adder is
+   port(a        : in  std_logic;
+        b        : in  std_logic;
+        carryIn  : in  std_logic;
+        carryOut : out std_logic;
+        sum      : out std_logic);
+end adder;
+
+architecture behv of adder is
+begin
+   sum <= a xor b xor carryIn;
+   carryOut <=    (a and b)
+               or (b and carryIn)
+               or (a and carryIn);
+end behv;
+\end{lstlisting}
+%
+Since the code in \ref{fulladd} is synthesizeable, a netlist can be
+compiled from the source. For the model given above, the result is
+shown in figure \ref{fig:netlistAdder}.
+Note how the semantics of listing \ref{fulladd} and graph
+\ref{fig:netlistAdder}
+have not changed; illustration \ref{fig:netlistAdder} describes exactly
+the same data flow as figure \ref{fulladd}. Only the representation of
+the hardware description has changed.
+
+In real life, however, hardware designs are much more complicated than
+in listing \ref{fulladd}. Because of the incredible complex designs
+arising in
+modern hardware industry, VHDL became a viable tool, as it is obvious
+that the construction of netlists by hand like figure
+\ref{fig:netlistAdder},
+does not scale well especially if more than one person is involved in a
+design project.
+%
+\begin{figure}[tb]
+\caption{Netlist example for a binary adder}
+\centering
+    \begin{dot2tex}[graphstyle={shorten >=1pt,shorten <=1pt},
+    options={--autosize}]
+
+    digraph G {
+      node [shape="box"];
+      a -> xor1;
+      b -> xor1;
+      xor1 -> xor2;
+      carryIn -> xor2;
+      xor2 -> sum;
+
+      a -> and1;
+      b -> and1;
+
+      a -> and2;
+      carryIn -> and2;
+
+      b -> and3;
+      carryIn -> and3;
+
+      and1 -> or1;
+      and2 -> or1;
+
+      or1 -> or2;
+      and3 -> or2;
+
+      or2 -> carryOut;
+
+      and1 [shape="circle", label="and"];
+      and2 [shape="circle", label="and"];
+      and3 [shape="circle", label="and"];
+
+      or1 [shape="circle", label="or"];
+      or2 [shape="circle", label="or"];
+
+      xor1 [shape="circle", label="xor"];
+      xor1 [shape="circle", label="xor"];
+    }
+    \end{dot2tex}
+\label{fig:netlistAdder}
+\end{figure}
+\section{Yosys}
+\label{sec:Yosys}
+
+Yodl -- the tool described in this work -- is based on Yosys. Yosys is
+an open-source logic
+synthesis toolkit with various other features. It is actively
+maintained by Clifford Wolf, who also did almost all of the
+implementation work (cf. \cite{YOSYSRM}).
+
+Like in so many other topics in science and engineering, different layers
+of abstraction help to make hardware design automation
+feasible. Figure \ref{fig:abstractions} shows such a layer
+stack (cf. \cite{YOSYSRM} chapter 2.1). Note that
+\ref{fig:abstractions} is not a comprehensive depiction of those layers.
+%
+\begin{figure}[t]
+\caption{Abstraction hierarchy}
+    \begin{tikzpicture}
+        \tikzstyle{lvl} = [draw, rectangle, minimum height=2em, minimum width=15em]
+        \node[lvl] (sys) {System Level};
+        \node[lvl] (hl) [below of=sys] {High Level};
+        \node[lvl] (beh) [below of=hl] {Behavioral Level};
+        \node[lvl] (rtl) [below of=beh] {Register-Transfer Level (RTL)};
+        \node[lvl] (lg) [below of=rtl] {Logical Gate Level};
+        \node[lvl] (pg) [below of=lg] {Physical Gate Level};
+        \node[lvl] (sw) [below of=pg] {Switch Level};
+        \draw[dotted] (sys.east)  -- ++(1,0) coordinate (sysx);
+        \draw[dotted] (hl.east)  -- ++(1,0) coordinate (hlx);
+        \draw[dotted] (beh.east) -- ++(1,0) coordinate (behx);
+        \draw[dotted] (rtl.east) -- ++(1,0) coordinate (rtlx);
+        \draw[dotted] (lg.east)  -- ++(1,0) coordinate (lgx);
+        \draw[dotted] (pg.east)  -- ++(1,0) coordinate (pgx);
+        \draw[dotted] (sw.east)  -- ++(1,0) coordinate (swx);
+
+        \draw[|->] (sysx) -- node[right] {System Design} (hlx);
+        \draw[->|] (hlx) -- node[right] {High Level Synthesis (HLS)} (behx);
+        \draw[->|] (behx) -- node[right] {Behavioral Synthesis} (rtlx);
+        \draw[->|] (rtlx) -- node[right] {RTL Synthesis} (lgx);
+        \draw[->|] (lgx) -- node[right] {Logic Synthesis} (pgx);
+        \draw[->|] (pgx) -- node[right] {Cell Library} (swx);
+    \end{tikzpicture}
+    \label{fig:abstractions}
+\end{figure}
+%
+Yosys acts on the abstraction levels \emph{Behavioral Level},
+\emph{RTL Synthesis} and \emph{Logic Synthesis}, but it does not
+implement every algorithm for the transitions between these layers
+itself. While \emph{Logic Synthesis} can be done entirely using
+the own
+logic synthesis algorithms of Yosys, the toolkit also provides an interface to
+a logic synthesis toolchain called \emph{ABC} which is recommended to
+be used (cf. \cite{YOSYSRM} chapter 2.1.5 page 16).
+An in-depth introduction to either one of the depicted levels is
+beyond the scope of this work. However, chapter 1 of \cite{MSEM}
+provides an introduction to the topic.
+
+A high-level overview of the architecture of Yosys is necessary,
+especially for later chapters where Yosys is directly
+interfaced. Figure \ref{fig:yosysArch} gives such a birds-eye view and
+shows how the different components of the toolchain work
+together. RTLIL and AST are data structures located in memory during the
+execution of Yosys. RTLIL represents netlists, whereas AST depicts generic
+abstract syntax trees. Yosys makes it possible to add the VHDL frontend
+component at two places. First, the frontend could produce an abstract
+syntax tree using the predefined AST format from Yosys, thus the
+component would be placed above AST. Second, the
+VHDL component could emit an RTLIL netlist serialized to normal ASCII
+text. Said text would then be put into the ilang frontend that does
+the deserialization. The AST frontend of Yosys is used to convert the
+AST format into RTLIL netlists. Note that there are various ways to
+output RTLIL structures. The Verilog backend, for example, generates
+plain register transfer level Verilog code, whereas the Graphviz
+backend serves as tool for netlist visualization. Finally, Yosys
+provides optimizations that act only on RTLIL netlists. Chapter
+\ref{sec:rtlilStruct} illustrates the format of those netlists. There
+are, for instance, optimization passes that eliminate process objects
+or similar high-level constructs from the netlists and replace them by
+simple logic cells or wires.
+
+\begin{figure}[tb]
+\caption{Main Yosys components and data structures}
+\centering
+    \begin{dot2tex}[dot, tikz, options={--autosize}]
+
+        digraph A {
+          graph [splines=true, overlap=prism];
+          nVerF [shape=box, label="Verilog frontend"];
+          nVhdF2 [shape=box, label="VHDL frontend", style=dotted];
+          nVhdF [shape=box, label="Yodl", color=red];
+          nIlangF [shape=box, label="Ilang frontend"];
+          nOtherF [shape=box, label="Other frontends"];
+
+          nVerB [shape=box, label="Verilog backend"];
+          nIlangB [shape=box, label="Ilang backend"];
+          nOtherB [shape=box, label="Other backends"];
+          nDotB [shape=box, label="Graphviz backend"];
+
+          passes [shape=ellipse, label="Transformations"];
+
+          nAstF [shape=box, label="AST frontend"];
+          ast [label="AST", color=orange];
+          rtlil [label="RTLIL", color=orange];
+
+
+          nVerF:s -> ast:n;
+          nVhdF2:s -> ast:n;
+          nVhdF:s -> nIlangF:n;
+          nIlangF:s -> rtlil:n;
+          nOtherF:s -> rtlil;
+          ast:s -> nAstF:n;
+
+          {
+            rank=same
+            rtlil -> passes;
+            passes -> rtlil;
+          }
+
+          nAstF:s -> rtlil:n;
+          rtlil:s -> nIlangB:n;
+          rtlil:s -> nVerB:n;
+          rtlil:s -> nOtherB:n;
+          rtlil:s -> nDotB;
+        }
+    \end{dot2tex}
+    \label{fig:yosysArch}
+\end{figure}
+
+\section{Yodl}
+\label{sec:Yodl}
+
+Yodl is a standalone program that generates Ilang code. Ilang code, is
+just another representation of RTLIL from figure \ref{fig:yosysArch}
+and as such it is just a netlist. Yodl, in turn, uses VHDL files as
+input in order to generate those netlists. So, consequently, Yodl
+transforms VHDL code into RTLIL. The details regarding this
+transformation will be explained in detail in chapter
+\ref{ch:YodlImplDetails}. The same chapter also contains information
+about the RTLIL.
+
+Yodl is not a production ready synthesis system yet. The current
+limitations are listed in chapter \ref{sec:currentLimits}. During the
+development of Yodl, a subset of VHDL has been developed to hide some
+complexities not regarded in this work. The subset is called SVHDL (S
+for simple) and is specified briefly and informally in chapter
+\ref{sec:svhdl}.
+
+As stated in the abstract, a major achievement of this thesis is the
+implementation of Yodl itself. The entire source code is available
+on Github: \url{https://github.com/forflo/yodl}. File names referring
+to sources in this repository are printed \texttt{using this font} and,
+unless otherwise noted, are relative to
+\url{https://github.com/forflo/yodl/tree/master/vhdlpp}.
+
+\chapter{Yodl -- Subproblems}
+\label{ch:YodlSubproblems}
+
+Any compiler construction project can be split up into three distinct
+subprojects: Lexis and Syntax, validity checks regarding the semantics
+and code/hardware generation. The last step, hardware generation, is
+also usually referred to as \emph{synthesis}. The first section of this
+chapter shows the parsing and lexing problems caused by VHDL's
+unorthodox grammar. Section two briefly describes the concept of
+language
+semantics and answers the question why Yodl can't provide proper
+compile-time semantics checks. The last part of the problem,
+synthesis, will not be elaborated here because chapter
+\ref{ch:YodlImplDetails} contains detailed information about this topic.
+
+\section{Lexis and Syntax}
+\label{sec:LexisAndSyntax}
+
+%TODO: AST into glossary
+%      Sources for the term concrete syntax
+
+In order to process a programming language of any kind, an abstract syntax
+tree (AST) has to be constructed. A software component
+called \emph{parser} usually does that. The parser takes tokens
+produced by a tokenizer
+(also called lexer) and incrementally builds said AST. In theory,
+every programming language can be expressed using only one formal
+grammar (concrete syntax).
+However, this grammar would even have to include rules
+describing how identifiers, numbers or even strings can be
+constructed, making it very convoluted -- and as a consequence -- harder to
+understand. Thus, a two-layer approach is used ever since the very
+first compilers were built. The first layer solely contains the lexical
+analysis. In it, every token (parentheses, identifiers, operator
+symbols \ldots) is described by a corresponding regular
+expression. The result of the first step is a sequence of tokens
+which the parser uses for the second step.
+This second step consists of a parsing algorithm that can match
+context-free grammars (mostly of type LALR(1)). The vast set of %TODO footnote?
+details bound to formal languages and, in consequence, parsing in
+general, is beyond the scope of this document and will not be elaborated.
+
+Since the rise of parser generators (such as YACC in the early 1970s)
+very efficient parsers can be automatically generated from context
+free grammars
+encoded in BNF (Backus-Nauer Form). The majority of these code generators
+put certain restrictions onto the grammars which they can
+process. Grammars usually have to be in a well-defined subset of the
+set of the context-free languages; LALR(1) is such a subset. In order
+for a language to be an element of LALR(1), it must not contain any
+shift/reduce or reduce/reduce conflicts. This property can be
+mechanically checked using sophisticated mathematical algorithms
+(cf. \cite{LRKNUTH}).
+
+VHDL is a special case because its grammar neither is a member of LR(1)
+-- a superclass of LALR(1) -- nor LALR(1). To proof this, a part of
+VHDL's grammar is examined.
+
+
+\begin{grammar}
+<name> ::=
+  <simple_name> \alt <operator_symbol>
+\alt <character_literal> \alt <selected_name>
+\alt <indexed_name> \alt <slice_name>
+\alt <attribute_name>
+
+<function_call> ::=
+<name> [ `(' <association_list> `)' ]
+
+<association_list> ::=
+<association_element> \{ , <association_element> \}
+
+<association_element> ::=
+[ <formal_part> `=>' ] <actual_part>
+
+<formal_part> ::=
+  <name>
+\alt <name> `(' <name> `)'
+
+<actual_part> ::=
+  <actual_designator>
+\alt <name> `(' <actual_designator> `)'
+
+<expression> ::= <name> \alt <number>
+
+<actual_designator> ::=
+[ `inertial' ] <expression>
+\alt <name>
+\alt `open'
+
+<prefix> ::= <name> \alt <function_call>
+
+<selected_name> ::= <prefix> `.' <suffix>
+
+<attribute_name> ::= <prefix> `'' <attribute_designator> [ `(' <expression> `)' ]
+
+<slice_name> ::= <prefix> `(' <discrete_range> `)'
+
+<indexed_name> ::= <prefix> `(' <expression> \{ `,' <expression> \} `)'
+
+<operator_symbol> ::= <string_literal>
+
+<character_literal> ::= `'' <graphic_character> `''
+\end{grammar}
+%
+Although this is only a very small subset of the VHDL grammar, it is
+still hard to see the ambiguity. The following paragraph will present
+a set of valid simplification steps, that produce subsets of the
+grammar listed above.
+The removal of any grammar rules and
+non-terminal symbols does not create ambiguities but
+only a new subset of the original language.
+The idea behind this proof is, to keep deleting non-terminals and
+grammar rules until it becomes obvious enough to trivially show the
+existence of
+a reduce/reduce or shift/reduce conflict. Since only a
+strict subset of the grammar remains, the proof is sound.
+
+The deletion of the following non-terminals, serves as start.
+\begin{grammar}
+<operator_symbol> ::= <string_literal>
+
+<character_literal> ::= `'' <graphic_character> `''
+\end{grammar}
+%
+Since ``slice_name'' can be expressed by the non-terminal
+``indexed_name'' the following can also be deleted:
+%
+\begin{grammar}
+<slice_name> ::= <prefix> `(' <discrete_range> `)'
+\end{grammar}
+%
+Also, the rules
+\begin{grammar}
+<selected_name> ::= <prefix> `.' <suffix>
+
+<attribute_name> ::= <prefix> `'' <attribute_designator> [ `(' <expression> `)' ]
+\end{grammar}
+get deleted.
+
+Furthermore, simplification can be done by defining function calls to
+be productions of
+\begin{grammar}
+<function_call> ::=
+<name> [ `(' { <expression> } `)' ]
+\end{grammar}
+%
+This produces a language subset, where only unary functions can be
+called.
+
+After these subsetting steps, only the following grammar remains.
+Note that \emph{prefix} does not exist because it has been subsumed by
+\emph{indexed_name}.
+\begin{grammar}
+<name> ::=
+  <simple_name>
+\alt <indexed_name>
+
+<function_call> ::=
+<name> [ `(' { <expression> } `)' ]
+
+<expression> ::= <name> \alt <number>
+
+<indexed_name> ::= <name> `(' <expression> \{ `,' <expression> \} `)'
+\alt <function_call> `(' <expression> \{ `,' <expression> \} `)'
+\end{grammar}
+%
+The reduce/reduce conflict indeed is obvious now.
+It shows up clearly if one creates
+two different production sequences that generate the same
+sequence of tokens.
+%
+\begin{grammar}
+<name> ::= <indexed_name> ::= <name> `(' <expression> `)' ::= `foo'
+`(' 42 `)'
+
+<name> ::= <indexed_name> ::= <function_call> ::= <name> `('
+<expression> `)' ::= `foo' `(' 42 `)'
+\end{grammar}
+%
+Reduce/reduce errors generally imply a bad language design. But as mentioned
+before, VHDL is a special case. It simply might not be possible to create a
+conflict free context-free grammar where function parameter lists and
+array subscriptions both use the same parameter/expression grouping
+symbol; namely ``('' and ``)''.
+
+Fortunately, there is a way to resolve this ambiguity. Given the
+following VHDL snippet \ref{vhdlAmbigSnippet}
+%
+\begin{lstlisting}[style=vhdl, caption={Example of a syntactically
+      ambiguous VHDL snippet}, label=vhdlAmbigSnippet]
+entity ent is
+   port(A     : out  std_logic_vector(1 downto 0));
+end ent;
+
+architecture beh of ent is
+   signal foo : std_logic_vector(1 downto 0);
+begin
+   A(1) <= foo(0);
+   A(0) <= foo(1);
+end beh;
+\end{lstlisting}
+%
+The ambiguity can be resolved with the help of the context. In
+particular the scoping information can be used to figure out whether a
+name refers to a variable, a type, or a function.
+In the above source code, this is easy. Since \VH{A} is declared to
+be an output signal and \VH{foo} is a signal local (i.e. only
+visible) inside the enclosing architecture and
+because both signals are of type \VH{std_logic_vector}, it can be
+inferred that \VH{A(1)} clearly describes an array subscription.
+
+In order to generate an
+unambiguous AST, this information needs to be processed by the
+parser. To be specific, the parser needs to keep track of a scope
+stack and all visible identifiers, which makes it a scope aware
+parser. Because the implementation of such a context sensitive parser
+would probably be enough to provide material for an entire
+thesis, an existing VHDL parser will be reused for the purpose
+presented in this master thesis (cf. \ref{ch:YodlImplDetails}).
+
+\section{Compile-time checks}
+\label{sec:Compile-time checks}
+
+Compile-time checks are also commonly referred to as semantic
+checks. In formal language theory, there generally are two kinds of
+semantics that can be defined: The \emph{static} semantics and
+\emph{dynamic} semantics. Both formalisms use the previously defined
+abstract syntax to give a formal specification and assume only
+syntactically correct programs as input.
+Simply put, static semantics describe properties of a program that can
+be verified during compile time. Hence the term \emph{static}. The
+type system of a programming language belongs to this semantic
+class. In the context of VHDL, for example, the correct usage of
+packages or libraries must be verifiable during translation time too,
+thus checks regarding those issues are part of a static semantic
+specification (cf. introductory chapters of \cite{FERN2014} and
+\cite{SCH97}).
+
+The dynamic semantics of a program is either a rigid description of
+its behavior during runtime (i.e. how does the program manipulate
+data) or a specification of the end-product to the translation process
+(i.e. a netlist).
+
+Unfortunately, IEEE 1076-2008, \cite{IEEELRM},
+does not give a formal set of rules using mature mathematical
+frameworks for semantic specifications. Rather, it provides
+a language description in English (which is a natural language and not
+meant to be used as a rigid formal tool).
+
+In 1995, however, the formal specification \cite{VHDLFORM}
+was published which defines VHDL with different mathematical
+tools. Since then, sadly there hasn't been made any update for this
+work whatsoever, making it obsolete as the current standard outdates
+this work by 13 years.
+
+As a consequence, this work will not present any compile-time
+consistency/semantic checks.
+
+\chapter{Yodl -- Implementation details}
+\label{ch:YodlImplDetails}
+
+This chapter will elaborate on information around the actual
+implementation of the VHDL frontend Yodl. The first chapter examines
+the infrastructure that has been built. The following chapter
+describes the various AST transformation passes. The
+last chapter finally gives information about the netlist generator
+algorithm and Yodl's current limitations.
+%
+\begin{lstlisting}
+
+\end{lstlisting}
+%
+Before the first section of this chapter begins, the overall mode of
+operation of Yodl must be clarified. As chapter \ref{sec:Yodl} briefly
+states, Yodl transforms plain VHDL code into RTLIL netlists. In order
+to accomplish this, Yodl first reads in the VHDL source and constructs
+a tree structure representing the code. The scanner component
+tokenizes the input code according to the language standard and passes
+the tokens to the parser, which gradually constructs the parse tree
+(AST) from the bottom up. Unnecessary information gets discarded during
+scanning and parsing. For example, parentheses or other structuring
+tokens need not be contained in the tree representation, because the
+structure of the tree already provides the same information in a much
+more usable manner. Chapter \ref{sec:LexisAndSyntax} regards some of
+the more difficult problems in the scanning and parsing parts.
+
+Once Yodl possesses an AST, it must be
+semantically checked; though this step is currently
+omitted. Thereafter, AST simplification happens. Compile-time
+evaluable expressions get evaluated and replace their originals, loops
+get unrolled, generate statement evaluation happens and syntax sugar
+gets replaced by simpler, semantically equivalent language
+primitives. The order of these simplification steps is not hard-wired
+and can easily be adjusted. Also, they are elaborated in chapter
+\ref{sec:astTrans}.
+
+Finally, Yodl conducts the netlist
+synthesis and emits the serialized netlist to an IO stream. Yodl
+currently does not do anything besides AST simplification and netlist
+generation because of the limitations listed at the end of this
+chapter. Note that figure \ref{fig:yosysArch} puts Yodl in the greater
+context of the Yosys toolchain and shows how frontend and backend are
+intertwined. Furthermore, section \ref{sec:RTLILgeneration} documents
+the creation of netlists.
+
+\section{Infrastructure}
+\label{sec:Infrastructure}
+
+\subsection{Data model}
+\label{sec:DataModel}
+
+As \ref{sec:LexisAndSyntax} mentioned, Yodl reuses an existing parser
+for VHDL. This parser comes from the project \emph{vhdlpp} \cite{VHDLPP}.
+Vhdlpp already includes a lexer, a parser and suitable classes that
+describe the abstract syntax tree.
+
+The data model uses inheritance in order to resemble the nature of the
+productions in the grammar. The principle used, can be explained best
+using a simple expression grammar.
+%
+\begin{grammar}
+<Exp>  ::= <Exp>  "+" <Exp1> \alt <Exp1>;
+
+<Exp1> ::= <Exp1> "*" <Exp2> \alt <Exp2>;
+
+<Exp2> ::= <Integer> \alt "(" <Exp> ")";
+\end{grammar}
+%
+A set of data types can now be defined that might be used to build a
+typed AST for this grammar. Listing \ref{lst:expGrammar} shows one
+possible implementation. Using the data types from listing
+\ref{lst:expGrammar}, the representation of the expression \(1+3*4+3\)
+is as simple as code \ref{lst:expGrammarRep}.
+%
+\begin{lstlisting}[style=c++, caption={Class hierarchy for a simple
+      expression grammar}, label={lst:expGrammar}]
+class Exp { virtual ~Exp() = default; };
+
+class EAdd : public Exp {
+public:
+  Exp *exp_1; Exp *exp_2;
+  EAdd(Exp *p1, Exp *p2);
+};
+
+class EMul : public Exp {
+public:
+  Exp *exp_1; Exp *exp_2;
+  EMul(Exp *p1, Exp *p2);
+};
+
+class EInt : public Exp {
+public:
+  Integer integer_;
+  EInt(Integer p1);
+};
+\end{lstlisting}
+%
+\begin{lstlisting}[style=c++, caption={Representation of \((1+3)*(4+3)\)},
+    label={lst:expGrammarRep}]
+Exp *expression = new EMul(
+    new EAdd(new EInt(1), new EInt(3)),
+    new EAdd(new EInt(4), new EInt(3)));
+\end{lstlisting}
+%
+Listing \ref{lst:expGrammar} contains one base class \CPP{Exp} and
+three derived classes that inherit from it. Since the destructor
+function of the base is marked \CPP{virtual} and \CPP{default}, the
+inheritance tree is polymorphic and, consequently, the compiler
+generates a V-Table for each child of \CPP{Exp}. Those V-Tables serve
+two purposes. First of all, they enable virtual dispatch and Secondly,
+V-Tables are needed for runtime type analysis of polymorphic objects.
+After all, the cast operator of C++, \CPP{dynamic_cast}, can only do
+downcasts on polymorphic objects. Type analysis enables
+one to determine whether a pointer of type \CPP{Exp} points to
+\CPP{EAdd} or any other specialization of that same base class. In
+other words, a polymorphic inheritance relation that models a formal
+grammar,
+can be used to create typed abstract syntax trees, where the type
+information of the respective nodes is implicitly available through the
+V-Tables attached to every object and can be explicitly queried using
+\CPP{dynamic_cast}. The details of queries of this nature are a
+idiosyncracy of C++ and shall not be elaborated any further here.
+
+The main purpose of the method illustrated in listing
+\ref{lst:expGrammar} is therefore the creation of typed ASTs.
+
+Listing \ref{lst:expGrammarRep} shows the creation of a typed
+abstract syntax tree. Once created, the tree begins with an
+\CPP{EMul} object as
+root containing two pointers. Both point to a distinct \CPP{EAdd}
+object which, in turn, also point to two \CPP{EInt} objects
+respectively. \CPP{EInt(3)}, for example, can be reached using the
+path \CPP{EMul::exp_1} \(\to\) \CPP{EAdd::exp_2}.
+
+For reference, figure \ref{fig:classHier} shows the inheritance
+relation between all
+relevant classes of the data model of the AST that Yodl uses
+internally for VHDL code. This model is
+constructed using the same
+principles, that the listings
+\ref{lst:expGrammar} and \ref{lst:expGrammarRep} demonstrate.
+That means, each actual node can be of a non-virtual class
+type that is present in the illustrated inheritance tree.
+
+\begin{figure}[p]
+    \centering
+    \caption{Class hierarchy of the AST's data model}
+    \input{graphs/classHierVanilla.dot.tex}
+    \label{fig:classHier}
+\end{figure}
+
+\subsection{Dot code generator}
+The simple VHDL frontend prototype Yodl -- at the time of this writing
+-- uses 5 different
+transformation passes that operate on one big data structure; namely
+the AST. One can see very clearly how important it is to be able to
+visualize this data structure.
+
+The Graphviz project is a very mature graph rendering
+software. This software uses a declarative language to describe graphs
+(and thus trees) and provides a large variety of tools that can
+understand this formalism. Graph descriptions written in this Graphviz
+language are also informally called \emph{dot}-graphs \cite{DOT}.
+Graphviz was chosen for rendering because it
+provides the means necessary to convert the AST itself into various
+graphic formats. The remaining section explains how AST's get
+converted into dot.
+
+How should the visualized AST look like?
+Given the VHDL snippet \ref{lst:dotGraph}
+the fully rendered graph should look like figure \ref{fig:simpleAdder}.
+
+\begin{lstlisting}[style=vhdl,caption={Sample snippet for dot graph
+      generator demonstration},label={lst:dotGraph}]
+architecture behv of adder is
+   signal result : std_logic_vector(n downto 0);
+begin
+   -- the 3rd bit should be carry
+   result <= ('0' & A) + ('0' & B);
+   sum    <= result(n - 1 downto 0);
+   carry  <= result(n);
+end behv;
+\end{lstlisting}
+
+\begin{figure}[tb]
+    \centering
+    \input{graphs/adder.dot.tex}
+    \caption{An example graph generated by Yodl}
+    \label{fig:simpleAdder}
+\end{figure}
+
+\noindent The implementation splits the problem into three major parts:
+\begin{enumerate}
+    \item Extraction of the relevant information from the AST into an
+    intermediate format
+    \item Modification of the resulting data for better processing
+    \item Traversal and code generation
+\end{enumerate}
+
+\subsubsection{Extraction of information from the AST}
+After parsing has
+finished, the complete information from the original VHDL source code
+lies in the AST. This data structure is built from objects
+representing expressions, signal assignments or control
+structures. The current data model, for reference, defines an
+ExpArithmetic object like the following:
+%
+\begin{lstlisting}[style=c++]
+class Expression { /* Abstract base class for expressions */ };
+
+class ExpBinary : public Expression {
+public:
+    ExpBinary(Expression *op1, Expression *op2);
+    /* Intentionally left out */
+
+public:
+    Expression *operand1_;
+    Expression *operand2_;
+};
+
+class ExpArithmetic : public ExpBinary {
+public:
+    enum fun_t {PLUS, MINUS, MULT, DIV, MOD, REM, POW, xCONCAT};
+    ExpArithmetic(ExpArithmetic::fun_t op, Expression *op1, Expression *op2);
+    /* Intentionally left out */
+
+public:
+    fun_t fun_;
+}
+\end{lstlisting}
+%
+This depiction is heavily simplified and does not comprehensively
+represent all details of ExpArithmetic objects. Objects that represent
+whole \VH{Architectures} are obviously even more complicated. The
+class definition of an \VH{Architecture} object contains the name of
+the architecture, a linked list of concurrent statements and all
+possible declarations that can occur in the architecture header.
+
+In order to extract the mentioned information from the AST, each node
+(= object) has to be visited. In OOP, there generally are two possible
+solutions for this kind of traversal. On the one hand, every node
+object of the AST could implement a virtual method that outputs the
+desired information in a special data structure. On the other hand,
+the AST could completely be traversed from outside. However, the
+second option clearly imposes the public member access upon all member
+variables of the objects. Within the scope of this work, the first
+solution has been implemented and shall now be elaborated.
+
+As mentioned before, the first step produces data in some kind of
+intermediate format. Since the AST itself is an n-ary tree, the output
+ought to be a tree as well. For this purpose, the class
+\emph{SimpleTree} has been introduced. Its class declaration shall be
+given in the following listing.
+%
+\begin{lstlisting}[style=c++]
+class SimpleTree {
+public:
+    SimpleTree(const std::map<string, string> s) : root(s) { };
+    SimpleTree(const map<string, string> s,
+               std::vector<SimpleTree<std::map<string,string>>*> own)
+        : root(s), forest(own) { };
+    /* further ctor and dtor declarations intentionally left out */
+public:
+    std::map<string, string> root;
+    std::vector<SimpleTree<std::map<string, string>>*> forest;
+};
+\end{lstlisting}
+%
+Note, that the original class uses C++-Templates but, due to the great
+negative influence of templates on the readability, an instantiated
+version of the class was printed. As the code shows, the data type
+used for this instantiation is \CPP{std::map<string, string>}.
+
+In order to visualize the runtime structure of a \CPP{SimpleTree}
+tree, an example is given in figure \ref{fig:simpletree}.
+%
+\begin{figure}[tb]
+    \centering
+    \caption{Runtime structure of a SimpleTree oject}
+    \input{graphs/simpletree.dot.tex}
+    \label{fig:simpletree}
+\end{figure}
+%
+Now one can take a look at how the mentioned methods inside the AST nodes
+are implemented. The scheme is as follows: Every AST object inherits
+the virtual method with the signature
+%
+\begin{lstlisting}[style=c++]
+SimpleTree<map<string, string>> *emit_strinfo_tree(void) const;
+\end{lstlisting}
+%
+Every non-abstract object must provide for a specific implementation
+that transforms each actual object, \CPP{this}, and each of it's
+successors into a pointer to \CPP{SimpleTree<map<string, string>>}.
+
+For AST nodes that cannot have childs, this implementation is very
+simple, because it just consists of a statement like
+%
+\begin{lstlisting}[style=c++]
+return new SimpleTree<map<string, string>>(
+    map<string, string>{
+        {"node-type", "ExpInteger"},
+        /* intentionally left out */,
+        {"value", (dynamic_cast<stringstream&>(
+                       stringstream{} << value_)).str()}});
+\end{lstlisting}
+%
+The C++ statement above produces a
+\CPP{SimpleTree}
+with an empty set of successor SimpleTrees and a \CPP{map} containing
+the type of the object (here ExpInteger), its pointer and its value;
+where every value is expressed as a string.
+
+For elements inside the AST, the same implementation looks a bit more
+complicated:
+\begin{lstlisting}[style=c++]
+SimpleTree<map<string, string>> *ExpRelation::emit_strinfo_tree() const {
+    auto result = new SimpleTree<map<string, string>>(
+        /* intentionally left out. Analogous to above snipped */);
+
+    result->forest = {
+        operand1_->emit_strinfo_tree(),
+        operand2_->emit_strinfo_tree()};
+
+    return result;
+}
+\end{lstlisting}
+%
+Because every \CPP{ExpRelation} object represents a relational
+operator in the AST, it must also contain two pointers to the
+operands. In addition, every operand pointer has to be able to point
+to arbitrary Expressions; hence both \CPP{operand1_} and
+\CPP{operand2_} are of type \CPP{* Expression};
+%TODO: Source source
+
+%TODO: Ab hier wieder grammaryl
+\subsubsection{Modification of the resulting data for better processing}
+Before the final dot code generation can start, the tree containing
+the relevant information needs to be modified because of the way the
+dot language works. In dot, every node must have its own unique
+identifier, because nodes are implicitly created if a new unknown id
+appears in the source code. Listing \ref{lst:dotGraphDot} illustrates
+this and also shows how
+the occurring nodes will be labeled in the rendered picture.
+
+The fact that every node's id has to be unique is problematic, because
+an AST for the expression \(1+2*3+4\) contains 4 \CPP{ExpInteger} and 3
+\CPP{ExpArithmetic} objects. As figure \ref{fig:simpleAdder} shows, we
+want to appear those operator objects in the rendered graph labeled
+with their type (i.e. \CPP{ExpArithmetic} and \CPP{ExpInteger}). Thus,
+it's simply not possible to use the type of the node (in the
+SimpleTree) as node id in the dot code. For that reason, the
+intermediate tree needs to be augmented with pre-calculated node id's.
+
+The algorithm for this task, however, is not relevant here, but can be
+viewed in file \texttt{generate_graph.cc} at line 77.
+
+\begin{lstlisting}[style=c, caption={A sample graph in dot},
+    label={lst:dotGraphDot}]
+digraph c {
+  // two nodes are created: nodeB and nodeA
+  nodeA -> nodeB; // nodeB is labeled "nodeB" in rendered graph,
+  nodeA [label="foo"]; //whereas "nodeA" is labeled "foo"
+}
+\end{lstlisting}
+
+\subsubsection{Traversal and code generation}
+The dot language permits the separation of the node declarations and
+the specification of their interconnections. Hence, the first
+traversal only emits all nodes to be connected, whereas the
+second pass generates the code necessary for the connections between
+those nodes.
+The code excerpts from file \texttt{generate_graph.cc},
+listings \ref{lst:emitEdges} and \ref{lst:emitVert}, illustrate the
+traversal. Note, that the two functions have been heavily simplified
+for reasons of clarity.
+%
+\begin{lstlisting}[style=c++, caption={Simplified version of
+      emit_vertices}, label={lst:emitVert}]
+void emit_vertices(ostream &out,
+                   SimpleTree<map<string, string>> *ast,
+                   int depth){
+    out << ast->root[NODEID]  << " [label=\""
+        << ast->root["label"] << "\"]";
+
+    // recurse into all child trees:
+    for (auto &i : ast->forest)
+        emit_vertices(out, i, ++depth);
+}
+\end{lstlisting}
+%
+\begin{lstlisting}[style=c++, caption={Simplified version of
+      emit_edges}, label={lst:emitEdges}]
+void emit_edges(ostream &out,
+                SimpleTree<map<string, string>> * ast){
+    for (auto &i : ast->forest){
+        out << ast->root[NODEID] << " -> "
+            << i->root[NODEID]   << ";\n";
+        // recurse into all child trees
+        emit_edges(out, i);
+    }
+}
+\end{lstlisting}
+%
+The code in \ref{lst:emitVert} will run first and emits all node
+identifiers. Remember, that each \CPP{SimpleTree} node possesses a map,
+\CPP{ast->root}, containing all relevant attributes. The same goes for
+listing \ref{lst:emitEdges}.
+
+\subsection{Cloning}
+
+Some transformation steps expand certain parts of the AST rather than
+shrinking it. For instance, loop expansion or generate expansion
+eliminate looping structures at compile time and replace the affected
+parts of the AST by parameterized copies of the statements enclosed by
+the said control blocks.
+
+For this reason, every part of the syntax tree must be deep
+copyable. The difference between deep and shallow cloning is shown in
+figure \ref{fig:cloneIllustration}.
+
+The graphic \ref{fig:cloneIllustration} shows that a shallow copy of
+object \C{0x0002} only
+adds one new object to the memory. If the complete subtree beginning
+at \C{0x0002} gets freed, the user of the AST can not execute the
+destructor of the shallowly cloned object, since it contains already
+invalidated pointers to non-existing objects.
+Every AST nodes' destructors are recursive. That means
+that every object, held by the node that the destructor has been called at,
+gets destructed too. The cloned instance of
+\CPP{ExpLogical} instead is a full clone, which means that the
+previously described freeing problem does not need to be considered
+during its further usage. As a consequence, the code that modifies the
+AST gets significantly easier to understand.
+
+\begin{figure}[tb]
+    \centering
+    \caption{Difference between shallow and deep cloning}
+    \input{graphs/cloneVisual.dot.tex}
+    \label{fig:cloneIllustration}
+\end{figure}
+
+% TODO: 3) constant folding für simple expressions
+\subsection{Generic traverser}
+\subsubsection{Traversal and evaluation}
+Due to the recursive nature of an AST, its traversal plays a key role
+in every compiler development. Arithmetic
+expressions, for instance, could be modeled by
+\ref{lst:classHierArith} (see also section \ref{sec:DataModel}).
+%
+\begin{lstlisting}[style=c++,caption={class hierarchy for integer
+      arithmetic expression},label={lst:classHierArith}]
+struct Exp { virtual ~Exp() {} };
+struct Value  : Exp {
+    int value; Value (int v) : value(v) {}
+};
+
+struct Plus   : Exp {
+    Exp* left; Exp* right;
+    Plus  (Exp* l, Exp* r) : left(l), right(r) {}
+};
+
+struct Minus  : Exp {
+    Exp* left; Exp* right;
+    Minus (Exp* l, Exp* r) : left(l), right(r) {}
+};
+
+struct Times  : Exp {
+    Exp* left; Exp* right;
+    Times (Exp* l, Exp* r) : left(l), right(r) {}
+};
+
+struct Divide : Exp {
+    Exp* left; Exp* right;
+    Divide(Exp* l, Exp* r) : left(l), right(r) {}
+};
+\end{lstlisting}
+%
+\begin{lstlisting}[style=c++,caption={Instance of a syntax
+      tree},label={lst:classHierArithInst}]
+Times *exp = new Minus(
+  new Plus(
+    new Times(new Value(2), new Value(3)),
+    new Times(new Value(4), new Value(5))),
+  new Divide(new Value(12), new Value(3))
+);
+\end{lstlisting}
+%
+Using the classes from listing \ref{lst:classHierArith}, the
+arithmetic Expression \(2 \cdot 3 + 4 \cdot 5 - (12 / 3)\) may be
+represented by listing \ref{lst:classHierArithInst}, which is exactly
+how the parser itself constructs a syntax tree during its reduction
+phase!
+
+There are two main approaches how arithmetic expressions like
+\ref{lst:classHierArithInst} could be evaluated. Because of the
+importance of these techniques, both will be elaborated in detail
+further below. The two evaluation methods are:
+%
+\begin{enumerate}
+    \item \label{enum:evalFirst} OOP-like evaluation using member function traversal
+    \item \label{enum:evalSec} Functional-style evaluation using an external traverser
+\end{enumerate}
+%
+Evaluation with \ref{enum:evalFirst} requires additional member
+functions in each of the classes of \ref{lst:classHierArith} (see
+snippet \ref{lst:classHierArithEval}).
+%
+\begin{lstlisting}[style=c++,caption={Eval functions for expression
+      AST},label={lst:classHierArithEval}]
+// additional function in struct Exp:
+    virtual int evaluate() = 0;
+
+/* Further function declarations in structs Plus, Minus
+   Divide, Times and Value intentionally left out */
+int Plus::evaluate()  { return left->evaluate()+right->evaluate(); }
+int Minus::evaluate() { return left->evaluate()-right->evaluate(); }
+int Times::evaluate() { return left->evaluate()*right->evaluate(); }
+int Divide::evaluate(){ return left->evaluate()/right->evaluate(); }
+int Value::evaluate() { return this->value;                        }
+\end{lstlisting}
+%
+With the new \CPP{eval} member function, the evaluation of the
+arithmetic expression from \ref{lst:classHierArithInst}
+becomes as easy as \CPP{exp->evaluate()}!
+However, this evaluation method comes with two major drawbacks. First
+of all, the evaluate function must redundantly be declared and
+implemented for each leaf class of the AST hierarchy. In addition, listing
+\ref{lst:classHierArithEval} shows that also the implementation only
+differs in the respective arithmetic operation (\(+,\ -,\ \cdot\)
+and \(/\)). Secondly, due to
+the first point, the technique doesn't scale well. In more complex
+AST's with more complex evaluation semantics, the complete traversal
+process -- which is specified by the evaluation functions -- is spread
+over each implementation file of every participating AST
+class. That in turn, makes changes difficult to manage and bugs hard
+to find, which is why Yodl makes no use of this traversal scheme.
+
+Note: The vhdlpp transpiler from the IcarusVerilog project uses
+exactly the same
+scheme in order to transpile the VHDL AST into an semantically
+equivalent Verilog source code (cf. \cite{VHDLPPREPO} file
+\texttt{expression_emit.cc}).
+
+However, there is another way of doing traversals over syntax
+trees. Method \ref{enum:evalSec} (see enumeration from above) is a
+technique
+frequently found in a functional programming context. It uses so
+called evaluation/traverser functions in order to extract meaning
+(aka. semantics) from a given syntax tree. In classical denotational
+semantics
+an evaluation function is simply a side effect free function that maps
+an AST onto a
+mathematical object that represents the value of the evaluated (or
+executed) abstract syntax tree (cf. \cite{SCH97}, in particular
+2.2.2). A main characteristic of these
+functions is that they use \emph{pattern matching} (cf. \cite{SCH97}
+figure 4.2 for mathematical pattern matching)
+%TODO: Glossary
+in order to determine the type of the current node. Based on this type
+information, the traverser function determines the fitting traversal
+for the current AST node. C++, unfortunately, does not natively support
+pattern matching as a language primitive. However, there are at least
+two popular libraries -- Mach7 and SimpleMatch -- that implement such
+functionality (cf. \cite{MACH7}, \cite{SIMPLEMATCH}). Both make
+heavy use of template meta programming and are thus not easy to
+understand and explain. For this reason the inner workings won't be
+elaborated here. Also, no introduction to pattern matching will be
+provided here, because of its wide adoption in the field of computer
+science. Nevertheless, materials on that concept can be found in
+\cite{LYAH} (chapter 4.1, ``Pattern matching'').
+
+For listing \ref{lst:classHierArith}, a traverser (and
+evaluator) can be built using
+pattern matching with Mach7 and looks like snippet \ref{lst:travWithMach7}.
+%
+\begin{lstlisting}[style=c++,caption={Traverser with Mach7 pattern
+      matching},label={lst:travWithMach7}]
+int eval(Exp *expression){
+    using namespace mch;
+    using namespace std;
+    var<int> i;
+    var<Exp *> l, r;
+    Match(expression){
+        Case(C<Value>(i)){ return i; }
+        Case(C<Plus>(l,r)){ return eval(l) + eval(r); }
+        Case(C<Minus>(l,r)){ return eval(l) - eval(r); }
+        Case(C<Times>(l,r)){ return eval(l) * eval(r); }
+        Case(C<Divide>(l,r)){ return eval(l) / eval(r); }
+        Otherwise(){ std::cout << "error!" << endl; }
+    } EndMatch;
+}
+\end{lstlisting}
+%
+A natural language description of the source line
+\begin{lstlisting}[style=c++]
+    Case(C<Plus>(l,r)){ return eval(l) + eval(r); }
+\end{lstlisting}
+reads as follows: ``If the variable \CPP{expression} has the dynamic type
+\emph{Plus}, then variable l and r will be bound to
+\CPP{dynamic_cast<Plus>} \CPP{(expression)->left}
+and \CPP{dynamic_cast<Plus>(expression)->left} respectively. If the
+variable does not possess the type Plus, the succeeding line will be executed''.
+
+For reasons of clarity, the mandatory binding template specializations
+have been omitted. Without these specializations The \CPP{C<>}
+template can not figure out what values it can bind to the
+appropriate instances of \CPP{var<Exp *>}. %TODO: Reference of Mach7 example
+
+\subsubsection{Generic traverser}
+Especially for AST transformations, it is necessary to find each
+node for whom a certain predicate holds true. A common example is loop
+unrolling, which is described in \ref{sec:LoopExpansion}. Loop
+expansion clearly makes only sense if it's applied on nodes of type
+\CPP{ForLoopStatement}. For a compiler writer, the need following
+algorithm \ref{alg:genericTraverser} arises.
+%
+\begin{algorithm}
+    \caption{Abstract description of a generic traverser's behaviour}
+    \begin{algorithmic}[0]
+        \State \(rootNode \gets parseVHDL().getRoot()\)
+        \State \(predicate \gets (\lambda type . \lambda node . node : type\))
+        \\
+        \Function{traverse}{node: AstNode *, predicate : (x -> bool), functor : (AstNode *
+          -> void)}
+        \If {\(predicate(node) = true\)}
+        \State \(functor(node)\)
+        \EndIf
+
+        \For {\(\forall i \in node.childs\)}
+        \If {\(predicate(i) = true\)}
+        \State \(functor(i)\)
+        \EndIf
+        \State \Call{traverse}{i, predicate, functor}
+        \EndFor
+        \EndFunction
+    \end{algorithmic}
+    \label{alg:genericTraverser}
+\end{algorithm}
+%
+\(Predicate\) is a higher-order function that takes one type and maps
+it onto a new function that checks whether it's input matches this
+type. A predicate could be constructed, for instance, using the expression
+\[
+    predicate\ ForLoopStatement = \lambda node . node : ForLoopStatements
+\]
+where ``:'' means ``has type of''. For a given node \(node\)
+this anonymous function simply checks if \(node\) has the runtime type
+of class \CPP{ForLoopStatement}.
+
+The semantics of the traverse function from above shall be given in
+natural language too: ``For any input node \(n\), the function \emph{traverse}
+first tests if the predicate holds for \(n\). If it does, the function
+\(functor\), given as parameter to \emph{traverse}, gets
+executed. This function usually transforms the node in some
+way. After that, \emph{traverse} iterates over all child nodes \(i\)
+of node \(n\) and repeats the previous procedure for each \(i\).''
+
+The class \CPP{GenericTraverser} implements this algorithm for the
+complete class hierarchy depicted in \ref{fig:classHier} and can be
+found in \texttt{generic_traverser.h}.
+%
+\begin{lstlisting}[style=c++,caption={Interface definition of the
+      GenericTraverser class},label={lst:genericTraverserDecl}]
+class GenericTraverser {
+public:
+    enum recur_t { RECUR, NONRECUR };
+    GenericTraverser(
+        std::function<bool (const AstNode*)> p,
+        std::function<int (AstNode *,
+                const std::vector<AstNode *> &)> v,
+                recur_t r)
+        /* Initializer List : */
+        : isMutating(true) , isNary(true)
+        , predicate(p) , mutatingNaryVisitorU(v)
+        , recurSpec(r)
+        { }
+
+        /* The rest of the class internals
+           intentionally omitted. */
+};
+\end{lstlisting}
+%
+Listing \ref{lst:genericTraverserDecl} shows a simplified version of
+GenericTraverser's class declaration. The first constructor parameter
+\CPP{p} resembles a so called type predicate, \CPP{v} is the
+\emph{visitor} function and finally \CPP{r} is used to specify
+additional behaviour of the traverser algorithm. The usage of an
+generic traverser is shown by listing \ref{lst:genericTraverserUsage}.
+%
+\begin{lstlisting}[style=c++,caption={Example usage of an
+      GenericTraverser object},label={lst:genericTraverserUsage}]
+AstNode *ast = /* parsing intentionally omitted */;
+
+StatefulLambda<int> cnt(
+    0, [](const AstNode *, int &env) -> int { env++; return 0; });
+
+GenericTraverser counter(
+    makeNaryTypePredicate<ProcessStatement, WaitStmt>(),
+    [&cnt](const AstNode *n) -> int { return cnt(n); },
+    GenericTraverser::RECUR);
+
+counter(ast);
+std::cout << "Number of process and wait statements:"
+          << counter.environment << std::endl;
+\end{lstlisting}
+%
+Listing \ref{lst:genericTraverserUsage} uses a generic traverser
+in order to count all AST nodes with a dynamic type of either
+\CPP{ProcessStatement} or \CPP{WaitStmt}. It uses two currently
+unknown infrastructure components:
+%
+\begin{enumerate}
+    \item A type predicate generator
+    \item and a stateful lambda.
+\end{enumerate}
+%
+Chapter \ref{sec:typePredicates} describes both, hence a comprehensively
+explanation is not included in this section. Put simply, a stateful
+lambda is a C++ object with an overloaded call operator that possesses
+an internal state that the functor modifies.
+In the context of \ref{lst:genericTraverserUsage}, if \CPP{cnt}'s call
+operator gets executed, it increments its internal state which is
+a single integer number. In comparison to algorithm \ref{alg:genericTraverser}
+the stateful lambda \CPP{cnt} is equal to the parameter \emph{functor}
+of the \emph{traverser} function.
+%
+\begin{figure}[tb]
+    \centering
+    \caption{Generic traverser runtime behaviour}
+    \input{graphs/genericTrav.tex}
+    \label{fig:genTravRuntime}
+\end{figure}
+%
+During the recursive, pre-order traversal, a generic traverser keeps
+track of the current node and all of the nodes ancestors. Figure
+\ref{fig:genTravRuntime} shows that if the traverser visits the leaf
+node with value \(43\), the parent vector contains the node \(\cdot\)
+as first and node \(+\) as second parent. If, at this state, the
+requirements of the specified predicate would be met, the visitor
+%
+\begin{lstlisting}[style=c++]
+std::function<int (AstNode *n,
+        const std::vector<AstNode *> &)> v,
+        recur_t r)
+\end{lstlisting}
+%
+would be called with \(n = current\ node\) and \(v = [\cdot, +]\).
+
+Internally a generic traverser object manages parent nodes with the
+help of a stack. Each time it descents further down the abstract
+syntax tree, it pushes the newly visited node onto the stack and
+removes it again if the node itself or every child has been visited.
+
+\subsection{Type predicates and stateful lambdas}
+\label{sec:typePredicates}
+
+This section presents two minor abstractions that have been proven to
+be useful for Yodl's implementation. Stateful lambdas are located in
+\texttt{stateful_lambda.h} and type predicates are defined in
+\texttt{predicate_generators.h} and
+\texttt{predicate_generators.cc}.
+
+\subsubsection{Stateful lambdas}
+\label{sec:statefulLambdas}
+The generic traverser object uses the constructor shown in
+\ref{lst:genericTraverserDecl} in order to specify visitor and
+predicate functions for
+traversal.
+This constructor needs a C++ functional with the type
+\begin{lstlisting}[style=c++]
+std::function<bool (const AstNode*)> p
+\end{lstlisting}
+
+In principle, there are two ways to construct an object of that
+type. On the one hand, C++-11's lambda syntax can be used as follows:
+\begin{lstlisting}[style=c++]
+[](AstNode *n) -> int { /* ... */ };
+\end{lstlisting}
+On the other hand, the usual and much more verbose way would be to
+construct a normal C++ functor. In this context, a functor is an object
+that overloads its call operator appropriately. Let the following
+code be given as an example:
+%
+\begin{lstlisting}[style=c++]
+class FunctorTemp {
+    FunctorTemp() = default;
+
+    int operator()(/* parameters */){ /* ... */ }
+private:
+    /* internal state variables here */
+};
+\end{lstlisting}
+%
+For functors without a persistent internal state, both sources are
+exactly equivalent. However, lambdas created using the special notation
+can not contain any private or
+public member variables (aka. internal state), because there simply is
+no special syntax for it. At first there seems to be no other way as to
+stick to the lengthy functor class declaration, but stateful lambdas
+provide a better solution for simple cases.
+
+The class definition (\ref{lst:classStatefulLambda}) for
+\CPP{StatefulLambda} illustrates how such an
+improvement can be implemented.
+Simply put, a \CPP{StatefulLambda} object encapsulates data together
+with a C++ functor and provides a custom overload for the call
+operator. That means it can be called like any other
+function. However, instead of just executing the functor with the
+parameter passed to \CPP{operator()}, it passes along a reference to
+the internal state \CPP{environment} (see listing
+\ref{lst:classStatefulLambda}).
+
+Using this new abstraction a functor that counts nodes with particular
+types can be build easily. Listing \ref{lst:genericTraverserUsage}
+demonstrates a proper definition of a stateful lambda.
+
+Note, because of clarity reasons, listing
+\ref{lst:classStatefulLambda} does not contain all implementation
+details.
+%
+\begin{lstlisting}[style=c++,caption={An interface for stateful
+      lambdas},label={lst:classStatefulLambda}]
+template<typename T> class StatefulLambda {
+public:
+    StatefulLambda(T e, std::function<int (AstNode *, T &)> l)
+        : environment(e)
+        , lambda(l) { }
+
+    // environment gets default initialized in this constructor
+    StatefulLambda(std::function<int (AstNode *, T &)> l)
+        : lambda(l) { }
+
+    int operator()(AstNode *node){
+        return mutatingLambda(node, environment);
+    }
+
+    void reset(){
+        environment = T();
+    }
+
+    T environment;
+private:
+    std::function<int (AstNode *, T &value)> lambda;
+};
+\end{lstlisting}
+\subsubsection{Type predicates}
+\label{sec:typePred}
+
+In order to check whether a given visitor should be applied to a
+current node during traversal, a generic traverser first executes a
+previously specified predicate. As mentioned before, if this predicate
+holds true, the visitor is executed, otherwise it is not.
+
+While visitor functions can either have one or two parameters
+every predicate must match the visitor signature established in
+code \ref{lst:genericTraverserDecl}:
+\begin{lstlisting}[style=c++]
+std::function<bool (const AstNode*)>
+\end{lstlisting}
+
+Section \ref{sec:statefulLambdas} already showed the two main ways to
+construct these callable objects. However, for type predicates,
+template meta programming provides the means for an even shorter
+function constructor. Listing \ref{lst:predicateGen} illustrates the
+usage of a predicate constructor. It produces a predicate that maps a
+pointer or a reference to an object to either true or false depending
+on whether the dynamic type of the object occurs in the parameter list
+of the \CPP{makeNaryTypePredicate} template.
+%
+\begin{lstlisting}[style=c++,caption={N-ary predicate
+      generator},label={lst:predicateGen}]
+makeNaryTypePredicate<ProcessStatement, IfSequential>();
+\end{lstlisting}
+%
+Every C++11 compatible compiler can handle the meta function (listing
+\ref{lst:predicateGen}) and
+expands it in the fashion shown in listing \ref{lst:evalPredGen}. The
+original unexpanded C++ meta code won't be printed here. However, this
+source code can be examined in \texttt{predicate_generators.cc}.
+
+Listing \ref{lst:evalPredGen} shows that the expansion results in an
+cascaded if-else structure with appropriate Mach7 pattern matches. The
+matches perform the necessary type checks and return either true if the
+type matches the specified type or false if this isn't the case. The
+complexity for the generated function is \(O(n)\), with \(n\) being
+the number of template parameters of the \CPP{makeNaryTypePredicate}
+template function. In the above case (listing \ref{lst:predicateGen}),
+\(n = 2\), because only two type parameters -- \CPP{ProcessStatement}
+and \CPP{IfSequential} -- have been used in order to instantiate the
+function. The reason for the linear time complexity is the
+progressively cascading if block illustrated by code
+\ref{lst:evalPredGen}. Here, each additional type parameter used for
+instantiation accounts for an additional nested type test block.
+%
+\begin{lstlisting}[style=c++,caption={Compile time evaluation of
+      makeNaryTypePredicate},label={lst:evalPredGen}]
+struct makeNaryTypePredicate {
+  bool operator()(const AstNode *n){
+    if (helper(n)) {
+      return true;
+    } else {
+      /* anonymous class because of the template recursion */
+      struct anon_inner {
+        bool operator()(const AstNode *n){
+          Match(n){
+            CaseInT(mch::C<IfSequential>()){
+              return true;
+            }
+          } EndMatch;
+          return false;
+        }
+      };
+
+      return anon_inner()(n);
+    }
+  }
+
+  private:
+  bool helper(const AstNode *n){
+    Match(n){
+      CaseInT(mch::C<ProcessStatement>()){
+        return true;
+      }
+    } EndMatch;
+    return false;
+  }
+};
+\end{lstlisting}
+\subsection{Localizing parser data structures}
+
+Yodl uses vhdlpp's AST data model as well as its parser
+implementation. Vhdlpp uses many global variables and data
+structures for parsing VHDL (cf. \cite{VHDLPPREPO} revision 5dd2e6a, file
+\texttt{entity.cc line 27}, \texttt{std_types.cc line 24, 26},
+\ldots). In vhdlpp itself, this
+does not pose a problem, because the whole program was built with the
+intention to parse any given source file only once. As a consequence,
+vhdlpp only produces one AST for each run and exits after it finished its
+work. Yodl, however, uses smoke tests for verification
+purposes. Thus, the need for disposable abstract syntax trees
+arises. Of course, each of these trees could be build by hand, but
+especially for larger structures this is a tedious and error prone
+task. For that reason, a new class \CPP{ParserContext} has been
+introduced and incorporates each of the previous global
+structures. By means of this new data structure, unit tests can build
+their own throw-away parser for the use of test AST construction.
+
+The file \texttt{parse_context.h} serves as reference for this
+refactoring effort.
+
+\subsection{Testing}
+\label{sec:autoTests}
+Compilers are incredibly complex and complicated pieces of
+software and thus notoriously difficult to test. There are a few
+well known approaches for compiler validation. The first of which
+is the so called regression test system\ldots
+
+\subsubsection{Recression tests}
+\label{sec:autoTestsReg}
+The data base system \emph{SQLite}
+for instance, uses such a validation framework (cf. \cite{SQLITE}).
+In order to test sqlite's SQL interpreter, a TCL script
+randomly generates SQL statements and evaluates them using the
+interpreter and a predefined data base scheme. The script itself
+manually calculates the result set and compares it with the output of
+the SQL interpreter. If both result are exactly equal, the test
+iteration was successful.
+
+\emph{Vloghammer} uses a similar concept in order to validate Yosys'
+Verilog
+frontend. Akin to SQLite's regression tester, it randomly generates
+syntactically and semantically correct Verilog code snippets,
+synthesizes them with Yosys and checks the netlist
+(cf. \cite{VLOGHAMMER}).
+
+Such regression testing suites are incredibly useful, but also
+difficult to implement. Hence, this work won't present an
+implementation of this kind of automated test frameworks.
+
+\subsubsection{Formal verification}
+The second major compiler validation method uses formal tools. Such
+validations are very hard to do, because every component of the
+subjected translator must \emph{mathematically} be proven to work
+according the the formal specification of the language. That's of
+course only possible if there exists a formal description of the
+language's semantics.
+
+There indeed is such a specification, but only for an older version of
+VHDL, which practically renders the formal verification method
+unfeasible for VHDL-2008 (cf. \cite{VHDLFORM}).
+
+\subsubsection{Smoke tests}
+
+So called smoke tests, are much simpler to implement and --
+if used correctly -- can limit the amount of bugs drastically. Tests
+of this class are usually hand-coded by the compiler writer.
+
+Yodl comes with a set of standard unit tests. At first, the header
+only library \texttt{catch.h} has been used as unit testing
+framework. Later, a switch to Cpputest was made (cf. \cite{CATCH},
+\cite{CPPUTEST}). All tests are located in the files
+\texttt{unit_tests_main.cc} and
+\texttt{unit_tests_part1.cc}. Currently there are about \(1076\) lines
+of test code.
+
+\section{AST transformations}
+\label{sec:astTrans}
+All subsections in this chapter describe the various modifications
+Yodl performs directly on the AST. Each transformation produces an
+output AST as result. Although they don't directly generate netlists
+or RTL descriptions, AST transformations like, for example, generate
+expansion (in \ref{sec:GenerateExpansion}), must be performed in order
+to simplify the AST. Even though netlists could be produced from a raw
+unsimplified AST in theory, this would be, in practice, completely
+unfeasible, because of the drastically higher code complexity.
+
+\subsection{Loop expansion}
+\label{sec:LoopExpansion}
+
+
+All looping control structures must be statically unrolled. VHDL
+describes hardware, that means there is no program counter that might
+be utilized to implement sequential semantics. Furthermore, since VHDL
+2008 (cf. \cite{IEEELRM})
+does not impose any restrictions with regards to the nesting depth of
+loops, unrolling is no trivial transformation. VHDL-2008 even allows
+for the usage of \VH{next} and \VH{exit} statements inside of loop
+bodies. This is a problem, because loops containing these control
+statements are expected to behave like loops implemented in an
+imperative and sequential programming language like C. But like
+mentioned before, bare netlists don't contain primitive operations
+like conditional branching (as provided by any assembly language).
+
+VHDL's synthesis standard from 2004 (cf. \cite{IEEESYNTH})
+explicitly forbids the use of \VH{while}-loops. However, in principle,
+while loops containing arbitrary control expression, \emph{can} be
+synthesized (cf. \cite{VHDLSYNTHESE}, in particular chapter
+3.2.3.2). The high-level synthesis toolkit Legup
+demonstrates this, because it allows for the synthesis from ANSI C
+(including while loops) to behavioural-less\footnote{= Verilog without
+ looping, always blocks, etc \ldots} Verilog. Legup accomplishes this by
+creating finite state automata from the behavioural control structure
+(cf. \cite{MSEM}, chapter 2.4.3).
+The algorithms behind these transformations are very complicated and
+not subject to further examination, at least in this
+work. Nonetheless, \C{while} loops in C programs may contain the same two
+troubling statements as VHDL models; \VH{next} \(\widehat{=}\) \C{continue}  and \VH{exit}
+\(\widehat{=}\) \C{break}. That shows, that Legup's RTL synthesis algorithms are
+at general enough to deal with loops containing an arbitrary number of
+jumping statements.
+
+\subsubsection{Prevention of complexity}
+A very simple AST transformation method for general loop
+unrolling is given in algorithm \ref{alg:loopPrePro}.
+
+Here, the algorithm transforms every for loop containing an \VH{exit}
+or \VH{next} statement into an equivalent while loop. As a
+consequence, the \VH{for} loop unroller doesn't need to care about those
+jump statements anymore, because after the illustrated AST
+modification, there won't be any complicated for loops inside the
+syntax tree anymore.
+
+While this work presents an working for loop unroller, it does not
+contain anything with regards to while loop synthesis. Like mentioned
+above, VHDL 2004 does not allow for those loops to be written in
+synthesizeable VHDL anyway.
+%
+\begin{algorithm}
+    \caption{A generic loop pre-processing algorithm}
+    \label{alg:loopPrePro}
+    \begin{algorithmic}[0]
+        \For{\(\forall i \in AST_{original}:
+          isForloop(i) \land \neg containsForLoop(i)\)}
+        \If{\(containsNext(i) \lor containsExit(i)\)}
+        \State convertToWhile(i)
+        \Else
+        \State unroll(i)
+        \EndIf
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
+%
+\subsubsection{Special cases}
+
+In certain cases, it is, however, possible to statically unroll a
+given \VH{for} loop
+even \emph{if} it contains \VH{next} or \VH{exit} clauses. First, the
+appearance of next sequential statements shall be illuminated.
+The first case, listing \ref{lst:firstCase}, is
+probably the most obvious. Here, the next statement is executed inside
+a simple if branch whose condition only depends on the loop index
+variable -- that means that it is statically evaluable.
+%
+\begin{lstlisting}[style=vhdl,caption={First special
+      case},label={lst:firstCase}]
+for i in (0 to 2) loop
+    if (i = 0) then
+        next;
+    end if;
+
+    foo <= "001" + i;
+end loop;
+
+-- unrolls to
+-------------
+-- i = 0;
+-- i = 1;
+foo <= "001" + 1;
+-- i = 2;
+foo <= "001" + 2;
+\end{lstlisting}
+%
+The second special case is almost as obvious as the first one, but
+only of theoretical interest, because of its lack of usefulness. In
+the case shown in \ref{lst:secondCase}, \VH{next} statements only occur at the first
+level
+below the for loop. As an example, consider the following snippet:
+%
+\begin{lstlisting}[style=vhdl,caption={Second special
+      case},label={lst:secondCase}]
+for i in (0 to 2) loop
+    foo <= "001" + i;
+
+    next;
+    unreachedStmt1;
+    unreachedStmt2;
+    -- etc...
+end loop;
+\end{lstlisting}
+%
+Another interesting situation is depicted in the following listing
+\ref{lst:thirdCase}.
+Can this code be statically unrolled? That depends
+on the properties that \VH{<expression>} possesses. First of all, it
+has to be statically evaluable or else it's not possible to determine
+the appropriate branch at compile time. Second of all, the if
+condition must not
+be modified by the statements \(ahead_1 \to ahead_n\). The reason
+for the second constraint is given later. Under assumption of code
+\ref{lst:thirdCase}, the source codes
+\ref{lst:unrollingSchemeA} and \ref{lst:unrollingSchemeB} illustrate
+the unrolling scheme.
+%
+\begin{lstlisting}[style=vhdl,caption={Third special case},label={lst:thirdCase}]
+for i in (0 to 2) loop
+    if (<expression>) then
+        ahead_1;
+        ahead_2;
+        -- ...
+        ahead_n;
+
+        next;
+    end if;
+
+    <statement>;
+end loop;
+\end{lstlisting}
+
+
+\noindent\begin{minipage}{0.45\textwidth}
+\begin{lstlisting}[style=vhdl,caption={Unrolling
+      Scheme -- First transformation},label={lst:unrollingSchemeA}]
+for i in (0 to 2) loop
+    if (<expression>) then
+        ahead_1;
+        ahead_2;
+        -- ...
+        ahead_n;
+    end if;
+
+    if (<expression>) then
+        next;
+    end if;
+
+    <statements>;
+end loop;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+\begin{lstlisting}[style=vhdl,caption={Unrolling
+      Scheme -- Second transformation},label={lst:unrollingSchemeB}]
+    --------
+    -- i = 0
+    if (<expression>) then
+        ahead_1; ahead_2;
+        -- ...
+        ahead_n;
+    end if;
+
+    if (<expression>) then
+        next;
+    end if;
+
+    <statements>;
+    --------
+    -- i = 1
+    if (<expression>) then
+        ahead_1; ahead_2;
+        -- ...
+        ahead_n;
+    end if;
+
+    if (<expression>) then
+        next;
+    end if;
+
+    <statements>;
+    -- i = 1
+    if (<expression>) then
+        ahead_1; ahead_2;
+        -- ...
+        ahead_n;
+    end if;
+
+    if (<expression>) then
+        next;
+    end if;
+
+    <statements>;
+\end{lstlisting}
+\end{minipage}
+
+\noindent{}For reasons regarding generality, the expansion step at the
+end was not completely printed. Since it was stated that \VH{<expression>}
+must be
+statically evaluable, this evaluation needs to actually
+happen. However, this is omitted here.
+
+\subsection{Generate expansion}
+\label{sec:GenerateExpansion}
+
+VHDL contains two distinct syntactic domains where statements can
+occur. The first one is the so called \emph{concurrent} and the
+second one is the \emph{sequential} domain. Concurrent statements
+can only occur in the statement part of an architecture body, whereas
+sequential statements must be part of \VH{process} blocks. Note that
+\VH{process} blocks itself are concurrent statements, at least from an
+syntactic point of view (cf. \cite{IEEELRM}, Annex C -- Syntax summary).
+
+So called generate statements belong to the syntactic class of
+concurrent statements. These represent a kind of language
+aware macro system, because with their help, code can be generated.
+In this context, \emph{language aware} means that macros are expanded
+on AST level rather than plain source code (text).
+
+\subsubsection{How generate expansion works}
+\begin{lstlisting}[style=vhdl,caption={A nested generate
+      statement},label={lst:generateStmt}]
+architecture behaviour of ForLoop is
+   signal result : std_logic_vector(n downto 0);
+begin
+   gen : for i in 1 to 2 generate
+      nested : for j in 1 to 1 + (i - 1) generate
+         sum <= i + j + k;
+      end generate nested;
+   end generate gen;
+end architecture;
+\end{lstlisting}
+%
+Listing \ref{lst:generateStmt} gives a short example of a common
+generate statement and the code from \ref{lst:generateStmtUnroll}
+illustrates what those statements expand to.
+%
+\begin{lstlisting}[style=vhdl,caption={Generate statement unrolling},label={lst:generateStmtUnroll}]
+architecture behaviour of ForLoop is
+   signal result : std_logic_vector(n downto 0);
+begin
+   gen : block is
+      constant i : natural := 1;
+   begin
+      nested : block is
+         constant j : natural := 1;
+      begin
+         sum <= i + j + k;
+      end block;
+   end block gen;
+
+   gen : begin block is
+      constant i : natural := 2;
+   begin
+      nested : block is
+         constant j : natural := 1;
+      begin
+         sum <= i + j + k;
+      end block nested;
+
+      nested : block is
+         constant j : natural := 2;
+      begin
+         sum <= i + j + k;
+      end block nested;
+   end begin;
+end architecture;
+\end{lstlisting}
+%
+The above example shows, that more than one \VH{block} is labeled with
+the same identifier. This is no error! VHDL-2008 explicitly requests
+this kind of behavior during generate elaboration (cf. \cite{IEEELRM},
+chapter 14.5.3 -- Generate statements).
+Unelaborated generate statements can
+themselves contain arbitrary declarations. These declarations will be
+put into the respective declaration part of the expanded \VH{block}.
+Note, that only \VH{block} or \VH{process} statements are able to create
+new scopes inside of architecture statement parts.
+
+\subsubsection{Presentation of an own generate expansion algorithm}
+
+%TODO: rutscht zu weit weg aktuell. LAYOUT!
+\begin{algorithm}
+    \caption{Generate expansion algorithm}
+    \label{alg:genExpansion}
+    \begin{algorithmic}[1]
+        \State \(rootNode \gets parseVHDL().getRoot()\)
+        \State \(currentScope \gets nil\)
+        \State \(currentEntity \gets nil\)
+        \State \(statementAccumulator \gets nil\)
+        \\
+        \Function{modify}{statements : \&list<Statement*>}
+        \State \(tmpStmts \gets nil\)
+        \While {\(containsGenerateStmt(statements)\)}
+        \For {\(\forall i \in statements\)}
+        \If {\(i = NULL\)}
+        \State \Return NotOK
+        \EndIf
+
+        \If {\(isGenerateStatement(i)\)}
+        \State \Call{expandGenerate}{i}
+        \State \(tmpStmts \gets statementAccumulator\)
+        \State \(statementAccumulator \gets nil\)
+        \Else
+        \State \(tmpStmt \gets i\)
+        \EndIf
+        \EndFor
+
+        \State \(statements \gets tmpStmts\)
+        \State \(tmpStmts \gets nil\)
+        \EndWhile
+
+        \State \Return OK
+        \EndFunction
+        \\
+        \Function{traverser}{n}
+        \If {\(n : ScopeBase\)}
+        \State \(currentScope \gets n\)
+        \If {\(n : Architecture\)}
+        \State \Return \Call{modify}{dynamic_cast<Architecture*>(n)->statements}
+        \EndIf
+        \If {\(n : BlockStatement\)}
+        \State \Return \Call{modify}{dynamic_cast<BlockStatement*>(n)->concurrent_stmts_}
+        \EndIf
+        \ElsIf {\(n : Entity\)}
+        \State \(currentEntity \gets n\)
+        \EndIf
+        \\
+        \For{\(\forall i \in n.childs(): pointerNotNull(i)\)}
+        \State \Call{traverser}{i}
+        \EndFor
+        \State
+        \State \Return OK
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+With the use of the \CPP{GenericTraverser} class, it's very easy to
+implement this algorithm. A generic traverser is used to model the
+function \emph{traverser} shown above (see algorithm
+\ref{alg:genExpansion}, line 27). In order to realize the logic
+described by \emph{modify} (algorithm \ref{alg:genExpansion}, line 6),
+a custom
+C++ functor is needed. Recall
+that a functor is just a C++ object with functional semantics. That
+means it has some internal state -- as every other object -- and
+can be called like an ordinary function; which means, that the object's
+call operator must be overloaded. \CPP{GenerateExpander} is a class
+that meets these requirements. Since the expander's implementation very much
+follows the illustrated algorithm, it shall not be elaborated here any
+further. The curious reader might consult the files
+\texttt{generate_expander.cc} and \texttt{generate_expander.h} for
+further implementation details.
+
+Note that algorithm \ref{alg:genExpansion} contains an undefined
+function in line 14. This function tries to evaluate the expression of
+the generate statement. This expression can either be an arbitrary
+condition or a simple range. In both cases, however, the function must
+be able to evaluate the expression statically. If that's not possible,
+an error will be reported and no expansion takes place. For an \VH{if}
+generate statement, \emph{EXPANDGENERATE} simply encapsulates the
+statements below the generate statement in a newly created block, but
+only if the generate condition holds true. If the function, on the
+other hand,
+encounters a \VH{for} generate statement, the statement list of the
+generate block will be replicated for each item in the specified
+expression. After that, every statement list is placed in accordingly
+created \VH{block}s analogously to the \VH{if} generate expansion.
+
+\subsection{Elsif elimination}
+\label{sec:ElsifElimination}
+
+RTLIL generation is difficult, because the problem -- the algorithm
+that generates RTLIL -- can not easily be broken up into sub
+problems. The method, of course, can be split into different functions
+that do their respective part of traversing over the syntax tree, but
+% SEMANTIC that?
+those functions still have their logical place in just one
+class. The
+more complicated the input gets, the more
+complicated the RTLIL generator itself will be.
+Hence, it makes sense to keep the input AST as simple as
+possible. \VH{Elsif} elimination is one way to accomplish this.
+
+\subsubsection{Example elimination}
+VHDL provides special syntactic sugar inside of branch statements.
+The general syntax for \VH{if}-\VH{else} clauses is given below (cf. \cite{IEEELRM}):
+%
+\begin{grammar}
+<if_statement> ::= <if_part> <elsif_part> <else_part> `;'
+
+<if_part> ::= [ <label> `:' ] `if' <expression> `then' <sequence_of_statements>
+
+<elsif_part> ::= { `elsif' <expression> `then' <sequence_of_statements> }
+
+<else_part> ::= [ `else' <sequence_of_statements> ] `end' `if' [ <label> ]
+\end{grammar}
+%
+This (simplified) grammar allows for the source code
+\ref{lst:ifWithElseif}.
+%
+\begin{lstlisting}[style=vhdl,caption={Original if statement with
+      elsif},label={lst:ifWithElseif}]
+if (s = "00") then
+   op <= "0";
+elsif (s = "01") then
+   op <= "1";
+else
+   of <= "0";
+end if;
+\end{lstlisting}
+%
+Every \VH{elsif} clause can be mechanically
+desugared into a nested branch statement only consisting of a \VH{if}
+and (an optional) \VH{else} clause. For the previous code example
+\ref{lst:ifWithElseif},
+the listing \ref{lst:ifDesugared} demonstrates the process.
+%
+\begin{lstlisting}[style=vhdl,caption={Desugared if
+      statement},label={lst:ifDesugared}]
+if (s = "00") then
+   op <= "0";
+else
+   if (s = "01") then
+      op <= "1";
+   else
+      op <= "0";
+   end if;
+end if;
+\end{lstlisting}
+%
+\subsubsection{Elimination Algorithm}
+\begin{algorithm}
+    \caption{A simple \VH{elsif} elimination algorithm}
+    \label{alg:elsifElimination}
+    \begin{algorithmic}[1]
+        \For {\(\forall n \in AST_{original}\)}
+        \If {n : IfSequential}
+        \State \Call{eliminateElsif}{n :! IfSequential * }
+        \EndIf
+        \EndFor
+        \\
+        \Function{eliminateElsif}{ifStmt : IfSequential*>}
+        \State elsifCarry : list<SequentialStmt *> \(\gets\) ifStmt->elsePart
+        \State tmpResult : IfSequential
+
+        \For {\(\forall i \in reverse(ifStmt->elsifList)\)}
+        \State tmpResult \(\gets\) new IfSequential(i->condition,
+        i->ifPart, nil, elsifCarry)
+        \State elsifCarry \(\gets\) makeList(tmpResult)
+        \EndFor
+
+        \State ifStmt.elsifPart \(\gets\) nil
+        \State ifStmt.elsePart \(\gets\) elsifCarry
+        \\
+        \State \Return OK
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+\noindent{}The algorithm \ref{alg:elsifElimination} shows type checks using the
+operator \(:\). On the right-hand side, the name of the type is given,
+whereas the left-hand side consists of a variable
+identifier. Similarly, the \(:!\) operator denotes a dynamic type
+conversion, which is also known as dynamic cast in C++. In assignment
+contexts, where the assignment operator \(\gets\) is used, the
+operator \(:\) shows the declared type of the variable subjected to
+the assignment.
+
+The implementation of algorithm \ref{alg:elsifElimination} can be
+found in \texttt{elsif_eliminator.cc} and
+\texttt{elsif_eliminator.h}. It is very short and concise with only 38
+lines of code.
+%
+\subsection{If statement elimination}
+\label{sec:ifStatementElimination}
+
+Every if-else clause can be algorithmically transformed into an
+equivalent case-when clause.
+This is useful for the same reason described in section
+\ref{sec:ElsifElimination}.
+The listing \ref{lst:ifDesugared} transforms very easily into listing
+\ref{lst:caseWhen}.
+%
+\begin{lstlisting}[style=vhdl,caption={Generated case when
+      statement},label={lst:caseWhen}]
+case (s = "00") is
+   when TRUE  => op <= "0";
+   when FALSE =>
+      case (s = "01") is
+         when TRUE  => op <= "1";
+         when FALSE => op <= "0";
+      end case;
+end case;
+\end{lstlisting}
+%
+The transition from if-else into case-when clauses can only be
+performed
+\begin{itemize}
+    \item if the original expression from the \VH{if} statement does not
+    contain any clock edge specification (cf. \cite{IEEESYNTH}, 6.1.2)
+    \item and if the statement lists for the if and  else code path
+    both contain exhaustive signal assignments (i.e. every signal from
+    both paths gets at least one assignment).
+\end{itemize}
+%
+If the above requirements are met, the transformation produces a
+semantically equivalent AST, because of the following reasons:
+\begin{itemize}
+    \item The conditions, inside of a \VH{case} head, can be
+    any syntactically valid expressions, as long as its evaluation
+    results in something of a scalar\footnote{actually only std_logic
+      or std_ulogic are allowed} or 1-dimensional array type. If
+    it evaluates to an array type, the elements of the array must all
+    have a scalar type (cf. \cite{IEEELRM}, 10.9). Since an \VH{if}
+    statement condition must evaluate to either true or false, the
+    first requirement holds (cf. \cite{IEEELRM}, 10.8), because true
+    maps onto \VH{'1'} and false to \VH{'0'}.
+    \item The conditions inside of the case alternative delimiters
+    (\VH{when <exp> =>}) must be
+    either scalar or of one dimensional array type, where the base
+    type of that array has to scalar (cf. \cite{IEEELRM} 10.9). Since
+    \VH{TRUE} and \VH{FALSE} are
+    enumeration literals, they are scalar.
+    \item Neither \VH{if} nor \VH{case} statements impose any
+    restrictions onto the enclosed sequential statements.
+\end{itemize}
+%
+The first sentence of this section states that the main reason for
+this transformation is to make the AST simple enough to enable a less
+complex AST \(to\) RTLIL transformation algorithm. This is still
+valid, because of the fact that such a algorithm, effectively eliminates
+a whole class of statements without changing the semantics of the AST.
+There, however, is another reason why this kind of transformation is
+useful. The RTL intermediate language of Yosys supports n-ary case
+statements natively. Hence, the AST \(to\) RTLIL translator only has
+to map each \VH{case} branch onto the according branch structure
+inside the RTLIL data structure. The current netlist translator,
+developed in the scope of this work, however, only produces simple
+cells and makes no use of RTLIL's higher abstractions.
+
+The files \texttt{ifelse_case_converter.cc} and
+\texttt{ifelse_case_converter.h} specify and implement the shown
+conversion method from \ref{alg:elsifElimination}.
+
+\subsection{Process lifting}
+\label{sec:Process lifting}
+
+In VHDL, there are six different kinds of signal assignment statements
+which are allowed in a statement list of an architecture or a
+process.
+%
+\begin{itemize}
+    \item Concurrent signal assignment statements
+    \begin{enumerate}
+        \item Simple concurrent signal assignment
+        \item Conditional concurrent signal assignment
+        \item Selected concurrent signal assignment
+    \end{enumerate}
+
+    \item Sequential signal assignment statements
+    \begin{enumerate}
+        \item Simple sequential signal assignment
+        \item Conditional sequential signal assignment
+        \item Selected sequential signal assignment
+    \end{enumerate}
+\end{itemize}
+%
+It is possible -- and required by the standard (cf. \cite{IEEELRM},
+11.4) --
+to convert all concurrent signal assignment statements to semantically
+equivalent sequential assignments. In the context of this work, this
+procedure is called \emph{process lifting}, because of the fact that a
+ordinary concurrent statement gets lifted into an sequential
+context; which is, of course, only present inside an \VH{process} block.
+
+First, let there be some examples for the three kinds of concurrent
+assignments. The listings \ref{lst:exampleSCSA}, \ref{lst:exampleCCSA}
+and \ref{lst:exampleECSA} also contain a syntactic overview.
+%
+\begin{lstlisting}[style=vhdl,caption={Simple concurrent signal
+      assignment},label={lst:exampleSCSA}]
+-- BNF grammar:
+---------------
+-- Simple_Concurrent_Signal_Assignment ::=
+--     Target "<=" [ "guarded" ] [ Delay_Mechanism ] Waveform ";";
+-- Waveform ::= Expression | "null" | ...;
+-- Rule for Delay_Mechanism intentionally ommitted
+
+sigVector <= "01001001";
+\end{lstlisting}
+%
+\begin{lstlisting}[style=vhdl,caption={Conditional concurrent signal
+      assignment}, label={lst:exampleCCSA}]
+-- BNF grammar:
+---------------
+-- Concurrent_Conditional_Signal_Assignment ::=
+--     Target "<=" [ "guarded" ] [ Delay_Mechanism ] Conditional_Waveforms ";";
+-- Target ::= Name | Aggregate;
+-- Conditional_Waveforms ::= Waveform "when" Condition
+--                           { "else" Waveform "when" Condition } [ "else" Waveform; ]
+
+sigVector <= "1111" when (input = '0')
+                 else "1000" when (input = '1')
+                 else "0000";
+\end{lstlisting}
+%
+\begin{lstlisting}[style=vhdl,caption={Selected concurrent signal
+      assignment}, label={lst:exampleECSA}]
+-- BNF grammar:
+---------------
+-- Concurrent_Selected_Signal_Assignment ::=
+--     "with" Expression "select" Target "<="
+--     [ Delay_Mechanism ]  { Waveform "when" [Choice] "," } ";" ;
+
+with tmpInteger select sigVector <=
+    "0001" when 0 | 1 | 42,
+    "0010" when others;
+
+\end{lstlisting}
+%
+The general scheme for appropriate encapsulation is simple on first
+sight, but as soon as more details show up, it gets a lot more
+complicated. In order to enclose one of the shown statements in a
+process block, one simply has to create such a block using a snippet
+like \ref{lst:exampleProcEnc}.
+%
+\begin{lstlisting}[style=vhdl,caption={Process encapsulation},
+    label={lst:exampleProcEnc}]
+sampleProc : process(tmpInteger) is
+begin
+    with tmpInteger select sigVector <=
+        "0001" when 0 | 1 | 42,
+        "0010" when others;
+end process sampleProc;
+\end{lstlisting}
+%
+What needs to be put in the sensitivity list, though? \cite{IEEELRM},
+chapter 10.2,
+provides an algorithm that has to be used to fill the sensitivity
+list. Note, that it makes no semantic difference whether this
+list of signals is written right after the \VH{process} keyword
+enclosed in parentheses, or only as the arguments of an additional
+\VH{wait} statement at the end of the process's sequence of
+statements (cf. \cite{IEEELRM}, 10.2).
+
+Because of the huge complexity, this work only implements a simplified
+version of the official algorithm which can be found inside the files
+\texttt{signal_extractor.cc} and \texttt{signal_extractor.h}. The
+actual process lifting methods are encapsulated in the class
+\CPP{CsaLifter} which is located in \texttt{csa_lifter.cc} and
+\texttt{csa_lifter.h} respectively. The exact implementation details
+are of no relevance for this work and have only been presented for
+completeness.
+
+\section{RTLIL generation}
+\label{sec:RTLILgeneration}
+
+The RTLIL generation is a process that transforms a (simplified) VHDL
+abstract syntax tree into an functionally equivalent netlist. Netlists
+have briefly been described in chapter \ref{sec:VHDL}.
+
+The first subsection below will introduce the RTLIL netlist format
+used by
+Yosys' synthesis backend, the second specifies a set of requirements
+of the input syntax tree and the third describes the netlist generator
+algorithm itself.
+
+\subsection{Yosys's RTLIL data structures}
+\label{sec:rtlilStruct}
+
+The term RTLIL stands for \emph{Register Transfer Logic Intermediate
+Language}. However, it is not solely a formal language for netlists,
+but also a set of C++ classes specifying an internal representation
+that is easily interfaceable from within C++ programs. Figure
+\ref{fig:classDiagRtlil} shows the most
+important classes, their members and their relationship with each
+other.
+
+Any given RTLIL data structure can be serialized to \emph{ilang}, which
+is the textual form of RTLIL. Of course, any valid ilang file can
+also be deserialized again and be stored as common C++ data.
+
+The class \CPP{Design} represents the core of any netlist. A
+\CPP{Design} object is roughly equivalent to a VHDL top-level entity,
+because it subsumes all participating submodules and provides for the
+according interconnections between them. Every design can contain
+arbitrarily many modules, whose purpose it is to hold wires, cells,
+memories and processes as well as to connect them together. Modules
+represent connections via the \CPP{connections} member which is simply
+a list of \CPP{SigSig} objects. SigSig objects are 2-tuples that
+associate one signal with another. Signals are modelled via the
+\CPP{SigSpec} class. It must be noted, that every \CPP{Wire} object
+can be converted to a \CPP{SigSpec} object, but not vice versa.
+
+The enumeration \CPP{State} models every possible value a connection
+between two cells in the netlist might hold. The last value,
+\CPP{marker} is only used internally by some optimization passes.
+
+Right at the end of the member list of \CPP{Module} there are still
+two entries. The first map associates identifiers with \CPP{Memory}
+objects which are used to model block RAM resources and the second
+contains \CPP{Process} objects. Verilog and VHDL both offer sequential
+(behavioural) hardware description. In both languages behavioural
+modelling is only possible inside of \V{always} or \VH{process} blocks
+respectively. RTLIL's \CPP{Process} objects try to emulate a part of
+those semantics.
+
+Memory and process objects are not relevant, which is
+the reason for the ellipses in figure \ref{fig:classDiagRtlil}.
+%
+\begin{figure}[tb]
+    \centering
+    \caption{Important classes and their relationship}
+    \input{graphs/classDiagRtlil.dot.tex}
+    \label{fig:classDiagRtlil}
+\end{figure}
+%
+As figure \ref{fig:yosysArch} from section \ref{sec:Yosys} shows,
+there exists a backend that converts netlists into equivalent dot
+graphs. This is very important for debugging purposes. The picture
+\ref{fig:rtlilShow} contains a graph describing the netlist for the
+full adder mentioned in section listing \ref{fulladd}.
+%
+\begin{figure}[tb]
+    \centering
+    \caption{Netlist for listing \ref{fulladd} generated by Yosys}
+    \input{graphs/rtlilShow.dot.tex}
+    \label{fig:rtlilShow}
+\end{figure}
+%
+\subsection{Introduction of SVHDL}
+\label{sec:svhdl}
+
+The step from abstract syntax trees to netlists is complex enough by
+itself. Because of that, it's only reasonable to keep the input AST as
+simple as possible. An AST \(A\) is said to be simpler as \(B\) if
+%
+\begin{align*}
+  & \mid t_A \mid < \mid t_B \mid,\ with \\
+  & t_A = setOfTypes(A) \\
+  & t_B = setOfTypes(B)
+\end{align*}
+%
+The function \(setOfTypes\) maps each syntax tree onto a set of
+all appearing types the nodes have. An intuitive example:
+Let there be two different
+production trees, one for \(1+2 \cdot 3\) (\(A\)) and one for \(1+2+2+2\)
+(\(B\)). Now \(t_A = \{\mathbb{N}, +, \cdot\}\) and \(t_B =
+\{\mathbb{N},+\}\) and furthermore \(\mid t_B \mid < \mid t_A \mid = 2
+< 3\). Thus, \(B\) is simpler as \(A\).
+
+Syntax trees are unseparable bound to their associated
+context free grammars. The more different rules a grammar contains the
+more different types the equivalent class hierarchy of the object
+oriented AST incorporates\footnote{This fact won't be proven here}. As
+a consequence a simpler AST can be specified not only by restrictions
+on its actual data structure, but also by restrictions on the context free
+grammar that generates this abstract tree.
+
+The following BNF code presents the restrictions imposed on (parts of)
+the original grammar resembling the so called simple VHDL (SVHDL).
+%
+\begin{grammar}
+<sequential_statement> ::=
+    <wait_statement> \alt
+    <simple_signal_assignment_statement> \alt
+    <simple_variable_assignment_statement> \alt
+    <case_statement>
+
+<concurrent_statement> ::=
+    <block_statement> \alt
+    <process_statement> \alt
+    <component_instantiation_statement>
+\end{grammar}
+%
+Originally, sequential statements could also be constructed from
+following statements:
+%
+\begin{itemize}
+    \item conditional_signal_assignment
+    \item selected_signal_assignment
+    \item conditional_variable_assignment
+    \item selected_variable_assignment
+    \item if_statement
+    \item loop_statement
+    \item next_statement
+    \item exit_statement
+    \item procedure_call_statement
+    \item return_statement
+\end{itemize}
+%
+Likewise, the concurrent statements rule hat following right-hand
+sides:
+%
+\begin{itemize}
+    \item concurrent_procedure_call_statement
+    \item concurrent_assertion_statement
+    \item concurrent_signal_assignment_statement
+    \item generate_statement
+\end{itemize}
+%
+Generate and for loop unrolling eliminates \emph{if_statement} and
+\emph{generate_statement} as well as \emph{next_statement} and
+\emph{exit_statement}. Procedure inlining is not part of this work,
+but would remove \emph{return_statement} and
+\emph{procedure_call_statement}. The standard for VHDL-2008 shows how
+\emph{conditional_variable_assignment},
+\emph{conditional_signal_assignment},
+\emph{selected_variable_assignment} and
+\emph{selected_signal_assignment} can be transformed in syntax trees
+only consisting of \emph{if_statement},
+\emph{simple_variable_assignment_statement},
+\emph{simple_signal_assignment_statement} and
+\emph{case_statement} (cf. \cite{IEEELRM}, 11.6). Chapter
+\ref{sec:ifStatementElimination}
+describes an algorithm with whom it is possible to eliminate
+\emph{if_statement}. Finally,
+\emph{concurrent_procedure_call_statement},
+\emph{concurrent_assertion_statement} and
+\emph{concurrent_signal_assignment_statement} can be wrapped in
+\VH{process} statements and thus be transformed into
+\emph{sequential_statement} and \emph{process_statement}.
+
+The above elaboration only imposes syntactical restrictions onto
+VHDL. In order to also specify semantical constraints, one has to use
+precise mathematical tools, which would easily exceed the scope of
+this thesis. Consequently, those restrictions will not be given here
+neither formally nor informally.
+
+\subsection{Synthesis semantics}
+
+In standard \cite{IEEESYNTH}, a typical semantic specification begins
+with a listing.
+Given the snippet \ref{asyncReset}, the standard would describe what hardware
+must synthesized. It does not specify what algorithm has to be used
+for this task, as this is not the scope of such a specification.
+%
+\begin{lstlisting}[style=vhdl,caption={A typical IEEE 1076.6 code
+      snippet},label={asyncReset}]
+AsyncReset: process: (clock, reset)
+begin
+    if( reset = '1' ) then
+        -- async assignment
+        Q <= '0';
+    elsif( rising_edge(clk) and reset = '0' ) then
+        -- sync assignment
+        Q <= D;
+    end if;
+end process;
+\end{lstlisting}
+%
+The VHDL code in \ref{asyncReset} is expected to model a single clock
+edge sensitive flip-flop with an asynchronous reset behavior.
+The main characteristic of such a discrete component is fitting for
+the code \ref{asyncReset}. If reset goes to value \(1\) the flip-flop
+overwrites its current content with \(0\), otherwise the output \(Q\)
+gets set only on occurrences of clock edges (cf. \cite{DIGITALTECHNIK},
+11.4 -- D-Flipflops).
+
+The remainder of this section is concerned with two things: The first
+subsection will briefly and informally give a definition for the
+semantics of certain structures and the second subsection will
+show concrete synthesis results using Yodl.
+
+\subsubsection{Semantics of simple assignments}
+
+Given the assumption that an appropriate \VH{entity} declaration has
+already been declared, the code
+%
+\begin{lstlisting}[style=vhdl]
+simpleAssign: process(clock, reset)
+begin
+    foo <= "00011000";
+end process;
+\end{lstlisting}
+%
+shows a legal signal assignment statements. Note that the
+enclosing \VH{architecture} has been omitted for reasons regarding
+simplicity.
+
+Let \VH{foo} have the array type \VH{std_logic_vector(downto)} with 8
+members. Since the base type of such an array is equal to
+\VH{std_logic}, the assignment of a string literal becomes
+possible. In this case, the said string can only contain characters
+representing the state that a single \VH{std_logic} value can have
+(cf. \cite{IEEELRM}, 10.5).
+
+The most important possible values of \VH{std_logic} are \VH{'0'},
+\VH{'1'}, \VH{'z'} and \VH{'-'}, where \VH{'z'} describes a
+high-impedance on the associated wire and \VH{'-'} simply means that
+the value does not matter and can be anything. \VH{'-'} signals are
+not relevant in this work (see figure \ref{fig:classDiagRtlil}).
+
+Consequently, \VH{foo <= "00011000"} describes that the wires,
+\VH{foo(7)} down to \VH{foo(0)}, shall be driven by the respective
+signal values from the string literal. Hence, only \VH{foo(4)} and
+\VH{foo(3)} are driven with the value \VH{'1'}.
+
+\subsubsection{Semantics of variable assignments}
+
+Since, VHDL was originally intended as a language for circuit
+simulation rather than description, there are a few but important
+differences between simulation semantics and synthesis
+semantics. VHDL's reference manual, which describes mainly the
+simulation semantics, states that all signal assignments encapsulated
+inside an \VH{process} shall be accumulated until the very end of the
+process' statement list. If this last statement has been executed,
+only then every deferred signal assignment shall be executed at once.
+Why this semantics was chosen, will not be elaborated any further
+here. It should be clear, that only by using signal assignments
+of processes, one can not easily model sequential behavior, because
+of the previously described semantics. Hence, VHDL's designers
+introduced the concept of \emph{variables}.
+
+Unlike signal assignments, variable assignments show immediate
+effect. In other words, if a variable gets updated inside a process
+using an variable assignment statement, every subsequent usage of the
+same variable identifier will refer to the right-hand side of the
+latest assignment.
+
+Listing \ref{lst:sigVar} shows how \VH{signals} and \VH{variables} have to
+be declared and how values can be assigned to them.
+%
+\begin{lstlisting}[style=vhdl,caption={Declaration of variables and
+      signals},label={lst:sigVar}]
+fooP: process(clock, reset) is
+    signal fooS : std_logic_vector(7 downto 0) := "00100111";
+    variable fooV : std_logic_vector(7 downto 0) := "00100111";
+begin
+    -- assignment of a signal
+    fooS <= "11111111";
+    -- assignment of a variable
+    fooV := "11111111";
+end process;
+\end{lstlisting}
+%
+Synthesis semantics and simulation semantics for variable assignments
+are the same. However, this is not the case for signal
+assignments. Due to the lack of time, variable assignments were not
+implemented in the synthesis algorithm. Consequently, further
+elaboration is not relevant here. There is, nevertheless, the
+paragraph 3.3.1.4 in
+book \cite{VHDLSYNTHESE} regarding variable assignment synthesis.
+
+\subsubsection{Semantics of Case blocks}
+\label{sec:semOfCase}
+
+Case statements in VHDL are constructed as illustrated in code
+\ref{lst:firstCaseStmt}.
+The standard demands case expressions to be either of a scalar type
+or of one-dimensional array type where the array type's base type must
+be scalar. The \VH{when} clauses, following the \VH{case} keyword, must
+be
+exhaustive. In other words, for each possible value of the case
+expression there must be one and only one matching choice. If not all
+choices can reasonably be given -- for example if the width of the case
+expression exceeds 5 bits -- a special VHDL keyword must be used:
+\VH{others} (cf. \cite{IEEELRM}, 10.9).
+%
+\begin{lstlisting}[style=vhdl,caption={A typical IEEE 1076.6 code
+      snippet},label={lst:firstCaseStmt}]
+architecture b of e is
+    signal fnord : std_logic_vector(1 downto 0);
+    signal oddParity : std_logic;
+begin
+    AsyncReset: process(clock, reset, fnord)
+    begin
+        case fnord is
+        -- fnord is called case expression
+            when "00" => oddParity <= '1';
+            -- when "00" is called a choice
+            when "01" => oddParity <= '0';
+            when "10" => oddParity <= '0';
+            when "11" => oddParity <= '0';
+        end case;
+    end process;
+end architecture b;
+\end{lstlisting}
+%
+In VHDL all choices have to be matched in parallel
+(cf. \cite{VHDLSYNTHESE}, 3.2.2). This behavior can
+be achieved by synthesizing a \(n\)-muxer for each bit of each signal that
+is assigned in all code paths below the initial case expression, where
+\(n\) equals the number of bits of the case expression.
+
+This transformation is very expensive as a case expression with just
+8-bits leads to a synthesis of an 8-bit muxer for each assigned bit
+wide signal. A \(n\)-bit muxer can be constructed using \(2^n-1\) 1-bit multiplexers.
+An informal proof for this shall be given below:
+
+Let \(mux\) be a function defined as
+%
+\begin{equation}
+  \label{eq:muxer}
+\text{mux}(\text{selector}, \text{sig}_0, \text{sig}_1) =
+\begin{cases}
+    \text{sig}_0 & \text{if } \text{selector} = 0 \\
+    \text{sig}_1 & \text{if } \text{selector} = 1
+\end{cases}
+\end{equation}
+%
+The function \(mux\) can also be defined using boolean logic. Equation
+\ref{eq:muxerBool} shows one possibility and table \ref{t:propcalc}
+defines both functions in terms of a truth table.
+%
+\begin{equation}
+    \label{eq:muxerBool}
+    \text{mux}_{bool}(\text{selector}, \text{sig}_0, \text{sig}_1) =
+    (\text{sig}_0 \land \overline{\text{selector}})
+    \lor (\text{sig}_1 \land \text{selector}))
+\end{equation}
+%
+\begin{table}[b]
+\centering
+\caption[Truthtable]{Truthtable for the equations
+  \ref{eq:muxer} and \ref{eq:muxerBool}}
+\input{tables/propcalc01.tex}
+\label{t:propcalc}
+\end{table}
+%
+Now, a n-ary muxer function can be defined recursively using equation
+\ref{eq:muxerNary}.
+A 3-muxer for example, must be able to cope with \(2^3\) different
+input ports and can be created by using \(k = 2\). The
+3-bit selector is thus sufficient to select any of the given
+signals. Each recursion step, \((k-1)\), produces one muxer and binds the
+outputs of further two multiplexers onto its input. For \(mux_k\)
+there are \(k+1\) steps in the recursion. Each step adds twice as much
+multiplexers to the circuit as the step before, accounting for an
+overall count of \(2^{k+1}-1\) multiplexers for
+\(mux_k\)\footnote{Figure \ref{fig:netlistCaseStmt} shows a netlist
+  for a 3-bit multiplexer}.
+
+\begin{equation}
+    \label{eq:muxerNary}
+    \begin{aligned}
+        mux_0(a, b, c) &=  mux(a, b, c) \\
+        mux_k(s_k, iZ_{2^k-1}, iZ_{2^k-2}, \ldots, iZ_{0}) &=
+        mux(s_{k-1}, \\
+        &\qquad mux_{k-1}(s_{k-1}, iZ_{2^k-1}, iZ_{2^k-2}, \ldots,
+        iZ_{2^{k-1}}), \\
+        &\qquad mux_{k-1}(s_{k-1}, iZ_{2^{k-1}-1}, \ldots, iZ_{0}))
+  \end{aligned}
+\end{equation}
+
+\subsubsection{Semantics of if statements}
+
+In normal programming languages, if statements are a way to model
+branches in the execution path of the program. Depending on the
+evaluation of a condition, either the \emph{true} path or the
+\emph{false} path will be chosen. In VHDL's synthesis semantics,
+however, if statements are used to describe memories.
+Given the example code \ref{lst:condAssign},
+%
+\begin{lstlisting}[style=vhdl,caption={Simple conditional assignment},
+   label={lst:condAssign}]
+if (clock = '1' and clock'event) then
+    A <= B;
+end if;
+\end{lstlisting}
+%
+\VH{A <= B} appears as though it's only executed if the condition is
+true. This is simply not the case here. A connection between node
+\VH{A} and \VH{B} in the netlist is made either way, but it's the type
+of connection that matters. Instead of a simple wire going from \VH{B}
+to \VH{A}, a memory element with a certain conditional \emph{runtime}
+behavior has to be utilized in between in order to achieve the
+modeled sequential behavior (cf. \cite{IEEESYNTH}, 6.1).
+
+As the figure \ref{fig:netlistMotSync} shows very clearly, an edge
+sensitive flip-flop is
+the synthesis result of listing \ref{lst:motSync}'s synthesis. This is the
+consequence of the controlling \VH{if} condition at the top of listing
+\ref{lst:motSync}. The semantics here are that \VH{A} will only get
+assigned the current value of \VH{B}, if and only if a rising edge on
+\VH{clock} is detected.
+
+Level sensitive storage elements like, for instance, D-Latches, can also
+be synthesized. Consider for example the snippet \ref{lst:dLatch}.
+%
+\begin{lstlisting}[style=vhdl, caption={Simple D-Latch being
+      utilized}, label={lst:dLatch}]
+if (foo + 3 < bar - 15) then
+    A <= B;
+end if;
+\end{lstlisting}
+%
+Neither \VH{foo} nor \VH{bar} are declared to be clock signals but are
+just ordinary wires transmitting data. However, the assignment (in
+hardware) shall only be apparent on \VH{A} if and only if the
+condition evaluates to true. So how does one get this behaviour in a
+unchangeable circuit. Like above, it comes down to discrete elements
+that can remember data (cf. \cite{IEEESYNTH}, 6.2). In the synthesis
+result of code \ref{lst:dLatch}, the assignment is not done through a
+DFF. Instead a D-Latch sits between the signals \VH{A} and
+\VH{B}. As clock input for the latch serves the netlist for the if
+expression \VH{foo + 3 < bar - 15} (cf. section
+\ref{sec:SimpleLatchedAssign}).
+
+The only difference between listings \ref{lst:dLatch} and
+\ref{lst:condAssign} is the missing clock edge specification in
+listing \ref{lst:dLatch}. The following paragraph will inform about
+the nature of clock edges and explains the term synchronous condition.
+
+\paragraph{Clock edge specification}
+According to \cite{IEEESYNTH} 6.1.2
+there are 10 ways how a clock edge can be described in VHDL. These are
+shown in code \ref{lst:clockEdge}.
+%
+\begin{lstlisting}[style=vhdl,caption={Clock edge specification syntax
+    in VHDL},label={lst:clockEdge}]
+-- rising clock edge modelling
+clock = '1'      and clock'event
+clock = '1'      and not clock'stable
+clock'event      and clock = '1'
+not clock'stable and clock = '1'
+rising_edge(clock)
+
+-- falling clock edge modelling
+clock = '0'      and clock'event
+clock = '0'      and not clock'stable
+clock'event      and clock = '0'
+not clock'stable and clock = '0'
+falling_edge(clock)
+\end{lstlisting}
+%
+\VH{falling_edge(clock)} and \VH{rising_edge(clock)}, in particular, are
+more than just procedure calls abbreviating the above mentioned long
+versions of clock edge specificators. This is a detail of VHDL and not
+relevant here.
+
+\paragraph{A Synchronous condition} is a condition (i.e. expression)
+that contains a clock edge specification and is true only if the clock
+edge specification evaluates true. This connection can be made formal
+by the following boolean predicate \ref{eq:syncCond}.
+%
+\begin{equation}\label{eq:syncCond}
+    \begin{aligned}
+        \text{syncCond}(c) & = \text{typeOfBool}(c) \land \\
+        &\qquad \text{containsClockEdge}(c) \\
+        &\qquad (c = \text{true} \to \text{clockEdge}(c) = \text{true})
+    \end{aligned}
+\end{equation}
+%
+As an example consider the VHDL expression:
+%
+\begin{lstlisting}[style=vhdl]
+en = '1' and (clock = '1' and clock'event)
+\end{lstlisting}
+%
+Now, the according boolean formula for \(c\) can be extracted and used
+in the previously defined predicate.
+%
+\begin{equation}
+    \begin{aligned}
+        \text{let } c :&= (\text{en} = \text{true} \land \text{clock})
+        \implies \text{clockEdge}(c) = \text{clock} \\
+        \text{syncCond}(c) &= \text{typeOfBool}(c) \\
+        &\qquad \land \text{containsClockEdge}(c) \\
+        &\qquad \land ((\text{en} = \text{true} \land \text{clock}) =
+        \text{true} \to \text{clock} = 1)
+    \end{aligned}
+\end{equation}
+%
+Hence, a synchronized condition must be of type boolean, it must contain
+at least one clock edge and finally, the expression
+\[
+    ((\text{en} = \text{true} \land \text{clock}) = \text{true} \to
+    \text{clock} = 1)
+\]
+%
+must evaluate true for each possible binding of \(en\) and
+\(clock\). In this case there are exactly \(2^2\) possible bindings.
+
+\subsection{Transformation algorithm -- Synthesis examples}
+\label{sec:SynthExamples}
+
+This chapter presents an own synthesis algorithm. Because of Yodl being
+the first open-source synthesis tool for VHDL -- at least at the time of
+this writing -- this was necessary, because every other available tool
+is closed-source and the IEEE standard \cite{IEEESYNTH} does not
+specify how the
+synthesis should be done, but rather explains \emph{what} should be
+synthesizeable and what hardware representation shall be used for synthesis.
+
+The transformation component, which ultimately generates a RTLIL
+netlist from a VHDL AST, is named \CPP{NetlistGenerator}. This
+synthesis component lies entirely in one class providing the
+public API summarized in listing \ref{lst:netlistGenAPI}.
+%
+\begin{lstlisting}[style=c++, caption={Public API of
+      NetlistGenerator}, label={lst:netlistGenAPI}]
+class NetlistGenerator {
+public:
+    NetlistGenerator(Yosys::RTLIL::Module *r) : result(r) {};
+    int operator()(Entity *);
+
+    Yosys::RTLIL::Module *result;
+private:
+    /* intentionally left out */
+};
+\end{lstlisting}
+%
+Code \ref{lst:netlistGenAPI} shows the signature of the overloaded
+call operator. If a netlist generator object gets called with a valid
+pointer to an entity object, the entire entity will be traversed and
+the generated netlist will be located in \CPP{result}. The rest of
+this chapter shortly explains how the synthesis is done in particular.
+Note that every netlist presented here is the unmodified result of
+Yodl itself.
+
+\subsubsection{Synthesis of Entity objects}
+An \VH{entity} object holds a list of port declarations. Those are
+used in order to describe what inputs or outputs the architecture can
+manipulate. Because of Yodl's reuse of vhdlpp's codebase,
+it is restrained to only one architecture for each given entity
+(cf. file \texttt{entity_elaborate.cc}, line 50). For
+that reason the netlist generator component does not need to take care
+about more than one architecture.
+
+The said entity ports are synthesized to RTLIL wire objects
+(cf. section \ref{sec:rtlilStruct}). Currently
+only ports of type \VH{std_logic} or \VH{std_logic_vector} can be
+synthesized. Every other type raises an error message.
+
+\subsubsection{Synthesis of Block and Process statements}
+In the current prototype, declarations in block or process statements
+won't be
+taken care of. The synthesizer only traverses the
+concurrent/sequential statements inside a block or process.
+
+\subsubsection{Synthesis of sequential statements}
+Section \ref{sec:svhdl} introduces SVHDL which basically represents a
+strongly simplified format for VHDL AST's. According to this
+(informal) specification (see grammar in section \ref{sec:svhdl}), a
+sequential statement can only be a wait statement, a simple signal
+assignment statement a simple variable assignment statement or a case
+statement. This work is only concerned with simple signal assignment
+statements, case statements and if statements. Wait statements are not
+mandatory, as they mostly serve for purposes regarding checks for
+semantic correctness of the source program. Hence, they won't be
+considered in synthesis.
+
+The following part of this section will show a few motivating examples
+of what the current synthesizer is capable of. Every example will
+show a listing, a netlists produced by the synthesis
+algorithm for the source and a corresponding explanation.
+
+\subsubsection{A simple synchronized assignment}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for a synchronized bit
+      assignment}, label={lst:motSync}]
+-- libraries and entity decl deliberately omitted
+-- A and clock are both of type std_logic
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return std_logic;
+begin
+   process(A) is
+   begin
+      if rising_edge(clock) then
+         A <= '0';
+      end if;
+   end process;
+end behv;
+\end{lstlisting}
+%
+As can be seen in the \VH{process} part of listing \ref{lst:motSync},
+the signal \VH{A} shall only be driven if and only if a rising edge in
+signal \VH{clock} occurs. If there is no rising edge, the current
+value needs to be stored. This can be achieved through the usage of a
+simple edge sensitive flip-flop\footnote{See chapter 11.4 in
+  \cite{DIGITALTECHNIK}} also known as D-flip-flop (DFF for
+short). Yodl transforms listing \ref{lst:motSync} into the netlist
+shown in figure \ref{fig:netlistMotSync}. The netlist also shows, how
+the signals are connected to represent the semantics from the
+listing.
+The values in the elliptical shapes represent constant values, whereas
+strings contained in diamond shapes are used to denote driving
+signals. The netlist format identifies all driven signals with an
+octagonal border. Moreover, the cells (aka. functional building
+blocks) are easy to spot, because of their \$-naming scheme. A muxer
+cell, for example, is always labeled by the string \emph{\$-mux}. ``BUF''
+nodes are not
+relevant, because they don't add any logic to the netlist and thus
+shall be neglected.
+
+\begin{figure}[p]
+    \centering
+    \caption{Netlist for listing \ref{lst:motSync}}
+    \input{synthesisShowcase/motSync.tex}
+    \label{fig:netlistMotSync}
+\end{figure}
+
+\subsubsection{Nested synchronized assignment}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for a nested synchronized
+      bit assignment}, label={lst:motSyncNest}]
+-- [...]
+-- A and clock are both of type std_logic
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return std_logic;
+begin
+   process(A) is
+   begin
+      if rising_edge(clock) then
+         if rising_edge(clock) then
+            A <= '0';
+         end if;
+      end if;
+   end process;
+end behv;
+\end{lstlisting}
+%
+Listing \ref{lst:motSyncNest} contains an assignment that gets
+doubly synchronized by the two enclosing if statements. Commercial
+tools would probably report a warning or, in some contexts, an
+error. Yodl, however, does not complain as standard \cite{IEEESYNTH}
+does not explicitly forbids this kind of synthesis behavior
+(cf. chapter 6.1). The
+netlist in figure \ref{fig:netlistMotSyncNest} clearly shows the
+result of such a nesting. As opposed to circuit
+\ref{fig:netlistMotSync}, the nested version needs one additional
+clock cycle for \VH{'0'} to appear on output \VH{A}.
+
+\begin{figure}[p]
+    \centering
+    \caption{Netlist for the listing \ref{lst:motSyncNest}}
+    \input{synthesisShowcase/motSyncNest.tex}
+    \label{fig:netlistMotSyncNest}
+\end{figure}
+
+\subsubsection{Simple latched assignment}
+\label{sec:SimpleLatchedAssign}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for a simple latched bit
+      assignment}, label={lst:motLatch}]
+-- same libraries as above
+-- A, B and C are of type std_logic
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return boolean;
+begin
+   process(A) is
+   begin
+      if A = B then
+         C <= '1';
+      end if;
+   end process;
+end behv;
+\end{lstlisting}
+%
+Level sensitive flip-flops are commonly called \emph{latch}. DFF's
+only sample values at clock edge, whereas latches maintain a constant
+connection between their inputs and outputs if the signal value is
+either zero or one (cf. \cite{DIGITALTECHNIK}, 11.3). For instance,
+suppose a latch is low-level
+active. This latch would only interconnect its input and output only
+if the enable input equals zero. DFF's also possess input pins like
+\emph{enable}, but in this case those inputs are commonly called
+\emph{clock}, because of the emphasis on clock edge synchronicity.
+
+Listing \ref{lst:motLatch} contains a single if statement with an
+ordinary condition on top of it. It does not have an else-path. As a
+consequence, a register-like hardware cell must be used to handle the
+case when the condition \VH{A = B} does not apply. If it does, \VH{C}
+will be driven with the constant value of \VH{1}. Otherwise, the
+previous value (in this case always \VH{1}) will be stored. Note how
+\ref{fig:netlistMotLatch} connects the netlist for the condition
+directly with the \emph{EN} input of the latch.
+
+In digital circuits, particularly in synchronous circuits, the usage
+of latches is mostly unwanted as latches can't generally be used for
+feedback assignments like: \VH{A <= A + 1;}
+However, this is a topic far beyond the scope of this work. References
+for further reading are 3.6.2, 3.6.1 and, most importantly 3.4 from
+\cite{VHDLSYNTHESE}.
+
+\begin{figure}[p]
+    \centering
+    \caption{Netlist for listing \ref{lst:motLatch}}
+    \input{synthesisShowcase/motLatch.tex}
+    \label{fig:netlistMotLatch}
+\end{figure}
+
+\subsubsection{Nested, latched assignment}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for a nested latched bit
+      assignment}, label={lst:motLatchNest}]
+-- [...]
+-- same preamble as above
+   process(A) is
+   begin
+      if A = B then
+         if not A then
+             C <= '1';
+         end if;
+      end if;
+   end process;
+end behv;
+\end{lstlisting}
+%
+Analogous to the snippet in listing \ref{lst:motSyncNest}, latches can
+be cascaded too. The relationship between the netlists
+\ref{fig:netlistMotLatchNest} and
+\ref{fig:netlistMotLatch} exactly correspond to
+\ref{fig:netlistMotSync} and
+\ref{fig:netlistMotSyncNest}. Consequently, a description of if would
+be redundant.
+
+\begin{figure}[p]
+    \centering
+    \caption{Netlist for listing \ref{lst:motLatchNest}}
+    \input{synthesisShowcase/motLatchNest.tex}
+    \label{fig:netlistMotLatchNest}
+\end{figure}
+
+\subsubsection{Simple case statement}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for a simple case
+      statement}, label={lst:caseStmt}]
+-- same libraries as before
+-- A is a std_logic and baz a std_logic_vector(2 downto 0)
+architecture behv of caseT is
+begin
+   process(A) is
+   begin
+      case baz is
+         when "000" => A <= '0';
+         when "001" => A <= '1';
+         when "010" => A <= '1';
+         when "011" => A <= '1';
+         when "100" => A <= '0';
+         when "101" => A <= '1';
+         when "110" => A <= '1';
+         when "111" => A <= '1';
+      end case;
+   end process;
+end behv;
+\end{lstlisting}
+%
+VHDL's case statement's are particularly interesting for synthesis
+because all test from all choices must be performed parallel in
+hardware. Listing \ref{lst:caseStmt} shows a simple example of a
+case statement being used to model a 3-muxer. The fact that,
+for instance, \VH{A <= '0'}, could be replaced by an arbitrary
+sequence of sequential statements shall be neglected for now.
+
+The code from \ref{lst:caseStmt} can be interpreted as: ``if \VH{baz} equals
+the signal vector containing \VH{000}, \VH{A} shall be driven by
+\VH{'0'} \ldots''. The netlist \ref{fig:netlistCaseStmt} presents an
+implementation of this behaviour. Note that \$-mux cells are
+equivalent to the abstract multiplexers from section
+\ref{sec:semOfCase}. Figure \ref{fig:netlistCaseStmt} shows that each
+muxer has three inputs and a single output. Analogous to the the muxer semantics
+from \ref{sec:semOfCase}, \VH{A} gets selected if \VH{S} equals
+zero, otherwise \VH{B}.
+
+Note that nodes with rounded corners connecting the various muxer
+selectors with the signal \VH{baz} show which bit is being connected
+by the respective edge. For example \VH{2:2 - 0:0} means that the
+slice \VH{2:2} (just one bit) is connected to the zeroth bit on the
+other side.
+
+\begin{figure}[p]
+    \centering
+    \caption{Netlist for listing \ref{lst:caseStmt}}
+    \input{synthesisShowcase/caseStmt.tex}
+    \label{fig:netlistCaseStmt}
+\end{figure}
+
+\subsubsection{Nested case statements}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for three nested case
+      statements}, label={lst:caseStmtNest}]
+-- same libraries as before
+-- A, B, C and sum are ports of type std_logic
+architecture behv of adder is
+begin
+   process(A) is
+   begin
+      case A is
+         when '0' => case B is
+                        when '0' => sum <= '0';
+                        when '1' => sum <= '1';
+                     end case;
+         when '1' => case C is
+                        when '0' => sum <= '0';
+                        when '1' => sum <= '1';
+                     end case;
+      end case;
+   end process;
+end behv;
+\end{lstlisting}
+
+Case statements, in VHDL, can be arbitrarily deep nested as example
+code \ref{lst:caseStmtNest} shows. As can seen from the snippet, if
+signal \VH{A} equals \VH{'1'} and \VH{C} equals \VH{'0'}, \VH{sum}
+will be driven by the value \VH{'1'}. The three other paths follow
+analogous.
+Of course, the same functionality
+couldn't be achieved through the usage of a single case statement
+whose condition expression is composed of a 2-bit signal, because both
+inner case statements use two different input signals as selectors.
+
+In \ref{lst:caseStmtNest} it appears as if the case statements are
+going to be evaluated from outside to inside. Concretely, it seems as
+though first signal A is matched to either \VH{'0'} or \VH{'1'} and
+according to the result, the interpreter evaluates either the first or
+the second path. In hardware, however, there is no notion of
+evaluation, because the circuit is static and cannot change during
+its runtime. For better illustration of how a synthesis algorithm
+works, nested control statements must be read from the inside to the
+outside. Following this guideline, figure \ref{fig:netlistCaseStmtNest}
+is easier to comprehend with. Given the first path of \ref{lst:caseStmtNest}
+\begin{lstlisting}[style=vhdl]
+case A is
+   when '0' => case B is
+                  when '0' => sum <= '0';
+\end{lstlisting}
+the constant value \VH{'0'} connects to the \VH{A} input port of the
+muxer for the case statement containing \VH{B} as conditional
+expression. Because of its hardware
+representation as muxer, the inner case statement itself possesses an
+output bit
+for every element of the disjoint set of driven signals below the root
+of the case statement. Therefore, this output signal serves as input
+to the outer case statement if and only if \VH{A} equals \VH{'0'}.
+
+\begin{figure}[p]
+    \centering
+    \caption{Netlist for listing \ref{lst:caseStmtNest}}
+    \input{synthesisShowcase/caseStmtNest.tex}
+    \label{fig:netlistCaseStmtNest}
+\end{figure}
+
+\subsubsection{Synchronized simple case statement}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for a simple synchronized
+    case statement}, label={lst:syncCaseStmt}]
+-- [...]
+-- A, clock are ports of type std_logic and
+-- sel is a std_logic_vector(2 downto 0)
+
+architecture behv of syncCase is
+   function rising_edge(c : in std_logic) return std_logic;
+begin
+   process(A) is
+   begin
+      if rising_edge(clock) then
+         case sel is
+            when "000" => A <= '0';
+            when "001" => A <= '1';
+            when "010" => A <= '1';
+            when "011" => A <= '1';
+            when "100" => A <= '0';
+            when "101" => A <= '1';
+            when "110" => A <= '1';
+            when "111" => A <= '1';
+         end case;
+      end if;
+   end process;
+end behv;
+\end{lstlisting}
+%
+Listing \ref{lst:syncCaseStmt} illustrates how assignments occurring
+inside the choice statement lists of case structures can be
+synchronized. As can be seen in the code, the choices are exhaustive,
+which means that every possible combination of the bits in \VH{sel}
+occurs only once as option for a possible code path. VHDL-2008
+does require semantic checks in this regard, but Yodl currently does
+no such thing, since a proper validity check suite would far exceed
+the scope of this work (cf. \cite{IEEELRM}, 10.9).
+
+As can be seen in the comment on top of \ref{lst:syncCaseStmt}, sel is
+a signal vector with a width of three bits. Hence, a 3-muxer is shown
+in the rendered netlist \ref{fig:netlistSyncCaseStmt} belonging to the
+code. The netlist for the muxer depicted in
+\ref{fig:netlistSyncCaseStmt} is exactly equivalent to that shown in
+\ref{fig:netlistCaseStmt}. However, the output of this structure does
+not simply drive the signal \VH{A} but rather feeds the data port (\VH{D})
+of the preceding DFF. Furthermore, figure \ref{fig:netlistSyncCaseStmt}
+confusingly shows 8 equal connections between the 3-muxer's output and the
+data input of the DFF. This is a result of the inner workings of the
+synthesis algorithm and not relevant here. Yosys provides for a
+optimization pass that eliminates duplicated (and equal) connections
+anyway and, as a consequence, the algorithm does not need to be
+adjusted with regard to this issue.
+
+\begin{figure}[p]
+    \centering
+    \caption{Netlist for listing \ref{lst:syncCaseStmt}}
+    \input{synthesisShowcase/syncCaseStmt.tex}
+    \label{fig:netlistSyncCaseStmt}
+\end{figure}
+
+\subsubsection{If statement representing a muxer}
+\leavevmode\begin{lstlisting}[style=vhdl, caption={Code for an if statement
+      actually representing a case statement (aka. muxer)},
+    label={lst:ifCase}]
+-- [...]
+-- A, B and C are ports of type std_logic
+architecture behv of adder is
+   function rising_edge(c : in std_logic) return boolean;
+begin
+   process(A) is
+   begin
+      if A = B then
+         C <= '0';
+      else
+         C <= '1';
+      end if;
+   end process;
+end behv;
+\end{lstlisting}
+%
+The last code excerpt \ref{lst:ifCase} shows that, given the right
+preconditions, an if statement does not produce synchronized
+netlists whatsoever. One could argue that in this case, the if
+statement is nothing else than a case statement. In the current context
+he/she would be completely right. Yodl's synthesis algorithm actually
+converts \ref{lst:ifCase} into a semantically equivalent case
+statement AST before it continues its synthesis. %TODO: Sourcecode
+                                %reference!
+
+For that reason the code in \ref{lst:ifCase} leads to the same netlist
+as the source code \ref{lst:equalSem}.
+\begin{lstlisting}[style=vhdl, caption={Equal semantics as in
+      \ref{lst:ifCase}}, label={lst:equalSem}]
+-- [...]
+case A = B is
+   when TRUE  => C <= '0';
+   when FALSE => C <= '1';
+end case;
+-- [...]
+\end{lstlisting}
+
+\begin{figure}
+    \centering
+    \caption{Netlist for listing \ref{lst:ifCase}}
+    \input{synthesisShowcase/ifCase.tex}
+    \label{fig:netlistIfCase}
+\end{figure}
+
+\subsection{Transformation algorithm -- Implementation details}
+
+During traversal, every time the algorithm encounters an if or
+case statement, it first examines the conditions and bodies of those
+structures. Based on this information, the synthesizer pushes a netlist
+object on top of a special stack which contains references to all
+input and output ports as well as some additional information like,
+for example, the corresponding control structure resulting in the
+netlist.
+
+\subsubsection{Introduced abstractions}
+The netlist generator object carries around a stack containing
+elements of type \CPP{stack_element_t}. As can be seen in file
+\texttt{netlist_generator.h},
+the stack is represented by a STL vector (cf. Glossary).
+The algorithm only adds new elements using \CPP{push_back} and only
+removes them with \CPP{pop_back}. However, the container must be a
+vector, because the algorithm needs to be able to randomly access the
+structure when synthesizing signal assignments.
+%
+\begin{lstlisting}[style=c++, caption={API of base stack element},
+    label={lst:structElem}]
+class NetlistGenerator {
+public:
+    // [...]
+    struct stack_element_t {
+        // constructors intentionally omitted
+        std::map<string, netlist_element_t *> netlist;
+        std::set<string> occurringSignals;
+    };
+    // [...]
+};
+\end{lstlisting}
+%
+Objects of type \CPP{struct_element_t} possess the API depicted in
+listing \ref{lst:structElem}. There are three classes that inherit
+from \CPP{struct_element_t}. As code \ref{lst:structElem} illustrates,
+every element on the stack carries an association between signal IDs
+(strings) and \CPP{netlist_element_t} objects as well as a list of all
+driven Signals. These two members describe the core of the current
+context.
+For understandability purposes, code excerpt \ref{lst:structElemCase}
+shows one of the derived classes used for the case statement
+context. If the algorithm, for example, would encounter a case
+statement like the one in \ref{lst:syncCaseStmt}, it'd first search
+all possible traversal paths below the subjected case statement for
+driven signals creating a set of those signals along the way. In the
+context of \ref{lst:syncCaseStmt} this set would only contain one
+element: \VH{A}. After that, the synthesizer would construct a
+appropriate netlist for each of the set's elements. Finally, the set,
+and the association of the signals with their muxer netlists is
+packaged into an object of type \CPP{case_t} and pushed to the
+stack (cf. file \texttt{netlist_generator.cc}, function
+\CPP{executeIfStmt} in line 1041 and 1096, and function
+\CPP{executeCaseStmt}).
+%
+\begin{lstlisting}[style=c++, caption={Case statement context class
+      derived from stack_element_t}, label={lst:structElemCase}]
+class NetlistGenerator {
+public:
+    // [...]
+    struct case_t : stack_element_t {
+        // constructors intentionally omitted
+        Yosys::RTLIL::SigSpec curWhenAlternative;
+    };
+    // [...]
+};
+\end{lstlisting}
+%
+The synthesis algorithm does the same for if statements. Regarding
+this, however, there are a few subtleties that need further attention.
+As the synthesis results for \ref{lst:motSync}, \ref{lst:motLatch} and
+\ref{lst:ifCase} show,
+netlists
+for if statements depend on two factors: The if condition and the set
+of disjoint driven signals below the root of the respective if block.
+Depending on the kind of condition of the if expression and the
+distribution of the various statements inside the if block, the
+contained signal assignments will be latched, clock accurately
+synchronized or only carried through a simple
+multiplexer. Consequently, there are two other classes implementing
+the common interface presented in \ref{lst:structElem}: Class \CPP{if_dff_t}
+and \CPP{if_latch_t}; both of which being declared by the \CPP{struct}
+keyword making every member public by default as opposed to the
+keyword \CPP{class}. The two classes, however, don't add anything new
+to the base interface from \ref{lst:structElem} but only serve as a
+kind of enumeration on the type level. This is a common design pattern
+in functional programming and becomes feasible in C++ through the use
+of the pattern matching library Mach7.
+%TODO: Add reference to (1) design pattern func prog (2) mach7 chapter!
+
+An open point of this elaboration still remains: Objects of type
+\CPP{netlist_element_t}.
+Like \CPP{stack_element_t}, a netlist element constructs an interface
+using an abstract class. As \ref{lst:netlistElem} shows, this API
+solely consists of one member named \CPP{output}. While some netlists
+(e.g. Multiplexers or RAM blocks) can have inputs with attributes
+associated with them, others only have one ore more \emph{anonymous}
+inputs. For example, inputs of multiplexers have to carry the
+selection semantics with them, because the synthesis algorithm needs
+to know which muxer input corresponds to which choice in the
+corresponding case statement. On the other hand, netlist parts, such
+as latches or DFFs, only ever have one possible input.
+
+\begin{lstlisting}[style=c++, caption={API of base netlist element},
+    label={lst:netlistElem}]
+class NetlistGenerator {
+public:
+    // [...]
+    struct netlist_element_t {
+        // constructors intentionally omitted
+        Yosys::RTLIL::SigSpec output;
+    };
+    // [...]
+};
+\end{lstlisting}
+
+\section{Current Limitations}
+\label{sec:currentLimits}
+
+The following is a non-comprehensive list of the most important
+limitations of Yodl.
+
+\begin{itemize}
+    \item Only one \VH{architecture} definition per \VH{entity}
+    declaration is allowed.
+    \item \VH{Configurations} are not supported, because the
+    underlying parser does not support this yet (cf. file
+    \texttt{parse.y} in line 650).
+    \item Yodl can't fully parse VHDL-2008. The code snippet below
+    shows that, for example, a list of named arguments
+    can't be used as a parameter list for a function called inside of
+    an expression context (cf. \texttt{parse.y}).
+    \begin{lstlisting}[style=vhdl]
+architecture beh of ent is
+   -- some decls
+begin
+   -- this should be parsable, but produces syntax error
+   result <= foo(fnord => 3, foobar => 4)(3);
+
+   -- this is parsable
+    result <= foo(4, 3)(3);
+end beh;
+    \end{lstlisting}
+    \item The synthesis algorithm is in a proof-of-concept pre-alpha
+    state. It is untested and does not support signal or variable
+    assignments with a vector subscription as left-hand side
+    expression.
+    \item The synthesis implementation can not translate variable
+    assignments.
+    \item The implementation is unable to cope with signal assignments
+    like \VH{A <= A + 1}, i.e. assignments where the left-hand side
+    also occurs, possibly multiple times, in the right-hand side
+    expression.
+    \item Synthesis of complex types (e.g. arrays of arrays of records
+    \ldots) is not possible yet.
+    \item The test suite is still rudimentary.
+    \item The library and package concept was not considered in this work.
+    \item The complex visibility rules from chapter 12 of
+    \cite{IEEELRM} were not considered, since Yodl's base, vhdlpp,
+    already came with an implementation of the scoping and visibility
+    rules.
+    \item Component instantiations can't be processed.
+\end{itemize}
+
+\chapter{Yodl -- Future work}
+\section{Complete parser}
+Section \ref{sec:currentLimits}
+has already made clear, that the current parser solution is unfinished
+and hence unable to parse the entirety of VHDL-2008. Thus, a very important
+future goal of Yodl is to completely refactor or rewrite the parser
+component. This is likely to be difficult because of the reasons
+denoted in section \ref{sec:LexisAndSyntax}
+
+The following section describes a tool that offers a lot of help if the
+parser actually needs to be rewritten.
+
+\subsection{BNFC and LBNF}
+LBNF is a formalism which is based on the notation system BNF. The
+L in LBNF stands for \emph{labeled}. Like BNF, the LBNF notation
+is used to describe context free grammars, but unlike BNF it forces
+the writer of the grammar to annotate every rule with a certain label.
+
+For example, a simple expression grammar would be given in LBNF using
+%
+\begin{verbatim}
+ENum . Exp3 ::= Integer ;
+EMul . Exp2 ::= Exp2 "*" Exp3 ;
+EPlu . Exp  ::= Exp "+" Exp2 ;
+_    . Exp  ::= Exp2 ;
+_    . Exp2 ::= Exp3 ;
+_    . Exp3 ::= "(" Exp ")" ;
+\end{verbatim}
+%
+BNFC is a program generator that takes LBNF code as input and produces
+a complete frontend for the specified language, given the fact that
+the grammar is sound. It can output language frontends in different
+languages. At the time of this writing, BNFC is able to generate
+Haskell, OCaml, C/C++, C-Sharp and Java code. For the previously
+defined expression grammar, BNFC would output a flex and bison file
+describing the scanner and parser part and a data model for the
+abstract syntax tree. This data model in turn is used in the bison
+file in order to actually create the said AST.
+The according C++ classes for the grammar roughly look like listing
+\ref{lst:bnfCpp}.
+%
+\begin{lstlisting}[style=c++, caption={Generated classes for
+      expression grammar}, label={lst:bnfCpp}]
+class Exp { public: virtual ~Exp() = default; };
+class ENum : Exp { public: int value; ENum(int v) : value(v) {}  }
+class EPlu : Exp {
+    public: Exp *l, *r;
+    EPlu(Exp *le, Exp *ri) : l(le), r(ri) { }
+};
+class EMul : Exp {
+    public: Exp *l, *r;
+    EMul(Exp *le, Exp *ri) : l(le), r(ri) { }
+};
+\end{lstlisting}
+%
+Normally the
+above classes need to be handcrafted. This was done for Yodl'
+parser. For anything but trivial
+grammars, this task is tedious and error prone and should be
+automated. Refer to \cite{LBNF} for details about the labeled BNF
+formalism.
+
+In the scope of this work, the entire VHDL-2008 BNF grammar has
+already been
+extracted from the official standard and completely \emph{translated}
+into LBNF
+(cf. \texttt{vhdlpp_parser/\-newparser/\-vhdl-2008/\-vhdl-2008-all.lbnf}).
+%
+%
+%
+%TODO: Proofread ab hier!!!
+\section{Further grammar issues}
+Yodl's current parser demonstrates how
+especially reduce-reduce ambiguities can be dealt with. Simply put,
+the parser needs to carry around a stack of scopes that it currently
+processes (cf. \texttt{parse.y}, in particular line 366 pushes a new
+scope frame and line 385 pops the same). Since every RR conflict
+arises because of VHDL's use of
+parentheses for array subscriptions, function/procedure calls and type
+declarations (see listing \ref{lst:ambig}), the parser must know about
+the scope it currently parses and every already declared/defined
+symbol that scope possesses.
+%
+\begin{lstlisting}[style=vhdl, caption={Illustration of a common
+      reduce-reduce conflict}, label={lst:ambig}]
+function foo () is
+begin
+-- [...]
+return "0000";
+end function foo;
+
+signal foo : std_logic_vector(7 downto 0);
+
+foo(0); -- This could be parsed as
+        -- 1. subscription of the vector foo
+        -- 2. as call to the 0-ary function foo with one argument,
+        --    which would be syntactically correct but semantical non-sense
+        -- 3. as subscription of the return value resulting from the
+        --    call to the 0-ary function foo with no argument
+\end{lstlisting}
+%
+Hence, there is a solution for dealing with RR conflicts, but
+what is about shift-reduce conflicts? They aren't allowed to lift the
+grammar into the set of non-deterministically context free languages
+because that would mean that even with Bison's GLR feature enabled %TODO:
+                                %reference GLR
+the grammar couldn't practically be processed. A parse-forest would
+result from a parser run, which is completely inacceptable for
+production-aspiring compilation systems.
+
+For that reason, it must be proven that all SR conflicts together
+(without the RR) indeed don't make the grammar non-determinstic.
+This work does not provide any proof of that kind, because of the
+complexity of the problem. The next paragraph, however, shows a first
+approach.
+
+GLR is a parser algorithm which, simply put, duplicates itself if it
+encounters an ambiguity. Each parser then continues virtually in
+parallel. Each duplicate can of course in turn duplicate and split
+itself again and again if ambiguities are hit very often. \emph{If it is
+guaranteed, that for each split only one of the duplicated parsers
+succeeds, the parser produces only one parse tree for all inputs over
+the grammar.} This condition is the core of the previously mentioned proof!
+%TODO: Reference to Bison's GLR
+
+\section{Complete VHDL support}
+
+Currently Yodl is mainly an experimental project that does not support
+VHDL specific language concepts such as packages, libraries,
+components, configurations, generics and multiple architectures for a
+given entity. As every industry-quality synthesis tool supports those
+features, Yodl will support them too in the near future.
+
+Packages and libraries are not trivial to implement because of the
+complicated visibility rules described in chapter 12 of \cite{IEEELRM}
+Especially generics provide for another challenge as 6.5.6.2 of
+\cite{IEEELRM}
+allows for generic functions and types which renders them more
+like generics found in the programming language ADA as opposed to the
+older concept where they were handled as simple constants.
+
+\section{Far in the future}
+The two last sections elaborate two projects that are probably very
+work intensive. Hence, they won't be concerned until a first prototype
+for full VHDL-2008 is released.
+
+\subsection{Formal specification of VHDL's synthesis semantics}
+The Book \cite{VHDLFORM}
+already provides formal semantics for VHDL. Since its initial
+release, which was in 1995, a lot of VHDL's synthesis semantics has
+changed however. Because of that, a new specification becomes necessary.
+
+\subsection{Regression based test suite}
+
+As section \ref{sec:autoTests}
+already states, the automation of tests is important to maintain a
+correct code base. Compilers are among the most complex and complicated
+software systems in existence which makes formal verification very
+hard. Smoke tests, as they are implemented in the scope of this work,
+are not quite sufficient because of their inadequate code
+coverage. A Regression test suite in the sense of
+\ref{sec:autoTestsReg} solves the coverage issue.

@@ -1,0 +1,33 @@
+
+\begin{tikzpicture}[>=latex,line join=bevel,shorten >=1pt,shorten <=1pt]
+%%
+\node (a) at (41.5bp,233.0bp) [draw,rectangle] {a};
+  \node (xor1) at (57.5bp,175.5bp) [draw,ellipse] {xor};
+  \node (b) at (72.5bp,233.0bp) [draw,rectangle] {b};
+  \node (carryIn) at (146.5bp,233.0bp) [draw,rectangle] {carryIn};
+  \node (sum) at (185.5bp,61.5bp) [draw,rectangle] {sum};
+  \node (carryOut) at (122.5bp,8.0bp) [draw,rectangle] {carryOut};
+  \node (or2) at (122.5bp,61.5bp) [draw,ellipse] {or};
+  \node (or1) at (101.5bp,116.5bp) [draw,ellipse] {or};
+  \node (xor2) at (185.5bp,116.5bp) [draw,rectangle] {xor2};
+  \node (and1) at (13.5bp,175.5bp) [draw,ellipse] {and};
+  \node (and3) at (146.5bp,175.5bp) [draw,ellipse] {and};
+  \node (and2) at (101.5bp,175.5bp) [draw,ellipse] {and};
+  \draw [->] (or1) ..controls (107.66bp,99.942bp) and (111.96bp,89.113bp)  .. (or2);
+  \draw [->] (carryIn) ..controls (134.44bp,217.12bp) and (124.48bp,204.84bp)  .. (and2);
+  \draw [->] (a) ..controls (44.788bp,220.59bp) and (48.418bp,208.0bp)  .. (xor1);
+  \draw [->] (or2) ..controls (122.5bp,45.004bp) and (122.5bp,34.871bp)  .. (carryOut);
+  \draw [->] (and3) ..controls (139.6bp,142.31bp) and (131.3bp,103.56bp)  .. (or2);
+  \draw [->] (b) ..controls (68.906bp,218.7bp) and (65.812bp,207.25bp)  .. (xor1);
+  \draw [->] (xor2) ..controls (185.5bp,102.14bp) and (185.5bp,88.151bp)  .. (sum);
+  \draw [->] (and2) ..controls (101.5bp,154.28bp) and (101.5bp,144.52bp)  .. (or1);
+  \draw [->] (b) ..controls (89.931bp,218.93bp) and (112.03bp,202.36bp)  .. (and3);
+  \draw [->] (and1) ..controls (39.942bp,157.37bp) and (67.548bp,139.49bp)  .. (or1);
+  \draw [->] (b) ..controls (57.174bp,217.58bp) and (42.138bp,203.44bp)  .. (and1);
+  \draw [->] (carryIn) ..controls (156.19bp,216.68bp) and (164.55bp,202.33bp)  .. (169.5bp,189.0bp) .. controls (176.42bp,170.37bp) and (180.85bp,147.85bp)  .. (xor2);
+  \draw [->] (a) ..controls (54.876bp,219.63bp) and (71.521bp,204.23bp)  .. (and2);
+  \draw [->] (xor1) ..controls (70.675bp,166.23bp) and (74.709bp,163.9bp)  .. (78.5bp,162.0bp) .. controls (106.9bp,147.73bp) and (141.0bp,134.13bp)  .. (xor2);
+  \draw [->] (carryIn) ..controls (146.5bp,218.24bp) and (146.5bp,208.34bp)  .. (and3);
+  \draw [->] (a) ..controls (35.758bp,220.62bp) and (29.439bp,208.09bp)  .. (and1);
+%
+\end{tikzpicture}

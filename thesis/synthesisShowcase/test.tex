@@ -1,0 +1,95 @@
+\documentclass{article}
+\usepackage[x11names, svgnames, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+\usepackage{amsmath}
+%
+%
+
+%
+
+%
+
+\begin{document}
+\pagestyle{empty}
+%
+%
+%
+
+\enlargethispage{100cm}
+% Start of code
+% \begin{tikzpicture}[anchor=mid,>=latex',line join=bevel,anchor=base]
+\begin{tikzpicture}[>=latex',line join=bevel,anchor=base]
+  \pgfsetlinewidth{1bp}
+%%
+\pgfsetcolor{black}
+  % Edge: c8 -> x2
+  \draw [->] (348.11bp,45.0bp) .. controls (360.11bp,45.0bp) and (365.36bp,45.0bp)  .. (384.11bp,45.0bp);
+  % Edge: v0 -> x1
+  \draw [->] (54.0bp,18.0bp) .. controls (76.161bp,18.0bp) and (84.168bp,18.0bp)  .. (112.55bp,18.0bp);
+  % Edge: x2 -> n4
+  \draw [->] (438.11bp,45.0bp) .. controls (450.11bp,45.0bp) and (455.36bp,45.0bp)  .. (474.11bp,45.0bp);
+  % Edge: n3 -> c8
+  \draw [->] (191.11bp,72.0bp) .. controls (204.38bp,72.0bp) and (208.27bp,63.207bp)  .. (227.11bp,57.0bp);
+  % Edge: x1 -> c8
+  \draw [->] (168.55bp,18.0bp) .. controls (191.64bp,18.0bp) and (198.45bp,29.078bp)  .. (227.11bp,33.0bp);
+  % Node: x1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (155.55bp,36.0bp) .. controls (155.55bp,36.0bp) and (125.55bp,36.0bp)  .. (125.55bp,36.0bp) .. controls (119.55bp,36.0bp) and (113.55bp,30.0bp)  .. (113.55bp,24.0bp) .. controls (113.55bp,24.0bp) and (113.55bp,12.0bp)  .. (113.55bp,12.0bp) .. controls (113.55bp,6.0bp) and (119.55bp,0.0bp)  .. (125.55bp,0.0bp) .. controls (125.55bp,0.0bp) and (155.55bp,0.0bp)  .. (155.55bp,0.0bp) .. controls (161.55bp,0.0bp) and (167.55bp,6.0bp)  .. (167.55bp,12.0bp) .. controls (167.55bp,12.0bp) and (167.55bp,24.0bp)  .. (167.55bp,24.0bp) .. controls (167.55bp,30.0bp) and (161.55bp,36.0bp)  .. (155.55bp,36.0bp);
+  \draw (140.55bp,14.3bp) node {BUF};
+\end{scope}
+  % Node: v0
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (27.0bp,18.0bp) ellipse (27.0bp and 18.0bp);
+  \draw (27.0bp,14.3bp) node {1'0};
+\end{scope}
+  % Node: c8
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (227.11bp,22.0bp) -- (227.11bp,68.0bp) -- (348.11bp,68.0bp) -- (348.11bp,22.0bp) -- cycle;
+  \draw (227.11bp,45.0bp) -- (275.11bp,45.0bp);
+  \draw (275.11bp,22.0bp) -- (275.11bp,68.0bp);
+  \draw (320.11bp,22.0bp) -- (320.11bp,68.0bp);
+  \draw (251.11bp,52.8bp) node {CLK};
+  \draw (251.11bp,29.8bp) node {D};
+  \draw (297.61bp,48.8bp) node {\$1};
+  \draw (297.61bp,33.8bp) node {\$dff};
+  \draw (334.11bp,41.3bp) node {Q};
+\end{scope}
+  % Node: x2
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (426.11bp,63.0bp) .. controls (426.11bp,63.0bp) and (396.11bp,63.0bp)  .. (396.11bp,63.0bp) .. controls (390.11bp,63.0bp) and (384.11bp,57.0bp)  .. (384.11bp,51.0bp) .. controls (384.11bp,51.0bp) and (384.11bp,39.0bp)  .. (384.11bp,39.0bp) .. controls (384.11bp,33.0bp) and (390.11bp,27.0bp)  .. (396.11bp,27.0bp) .. controls (396.11bp,27.0bp) and (426.11bp,27.0bp)  .. (426.11bp,27.0bp) .. controls (432.11bp,27.0bp) and (438.11bp,33.0bp)  .. (438.11bp,39.0bp) .. controls (438.11bp,39.0bp) and (438.11bp,51.0bp)  .. (438.11bp,51.0bp) .. controls (438.11bp,57.0bp) and (432.11bp,63.0bp)  .. (426.11bp,63.0bp);
+  \draw (411.11bp,41.3bp) node {BUF};
+\end{scope}
+  % Node: n3
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (140.55bp,90.0bp) -- (89.95bp,72.0bp) -- (140.55bp,54.0bp) -- (191.16bp,72.0bp) -- cycle;
+  \draw (140.55bp,68.3bp) node {clock};
+\end{scope}
+  % Node: n4
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (528.11bp,37.54bp) -- (528.11bp,52.46bp) -- (512.29bp,63.0bp) -- (489.92bp,63.0bp) -- (474.11bp,52.46bp) -- (474.11bp,37.54bp) -- (489.92bp,27.0bp) -- (512.29bp,27.0bp) -- cycle;
+  \draw (501.11bp,41.3bp) node {a};
+\end{scope}
+%
+\end{tikzpicture}
+% End of code
+
+%
+\end{document}
+%
+
+
+

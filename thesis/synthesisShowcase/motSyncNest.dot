@@ -1,0 +1,21 @@
+digraph "" {
+label="";
+rankdir="LR";
+remincross=true;
+n5 [ shape=diamond, label="clock", color="black", fontcolor="black" ];
+n6 [ shape=octagon, label="a", color="black", fontcolor="black" ];
+c10 [ shape=record, label="{{<p7> CLK|<p8> D}|$4\n$dff|{<p9> Q}}" ];
+c11 [ shape=record, label="{{<p7> CLK|<p8> D}|$1\n$dff|{<p9> Q}}" ];
+v0 [ label="1'0" ];
+x1 [shape=box, style=rounded, label="BUF"];
+x2 [shape=box, style=rounded, label="BUF"];
+x3 [shape=box, style=rounded, label="BUF"];
+x1:e:e -> c10:p8:w [color="black", label=""];
+c10:p9:e -> x2:w:w [color="black", label=""];
+x2:e:e -> c11:p8:w [color="black", label=""];
+c11:p9:e -> x3:w:w [color="black", label=""];
+n5:e -> c10:p7:w [color="black", label=""];
+n5:e -> c11:p7:w [color="black", label=""];
+x3:e:e -> n6:w [color="black", label=""];
+v0:e -> x1:w:w [color="black", label=""];
+}
