@@ -3,6 +3,33 @@
 This is a work in progress VHDL frontend
 for the Yosys toolchain.
 
+### 23. Feb 2016
+
+A couple days ago I arrived here back in germany. During my travels, my degree 
+also reached my postbox. Now I'm faced with two scenarios that my pragmatic I
+thinks are most likely to happen and one scenario that I only can dream of
+happening. These are:
+
+1. I will abandon this project, because my later job will eat up to much of my time.
+1. I will continue this project halfhearted and will never really be able to finish it, 
+   because my later job will eat up to much of my time.
+1. (Dream) I get paid to further develop Yodl.
+
+I'm currently searching for jobs that would allow me to/expect me to develop Yodl
+into a fully fledged synthesis frontend, but people here in Germany do not seem
+to be very fond of the idea of a open-source synthesis program for VHDL. I don't
+know why, it's irrational, but I had a conversation with Clifford Wolf just recently
+(original and current lead developer of Yosys) and basically that is not a new
+observation and certainly not limited to Germany.
+
+So if you know a company that might be interested in this project, please let
+me know about it, or spread the word. Connections are key for me here.
+
+Thank you!
+
+PS. For the time being, I'm still looking around in the job marked, 
+so I'll try to at least come up with a better build solution for Yodl ;)
+
 ### 8. Sept 2016
 ![netlist](vhdlpp/vhdl_testfiles_graphs/synthesisShowcase/clusterfuck.png)
 
