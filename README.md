@@ -10,9 +10,9 @@ also reached my postbox. Now I'm faced with two scenarios that my pragmatic I
 thinks are most likely to happen and one scenario that I only can dream of
 happening. These are:
 
-1. I will abandon this project, because my later job will eat up to much of my time.
+1. I will abandon this project, because my later job will eat up too much of my time.
 1. I will continue this project halfhearted and will never really be able to finish it, 
-   because my later job will eat up to much of my time.
+   because my later job will eat up too much of my time.
 1. (Dream) I get paid to further develop Yodl.
 
 I'm currently searching for jobs that would allow me to/expect me to develop Yodl
